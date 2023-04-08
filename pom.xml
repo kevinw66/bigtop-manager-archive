@@ -31,6 +31,9 @@
         <module>bigtop-manager-bom</module>
         <module>bigtop-manager-common</module>
         <module>bigtop-manager-server</module>
+        <module>bigtop-manager-mpack</module>
+        <module>bigtop-manager-spi</module>
+        <module>bigtop-manager-mpack-plugin</module>
     </modules>
 
     <dependencyManagement>
