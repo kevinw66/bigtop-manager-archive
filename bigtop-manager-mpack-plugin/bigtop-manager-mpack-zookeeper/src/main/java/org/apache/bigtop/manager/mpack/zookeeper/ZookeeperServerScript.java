@@ -1,8 +1,10 @@
 package org.apache.bigtop.manager.mpack.zookeeper;
 
 
+import com.google.auto.service.AutoService;
 import org.apache.bigtop.manager.spi.mpack.Script;
 
+@AutoService(Script.class)
 public class ZookeeperServerScript implements Script {
     @Override
     public void install() {
@@ -27,5 +29,10 @@ public class ZookeeperServerScript implements Script {
     @Override
     public void status() {
         System.out.println("status");
+    }
+
+    @Override
+    public String getName() {
+        return this.getClass().getName();
     }
 }

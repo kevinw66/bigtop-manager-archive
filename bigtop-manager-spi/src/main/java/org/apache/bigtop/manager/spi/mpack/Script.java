@@ -1,6 +1,8 @@
 package org.apache.bigtop.manager.spi.mpack;
 
-public interface Script {
+import org.apache.bigtop.manager.spi.plugin.SPIIdentify;
+
+public interface Script extends SPIIdentify {
     void install();
 
     void configuration();

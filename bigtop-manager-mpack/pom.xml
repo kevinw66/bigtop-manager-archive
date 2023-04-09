@@ -27,6 +27,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.bigtop</groupId>
+            <artifactId>bigtop-manager-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
