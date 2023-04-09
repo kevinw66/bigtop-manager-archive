@@ -19,6 +19,7 @@ package org.apache.bigtop.manager.server.utils;
 
 import lombok.Data;
 import org.apache.bigtop.manager.server.enums.ResponseStatus;
+import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 
 @Data
 public class ResponseEntity<T> {
@@ -42,6 +43,17 @@ public class ResponseEntity<T> {
         this.data = data;
     }
 
+    public ResponseEntity(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public ResponseEntity(Integer code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
     public static <T> ResponseEntity<T> success(T data) {
         return new ResponseEntity<>(ResponseStatus.SUCCESS, data);
     }
@@ -52,5 +64,9 @@ public class ResponseEntity<T> {
 
     public static <T> ResponseEntity<T> error(ResponseStatus status) {
         return new ResponseEntity<>(status);
+    }
+
+    public static <T> ResponseEntity<T> error(ServerExceptionStatus ex) {
+        return new ResponseEntity<>(ex.getCode(), ex.getMessage());
     }
 }

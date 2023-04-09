@@ -20,7 +20,7 @@
         <revision>0.0.1-SNAPSHOT</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <flatten_maven_plugin.version>1.4.0</flatten_maven_plugin.version>
+        <flatten-maven-plugin.version>1.4.0</flatten-maven-plugin.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
@@ -67,7 +67,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>${flatten_maven_plugin.version}</version>
+                <version>${flatten-maven-plugin.version}</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>
@@ -100,11 +100,13 @@
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven-jar-plugin.version}</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -112,5 +114,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

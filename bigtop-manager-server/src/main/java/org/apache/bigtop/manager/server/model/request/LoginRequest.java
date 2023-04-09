@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class LoginRequest {
 
-    @Schema(example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(example = "admin")
     private String username;
 
-    @Schema(example = "admin", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(example = "admin")
     private String password;
 }
