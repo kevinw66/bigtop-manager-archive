@@ -2,33 +2,63 @@ package org.apache.bigtop.manager.mpack.zookeeper;
 
 
 import com.google.auto.service.AutoService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.mpack.PackageManager;
+import org.apache.bigtop.manager.common.shell.ShellExecutor;
 import org.apache.bigtop.manager.spi.mpack.Script;
 
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
 @AutoService(Script.class)
 public class ZookeeperServerScript implements Script {
+    @Resource
+    private Params params;
+
     @Override
     public void install() {
-        System.out.println("install");
+        log.info("install");
+        PackageManager packageManager = new PackageManager("zookeeper");
+        packageManager.runCommand();
     }
 
     @Override
     public void configuration() {
-        System.out.println("configuration");
+        log.info("configuration");
+        Map<String, Object> hashMap = new HashMap<>();
+        for (Map<String, Object> map : params.zooCfg) {
+            String key = (String) map.get("name");
+            Object value = map.get("value");
+            hashMap.put(key, value);
+        }
     }
 
     @Override
     public void start() {
-        System.out.println("start");
+        log.info("start");
+        try {
+            ShellExecutor.execCommand(Params.DAEMON_CMD + " start");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void stop() {
-        System.out.println("stop");
+        log.info("stop");
+        try {
+            ShellExecutor.execCommand(Params.DAEMON_CMD + " stop");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void status() {
-        System.out.println("status");
+        log.info("status");
     }
 
     @Override

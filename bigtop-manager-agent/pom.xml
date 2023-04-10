@@ -28,7 +28,12 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.bigtop</groupId>
-            <artifactId>bigtop-manager-mpack</artifactId>
+            <artifactId>bigtop-manager-spi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.bigtop</groupId>
+            <artifactId>bigtop-manager-common</artifactId>
             <version>${project.version}</version>
         </dependency>
 
