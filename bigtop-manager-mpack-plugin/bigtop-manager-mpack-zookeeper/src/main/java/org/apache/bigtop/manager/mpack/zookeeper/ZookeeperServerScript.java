@@ -28,19 +28,20 @@ public class ZookeeperServerScript implements Script {
     @Override
     public void configuration() {
         log.info("configuration");
-        Map<String, Object> hashMap = new HashMap<>();
+        Map<String, Object> configMap = new HashMap<>();
         for (Map<String, Object> map : params.zooCfg) {
             String key = (String) map.get("name");
             Object value = map.get("value");
-            hashMap.put(key, value);
+            configMap.put(key, value);
         }
+        //generate properties file by the map
     }
 
     @Override
     public void start() {
         log.info("start");
         try {
-            ShellExecutor.execCommand(Params.DAEMON_CMD + " start");
+            ShellExecutor.execCommand(params.DAEMON_CMD + " start");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -50,7 +51,7 @@ public class ZookeeperServerScript implements Script {
     public void stop() {
         log.info("stop");
         try {
-            ShellExecutor.execCommand(Params.DAEMON_CMD + " stop");
+            ShellExecutor.execCommand(params.DAEMON_CMD + " stop");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

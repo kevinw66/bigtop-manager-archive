@@ -2,6 +2,8 @@ package org.apache.bigtop.manager.common.mpack.info;
 
 import lombok.Data;
 
+import java.util.Collection;
+
 @Data
 public class ServiceInfo {
 
@@ -13,16 +15,7 @@ public class ServiceInfo {
 
     private String comment;
 
-    private String serviceType;
+    private Collection<ComponentInfo> components;
 
-    private Selection selection;
-
-    private String maintainer;
-
-    public enum Selection {
-        DEFAULT,
-        TECH_PREVIEW,
-        MANDATORY,
-        DEPRECATED
-    }
+    private Collection<OsSpecific> osSpecifics;
 }

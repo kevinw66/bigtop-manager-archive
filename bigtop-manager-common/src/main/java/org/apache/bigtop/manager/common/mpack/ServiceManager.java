@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.common.mpack;
 
-import org.apache.bigtop.manager.agent.mpack.info.ServiceInfo;
+import org.apache.bigtop.manager.common.mpack.info.ServiceInfo;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.springframework.stereotype.Component;
 
