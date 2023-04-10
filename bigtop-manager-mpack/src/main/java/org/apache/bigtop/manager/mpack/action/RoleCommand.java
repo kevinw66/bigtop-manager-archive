@@ -3,12 +3,6 @@ package org.apache.bigtop.manager.mpack.action;
 
 public enum RoleCommand {
 
-    /*
-     * When adding/modifying enum members, please beware that except Java usages,
-     * RoleCommand string representations are used at role_command_order.json
-     * files
-     */
-
     INSTALL,
     UNINSTALL,
     START,

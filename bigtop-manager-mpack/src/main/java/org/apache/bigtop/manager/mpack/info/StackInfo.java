@@ -1,22 +1,31 @@
 package org.apache.bigtop.manager.mpack.info;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class StackInfo {
-    private String minJdk;
-    private String maxJdk;
-    private String name;
-    private String version;
 
     private boolean active;
 
-    private List<RepositoryInfo> repositories;
-    private Collection<ServiceInfo> services;
+    private String name;
 
-    private boolean valid = true;
+    private String version;
+
+    private String extend;
+
+    private String root;
+
+    private String repoTemplate;
+
+    private List<RepositoryInfo> repos;
+
+    private Collection<ServiceInfo> services;
 
 }

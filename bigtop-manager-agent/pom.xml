@@ -27,6 +27,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.bigtop</groupId>
+            <artifactId>bigtop-manager-mpack</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
@@ -68,6 +74,7 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>

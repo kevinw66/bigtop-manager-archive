@@ -28,6 +28,10 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.bigtop</groupId>
+            <artifactId>bigtop-manager-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.bigtop</groupId>
             <artifactId>bigtop-manager-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -40,15 +44,16 @@
             <groupId>com.hubspot.jinjava</groupId>
             <artifactId>jinjava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

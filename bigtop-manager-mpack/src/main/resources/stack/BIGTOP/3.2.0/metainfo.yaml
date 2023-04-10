@@ -1,0 +1,17 @@
+active: true
+extend: 3.2.0
+name: BIGTOP
+version: 3.2.0
+root: /usr/bigtop
+repoTemplate: |
+  [{{repo_id}}]
+  name={{repo_id}}
+  {% if mirror_list %}mirrorlist={{mirror_list}}{% else %}baseurl={{base_url}}{% endif %}
+  path=/
+  enabled=1
+  gpgcheck=0
+repos:
+  - os: redhat7
+    baseUrl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
+    repoName: BIGTOP
+    repoId: BIGTOP-3.2.0
