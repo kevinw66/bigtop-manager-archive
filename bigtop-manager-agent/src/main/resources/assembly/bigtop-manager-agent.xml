@@ -18,12 +18,12 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
-    <id>bigtop-manager-server</id>
+    <id>bigtop-manager-agent</id>
     <formats>
         <format>dir</format>
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
-    <baseDirectory>bigtop-manager-server</baseDirectory>
+    <baseDirectory>bigtop-manager-agent</baseDirectory>
     <fileSets>
         <fileSet>
             <directory>${basedir}/src/main/resources</directory>
@@ -33,7 +33,7 @@
             <outputDirectory>conf</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${basedir}/conf</directory>
+            <directory>${basedir}/src/main/resources/conf</directory>
             <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>bigtop_manager_env.sh</include>
@@ -42,7 +42,7 @@
             <directoryMode>0755</directoryMode>
         </fileSet>
         <fileSet>
-            <directory>${basedir}/bin</directory>
+            <directory>${basedir}/src/main/resources/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
