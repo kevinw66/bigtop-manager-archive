@@ -26,7 +26,9 @@ public class TestController {
         log.info("script: ", script);
         System.out.println("script: " + script);
         script.install();
-        script.start();
+        script.configuration();
+//        script.start();
+//        script.stop();
         return script.getName();
     }
 }

@@ -37,6 +37,7 @@ public class ZookeeperServerScript implements Script {
         for (Map<String, Object> map : params.getZooCfg()) {
             String key = (String) map.get("name");
             Object value = map.get("value");
+            log.info("key: {}, value: {}", key, value);
             configMap.put(key, value);
         }
         //generate properties file by the map
@@ -48,7 +49,7 @@ public class ZookeeperServerScript implements Script {
         log.info("start");
         System.out.println("DAEMON_CMD: " + params.DAEMON_CMD);
         try {
-            ShellExecutor.execCommand(params.DAEMON_CMD + " start");
+            ShellExecutor.execCommand("/bin/sh", "-c", params.DAEMON_CMD + " start");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -58,7 +59,7 @@ public class ZookeeperServerScript implements Script {
     public void stop() {
         log.info("stop");
         try {
-            ShellExecutor.execCommand(params.DAEMON_CMD + " stop");
+            ShellExecutor.execCommand("/bin/sh", "-c", params.DAEMON_CMD + " stop");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -18,7 +18,7 @@ public class Params {
 
     public String ZOOKEEPER_CONF_DIR = "/etc/zookeeper/conf";
     public String ZOOKEEPER_HOME = "/usr/bigtop/3.2.0/usr/lib/zookeeper";
-    public String CMD = String.format("env ZOOCFGDIR=%s ZOOCFG=zoo.cfg %s/zkServer.sh", ZOOKEEPER_CONF_DIR, ZOOKEEPER_HOME);
+    public String CMD = String.format("env ZOOCFGDIR=%s ZOOCFG=zoo.cfg %s/bin/zkServer.sh", ZOOKEEPER_CONF_DIR, ZOOKEEPER_HOME);
     public String DAEMON_CMD = String.format("source %s/zookeeper-env.sh; %s", ZOOKEEPER_CONF_DIR, CMD);
 
 
