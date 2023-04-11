@@ -50,7 +50,7 @@
     </fileSets>
     <dependencySets>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>libs</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -14,8 +14,8 @@ public class PackageManager implements BaseManager {
     private String pkg;
 
     @Override
-    public String getCommand() {
-        return String.format("yum install -y %", pkg);
+    public String[] getCommand() {
+        return new String[]{"/bin/sh", "-c", "yum install -y " + pkg};
     }
 
     @Override
@@ -24,6 +24,16 @@ public class PackageManager implements BaseManager {
         try {
             output = ShellExecutor.execCommand(getCommand());
             return output;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        String output = null;
+        try {
+            output = ShellExecutor.execCommand("/bin/sh", "-c", "echo test");
+            System.out.println(output);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
