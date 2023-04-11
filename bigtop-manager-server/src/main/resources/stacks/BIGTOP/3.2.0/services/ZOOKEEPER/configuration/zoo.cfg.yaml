@@ -1,0 +1,22 @@
+- name: tickTime
+  value: 3000
+- name: initLimit
+  value: 10
+- name: syncLimit
+  value: 5
+- name: clientPort
+  value: 2181
+  displayName: Port for running ZK Server
+  description: Port for running ZK Server.
+- name: dataDir
+  value: /hadoop/zookeeper
+- name: autopurge.snapRetainCount
+  value: 30
+- name: autopurge.purgeInterval
+  value: 24
+- name: 4lw.commands.whitelist
+  value: ruok
+- name: admin.enableServer
+  value: true
+- name: admin.serverPort
+  value: 9393

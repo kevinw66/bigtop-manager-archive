@@ -1,0 +1,30 @@
+name: ZOOKEEPER
+active: true
+displyName: Zookeeper
+comment: Zookeeper
+version: 3.5.9
+components:
+  - name: ZOOKEEPER_SERVER
+    displayName: ZooKeeper Server
+    category: MASTER
+    cardinality: 1+
+    commandScript:
+      script: org.apache.bigtop.manager.agent.stack.ZookeeperServerScript
+      scriptType: JAVA
+      timeout: 60
+  - name: ZOOKEEPER_CLIENT
+    displayName: ZooKeeper Client
+    category: CLIENT
+    cardinality: 1+
+    commandScript:
+      script: org.apache.bigtop.manager.agent.stack.ZookeeperServerScript
+      scriptType: JAVA
+      timeout: 60
+    configFiles:
+      - type: env
+        fileName: zookeeper-env.sh
+        dictionaryName: zookeeper-env
+osSpecifics:
+  osFamily: redhat7
+  packages:
+    - name: zookeeper
