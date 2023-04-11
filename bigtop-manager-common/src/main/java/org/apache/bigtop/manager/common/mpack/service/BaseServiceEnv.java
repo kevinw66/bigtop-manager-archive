@@ -1,6 +1,6 @@
-package org.apache.bigtop.manager.mpack.zookeeper.entity;
+package org.apache.bigtop.manager.common.mpack.service;
 
-public class ZookeeperEnv {
+public abstract class BaseServiceEnv {
     String userName;
     String userGroup;
     String logDir;

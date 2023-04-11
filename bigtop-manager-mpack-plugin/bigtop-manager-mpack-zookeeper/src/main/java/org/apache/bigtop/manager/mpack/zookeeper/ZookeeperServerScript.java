@@ -3,11 +3,13 @@ package org.apache.bigtop.manager.mpack.zookeeper;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.mpack.PackageManager;
+import org.apache.bigtop.manager.common.mpack.common.PackageManager;
 import org.apache.bigtop.manager.common.shell.ShellExecutor;
+import org.apache.bigtop.manager.common.utils.PropertiesUtils;
 import org.apache.bigtop.manager.spi.mpack.Script;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,9 @@ import java.util.Map;
 public class ZookeeperServerScript implements Script {
     @Resource
     private Params params;
+
+    @Resource
+    private PropertiesUtils propertiesUtils;
 
     @Override
     public void install() {
@@ -35,6 +40,7 @@ public class ZookeeperServerScript implements Script {
             configMap.put(key, value);
         }
         //generate properties file by the map
+        propertiesUtils.createProperties(params.ZOOKEEPER_CONF_DIR + File.separator + "zoo.cfg", configMap);
     }
 
     @Override

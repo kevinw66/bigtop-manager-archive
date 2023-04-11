@@ -1,7 +1,8 @@
-package org.apache.bigtop.manager.common.mpack;
+package org.apache.bigtop.manager.common.mpack.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.bigtop.manager.common.mpack.common.BaseManager;
 import org.apache.bigtop.manager.common.shell.ShellExecutor;
 
 import java.io.IOException;
