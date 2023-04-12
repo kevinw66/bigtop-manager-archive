@@ -20,6 +20,7 @@ package org.apache.bigtop.manager.common.shell;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,15 +53,15 @@ public class ShellExecutor extends AbstractShell {
      * Create a new instance of the ShellExecutor to execute a command.
      *
      * @param execString The command to execute with arguments
-     * @param dir If not-null, specifies the directory which should be set
-     *            as the current working directory for the command.
-     *            If null, the current working directory is not modified.
-     * @param env If not-null, environment of the command will include the
-     *            key-value pairs specified in the map. If null, the current
-     *            environment is not modified.
-     * @param timeout Specifies the time in milliseconds, after which the
-     *                command will be killed and the status marked as timedout.
-     *                If 0, the command will not be timed out.
+     * @param dir        If not-null, specifies the directory which should be set
+     *                   as the current working directory for the command.
+     *                   If null, the current working directory is not modified.
+     * @param env        If not-null, environment of the command will include the
+     *                   key-value pairs specified in the map. If null, the current
+     *                   environment is not modified.
+     * @param timeout    Specifies the time in milliseconds, after which the
+     *                   command will be killed and the status marked as timedout.
+     *                   If 0, the command will not be timed out.
      */
     public ShellExecutor(String[] execString, File dir,
                          Map<String, String> env, long timeout) {
@@ -78,11 +79,13 @@ public class ShellExecutor extends AbstractShell {
      * Static method to execute a shell command.
      * Covers most of the simple cases without requiring the user to implement
      * the <code>AbstractShell</code> interface.
-     * @param cmd shell command to execute.
+     *
+     * @param builderParameters shell command to execute.
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static String execCommand(String... cmd) throws IOException {
+    public static ShellResult execCommand(List<String> builderParameters) throws IOException {
+        String[] cmd = builderParameters.toArray(new String[builderParameters.size()]);
         return execCommand(null, cmd, 0L);
     }
 
@@ -90,35 +93,40 @@ public class ShellExecutor extends AbstractShell {
      * Static method to execute a shell command.
      * Covers most of the simple cases without requiring the user to implement
      * the <code>AbstractShell</code> interface.
-     * @param env the map of environment key=value
-     * @param cmd shell command to execute.
+     *
+     * @param env     the map of environment key=value
+     * @param cmd     shell command to execute.
      * @param timeout time in milliseconds after which script should be marked timeout
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static String execCommand(Map<String, String> env, String[] cmd,
-                                     long timeout) throws IOException {
-        ShellExecutor exec = new ShellExecutor(cmd, null, env,
-                timeout);
+    public static ShellResult execCommand(Map<String, String> env, String[] cmd,
+                                          long timeout) throws IOException {
+        ShellExecutor exec = new ShellExecutor(cmd, null, env, timeout);
         exec.execute();
-        return exec.getOutput();
+        ShellResult shellResult = exec.getShellResult();
+        shellResult.setOutput(exec.getOutput());
+        return shellResult;
     }
+
 
     /**
      * Static method to execute a shell command.
      * Covers most of the simple cases without requiring the user to implement
      * the <code>AbstractShell</code> interface.
+     *
      * @param env the map of environment key=value
      * @param cmd shell command to execute.
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static String execCommand(Map<String, String> env, String... cmd) throws IOException {
+    public static ShellResult execCommand(Map<String, String> env, String... cmd) throws IOException {
         return execCommand(env, cmd, 0L);
     }
 
     /**
      * Execute the shell command
+     *
      * @throws IOException errors
      */
     public void execute() throws IOException {
@@ -143,7 +151,6 @@ public class ShellExecutor extends AbstractShell {
     }
 
     /**
-     *
      * @return the output of the shell command
      */
     public String getOutput() {

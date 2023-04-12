@@ -9,7 +9,7 @@ components:
     category: MASTER
     cardinality: 1+
     commandScript:
-      script: org.apache.bigtop.manager.agent.stack.ZookeeperServerScript
+      script: ZookeeperServerScript
       scriptType: JAVA
       timeout: 60
   - name: ZOOKEEPER_CLIENT
@@ -17,7 +17,7 @@ components:
     category: CLIENT
     cardinality: 1+
     commandScript:
-      script: org.apache.bigtop.manager.agent.stack.ZookeeperServerScript
+      script: ZookeeperServerScript
       scriptType: JAVA
       timeout: 60
     configFiles:

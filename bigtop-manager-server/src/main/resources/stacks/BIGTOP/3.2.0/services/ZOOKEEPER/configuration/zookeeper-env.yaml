@@ -3,15 +3,16 @@ userGroup: zookeeper
 logDir: /var/log/zookeeper
 pidDir: /var/run/zookeeper
 content: |
-  export JAVA_HOME={{java64_home}}
-  export ZOOKEEPER_HOME={{zk_home}}
-  export ZOO_LOG_DIR={{zk_log_dir}}
-  export ZOOPIDFILE={{zk_pid_file}}
-  export SERVER_JVMFLAGS={{zk_server_heapsize}}
+  export JAVA_HOME=${JAVA_HOME!}
+  export ZOOKEEPER_HOME=${ZOOKEEPER_HOME!}
+  export ZOO_LOG_DIR=${ZOO_LOG_DIR!}
+  export ZOOPIDFILE=${ZOOPIDFILE!}
+  export SERVER_JVMFLAGS=${SERVER_JVMFLAGS!}
   export JAVA=$JAVA_HOME/bin/java
   export CLASSPATH=$CLASSPATH:/usr/share/zookeeper/*
   
-  {% if security_enabled %}
-  export SERVER_JVMFLAGS="$SERVER_JVMFLAGS -Djava.security.auth.login.config={{zk_server_jaas_file}}"
-  export CLIENT_JVMFLAGS="$CLIENT_JVMFLAGS -Djava.security.auth.login.config={{zk_client_jaas_file}} -Dzookeeper.sasl.client.username={{zk_principal_user}}"
-  {% endif %}
+  <#if securityEnabled >
+  export SERVER_JVMFLAGS="$SERVER_JVMFLAGS -Djava.security.auth.login.config=${zk_server_jaas_file!}"
+  export CLIENT_JVMFLAGS="$CLIENT_JVMFLAGS -Djava.security.auth.login.config=${zk_client_jaas_file!} -Dzookeeper.sasl.client.username=${zk_principal_user!}"
+  </#if>
+  </#if>

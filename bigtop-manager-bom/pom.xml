@@ -16,6 +16,7 @@
     <properties>
         <spring-boot.version>2.7.10</spring-boot.version>
         <springdoc.version>1.7.0</springdoc.version>
+        <freemarker.version>2.3.32</freemarker.version>
     </properties>
 
     <dependencyManagement>
@@ -37,6 +38,12 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
