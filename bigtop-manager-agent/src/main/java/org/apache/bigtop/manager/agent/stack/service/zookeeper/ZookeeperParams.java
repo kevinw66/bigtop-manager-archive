@@ -1,8 +1,8 @@
 package org.apache.bigtop.manager.agent.stack.service.zookeeper;
 
-import org.apache.bigtop.manager.agent.configuration.StackConfiguration;
 import org.apache.bigtop.manager.agent.stack.StackParams;
 import org.apache.bigtop.manager.agent.utils.YamlUtils;
+import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -12,9 +12,8 @@ import java.util.Map;
 @Component
 public class ZookeeperParams extends StackParams {
     @Resource
-    private StackConfiguration stackConfiguration;
-    @Resource
-    private YamlUtils yamlUtils;
+    private ApplicationConfiguration applicationConfiguration;
+
     @Resource
     private StackParams stackParams;
 
@@ -27,18 +26,20 @@ public class ZookeeperParams extends StackParams {
     }
 
     public String getZookeeperCacheHome() {
-        return stackConfiguration.getCacheDir() + "/stacks/" + getStackName() + "/" + getStackVersion() + "/services/ZOOKEEPER";
+        return applicationConfiguration.getStack().getCacheDir() + "/stacks/" + getStackName() + "/" + getStackVersion() + "/services/ZOOKEEPER";
     }
 
     public String getScriptDir() {
         return getZookeeperCacheHome() + "/scripts";
     }
 
+    @SuppressWarnings("unchecked")
     public List<Map<String, Object>> getZooCfg() {
-        return (List<Map<String, Object>>) yamlUtils.readYaml(getZookeeperCacheHome() + "/configuration/zoo.cfg.yaml", List.class);
+        return (List<Map<String, Object>>) YamlUtils.readYaml(getZookeeperCacheHome() + "/configuration/zoo.cfg.yaml", List.class);
     }
 
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getZookeeperEnv() {
-        return (Map<String, Object>) yamlUtils.readYaml(getZookeeperCacheHome() + "/configuration/zookeeper-env.yaml", Map.class);
+        return (Map<String, Object>) YamlUtils.readYaml(getZookeeperCacheHome() + "/configuration/zookeeper-env.yaml", Map.class);
     }
 }

@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.agent.stack.service.zookeeper;
 
-import org.apache.bigtop.manager.agent.configuration.StackConfiguration;
 import org.apache.bigtop.manager.agent.stack.ServiceEnv;
 import org.apache.bigtop.manager.agent.stack.StackParams;
 import org.apache.bigtop.manager.agent.utils.template.BaseTemplate;
@@ -12,8 +11,6 @@ import java.util.Map;
 
 @Service
 public class ZookeeperServiceEnv implements ServiceEnv {
-    @Resource
-    private StackConfiguration stackConfiguration;
 
     @Resource
     private BaseTemplate baseTemplate;

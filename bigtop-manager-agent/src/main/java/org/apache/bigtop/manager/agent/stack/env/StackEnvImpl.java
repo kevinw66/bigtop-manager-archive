@@ -1,11 +1,10 @@
 package org.apache.bigtop.manager.agent.stack.env;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.agent.configuration.StackConfiguration;
 import org.apache.bigtop.manager.agent.stack.StackEnv;
 import org.apache.bigtop.manager.agent.stack.StackParams;
 import org.apache.bigtop.manager.agent.utils.template.BaseTemplate;
-import org.springframework.stereotype.Component;
+import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,7 +15,7 @@ import java.util.Map;
 @Service
 public class StackEnvImpl implements StackEnv {
     @Resource
-    private StackConfiguration stackConfiguration;
+    private ApplicationConfiguration applicationConfiguration;
 
     @Resource
     private StackParams stackParams;
@@ -29,7 +28,7 @@ public class StackEnvImpl implements StackEnv {
      */
     @Override
     public void initEnv() {
-        String path = stackParams.getStackCacheDir() + "/" + stackConfiguration.getEnvFile();
+        String path = stackParams.getStackCacheDir() + "/" + applicationConfiguration.getStack().getEnvFile();
 
         Map<String, Object> config = new HashMap<>();
 
