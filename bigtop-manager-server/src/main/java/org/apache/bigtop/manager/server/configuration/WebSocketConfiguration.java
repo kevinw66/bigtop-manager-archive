@@ -1,14 +1,21 @@
 package org.apache.bigtop.manager.server.configuration;
 
-import org.springframework.context.annotation.Bean;
+import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.socket.server.standard.ServerEndpointExporter;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import javax.annotation.Resource;
 
 @Configuration
-public class WebSocketConfiguration {
+@EnableWebSocket
+public class WebSocketConfiguration implements WebSocketConfigurer {
 
-    @Bean
-    public ServerEndpointExporter serverEndpointExporter() {
-        return new ServerEndpointExporter();
+    @Resource
+    private ServerWebSocketHandler serverWebSocketHandler;
+
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(serverWebSocketHandler, "/ws/server");
     }
 }

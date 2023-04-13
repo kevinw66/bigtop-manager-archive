@@ -17,6 +17,8 @@
         <spring-boot.version>2.7.10</spring-boot.version>
         <springdoc.version>1.7.0</springdoc.version>
         <freemarker.version>2.3.32</freemarker.version>
+        <kryo.version>5.4.0</kryo.version>
+        <common-lang3.version>3.12.0</common-lang3.version>
     </properties>
 
     <dependencyManagement>
@@ -44,6 +46,18 @@
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
                 <version>${freemarker.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.esotericsoftware</groupId>
+                <artifactId>kryo</artifactId>
+                <version>${kryo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${common-lang3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
