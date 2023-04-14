@@ -2,8 +2,8 @@ package org.apache.bigtop.manager.agent.runner;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.shell.ShellExecutor;
-import org.apache.bigtop.manager.common.shell.ShellResult;
+import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
+import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;

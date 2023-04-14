@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.shell;
+package org.apache.bigtop.manager.common.utils.shell;
 
 import lombok.Data;
 import lombok.ToString;

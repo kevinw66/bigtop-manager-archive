@@ -19,7 +19,7 @@
 BIN_DIR=$(dirname $0)
 BIGTOP_MANAGER_HOME=${BIGTOP_MANAGER_HOME:-$(cd $BIN_DIR/..; pwd)}
 
-source "${BIGTOP_MANAGER_HOME}/conf/bigtop_manager_env.sh"
+source "${BIGTOP_MANAGER_HOME}/env.sh"
 
 JAVA_OPTS=${JAVA_OPTS:-"-server -Duser.timezone=${SPRING_JACKSON_TIME_ZONE} -Xms4g -Xmx4g -Xmn2g -XX:+IgnoreUnrecognizedVMOptions -XX:+PrintGCDateStamps -XX:+PrintGCDetails -Xloggc:gc.log -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=dump.hprof"}
 

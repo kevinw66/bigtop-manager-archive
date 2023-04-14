@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.bigtop.manager.common.shell;
+package org.apache.bigtop.manager.common.utils.shell;
 
 import lombok.extern.slf4j.Slf4j;
 
