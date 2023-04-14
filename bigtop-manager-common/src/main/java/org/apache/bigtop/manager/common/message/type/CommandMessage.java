@@ -4,13 +4,22 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class HeartbeatMessage extends BaseMessage {
+public class CommandMessage extends BaseMessage {
 
-    private HostInfo hostInfo;
+    private String service;
+
+    private String beforeCommand;
+
+    private String command;
+
+    private String afterCommand;
+
+    private String stack;
+
+    private String version;
 }

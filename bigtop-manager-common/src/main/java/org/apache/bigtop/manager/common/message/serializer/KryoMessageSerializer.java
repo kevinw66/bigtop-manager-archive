@@ -12,11 +12,11 @@ public class KryoMessageSerializer implements MessageSerializer {
     public byte[] serialize(BaseMessage message) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Output output = new Output(outputStream);
-        Kryo kryo = KryoManager.obtainKryo();
+        Kryo kryo = KryoPoolHolder.obtainKryo();
         kryo.writeClassAndObject(output, message);
         output.flush();
         output.close();
-        KryoManager.freeKryo(kryo);
+        KryoPoolHolder.freeKryo(kryo);
 
         return output.getBuffer();
     }

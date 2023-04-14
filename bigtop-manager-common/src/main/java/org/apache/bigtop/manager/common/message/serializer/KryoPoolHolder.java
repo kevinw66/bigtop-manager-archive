@@ -9,7 +9,7 @@ import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-public class KryoManager {
+public class KryoPoolHolder {
 
     private static final Pool<Kryo> KRYO_POOL = new Pool<Kryo>(true, false, 16) {
         @Override

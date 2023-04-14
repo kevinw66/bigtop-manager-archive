@@ -9,10 +9,10 @@ public class KryoMessageDeserializer implements MessageDeserializer {
     @Override
     public BaseMessage deserialize(byte[] bytes) {
         Input input = new Input(bytes);
-        Kryo kryo = KryoManager.obtainKryo();
+        Kryo kryo = KryoPoolHolder.obtainKryo();
         BaseMessage baseMessage = (BaseMessage) kryo.readClassAndObject(input);
         input.close();
-        KryoManager.freeKryo(kryo);
+        KryoPoolHolder.freeKryo(kryo);
 
         return baseMessage;
     }
