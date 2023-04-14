@@ -39,17 +39,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 public abstract class AbstractShell {
-    /**
-     *
-     */
+
     private ShellResult shellResult;
 
     /**
-     * Time after which the executing script would be timedout
+     * Time after which the executing script would be timed out
      */
     protected long timeOutInterval = 0L;
+
     /**
-     * If or not script timed out
+     * Whether script timed out
      */
     private AtomicBoolean timedOut;
 
@@ -67,16 +66,18 @@ public abstract class AbstractShell {
      * env for the command execution
      */
     private Map<String, String> environment;
+
     private File dir;
 
     /**
      * sub process used to execute the command
      */
     private Process process;
+
     private int exitCode;
 
     /**
-     * If or not script finished executing
+     * Whether script finished executing
      */
     private AtomicBoolean completed;
 
@@ -162,7 +163,6 @@ public abstract class AbstractShell {
         // read error and input streams as this would free up the buffers
         // free the error stream buffer
         Thread errThread = new Thread() {
-
             @Override
             public void run() {
                 try {
@@ -177,8 +177,8 @@ public abstract class AbstractShell {
                 }
             }
         };
-        Thread inThread = new Thread() {
 
+        Thread inThread = new Thread() {
             @Override
             public void run() {
                 try {
@@ -189,12 +189,14 @@ public abstract class AbstractShell {
                 super.run();
             }
         };
+
         try {
             errThread.start();
             inThread.start();
         } catch (IllegalStateException ise) {
             log.warn("Illegal while starting the error and in thread", ise);
         }
+
         try {
             // parse the output
             exitCode = process.waitFor();
@@ -222,20 +224,24 @@ public abstract class AbstractShell {
             if ((timeOutTimer != null) && !timedOut.get()) {
                 timeOutTimer.cancel();
             }
+
             // close the input stream
             try {
                 inReader.close();
             } catch (IOException ioe) {
                 log.warn("Error while closing the input stream", ioe);
             }
+
             if (!completed.get()) {
                 errThread.interrupt();
             }
+
             try {
                 errReader.close();
             } catch (IOException ioe) {
                 log.warn("Error while closing the error stream", ioe);
             }
+
             ProcessContainer.removeProcess(process);
             process.destroy();
             lastTime = System.currentTimeMillis();
@@ -245,6 +251,7 @@ public abstract class AbstractShell {
     public ShellResult getShellResult(){
         return this.shellResult;
     }
+
     /**
      * @return an array containing the command name and its parameters
      */
@@ -288,7 +295,7 @@ public abstract class AbstractShell {
      */
     private static class ShellTimeoutTimerTask extends TimerTask {
 
-        private AbstractShell shell;
+        private final AbstractShell shell;
 
         public ShellTimeoutTimerTask(AbstractShell shell) {
             this.shell = shell;
@@ -339,7 +346,7 @@ public abstract class AbstractShell {
             super();
         }
 
-        public static final ProcessContainer getInstance() {
+        public static ProcessContainer getInstance() {
             return container;
         }
 

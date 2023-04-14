@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class ShellExecutor extends AbstractShell {
 
-    private String[] command;
+    private final String[] command;
     private StringBuffer output;
 
     public ShellExecutor(String... execString) {
@@ -44,8 +44,7 @@ public class ShellExecutor extends AbstractShell {
         this(execString, dir, null);
     }
 
-    public ShellExecutor(String[] execString, File dir,
-                         Map<String, String> env) {
+    public ShellExecutor(String[] execString, File dir, Map<String, String> env) {
         this(execString, dir, env, 0L);
     }
 
@@ -63,15 +62,16 @@ public class ShellExecutor extends AbstractShell {
      *                   command will be killed and the status marked as timedout.
      *                   If 0, the command will not be timed out.
      */
-    public ShellExecutor(String[] execString, File dir,
-                         Map<String, String> env, long timeout) {
+    public ShellExecutor(String[] execString, File dir, Map<String, String> env, long timeout) {
         command = execString.clone();
         if (dir != null) {
             setWorkingDirectory(dir);
         }
+
         if (env != null) {
             setEnvironment(env);
         }
+
         timeOutInterval = timeout;
     }
 
@@ -85,7 +85,7 @@ public class ShellExecutor extends AbstractShell {
      * @throws IOException errors
      */
     public static ShellResult execCommand(List<String> builderParameters) throws IOException {
-        String[] cmd = builderParameters.toArray(new String[builderParameters.size()]);
+        String[] cmd = builderParameters.toArray(new String[0]);
         return execCommand(null, cmd, 0L);
     }
 
@@ -100,8 +100,7 @@ public class ShellExecutor extends AbstractShell {
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static ShellResult execCommand(Map<String, String> env, String[] cmd,
-                                          long timeout) throws IOException {
+    public static ShellResult execCommand(Map<String, String> env, String[] cmd, long timeout) throws IOException {
         ShellExecutor exec = new ShellExecutor(cmd, null, env, timeout);
         exec.execute();
         ShellResult shellResult = exec.getShellResult();

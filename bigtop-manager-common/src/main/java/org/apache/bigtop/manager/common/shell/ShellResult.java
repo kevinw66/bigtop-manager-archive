@@ -7,9 +7,9 @@ import lombok.ToString;
 @ToString
 public class ShellResult {
 
-    int exitCode;
+    private Integer exitCode;
 
-    String output;
+    private String output;
 
-    String errMsg;
+    private String errMsg;
 }
