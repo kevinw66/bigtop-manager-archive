@@ -1,7 +1,10 @@
-package org.apache.bigtop.manager.agent.utils;
+package org.apache.bigtop.manager.common.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.*;
@@ -12,9 +15,18 @@ public class YamlUtils {
     private static final Yaml YAML;
 
     static {
-        Representer representer = new Representer();
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setAllowDuplicateKeys(false);
+        loaderOptions.setMaxAliasesForCollections(Integer.MAX_VALUE);
+        loaderOptions.setAllowRecursiveKeys(true);
+
+        Constructor constructor = new Constructor(loaderOptions);
+
+        DumperOptions dumperOptions = new DumperOptions();
+        Representer representer = new Representer(dumperOptions);
         representer.getPropertyUtils().setSkipMissingProperties(true);
-        YAML = new Yaml(representer);
+
+        YAML = new Yaml(constructor, representer);
     }
 
     /**
@@ -43,7 +55,7 @@ public class YamlUtils {
      * @param path out yaml file path
      * @param data yaml content
      */
-    public void writeYaml(String path, String data) {
+    public static void writeYaml(String path, String data) {
         try (FileWriter fileWriter = new FileWriter(path, false)) {
             YAML.dump(data, fileWriter);
         } catch (IOException e) {
