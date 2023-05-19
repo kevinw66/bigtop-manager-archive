@@ -21,7 +21,7 @@ public class LoginServiceImpl implements LoginService {
     public void login(HttpSession session, String username, String password) {
         User user = userRepository.findByUsername(username).orElse(new User());
         String hex = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (!hex.equals(user.getPassword())) {
+        if (!hex.equalsIgnoreCase(user.getPassword())) {
             throw new ServerException(ServerExceptionStatus.INCORRECT_USERNAME_OR_PASSWORD);
         }
 

@@ -1,10 +1,10 @@
-package org.apache.bigtop.manager.server;
+package org.apache.bigtop.manager.agent;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BigtopManagerServerApplicationTests {
+class AgentApplicationTests {
 
     @Test
     void contextLoads() {

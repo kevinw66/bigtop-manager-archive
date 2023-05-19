@@ -48,9 +48,35 @@ CREATE TABLE `user` (
     `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(32) DEFAULT NULL,
     `password` VARCHAR(32) DEFAULT NULL,
-    `status` BIT(1) DEFAULT 1 COMMENT '0-disable, 1-enable',
+    `status` BIT(1) DEFAULT 1 COMMENT '0-Disable, 1-Enable',
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `cluster` (
+    `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `cluster_name` VARCHAR(255) DEFAULT NULL COMMENT 'Cluster Name',
+    `cluster_type` SMALLINT UNSIGNED DEFAULT 1 COMMENT '1-Physical Machine, 2-Kubernetes',
+    `create_time` DATETIME DEFAULT NULL,
+    `update_time` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_cluster_name` (`cluster_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE hosts (
+    `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `cluster_id` BIGINT(20) UNSIGNED NOT NULL,
+    `hostname` VARCHAR(255) DEFAULT NULL,
+    `ipv4` VARCHAR(32) DEFAULT NULL,
+    `ipv6` VARCHAR(32) DEFAULT NULL,
+    `os_arch` VARCHAR(32) NOT NULL,
+    `os_name` VARCHAR(32) NOT NULL,
+    `processor_count` INT NOT NULL,
+    `physical_memory` BIGINT NOT NULL COMMENT 'Total Physical Memory(Bytes)',
+    `create_time` DATETIME DEFAULT NULL,
+    `update_time` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_hostname` (`hostname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -5,6 +5,12 @@ public enum ServerExceptionStatus {
     NEED_LOGIN(10000, "Not logged in"),
     USERNAME_OR_PASSWORD_REQUIRED(10001, "Username or password should not be empty"),
     INCORRECT_USERNAME_OR_PASSWORD(10002, "Incorrect username or password"),
+
+    // Cluster Exceptions -- 11000 ~ 11999
+    CLUSTER_NOT_FOUND(11000, "Cluster not exist"),
+
+    // Host Exceptions -- 12000 ~ 12999
+    HOST_NOT_FOUND(12000, "Host not exist"),
     ;
 
     private final Integer code;
