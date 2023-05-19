@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.configuration.embbed;
+package org.apache.bigtop.manager.common.configuration.application;
 
 import lombok.Data;
 
