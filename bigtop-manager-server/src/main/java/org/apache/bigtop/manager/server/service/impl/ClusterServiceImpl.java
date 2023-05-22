@@ -3,11 +3,11 @@ package org.apache.bigtop.manager.server.service.impl;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,8 +24,7 @@ public class ClusterServiceImpl implements ClusterService {
     public List<ClusterVO> list() {
         List<ClusterVO> clusterVOList = new ArrayList<>();
         clusterRepository.findAll().forEach(cluster -> {
-            ClusterVO clusterVO = new ClusterVO();
-            BeanUtils.copyProperties(cluster, clusterVO);
+            ClusterVO clusterVO = ClusterMapper.INSTANCE.Entity2VO(cluster);
             clusterVOList.add(clusterVO);
         });
 
@@ -34,33 +33,26 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Override
     public ClusterVO create(ClusterDTO clusterDTO) {
-        Cluster cluster = new Cluster();
-        BeanUtils.copyProperties(clusterDTO, cluster);
+        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO);
         clusterRepository.save(cluster);
 
-        ClusterVO clusterVO = new ClusterVO();
-        BeanUtils.copyProperties(cluster, clusterVO);
-        return clusterVO;
+        return ClusterMapper.INSTANCE.Entity2VO(cluster);
     }
 
     @Override
     public ClusterVO get(Long id) {
-        ClusterVO clusterVO = new ClusterVO();
         Cluster cluster = clusterRepository.findById(id).orElseThrow(() -> new ServerException(ServerExceptionStatus.CLUSTER_NOT_FOUND));
-        BeanUtils.copyProperties(cluster, clusterVO);
-        return clusterVO;
+
+        return ClusterMapper.INSTANCE.Entity2VO(cluster);
     }
 
     @Override
     public ClusterVO update(Long id, ClusterDTO clusterDTO) {
-        Cluster cluster = new Cluster();
-        BeanUtils.copyProperties(clusterDTO, cluster);
+        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO);
         cluster.setId(id);
         clusterRepository.save(cluster);
 
-        ClusterVO clusterVO = new ClusterVO();
-        BeanUtils.copyProperties(cluster, clusterVO);
-        return clusterVO;
+        return ClusterMapper.INSTANCE.Entity2VO(cluster);
     }
 
     @Override

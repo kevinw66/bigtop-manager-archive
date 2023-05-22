@@ -22,8 +22,12 @@
         <java.version>1.8</java.version>
         <flatten-maven-plugin.version>1.4.0</flatten-maven-plugin.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <lombok.version>1.18.26</lombok.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
     </properties>
 
     <modules>
@@ -55,6 +59,7 @@
                         <target>${java.version}</target>
                         <testSource>${java.version}</testSource>
                         <testTarget>${java.version}</testTarget>
+                        <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
             </plugins>
@@ -90,12 +95,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
             </plugin>
 
             <plugin>

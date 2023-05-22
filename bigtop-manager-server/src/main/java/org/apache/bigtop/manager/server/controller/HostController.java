@@ -3,11 +3,11 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
+import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.request.HostRequest;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,8 +30,7 @@ public class HostController {
     @Operation(summary = "create", description = "Create a host")
     @PostMapping
     private ResponseEntity<HostVO> create(@RequestBody HostRequest hostRequest) {
-        HostDTO hostDTO = new HostDTO();
-        BeanUtils.copyProperties(hostRequest, hostDTO);
+        HostDTO hostDTO = HostMapper.INSTANCE.Request2DTO(hostRequest);
         return ResponseEntity.success(hostService.create(hostDTO));
     }
 
@@ -44,8 +43,7 @@ public class HostController {
     @Operation(summary = "update", description = "Update a host")
     @PutMapping("/{id}")
     private ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody HostRequest hostRequest) {
-        HostDTO hostDTO = new HostDTO();
-        BeanUtils.copyProperties(hostRequest, hostDTO);
+        HostDTO hostDTO = HostMapper.INSTANCE.Request2DTO(hostRequest);
         return ResponseEntity.success(hostService.update(id, hostDTO));
     }
 

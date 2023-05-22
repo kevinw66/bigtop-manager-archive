@@ -3,11 +3,11 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.request.ClusterRequest;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,8 +30,7 @@ public class ClusterController {
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
     private ResponseEntity<ClusterVO> create(@RequestBody ClusterRequest clusterRequest) {
-        ClusterDTO clusterDTO = new ClusterDTO();
-        BeanUtils.copyProperties(clusterRequest, clusterDTO);
+        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Request2DTO(clusterRequest);
         return ResponseEntity.success(clusterService.create(clusterDTO));
     }
 
@@ -44,8 +43,7 @@ public class ClusterController {
     @Operation(summary = "update", description = "Update a cluster")
     @PutMapping("/{id}")
     private ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody ClusterRequest clusterRequest) {
-        ClusterDTO clusterDTO = new ClusterDTO();
-        BeanUtils.copyProperties(clusterRequest, clusterDTO);
+        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Request2DTO(clusterRequest);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
     }
 
