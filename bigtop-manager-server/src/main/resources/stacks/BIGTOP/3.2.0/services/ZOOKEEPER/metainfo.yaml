@@ -11,14 +11,7 @@ components:
     commandScript:
       script: ZookeeperServerScript
       scriptType: JAVA
-      timeout: 60
-  - name: ZOOKEEPER_CLIENT
-    displayName: ZooKeeper Client
-    category: CLIENT
-    cardinality: 1+
-    commandScript:
-      script: ZookeeperServerScript
-      scriptType: JAVA
+      scriptId: org.apache.bigtop.manager.stack.bigtop320.zookeeper.ZookeeperServerScript
       timeout: 60
     configFiles:
       - type: env
