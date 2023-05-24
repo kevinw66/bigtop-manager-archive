@@ -5,9 +5,11 @@ public interface Script extends SPIIdentify {
 
     void configuration();
 
-    void start();
+    default void start() {
+    }
 
-    void stop();
+    default void stop() {
+    }
 
     void status();
 }

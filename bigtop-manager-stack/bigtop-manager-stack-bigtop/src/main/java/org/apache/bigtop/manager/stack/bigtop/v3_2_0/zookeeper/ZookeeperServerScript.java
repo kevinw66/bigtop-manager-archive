@@ -19,7 +19,6 @@ import java.util.Map;
 @AutoService(Script.class)
 public class ZookeeperServerScript implements Script {
 
-
     @Override
     public void install() {
         log.info("install");
@@ -107,8 +106,4 @@ public class ZookeeperServerScript implements Script {
         }
     }
 
-    @Override
-    public String getName() {
-        return this.getClass().getName();
-    }
 }
