@@ -9,7 +9,7 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>bigtop-manager-stack-bigtop-320</artifactId>
+    <artifactId>bigtop-manager-stack-bigtop</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

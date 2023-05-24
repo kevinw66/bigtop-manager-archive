@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.stack.bigtop320.zookeeper;
+package org.apache.bigtop.manager.stack.bigtop.v3_2_0.zookeeper;
 
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.stack.common.utils.Params;
@@ -25,7 +25,7 @@ public class ZookeeperParams {
         String stack = Params.commandMessage.getStack();
         String version = Params.commandMessage.getVersion();
         String service = Params.commandMessage.getService();
-        return StringUtils.join("/opt/package/code/bigtop-manager/bigtop-manager-server/src/main/resources"+"/stacks/", stack.toUpperCase(), "/", version, "/services/", service.toUpperCase());
+        return StringUtils.join("/stacks/", stack.toUpperCase(), "/", version, "/services/", service.toUpperCase());
     }
 
     @SuppressWarnings("unchecked")

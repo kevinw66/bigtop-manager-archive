@@ -34,7 +34,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.bigtop</groupId>
-            <artifactId>bigtop-manager-stack-bigtop-320</artifactId>
+            <artifactId>bigtop-manager-stack-bigtop</artifactId>
             <version>${revision}</version>
         </dependency>
     </dependencies>

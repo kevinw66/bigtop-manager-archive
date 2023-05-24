@@ -19,7 +19,7 @@
         <module>bigtop-manager-stack-core</module>
         <module>bigtop-manager-stack-spi</module>
         <module>bigtop-manager-stack-common</module>
-        <module>bigtop-manager-stack-bigtop-320</module>
+        <module>bigtop-manager-stack-bigtop</module>
     </modules>
 
     <properties>
