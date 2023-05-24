@@ -10,23 +10,23 @@ import org.apache.bigtop.manager.stack.spi.Hook;
  * obtain agent execute command
  */
 @AutoService(Hook.class)
-public class InstallHookImpl implements Hook {
+public class ReStartHookImpl implements Hook {
 
 
     @Override
-    @HookAnnotation(before = "any")
+    @HookAnnotation(before = "start")
     public void before() {
-        System.out.println("before install");
+        System.out.println("before restart");
     }
 
     @Override
-    @HookAnnotation(after = "any")
+    @HookAnnotation(after = "start")
     public void after() {
-        System.out.println("after install");
+        System.out.println("after restart");
     }
 
     @Override
     public String getName() {
-        return "install";
+        return "restart";
     }
 }

@@ -11,5 +11,10 @@ public interface Script extends SPIIdentify {
     default void stop() {
     }
 
+    default void restart() {
+        stop();
+        start();
+    }
+
     void status();
 }

@@ -5,6 +5,7 @@ import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
 import org.apache.bigtop.manager.stack.common.utils.template.PropertiesTemplate;
 import org.apache.bigtop.manager.stack.spi.Script;
@@ -32,16 +33,16 @@ public class ZookeeperServerScript implements Script {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[ZookeeperServerScript] [install] output: {}", output);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StackException(e);
         }
     }
 
     @Override
     public void configuration() {
+        System.out.println("configuration");
         log.info("configuration");
         log.info("{}", ZookeeperParams.zooCfg());
         PropertiesTemplate.writeProperties(ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.zooCfg());
-
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
         modelMap.put("ZOOKEEPER_HOME", ZookeeperParams.zookeeperHome());
@@ -64,12 +65,13 @@ public class ZookeeperServerScript implements Script {
         builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
         builderParameters.add("start");
         log.info("{}", builderParameters);
+        System.out.println(builderParameters);
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
 
             log.info("[ZookeeperServerScript] [start] output: {}", output);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StackException(e);
         }
     }
 
@@ -86,7 +88,7 @@ public class ZookeeperServerScript implements Script {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[ZookeeperServerScript] [stop] output: {}", output);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StackException(e);
         }
     }
 
@@ -102,7 +104,7 @@ public class ZookeeperServerScript implements Script {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[ZookeeperServerScript] [status] output: {}", output);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StackException(e);
         }
     }
 

@@ -10,11 +10,12 @@ import java.util.Map;
 public class ZookeeperParams {
 
     public static String zookeeperHome() {
-        String stack = Params.commandMessage.getStack();
+        String stack = Params
+                .commandMessage.getStack();
         String version = Params.commandMessage.getVersion();
         String service = Params.commandMessage.getService();
 
-        return "/usr/" + stack.toUpperCase() + "/" + version + "/usr/lib/" + service.toLowerCase();
+        return "/usr/" + stack.toLowerCase() + "/" + version + "/usr/lib/" + service.toLowerCase();
     }
 
     public static String confDir() {
@@ -35,6 +36,6 @@ public class ZookeeperParams {
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> zookeeperEnv() {
-        return YamlUtils.readYaml(getCacheHome() + "/configuration/zoo-env.yaml", Map.class);
+        return YamlUtils.readYaml(getCacheHome() + "/configuration/zookeeper-env.yaml", Map.class);
     }
 }
