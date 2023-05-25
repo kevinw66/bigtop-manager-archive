@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
+import org.apache.bigtop.manager.stack.common.utils.PropertiesUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
-import org.apache.bigtop.manager.stack.common.utils.template.PropertiesTemplate;
 import org.apache.bigtop.manager.stack.spi.Script;
 
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class ZookeeperServerScript implements Script {
         log.info("ZookeeperServerScript configuration");
 
         log.info("{}", ZookeeperParams.zooCfg());
-        PropertiesTemplate.writeProperties(ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.zooCfg());
+        PropertiesUtils.writeProperties(ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.zooCfg());
 
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
@@ -53,6 +53,7 @@ public class ZookeeperServerScript implements Script {
         modelMap.put("ZOO_LOG_DIR", ZookeeperParams.zookeeperEnv().get("logDir"));
         modelMap.put("ZOOPIDFILE", ZookeeperParams.zookeeperEnv().get("pidDir"));
         modelMap.put("securityEnabled", false);
+
         log.info("modelMap: {}", modelMap);
         log.info("content: {}", ZookeeperParams.zookeeperEnv().get("content"));
         BaseTemplate.writeTemplateByContent(ZookeeperParams.confDir() + "/zookeeper-env.sh",
