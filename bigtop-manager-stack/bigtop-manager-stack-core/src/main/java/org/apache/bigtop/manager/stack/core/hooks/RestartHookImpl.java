@@ -2,27 +2,28 @@ package org.apache.bigtop.manager.stack.core.hooks;
 
 
 import com.google.auto.service.AutoService;
-import org.apache.bigtop.manager.stack.core.ExecuteImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
 import org.apache.bigtop.manager.stack.spi.Hook;
 
 /**
  * obtain agent execute command
  */
+@Slf4j
 @AutoService(Hook.class)
-public class ReStartHookImpl implements Hook {
+public class RestartHookImpl implements Hook {
 
 
     @Override
     @HookAnnotation(before = "start")
     public void before() {
-        System.out.println("before restart");
+        log.info("before restart");
     }
 
     @Override
     @HookAnnotation(after = "start")
     public void after() {
-        System.out.println("after restart");
+        log.info("after restart");
     }
 
     @Override

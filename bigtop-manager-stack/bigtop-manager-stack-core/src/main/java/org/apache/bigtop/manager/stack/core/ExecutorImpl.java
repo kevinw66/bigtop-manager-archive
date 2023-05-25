@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @Slf4j
-public class ExecuteImpl implements Execute {
+public class ExecutorImpl implements Executor {
     private static final Map<String, Script> scriptMap;
     private static final Map<String, Hook> hookMap;
 
@@ -22,7 +22,6 @@ public class ExecuteImpl implements Execute {
         SPIFactory<Script> spiFactory = new SPIFactory<>(Script.class);
         scriptMap = spiFactory.getSPIMap();
         log.info("scriptMap: {}", scriptMap);
-        System.out.println(scriptMap);
 
         SPIFactory<Hook> hookSPIFactory = new SPIFactory<>(Hook.class);
         hookMap = hookSPIFactory.getSPIMap();
@@ -30,7 +29,6 @@ public class ExecuteImpl implements Execute {
 
 
     private Script getScript(CommandMessage commandMessage) {
-        log.info("scriptMap: {}", scriptMap);
         return scriptMap.getOrDefault(commandMessage.getScriptId(), null);
     }
 
@@ -53,10 +51,8 @@ public class ExecuteImpl implements Execute {
         Hook hook = getHook(commandMessage);
 
         String command = commandMessage.getCommand();
-        if (hook != null) {
-            HookMethodUtils(hook.getClass(), "before");
-            hook.before();
-        }
+
+        HookMethodUtils(hook, "before");
 
         try {
             Method method = script.getClass().getMethod(command.toLowerCase());
@@ -66,16 +62,17 @@ public class ExecuteImpl implements Execute {
             throw new StackException(e);
         }
 
-        if (hook != null) {
-            hook.after();
-            HookMethodUtils(hook.getClass(), "after");
-        }
+        HookMethodUtils(hook, "after");
 
     }
 
-    public static <T> void HookMethodUtils(Class<T> clazz, String type) {
+    public static void HookMethodUtils(Hook hook, String type) {
+        if (hook == null) {
+            return;
+        }
+
         try {
-            Method method = clazz.getMethod(type);
+            Method method = hook.getClass().getMethod(type);
             if (method.isAnnotationPresent(HookAnnotation.class)) {
                 HookAnnotation annotation = method.getAnnotation(HookAnnotation.class);
                 String before = annotation.before();
@@ -83,13 +80,16 @@ public class ExecuteImpl implements Execute {
                 if (hookBefore != null) {
                     hookBefore.before();
                 }
+
+                method.invoke(hook);
+
                 String after = annotation.after();
                 Hook hookAfter = hookMap.getOrDefault(after, null);
                 if (hookAfter != null) {
                     hookAfter.after();
                 }
             }
-        } catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new StackException(e);
         }
     }

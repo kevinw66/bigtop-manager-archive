@@ -10,8 +10,7 @@ import java.util.Map;
 public class ZookeeperParams {
 
     public static String zookeeperHome() {
-        String stack = Params
-                .commandMessage.getStack();
+        String stack = Params.commandMessage.getStack();
         String version = Params.commandMessage.getVersion();
         String service = Params.commandMessage.getService();
 
@@ -22,20 +21,21 @@ public class ZookeeperParams {
         return "/etc/zookeeper/conf";
     }
 
-    public static String getCacheHome() {
+    public static String stackCacheDir() {
         String stack = Params.commandMessage.getStack();
         String version = Params.commandMessage.getVersion();
         String service = Params.commandMessage.getService();
-        return StringUtils.join("/stacks/", stack.toUpperCase(), "/", version, "/services/", service.toUpperCase());
+        String cacheDir = Params.commandMessage.getCacheDir();
+        return StringUtils.join(cacheDir + "/stacks/", stack.toUpperCase(), "/", version, "/services/", service.toUpperCase());
     }
 
     @SuppressWarnings("unchecked")
     public static List<Map<String, Object>> zooCfg() {
-        return YamlUtils.readYaml(getCacheHome() + "/configuration/zoo.cfg.yaml", List.class);
+        return YamlUtils.readYaml(stackCacheDir() + "/configuration/zoo.cfg.yaml", List.class);
     }
 
     @SuppressWarnings("unchecked")
     public static Map<String, Object> zookeeperEnv() {
-        return YamlUtils.readYaml(getCacheHome() + "/configuration/zookeeper-env.yaml", Map.class);
+        return YamlUtils.readYaml(stackCacheDir() + "/configuration/zookeeper-env.yaml", Map.class);
     }
 }

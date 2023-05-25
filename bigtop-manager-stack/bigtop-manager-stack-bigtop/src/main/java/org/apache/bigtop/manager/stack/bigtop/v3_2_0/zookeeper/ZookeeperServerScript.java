@@ -20,13 +20,16 @@ import java.util.Map;
 @AutoService(Script.class)
 public class ZookeeperServerScript implements Script {
 
+    //TODO Need to adapt to multi-architecture systems
     @Override
     public void install() {
-        log.info("install");
+        log.info("ZookeeperServerScript install");
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("yum");
 
         builderParameters.add("install");
+
+        builderParameters.add("-y");
 
         builderParameters.add("zookeeper_3_2_0");
         try {
@@ -39,25 +42,27 @@ public class ZookeeperServerScript implements Script {
 
     @Override
     public void configuration() {
-        System.out.println("configuration");
-        log.info("configuration");
+        log.info("ZookeeperServerScript configuration");
+
         log.info("{}", ZookeeperParams.zooCfg());
         PropertiesTemplate.writeProperties(ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.zooCfg());
+
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
         modelMap.put("ZOOKEEPER_HOME", ZookeeperParams.zookeeperHome());
         modelMap.put("ZOO_LOG_DIR", ZookeeperParams.zookeeperEnv().get("logDir"));
         modelMap.put("ZOOPIDFILE", ZookeeperParams.zookeeperEnv().get("pidDir"));
         modelMap.put("securityEnabled", false);
+        log.info("modelMap: {}", modelMap);
+        log.info("content: {}", ZookeeperParams.zookeeperEnv().get("content"));
         BaseTemplate.writeTemplateByContent(ZookeeperParams.confDir() + "/zookeeper-env.sh",
                 modelMap, ZookeeperParams.zookeeperEnv().get("content").toString());
     }
 
     @Override
     public void start() {
-        System.out.println("ZookeeperServerScript start");
-        log.info("start");
         configuration();
+        log.info("ZookeeperServerScript start");
 
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("sh");
@@ -65,7 +70,6 @@ public class ZookeeperServerScript implements Script {
         builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
         builderParameters.add("start");
         log.info("{}", builderParameters);
-        System.out.println(builderParameters);
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
 
@@ -77,13 +81,12 @@ public class ZookeeperServerScript implements Script {
 
     @Override
     public void stop() {
-        log.info("stop");
+        log.info("ZookeeperServerScript stop");
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("sh");
 
         builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
         builderParameters.add("stop");
-        builderParameters.add("ZOOKEEPER_SERVER");
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[ZookeeperServerScript] [stop] output: {}", output);
@@ -94,12 +97,12 @@ public class ZookeeperServerScript implements Script {
 
     @Override
     public void status() {
+        log.info("ZookeeperServerScript status");
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("sh");
 
         builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
         builderParameters.add("status");
-        builderParameters.add("ZOOKEEPER_SERVER");
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[ZookeeperServerScript] [status] output: {}", output);

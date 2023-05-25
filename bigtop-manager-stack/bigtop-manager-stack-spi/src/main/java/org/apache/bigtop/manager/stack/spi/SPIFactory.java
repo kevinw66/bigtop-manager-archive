@@ -14,7 +14,6 @@ public class SPIFactory<T extends SPIIdentify> {
     public SPIFactory(Class<T> spiClass) {
         for (T t : ServiceLoader.load(spiClass)) {
             log.info("spiClass.getName: {}", t.getName());
-            System.out.println(t.getName());
             map.put(t.getName(), t);
         }
     }

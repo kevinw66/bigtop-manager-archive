@@ -26,4 +26,6 @@ public class CommandMessage extends BaseMessage {
     private String component;
 
     private String scriptId;
+
+    private String cacheDir;
 }
