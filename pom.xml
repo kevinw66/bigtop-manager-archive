@@ -35,6 +35,7 @@
         <module>bigtop-manager-bom</module>
         <module>bigtop-manager-common</module>
         <module>bigtop-manager-server</module>
+        <module>bigtop-manager-stack</module>
     </modules>
 
     <dependencyManagement>

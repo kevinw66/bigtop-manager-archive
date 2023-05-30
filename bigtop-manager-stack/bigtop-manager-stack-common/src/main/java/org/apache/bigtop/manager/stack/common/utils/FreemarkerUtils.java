@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.agent.utils;
+package org.apache.bigtop.manager.stack.common.utils;
 
 import freemarker.core.UndefinedOutputFormat;
 import freemarker.template.Configuration;
@@ -8,7 +8,7 @@ import java.util.TimeZone;
 
 public class FreemarkerUtils {
 
-    private static final Configuration CONFIGURATION;
+    public static final Configuration CONFIGURATION;
 
     static {
         CONFIGURATION = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);

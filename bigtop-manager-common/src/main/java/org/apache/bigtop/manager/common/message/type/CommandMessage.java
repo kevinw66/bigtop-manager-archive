@@ -22,4 +22,10 @@ public class CommandMessage extends BaseMessage {
     private String stack;
 
     private String version;
+
+    private String component;
+
+    private String scriptId;
+
+    private String cacheDir;
 }
