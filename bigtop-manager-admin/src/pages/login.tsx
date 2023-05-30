@@ -1,6 +1,6 @@
 import React from 'react';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
-import {Avatar, Button, Checkbox, Divider, Form, Input} from 'antd';
+import {Avatar, Button, Divider, Form, Input} from 'antd';
 import logo from '../assets/bigtop.png'
 import './login.less'
 
@@ -11,8 +11,13 @@ const App: React.FC = () => {
 
     return (
         <Form name="normal_login" className="login-form" initialValues={{remember: true}} onFinish={onFinish}>
-            <Avatar size={48} className="login-avatar" src={<img src={logo} alt="avatar"/>}/>
-            <p>Bigtop Manager</p>
+            <div className="login-avatar">
+                <Avatar size={48} src={<img src={logo} alt="avatar"/>}/>
+                <p>Bigtop Manager</p>
+            </div>
+
+            <div className="desc">Easy deployment solution for Bigtop</div>
+
             <Divider />
             <Form.Item name="username" rules={[{required: true, message: 'Please input your Username!'}]}>
                 <Input className="login-form-input" prefix={<UserOutlined className="site-form-item-icon"/>}
