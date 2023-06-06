@@ -18,7 +18,9 @@ components:
         fileName: zookeeper-env.sh
         dictionaryName: zookeeper-env
 osSpecifics:
-  os: redhat7
-  arch: x86_64
-  packages:
-    - name: zookeeper
+  - os:
+      - centos7
+    arch:
+      - x86_64
+    packages:
+      - zookeeper_3_2_0-3.5.9-2.el7.x86_64
