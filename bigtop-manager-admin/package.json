@@ -1,25 +1,28 @@
 {
+  "name": "bigtop-manager-admin",
+  "version": "0.1.0",
   "private": true,
-  "author": "Zhiguo Wu <wuzhiguo@apache.org>",
   "scripts": {
-    "dev": "umi dev",
-    "build": "umi build",
-    "postinstall": "umi setup",
-    "setup": "umi setup",
-    "start": "npm run dev"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.1.1",
-    "@ant-design/pro-components": "^2.4.16",
-    "@ant-design/pro-layout": "^7.13.5",
-    "antd": "^5.5.1",
-    "axios": "^1.4.0",
-    "umi": "^4.0.69"
-  },
-  "devDependencies": {
-    "@types/react": "^18.2.7",
-    "@types/react-dom": "^18.2.4",
-    "@umijs/plugins": "^4.0.69",
-    "typescript": "^5.0.4"
+    "@ant-design/icons": "^5.1.4",
+    "@types/node": "20.2.5",
+    "@types/react": "18.2.8",
+    "@types/react-dom": "18.2.4",
+    "antd": "^5.5.2",
+    "autoprefixer": "10.4.14",
+    "eslint": "8.41.0",
+    "eslint-config-next": "13.4.4",
+    "next": "13.4.4",
+    "postcss": "8.4.24",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "swr": "^2.1.5",
+    "tailwindcss": "3.3.2",
+    "typescript": "5.1.3"
   }
 }
