@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.server.orm.entity.User;
 import org.apache.bigtop.manager.server.service.LoginService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +36,7 @@ public class LoginController {
     }
 
     @Operation(summary = "test", description = "test")
-    @PostMapping(value = "/test")
+    @GetMapping(value = "/test")
     private ResponseEntity<String> login(HttpSession session) {
         User user = (User) session.getAttribute("user");
         return ResponseEntity.success("111");
