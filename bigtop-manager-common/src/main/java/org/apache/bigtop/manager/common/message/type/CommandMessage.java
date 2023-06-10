@@ -4,6 +4,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.apache.bigtop.manager.common.message.type.pojo.OSSpecific;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -28,4 +31,7 @@ public class CommandMessage extends BaseMessage {
     private String scriptId;
 
     private String cacheDir;
+
+    private List<OSSpecific> osSpecifics;
+
 }

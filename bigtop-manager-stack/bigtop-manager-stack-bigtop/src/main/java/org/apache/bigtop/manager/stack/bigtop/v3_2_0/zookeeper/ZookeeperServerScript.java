@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
+import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.PropertiesUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
 import org.apache.bigtop.manager.stack.spi.Script;
@@ -20,24 +21,11 @@ import java.util.Map;
 @AutoService(Script.class)
 public class ZookeeperServerScript implements Script {
 
-    //TODO Need to adapt to multi-architecture systems
     @Override
     public void install() {
         log.info("ZookeeperServerScript install");
-        List<String> builderParameters = new ArrayList<>();
-        builderParameters.add("yum");
-
-        builderParameters.add("install");
-
-        builderParameters.add("-y");
-
-        builderParameters.add("zookeeper_3_2_0");
-        try {
-            ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[ZookeeperServerScript] [install] output: {}", output);
-        } catch (IOException e) {
-            throw new StackException(e);
-        }
+        List<String> packageList = ZookeeperParams.getPackageList();
+        PackageUtils.install(packageList);
     }
 
     @Override
@@ -49,7 +37,7 @@ public class ZookeeperServerScript implements Script {
 
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
-        modelMap.put("ZOOKEEPER_HOME", ZookeeperParams.zookeeperHome());
+        modelMap.put("ZOOKEEPER_HOME", ZookeeperParams.serviceHome());
         modelMap.put("ZOO_LOG_DIR", ZookeeperParams.zookeeperEnv().get("logDir"));
         modelMap.put("ZOOPIDFILE", ZookeeperParams.zookeeperEnv().get("pidDir"));
         modelMap.put("securityEnabled", false);
@@ -68,7 +56,7 @@ public class ZookeeperServerScript implements Script {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("sh");
 
-        builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
+        builderParameters.add(ZookeeperParams.serviceHome() + "/bin/zkServer.sh");
         builderParameters.add("start");
         log.info("{}", builderParameters);
         try {
@@ -86,7 +74,7 @@ public class ZookeeperServerScript implements Script {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("sh");
 
-        builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
+        builderParameters.add(ZookeeperParams.serviceHome() + "/bin/zkServer.sh");
         builderParameters.add("stop");
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
@@ -102,7 +90,7 @@ public class ZookeeperServerScript implements Script {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("sh");
 
-        builderParameters.add(ZookeeperParams.zookeeperHome() + "/bin/zkServer.sh");
+        builderParameters.add(ZookeeperParams.serviceHome() + "/bin/zkServer.sh");
         builderParameters.add("status");
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
