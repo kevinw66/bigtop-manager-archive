@@ -1,3 +1,5 @@
+"use client"
+
 const App: React.FC = () => {
   return (
     <div>

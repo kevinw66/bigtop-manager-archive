@@ -34,7 +34,7 @@ const App: React.FC = () => {
       <div
         className="flex justify-center items-center font-sm text-slate-400"
       >
-        Easy deployment solution for Bigtop
+        An easy deployment solution for Bigtop
       </div>
 
       <Divider/>

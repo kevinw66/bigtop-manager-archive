@@ -13,6 +13,6 @@ export async function login(router: AppRouterInstance, req: LoginReq): Promise<v
   })
 
   if (response.success) {
-    router.push("/admin/index")
+    router.push("/admin")
   }
 }
