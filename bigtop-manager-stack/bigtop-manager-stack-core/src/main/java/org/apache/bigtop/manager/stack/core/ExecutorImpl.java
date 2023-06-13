@@ -2,8 +2,8 @@ package org.apache.bigtop.manager.stack.core;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.stack.common.AbstractParams;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
-import org.apache.bigtop.manager.stack.common.utils.Params;
 import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
 import org.apache.bigtop.manager.stack.spi.Hook;
 import org.apache.bigtop.manager.stack.spi.SPIFactory;
@@ -41,7 +41,7 @@ public class ExecutorImpl implements Executor {
 
     @Override
     public void execute(CommandMessage commandMessage) {
-        Params.commandMessage = commandMessage;
+        AbstractParams.commandMessage = commandMessage;
 
         Script script = getScript(commandMessage);
         if (script == null) {
