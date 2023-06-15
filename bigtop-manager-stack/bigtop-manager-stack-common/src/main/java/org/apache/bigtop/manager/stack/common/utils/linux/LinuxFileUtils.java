@@ -7,16 +7,17 @@ import org.apache.bigtop.manager.stack.common.utils.JsonUtils;
 import org.apache.bigtop.manager.stack.common.utils.PropertiesUtils;
 import org.apache.bigtop.manager.stack.common.utils.XmlUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.*;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 
 
@@ -57,8 +58,8 @@ public class LinuxFileUtils {
                 break;
         }
 
-        updateOwner(fileName, owner, group);
-        updatePermissions(fileName, permissionsString);
+        updateOwner(fileName, owner, group, false);
+        updatePermissions(fileName, permissionsString, false);
     }
 
     public static void toFile(ConfigType type, String fileName, String owner, String group, String permissionsString,
@@ -75,8 +76,8 @@ public class LinuxFileUtils {
                 log.warn("only support TEMPLATE type");
         }
 
-        updateOwner(fileName, owner, group);
-        updatePermissions(fileName, permissionsString);
+        updateOwner(fileName, owner, group, false);
+        updatePermissions(fileName, permissionsString, false);
     }
 
     /**
@@ -84,8 +85,9 @@ public class LinuxFileUtils {
      *
      * @param filePath          file path
      * @param permissionsString {@code rwxr--r--}
+     * @param recursive         recursive
      */
-    public static void updatePermissions(String filePath, String permissionsString) {
+    public static void updatePermissions(String filePath, String permissionsString, boolean recursive) {
         if (StringUtils.isBlank(filePath)) {
             log.error("filePath must not be null");
             return;
@@ -100,16 +102,28 @@ public class LinuxFileUtils {
         } catch (IOException e) {
             log.error("[updatePermissions] error,", e);
         }
+
+        // When is a directory, recursive update
+        if (recursive && Files.isDirectory(path)) {
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
+                for (Path subPath : ds) {
+                    updatePermissions(filePath + File.separator + subPath.getFileName(), permissionsString, true);
+                }
+            } catch (IOException e) {
+                log.error("[updatePermissions] error,", e);
+            }
+        }
     }
 
     /**
      * Update file owner
      *
-     * @param filePath file path
-     * @param owner    owner
-     * @param group    group
+     * @param filePath  file path
+     * @param owner     owner
+     * @param group     group
+     * @param recursive recursive
      */
-    public static void updateOwner(String filePath, String owner, String group) {
+    public static void updateOwner(String filePath, String owner, String group, boolean recursive) {
         if (StringUtils.isBlank(filePath)) {
             log.error("filePath must not be null");
             return;
@@ -131,15 +145,51 @@ public class LinuxFileUtils {
         } catch (IOException e) {
             log.error("[updateOwner] error,", e);
         }
+
+        // When it is a directory, recursively set the file owner
+        if (recursive && Files.isDirectory(path)) {
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
+                for (Path subPath : ds) {
+                    updateOwner(filePath + File.separator + subPath.getFileName(), owner, group, true);
+                }
+            } catch (IOException e) {
+                log.error("[updateOwner] error,", e);
+            }
+        }
+    }
+
+    /**
+     * create directories
+     *
+     * @param dirPath           directory path
+     * @param owner             owner
+     * @param group             group
+     * @param permissionsString {@code rwxr--r--}
+     * @param recursive         recursive
+     */
+    public static void createDirectories(String dirPath, String owner, String group, String permissionsString, boolean recursive) {
+        Path path = Paths.get(dirPath);
+
+        if (Files.isSymbolicLink(path)) {
+            log.warn("unable to create symbolic link: {}", dirPath);
+            return;
+        }
+
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            log.error("[createDirectories] error,", e);
+        }
+
+        updateOwner(dirPath, owner, group, recursive);
+        updatePermissions(dirPath, permissionsString, recursive);
     }
 
     public static void main(String[] args) {
         String file = "/usr/bigtop/3.2.0/usr/lib/zookeeper/conf/zoo.cfg";
-        updateOwner(file, "test2", "zookeeper");
+        updateOwner(file, "zookeeper", "zookeeper", false);
+        updatePermissions(file, "rwxr--r--", false);
 
-//        updatePermissions(file, "rwxr--r--");
-
-        Properties properties = new Properties();
-        properties.setProperty("a", "1");
+        createDirectories("/usr/bigtop/3.2.0/usr/lib/zookeeper/conf/rest", "zookeeper", "root", "rwxrwxr--", true);
     }
 }
