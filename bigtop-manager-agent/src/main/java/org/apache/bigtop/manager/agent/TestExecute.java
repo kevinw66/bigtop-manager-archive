@@ -18,19 +18,22 @@ public class TestExecute {
 
         CommandMessage commandMessage1 = YamlUtils.readYaml("/var/lib/bigtop-manager-agent/cache/stacks/BIGTOP/3.2.0/services/ZOOKEEPER/metainfo.yaml", CommandMessage.class);
         commandMessage.setOsSpecifics(commandMessage1.getOsSpecifics());
-
-        commandMessage.setCommand("install");
         ExecutorImpl execute = new ExecutorImpl();
-        execute.execute(commandMessage);
 
-        commandMessage.setCommand("start");
+//        commandMessage.setCommand("install");
+//        execute.execute(commandMessage);
+//
+//        commandMessage.setCommand("start");
+//        execute.execute(commandMessage);
+
+        commandMessage.setCommand("configuration");
         execute.execute(commandMessage);
 
         commandMessage.setCommand("status");
         execute.execute(commandMessage);
 
-        commandMessage.setCommand("stop");
-        execute.execute(commandMessage);
+//        commandMessage.setCommand("stop");
+//        execute.execute(commandMessage);
 
     }
 }

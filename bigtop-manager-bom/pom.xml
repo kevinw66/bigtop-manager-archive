@@ -20,7 +20,8 @@
         <kryo.version>5.4.0</kryo.version>
         <common-lang3.version>3.12.0</common-lang3.version>
         <logback.version>1.2.11</logback.version>
-        <snakeyaml.version>1.30</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
+        <commons-io.version>2.13.0</commons-io.version>
     </properties>
 
     <dependencyManagement>
@@ -78,6 +79,12 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
