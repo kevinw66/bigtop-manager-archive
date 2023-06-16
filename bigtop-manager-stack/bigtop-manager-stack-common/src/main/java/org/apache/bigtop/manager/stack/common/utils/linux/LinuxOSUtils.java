@@ -28,16 +28,16 @@ public class LinuxOSUtils {
     /**
      * get sudo command
      *
-     * @param tenantUser tenantUser
+     * @param tenant Tenant User
      * @param command    command
      * @return result of sudo execute command
      */
-    public static String getSudoCmd(String tenantUser, String command) {
-        if (StringUtils.isBlank(tenantUser) || !LinuxAccountUtils.checkIfExistsUser(tenantUser)) {
+    public static String getSudoCmd(String tenant, String command) {
+        if (StringUtils.isBlank(tenant) || !LinuxAccountUtils.isUserExists(tenant)) {
             return command;
         }
 
-        return MessageFormat.format("sudo -u {0} {1}", tenantUser, command);
+        return MessageFormat.format("sudo -u {0} {1}", tenant, command);
     }
 
     /**

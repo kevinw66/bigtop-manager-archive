@@ -4,6 +4,7 @@ import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.stack.core.ExecutorImpl;
 
+//Test class
 public class TestExecute {
     public static void main(String[] args) {
         CommandMessage commandMessage = new CommandMessage();
@@ -20,11 +21,6 @@ public class TestExecute {
         commandMessage.setOsSpecifics(commandMessage1.getOsSpecifics());
         ExecutorImpl execute = new ExecutorImpl();
 
-//        commandMessage.setCommand("install");
-//        execute.execute(commandMessage);
-//
-//        commandMessage.setCommand("start");
-//        execute.execute(commandMessage);
 
         commandMessage.setCommand("configuration");
         execute.execute(commandMessage);
@@ -32,8 +28,6 @@ public class TestExecute {
         commandMessage.setCommand("status");
         execute.execute(commandMessage);
 
-//        commandMessage.setCommand("stop");
-//        execute.execute(commandMessage);
 
     }
 }

@@ -27,20 +27,20 @@ public class LinuxAccountUtils {
     /**
      * Delete user
      *
-     * @param userName userName
+     * @param user User Name
      */
-    public static void userDel(String userName) {
-        Objects.requireNonNull(userName);
+    public static void userDel(String user) {
+        Objects.requireNonNull(user);
 
         List<String> builderParameters = new ArrayList<>();
 
-        if (checkIfExistsUser(userName)) {
+        if (isUserExists(user)) {
             builderParameters.add(USERDEL);
         } else {
             return;
         }
 
-        builderParameters.add(userName);
+        builderParameters.add(user);
 
         log.debug("builderParameters: {}", builderParameters);
 
@@ -56,48 +56,48 @@ public class LinuxAccountUtils {
      * Add user
      * useradd [options] LOGIN
      */
-    public static void userAdd(String userName,
-                               String groupName,
+    public static void userAdd(String user,
+                               String group,
                                List<String> groups) {
-        userAdd(userName, groupName, null, groups, null, null, null, false);
+        userAdd(user, group, null, groups, null, null, null, false);
     }
 
     /**
      * Add user
      * useradd [options] LOGIN
      *
-     * @param userName  userName
-     * @param groupName Primary user group
-     * @param uid       user id
-     * @param groups    group list
-     * @param home      user home directory
-     * @param comment   user comment
-     * @param password  user password
+     * @param user     User Name
+     * @param group    Primary user group
+     * @param uid      user id
+     * @param groups   group list
+     * @param home     user home directory
+     * @param comment  user comment
+     * @param password user password
      */
-    public static void userAdd(String userName,
-                               String groupName,
+    public static void userAdd(String user,
+                               String group,
                                String uid,
                                List<String> groups,
                                String home,
                                String comment,
                                String password,
                                Boolean system) {
-        Objects.requireNonNull(userName);
-        Objects.requireNonNull(groupName);
+        Objects.requireNonNull(user);
+        Objects.requireNonNull(group);
 
-        if (!checkIfExistsGroup(groupName)) {
-            groupAdd(groupName);
+        if (!isGroupExists(group)) {
+            groupAdd(group);
         }
 
         if (!CollectionUtils.isEmpty(groups)) {
-            for (String group : groups) {
-                groupAdd(group);
+            for (String g : groups) {
+                groupAdd(g);
             }
         }
 
         List<String> builderParameters = new ArrayList<>();
 
-        if (checkIfExistsUser(userName)) {
+        if (isUserExists(user)) {
             builderParameters.add(USERMOD);
         } else {
             builderParameters.add(USERADD);
@@ -125,13 +125,13 @@ public class LinuxAccountUtils {
         }
 
         builderParameters.add("-g");
-        builderParameters.add(groupName);
+        builderParameters.add(group);
 
         if (!CollectionUtils.isEmpty(groups)) {
             builderParameters.add("-G");
             builderParameters.add(String.join(",", groups));
         }
-        builderParameters.add(userName);
+        builderParameters.add(user);
 
         log.debug("builderParameters: {}", builderParameters);
 
@@ -147,20 +147,20 @@ public class LinuxAccountUtils {
     /**
      * Delete group
      *
-     * @param groupName groupName
+     * @param group Group Name
      */
-    public static void groupDel(String groupName) {
-        Objects.requireNonNull(groupName);
+    public static void groupDel(String group) {
+        Objects.requireNonNull(group);
 
         List<String> builderParameters = new ArrayList<>();
 
-        if (checkIfExistsGroup(groupName)) {
+        if (isGroupExists(group)) {
             builderParameters.add(GROUPDEL);
         } else {
             return;
         }
 
-        builderParameters.add(groupName);
+        builderParameters.add(group);
 
         log.debug("builderParameters: {}", builderParameters);
 
@@ -176,10 +176,10 @@ public class LinuxAccountUtils {
     /**
      * Add group
      *
-     * @param groupName groupName
+     * @param group Group Name
      */
-    public static void groupAdd(String groupName) {
-        groupAdd(groupName, null, null);
+    public static void groupAdd(String group) {
+        groupAdd(group, null, null);
     }
 
     /**
@@ -188,16 +188,16 @@ public class LinuxAccountUtils {
      * or
      * {@code groupmod [-g gid] [-p password] GROUP}
      *
-     * @param groupName groupName
-     * @param gid       groupId
-     * @param password  password
+     * @param group    Group Name
+     * @param gid      groupId
+     * @param password password
      */
-    public static void groupAdd(String groupName, String gid, String password) {
-        Objects.requireNonNull(groupName);
+    public static void groupAdd(String group, String gid, String password) {
+        Objects.requireNonNull(group);
 
         List<String> builderParameters = new ArrayList<>();
 
-        if (checkIfExistsGroup(groupName)) {
+        if (isGroupExists(group)) {
             builderParameters.add(GROUPMOD);
         } else {
             builderParameters.add(GROUPADD);
@@ -211,7 +211,7 @@ public class LinuxAccountUtils {
             builderParameters.add("-p");
             builderParameters.add(password);
         }
-        builderParameters.add(groupName);
+        builderParameters.add(group);
 
         log.debug("builderParameters: {}", builderParameters);
 
@@ -226,17 +226,17 @@ public class LinuxAccountUtils {
     /**
      * Check if exists group
      *
-     * @param groupName groupName
+     * @param group Group Name
      * @return
      */
-    public static boolean checkIfExistsGroup(String groupName) {
-        Objects.requireNonNull(groupName);
+    public static boolean isGroupExists(String group) {
+        Objects.requireNonNull(group);
 
         List<String> builderParameters = new ArrayList<>();
 
         builderParameters.add("sh");
         builderParameters.add("-c");
-        builderParameters.add("awk -F':' '{print $1}' /etc/group | grep  " + groupName);
+        builderParameters.add("awk -F':' '{print $1}' /etc/group | grep  " + group);
 
         log.debug("builderParameters: {}", builderParameters);
 
@@ -253,16 +253,16 @@ public class LinuxAccountUtils {
     /**
      * Check if exists user
      *
-     * @param userName userName
+     * @param user User Name
      */
-    public static boolean checkIfExistsUser(String userName) {
-        Objects.requireNonNull(userName);
+    public static boolean isUserExists(String user) {
+        Objects.requireNonNull(user);
 
         List<String> builderParameters = new ArrayList<>();
 
         builderParameters.add("sh");
         builderParameters.add("-c");
-        builderParameters.add("awk -F':' '{print $1}' /etc/passwd | grep  " + userName);
+        builderParameters.add("awk -F':' '{print $1}' /etc/passwd | grep  " + user);
 
         log.debug("builderParameters: {}", builderParameters);
 
