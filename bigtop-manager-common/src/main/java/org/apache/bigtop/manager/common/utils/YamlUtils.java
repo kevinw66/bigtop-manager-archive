@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.common.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 
@@ -12,9 +13,14 @@ public class YamlUtils {
     private static final Yaml YAML;
 
     static {
-        Representer representer = new Representer();
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        dumperOptions.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
+
+        Representer representer = new Representer(dumperOptions);
         representer.getPropertyUtils().setSkipMissingProperties(true);
-        YAML = new Yaml(representer);
+
+        YAML = new Yaml(representer, dumperOptions);
     }
 
     /**
@@ -41,9 +47,9 @@ public class YamlUtils {
      * Write data to yaml file
      *
      * @param path out yaml file path
-     * @param data yaml content
+     * @param data yaml content, maybe Map, json or java bean
      */
-    public void writeYaml(String path, String data) {
+    public static void writeYaml(String path, Object data) {
         try (FileWriter fileWriter = new FileWriter(path, false)) {
             YAML.dump(data, fileWriter);
         } catch (IOException e) {
