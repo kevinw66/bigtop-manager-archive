@@ -18,7 +18,13 @@ public class Cluster {
 
     private Integer clusterType;
 
+    private String cacheDir;
+
     private Timestamp createTime;
 
     private Timestamp updateTime;
+
+    @ManyToOne
+    @JoinColumn(name = "stack_id")
+    private Stack stack;
 }

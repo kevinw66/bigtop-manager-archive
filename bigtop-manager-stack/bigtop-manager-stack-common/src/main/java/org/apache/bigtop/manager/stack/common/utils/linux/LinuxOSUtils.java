@@ -16,20 +16,20 @@ public class LinuxOSUtils {
     /**
      * Execute the sudo command
      *
-     * @param command    command
-     * @param tenantUser tenantUser
+     * @param command command
+     * @param tenant  Tenant User
      * @return result of execute command
      * @throws IOException errors
      */
-    public static ShellResult sudoExecCmd(String command, String tenantUser) throws IOException {
-        return execCmd(getSudoCmd(tenantUser, command));
+    public static ShellResult sudoExecCmd(String command, String tenant) throws IOException {
+        return execCmd(getSudoCmd(tenant, command));
     }
 
     /**
      * get sudo command
      *
-     * @param tenant Tenant User
-     * @param command    command
+     * @param tenant  Tenant User
+     * @param command command
      * @return result of sudo execute command
      */
     public static String getSudoCmd(String tenant, String command) {

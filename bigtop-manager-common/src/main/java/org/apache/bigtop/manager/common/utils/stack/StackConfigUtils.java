@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.stack.common.utils;
+package org.apache.bigtop.manager.common.utils.stack;
 
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 

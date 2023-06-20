@@ -16,11 +16,7 @@ public class CommandMessage extends BaseMessage {
 
     private String service;
 
-    private String beforeCommand;
-
     private String command;
-
-    private String afterCommand;
 
     private String stack;
 
@@ -33,5 +29,7 @@ public class CommandMessage extends BaseMessage {
     private String cacheDir;
 
     private List<OSSpecific> osSpecifics;
+
+    private String hostname;
 
 }

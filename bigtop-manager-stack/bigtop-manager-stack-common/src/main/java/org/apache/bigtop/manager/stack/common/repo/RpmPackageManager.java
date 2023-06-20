@@ -18,7 +18,7 @@ public class RpmPackageManager implements PackageManager {
     private static final String YUM = "/usr/bin/yum";
 
     @Override
-    public void installPackage(List<String> packages) {
+    public ShellResult installPackage(List<String> packages) {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add(YUM);
 
@@ -33,13 +33,14 @@ public class RpmPackageManager implements PackageManager {
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[RpmPackageManager] [installPackage] output: {}", output);
+            return output;
         } catch (IOException e) {
             throw new StackException(e);
         }
     }
 
     @Override
-    public void uninstallPackage(List<String> packages) {
+    public ShellResult uninstallPackage(List<String> packages) {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add(YUM);
 
@@ -54,6 +55,7 @@ public class RpmPackageManager implements PackageManager {
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
             log.info("[RpmPackageManager] [uninstallPackage] output: {}", output);
+            return output;
         } catch (IOException e) {
             throw new StackException(e);
         }
