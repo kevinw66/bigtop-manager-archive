@@ -20,6 +20,8 @@ public class Cluster {
 
     private String cacheDir;
 
+    private String root;
+
     private Timestamp createTime;
 
     private Timestamp updateTime;

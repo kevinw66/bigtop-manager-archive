@@ -71,6 +71,7 @@ public class ComponentServiceImpl implements ComponentService {
         commandMessage.setScriptId(component.getScriptId());
         commandMessage.setService(component.getService().getServiceName());
         commandMessage.setComponent(componentName);
+        commandMessage.setRoot(cluster.getRoot());
 
         commandMessage.setCacheDir(component.getCluster().getCacheDir());
 

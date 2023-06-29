@@ -22,6 +22,8 @@ public class CommandMessage extends BaseMessage {
 
     private String version;
 
+    private String root;
+
     private String component;
 
     private String scriptId;

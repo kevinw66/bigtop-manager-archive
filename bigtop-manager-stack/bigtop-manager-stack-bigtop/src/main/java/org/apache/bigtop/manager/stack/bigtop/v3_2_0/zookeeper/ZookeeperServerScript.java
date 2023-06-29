@@ -40,7 +40,7 @@ public class ZookeeperServerScript implements Script {
         modelMap.put("JAVA_HOME", "/usr/local/java");
         modelMap.put("ZOOKEEPER_HOME", ZookeeperParams.serviceHome());
         modelMap.put("ZOO_LOG_DIR", ZookeeperParams.zookeeperEnv().get("logDir"));
-        modelMap.put("ZOOPIDFILE", ZookeeperParams.zookeeperEnv().get("pidDir"));
+        modelMap.put("ZOOPIDFILE", ZookeeperParams.zookeeperEnv().get("pidDir") + "/zookeeper_server.pid");
         modelMap.put("securityEnabled", false);
 
         log.info("modelMap: {}", modelMap);
@@ -48,6 +48,8 @@ public class ZookeeperServerScript implements Script {
         LinuxFileUtils.toFile(ConfigType.TEMPLATE, ZookeeperParams.confDir() + "/zookeeper-env.sh", "zookeeper", "zookeeper", "rw-r--r--",
                 modelMap, ZookeeperParams.zookeeperEnv().get("content").toString());
 
+
+        LinuxFileUtils.updateOwner((String) ZookeeperParams.zooCfg().get("dataDir"), "zookeeper", "zookeeper", true);
         return new ShellResult(0, "", "");
     }
 
