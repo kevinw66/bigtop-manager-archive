@@ -10,7 +10,8 @@ import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.List;
 

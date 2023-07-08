@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.service;
 
-import javax.servlet.http.HttpSession;
+
+import jakarta.servlet.http.HttpSession;
 
 public interface LoginService {
 

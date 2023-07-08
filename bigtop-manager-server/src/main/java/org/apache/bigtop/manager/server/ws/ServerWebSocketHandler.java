@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.ws;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.type.BaseMessage;
@@ -10,7 +11,6 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import javax.annotation.Resource;
 
 /**
  * WebSocket Endpoint for agent.
