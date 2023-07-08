@@ -1,13 +1,12 @@
 package org.apache.bigtop.manager.common.configuration;
 
+import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
 
 @Configuration
 public class MessageConfiguration {

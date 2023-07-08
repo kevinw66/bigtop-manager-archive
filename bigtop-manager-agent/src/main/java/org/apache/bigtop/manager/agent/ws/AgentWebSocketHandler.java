@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.agent.ws;
 
 import com.sun.management.OperatingSystemMXBean;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
@@ -15,7 +16,6 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;

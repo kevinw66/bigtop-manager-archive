@@ -14,12 +14,11 @@
     <description>Bigtop Manager Bom</description>
 
     <properties>
-        <spring-boot.version>2.7.10</spring-boot.version>
+        <spring-boot.version>3.1.1</spring-boot.version>
         <springdoc.version>1.7.0</springdoc.version>
         <freemarker.version>2.3.32</freemarker.version>
         <kryo.version>5.4.0</kryo.version>
         <common-lang3.version>3.12.0</common-lang3.version>
-        <logback.version>1.2.11</logback.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <commons-io.version>2.13.0</commons-io.version>
     </properties>
@@ -67,12 +66,6 @@
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
             </dependency>
 
             <dependency>
