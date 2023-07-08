@@ -40,7 +40,7 @@ public class ExecutorImpl implements Executor {
 
 
     @Override
-    public void execute(CommandMessage commandMessage) {
+    public Object execute(CommandMessage commandMessage) {
         AbstractParams.commandMessage = commandMessage;
 
         Script script = getScript(commandMessage);
@@ -54,16 +54,17 @@ public class ExecutorImpl implements Executor {
 
         HookMethodUtils(hook, "before");
 
+        Object object;
         try {
             Method method = script.getClass().getMethod(command.toLowerCase());
-            method.invoke(script);
+            object = method.invoke(script);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             log.error("Execute command error, ", e);
             throw new StackException(e);
         }
 
         HookMethodUtils(hook, "after");
-
+        return object;
     }
 
     public static void HookMethodUtils(Hook hook, String type) {

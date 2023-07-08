@@ -57,8 +57,9 @@ public abstract class AbstractParams {
         String stack = commandMessage.getStack();
         String version = commandMessage.getVersion();
         String service = commandMessage.getService();
+        String root = commandMessage.getRoot();
 
-        return "/usr/" + stack.toLowerCase() + "/" + version + "/usr/lib/" + service.toLowerCase();
+        return root + "/" + version + "/usr/lib/" + service.toLowerCase();
     }
 
     /**
