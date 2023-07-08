@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Slf4j
 @Tag(name = "Component Controller")
