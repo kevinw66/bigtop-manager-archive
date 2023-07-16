@@ -1,5 +1,7 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.orm.entity.User;
@@ -8,14 +10,11 @@ import org.apache.bigtop.manager.server.service.LoginService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
-
 @Service
+@RequiredArgsConstructor
 public class LoginServiceImpl implements LoginService {
 
-    @Resource
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void login(HttpSession session, String username, String password) {

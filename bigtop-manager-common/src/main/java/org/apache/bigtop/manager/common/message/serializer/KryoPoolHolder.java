@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.util.Pool;
 import org.apache.bigtop.manager.common.message.type.BaseMessage;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -17,6 +18,9 @@ public class KryoPoolHolder {
             Kryo kryo = new Kryo();
             kryo.setCopyReferences(true);
 
+            kryo.setReferences(false);
+            kryo.setRegistrationRequired(false);
+            kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
             // message types
             kryo.register(BaseMessage.class);
             kryo.register(HeartbeatMessage.class);

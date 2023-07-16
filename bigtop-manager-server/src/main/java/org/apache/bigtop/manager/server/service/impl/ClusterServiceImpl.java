@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
@@ -10,16 +11,14 @@ import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ClusterServiceImpl implements ClusterService {
 
-    @Resource
-    private ClusterRepository clusterRepository;
+    private final ClusterRepository clusterRepository;
 
     @Override
     public List<ClusterVO> list() {
