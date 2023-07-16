@@ -58,6 +58,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
                 HeartbeatMessage heartbeatMessage = new HeartbeatMessage();
                 heartbeatMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 heartbeatMessage.setHostInfo(hostInfo);
+                log.info("HeartbeatMessage: {}", heartbeatMessage);
                 session.sendMessage(new BinaryMessage(serializer.serialize(heartbeatMessage)));
             } catch (IOException e) {
                 log.error(MessageFormat.format("Error sending heartbeat to server: {0}", e.getMessage()));

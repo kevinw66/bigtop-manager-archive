@@ -96,8 +96,6 @@
                     </metadataRepository>
                     <buildArgs>
                         --no-fallback
-                        --initialize-at-run-time=org.apache.bigtop.manager.common.message.type.pojo
-                        --initialize-at-run-time=org.apache.bigtop.manager.common.message.type
                     </buildArgs>
 
                 </configuration>
