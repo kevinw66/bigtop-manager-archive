@@ -1,13 +1,11 @@
 package org.apache.bigtop.manager.server.ws;
 
-import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.type.BaseMessage;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -20,14 +18,6 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@RegisterReflectionForBinding(classes = {
-        DefaultSerializers.BigDecimalSerializer.class,
-        DefaultSerializers.DateSerializer.class,
-        DefaultSerializers.ClassSerializer.class,
-        BaseMessage.class,
-        HeartbeatMessage.class,
-        HostInfo.class
-})
 public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
     private final MessageDeserializer deserializer;

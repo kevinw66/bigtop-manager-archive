@@ -1,15 +1,12 @@
 package org.apache.bigtop.manager.agent.ws;
 
-import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 import com.sun.management.OperatingSystemMXBean;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -33,14 +30,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@RegisterReflectionForBinding({
-        DefaultSerializers.BigDecimalSerializer.class,
-        DefaultSerializers.DateSerializer.class,
-        DefaultSerializers.ClassSerializer.class,
-        BaseMessage.class,
-        HeartbeatMessage.class,
-        HostInfo.class
-})
 public class AgentWebSocketHandler extends BinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
 
     private final ApplicationConfiguration applicationConfiguration;

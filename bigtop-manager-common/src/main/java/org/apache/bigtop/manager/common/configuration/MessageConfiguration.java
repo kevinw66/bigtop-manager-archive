@@ -1,12 +1,9 @@
 package org.apache.bigtop.manager.common.configuration;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.bigtop.manager.common.message.serializer.KryoMessageDeserializer;
-import org.apache.bigtop.manager.common.message.serializer.KryoMessageSerializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,7 +15,6 @@ public class MessageConfiguration {
     private final ApplicationConfiguration applicationConfiguration;
 
     @Bean
-    @RegisterReflectionForBinding({KryoMessageSerializer.class})
     public MessageSerializer messageSerializer() throws Exception {
         String serializerType = applicationConfiguration.getSerializer().getType();
         String packageName = "org.apache.bigtop.manager.common.message.serializer";
@@ -27,7 +23,6 @@ public class MessageConfiguration {
     }
 
     @Bean
-    @RegisterReflectionForBinding({KryoMessageDeserializer.class})
     public MessageDeserializer messageDeserializer() throws Exception {
         String deserializerType = applicationConfiguration.getSerializer().getType();
         String packageName = "org.apache.bigtop.manager.common.message.serializer";
