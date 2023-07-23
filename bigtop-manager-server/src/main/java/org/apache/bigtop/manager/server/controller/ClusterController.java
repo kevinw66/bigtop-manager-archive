@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.request.ClusterRequest;
@@ -10,7 +11,6 @@ import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Tag(name = "Cluster Controller")

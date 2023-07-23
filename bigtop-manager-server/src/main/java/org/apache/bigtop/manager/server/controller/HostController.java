@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.request.HostRequest;
@@ -10,7 +11,6 @@ import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 @Tag(name = "Host Controller")

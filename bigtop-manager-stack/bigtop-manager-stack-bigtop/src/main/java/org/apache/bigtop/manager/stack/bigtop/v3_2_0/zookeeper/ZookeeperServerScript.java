@@ -3,7 +3,9 @@ package org.apache.bigtop.manager.stack.bigtop.v3_2_0.zookeeper;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
+import org.apache.bigtop.manager.stack.common.enums.ConfigType;
+import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
+import org.apache.bigtop.manager.stack.common.utils.linux.LinuxOSUtils;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
@@ -12,7 +14,7 @@ import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
 import org.apache.bigtop.manager.stack.spi.Script;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +35,7 @@ public class ZookeeperServerScript implements Script {
         log.info("ZookeeperServerScript configuration");
 
         log.info("{}", ZookeeperParams.zooCfg());
-        PropertiesUtils.writeProperties(ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.zooCfg());
+        LinuxFileUtils.toFile(ConfigType.PROPERTIES, ZookeeperParams.confDir() + "/zoo.cfg", "zookeeper", "zookeeper", "rw-r--r--", ZookeeperParams.zooCfg());
 
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
@@ -44,7 +46,7 @@ public class ZookeeperServerScript implements Script {
 
         log.info("modelMap: {}", modelMap);
         log.info("content: {}", ZookeeperParams.zookeeperEnv().get("content"));
-        BaseTemplate.writeTemplateByContent(ZookeeperParams.confDir() + "/zookeeper-env.sh",
+        LinuxFileUtils.toFile(ConfigType.TEMPLATE, ZookeeperParams.confDir() + "/zookeeper-env.sh", "zookeeper", "zookeeper", "rw-r--r--",
                 modelMap, ZookeeperParams.zookeeperEnv().get("content").toString());
     }
 
@@ -53,16 +55,10 @@ public class ZookeeperServerScript implements Script {
         configuration();
         log.info("ZookeeperServerScript start");
 
-        List<String> builderParameters = new ArrayList<>();
-        builderParameters.add("sh");
-
-        builderParameters.add(ZookeeperParams.serviceHome() + "/bin/zkServer.sh");
-        builderParameters.add("start");
-        log.info("{}", builderParameters);
+        String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh start", ZookeeperParams.serviceHome());
         try {
-            ShellResult output = ShellExecutor.execCommand(builderParameters);
-
-            log.info("[ZookeeperServerScript] [start] output: {}", output);
+            ShellResult output = LinuxOSUtils.sudoExecCmd(cmd, "zookeeper");
+            log.info("[ZookeeperServerScript] [status] output: {}", output);
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -71,14 +67,10 @@ public class ZookeeperServerScript implements Script {
     @Override
     public void stop() {
         log.info("ZookeeperServerScript stop");
-        List<String> builderParameters = new ArrayList<>();
-        builderParameters.add("sh");
-
-        builderParameters.add(ZookeeperParams.serviceHome() + "/bin/zkServer.sh");
-        builderParameters.add("stop");
+        String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh stop", ZookeeperParams.serviceHome());
         try {
-            ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[ZookeeperServerScript] [stop] output: {}", output);
+            ShellResult output = LinuxOSUtils.sudoExecCmd(cmd, "zookeeper");
+            log.info("[ZookeeperServerScript] [status] output: {}", output);
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -87,13 +79,10 @@ public class ZookeeperServerScript implements Script {
     @Override
     public void status() {
         log.info("ZookeeperServerScript status");
-        List<String> builderParameters = new ArrayList<>();
-        builderParameters.add("sh");
 
-        builderParameters.add(ZookeeperParams.serviceHome() + "/bin/zkServer.sh");
-        builderParameters.add("status");
+        String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh status", ZookeeperParams.serviceHome());
         try {
-            ShellResult output = ShellExecutor.execCommand(builderParameters);
+            ShellResult output = LinuxOSUtils.sudoExecCmd(cmd, "zookeeper");
             log.info("[ZookeeperServerScript] [status] output: {}", output);
         } catch (IOException e) {
             throw new StackException(e);

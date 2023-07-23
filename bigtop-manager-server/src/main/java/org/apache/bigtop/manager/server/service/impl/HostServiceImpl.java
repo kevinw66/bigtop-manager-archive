@@ -10,7 +10,8 @@ import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
+
 import java.util.ArrayList;
 import java.util.List;
 

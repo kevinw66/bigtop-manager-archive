@@ -8,8 +8,8 @@ import org.apache.bigtop.manager.server.service.LoginService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class LoginServiceImpl implements LoginService {
