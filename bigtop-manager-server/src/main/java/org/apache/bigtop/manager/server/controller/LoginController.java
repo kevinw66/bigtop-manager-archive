@@ -2,8 +2,8 @@ package org.apache.bigtop.manager.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.request.LoginRequest;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Login Controller")
 @RestController
+@RequiredArgsConstructor
 public class LoginController {
 
-    @Resource
-    private LoginService loginService;
+    private final LoginService loginService;
 
     @Operation(summary = "login", description = "User Login")
     @PostMapping(value = "/login")

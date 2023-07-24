@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.request.HostRequest;
@@ -16,10 +16,10 @@ import java.util.List;
 @Tag(name = "Host Controller")
 @RestController
 @RequestMapping("/hosts")
+@RequiredArgsConstructor
 public class HostController {
 
-    @Resource
-    private HostService hostService;
+    private final HostService hostService;
 
     @Operation(summary = "list", description = "List hosts")
     @GetMapping

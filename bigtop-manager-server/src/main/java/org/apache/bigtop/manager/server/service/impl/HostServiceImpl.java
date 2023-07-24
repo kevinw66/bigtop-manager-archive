@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
@@ -10,16 +11,14 @@ import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
-
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class HostServiceImpl implements HostService {
 
-    @Resource
-    private HostRepository hostRepository;
+    private final HostRepository hostRepository;
 
     @Override
     public List<HostVO> list() {

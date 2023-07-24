@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.server.ws;
 
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.type.BaseMessage;
@@ -17,10 +17,10 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
-    @Resource
-    private MessageDeserializer deserializer;
+    private final MessageDeserializer deserializer;
 
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {

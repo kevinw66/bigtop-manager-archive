@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.agent.ws;
 
 import com.sun.management.OperatingSystemMXBean;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
@@ -29,13 +29,12 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AgentWebSocketHandler extends BinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
 
-    @Resource
-    private ApplicationConfiguration applicationConfiguration;
+    private final ApplicationConfiguration applicationConfiguration;
 
-    @Resource
-    private MessageSerializer serializer;
+    private final MessageSerializer serializer;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
@@ -48,7 +47,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
                 HeartbeatMessage heartbeatMessage = new HeartbeatMessage();
                 heartbeatMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 heartbeatMessage.setHostInfo(hostInfo);
-
+                log.info("HeartbeatMessage: {}", heartbeatMessage);
                 session.sendMessage(new BinaryMessage(serializer.serialize(heartbeatMessage)));
             } catch (IOException e) {
                 log.error(MessageFormat.format("Error sending heartbeat to server: {0}", e.getMessage()));
@@ -109,7 +108,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
             int retryTime = 0;
             while (true) {
                 try {
-                    webSocketClient.doHandshake(this, uri).get();
+                    webSocketClient.execute(this, uri).get();
                     break;
                 } catch (Exception e) {
                     log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));
