@@ -10,4 +10,6 @@ import java.sql.Timestamp;
 public class BaseMessage {
 
     private Timestamp timestamp;
+
+    private String messageId;
 }

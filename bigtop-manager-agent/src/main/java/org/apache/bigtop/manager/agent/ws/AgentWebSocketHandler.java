@@ -4,9 +4,15 @@ import com.sun.management.OperatingSystemMXBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
+import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
+import org.apache.bigtop.manager.common.message.type.BaseMessage;
+import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.stack.core.Executor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -37,9 +43,52 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     @Resource
     private MessageSerializer serializer;
 
+    @Resource
+    private MessageDeserializer deserializer;
+
+    @Resource
+    private Executor stackExecutor;
+
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
     private HostInfo hostInfo;
+
+    @Override
+    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+        BaseMessage baseMessage = deserializer.deserialize(message.getPayload().array());
+
+        handleMessage(session, baseMessage);
+
+        System.out.println(baseMessage.toString());
+    }
+
+    private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
+        if (baseMessage instanceof CommandMessage) {
+            log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
+            handleCommandMessage(session, (CommandMessage) baseMessage);
+        } else {
+            log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
+        }
+    }
+
+    private void handleCommandMessage(WebSocketSession session, CommandMessage commandMessage) {
+        Object result = stackExecutor.execute(commandMessage);
+        if (result != null) {
+            if (result instanceof ShellResult) {
+                ResultMessage resultMessage = new ResultMessage();
+                resultMessage.setCode(((ShellResult) result).getExitCode());
+                resultMessage.setResult(result.toString());
+                resultMessage.setMessageId(commandMessage.getMessageId());
+                resultMessage.setHostname(commandMessage.getHostname());
+                resultMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                try {
+                    session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
+                } catch (IOException e) {
+                    log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
+                }
+            }
+        }
+    }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {

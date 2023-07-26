@@ -1,0 +1,1 @@
+insert into bigtop_manager.service (id, osspecifics, create_time, service_name, update_time, cluster_id) values (1, '[{"os":["centos7"],"arch":["x86_64"],"packages":["zookeeper_3_2_0-3.5.9-2.el7.x86_64","curl"]}]', null, 'zookeeper', null, 1);

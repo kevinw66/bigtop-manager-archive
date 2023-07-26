@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.stack.common.utils;
 
 import org.apache.bigtop.manager.common.enums.OSType;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.spi.PackageManager;
 import org.apache.bigtop.manager.stack.spi.SPIFactory;
@@ -22,9 +23,9 @@ public class PackageUtils {
      *
      * @param packageList packages need to be installed
      */
-    public static void install(List<String> packageList) {
+    public static ShellResult install(List<String> packageList) {
         if (packageList == null || packageList.isEmpty()) {
-            return;
+            return null;
         }
 
         String os = OSDetection.getOS();
@@ -36,7 +37,7 @@ public class PackageUtils {
         if (packageManager == null) {
             throw new StackException("Unsupported OS: " + os);
         }
-        packageManager.installPackage(packageList);
+        return packageManager.installPackage(packageList);
     }
 
 }
