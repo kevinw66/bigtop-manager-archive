@@ -1,14 +1,15 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
-import lombok.Data;
-
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_stack_name", columnNames = {"stackName"})})
 @TableGenerator(name = "stack_generator", table = "sequence")
-public class Stack {
+public class Stack extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "stack_generator")
@@ -18,7 +19,4 @@ public class Stack {
 
     private String stackVersion;
 
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
 }

@@ -34,7 +34,7 @@ public class ZookeeperServerScript implements Script {
         log.info("ZookeeperServerScript configuration");
 
         log.info("{}", ZookeeperParams.zooCfg());
-        LinuxFileUtils.toFile(ConfigType.PROPERTIES, ZookeeperParams.confDir() + "/zoo.cfg", "zookeeper", "zookeeper", "rw-r--r--", ZookeeperParams.zooCfg());
+        LinuxFileUtils.toFile(ConfigType.PROPERTIES, ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.user(), ZookeeperParams.group(), "rw-r--r--", ZookeeperParams.zooCfg());
 
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
@@ -45,11 +45,11 @@ public class ZookeeperServerScript implements Script {
 
         log.info("modelMap: {}", modelMap);
         log.info("content: {}", ZookeeperParams.zookeeperEnv().get("content"));
-        LinuxFileUtils.toFile(ConfigType.TEMPLATE, ZookeeperParams.confDir() + "/zookeeper-env.sh", "zookeeper", "zookeeper", "rw-r--r--",
+        LinuxFileUtils.toFile(ConfigType.TEMPLATE, ZookeeperParams.confDir() + "/zookeeper-env.sh", ZookeeperParams.user(), ZookeeperParams.group(), "rw-r--r--",
                 modelMap, ZookeeperParams.zookeeperEnv().get("content").toString());
 
 
-        LinuxFileUtils.updateOwner((String) ZookeeperParams.zooCfg().get("dataDir"), "zookeeper", "zookeeper", true);
+        LinuxFileUtils.updateOwner((String) ZookeeperParams.zooCfg().get("dataDir"), ZookeeperParams.user(), ZookeeperParams.group(), true);
         return new ShellResult(0, "", "");
     }
 

@@ -1,14 +1,15 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
-import lombok.Data;
-
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_component_name", columnNames = {"componentName"})})
 @TableGenerator(name = "component_generator", table = "sequence")
-public class Component {
+public class Component extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "component_generator")
@@ -18,16 +19,12 @@ public class Component {
 
     private String scriptId;
 
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
-
     @ManyToOne
-    @JoinColumn(name = "service_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_component_service_id"))
     private Service service;
 
     @ManyToOne
-    @JoinColumn(name = "cluster_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_component_cluster_id"))
     private Cluster cluster;
 
 

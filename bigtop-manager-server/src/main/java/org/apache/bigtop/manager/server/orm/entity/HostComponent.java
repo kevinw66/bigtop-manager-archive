@@ -1,28 +1,24 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
-import lombok.Data;
-
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @TableGenerator(name = "host_component_generator", table = "sequence")
-public class HostComponent {
+public class HostComponent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "host_component_generator")
     private Long id;
 
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
-
     @ManyToOne
-    @JoinColumn(name = "host_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_hc_host_id"))
     private Host host;
 
     @ManyToOne
-    @JoinColumn(name = "component_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_hc_component_id"))
     private Component component;
 }

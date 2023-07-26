@@ -9,6 +9,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -58,7 +59,7 @@ public class LinuxAccountUtils {
      */
     public static void userAdd(String user,
                                String group,
-                               List<String> groups) {
+                               Collection<String> groups) {
         userAdd(user, group, null, groups, null, null, null, false);
     }
 
@@ -77,7 +78,7 @@ public class LinuxAccountUtils {
     public static void userAdd(String user,
                                String group,
                                String uid,
-                               List<String> groups,
+                               Collection<String> groups,
                                String home,
                                String comment,
                                String password,

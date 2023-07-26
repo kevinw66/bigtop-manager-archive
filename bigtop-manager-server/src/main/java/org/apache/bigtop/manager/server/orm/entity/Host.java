@@ -1,14 +1,15 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
-import lombok.Data;
-
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_hostname", columnNames = {"hostname"})})
 @TableGenerator(name = "host_generator", table = "sequence")
-public class Host {
+public class Host extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "host_generator")
@@ -30,7 +31,4 @@ public class Host {
 
     private Long physicalMemory;
 
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
 }

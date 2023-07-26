@@ -3,6 +3,8 @@ active: true
 displyName: Zookeeper
 comment: Zookeeper
 version: 3.5.9
+user: zookeeper
+group: zookeeper
 components:
   - name: ZOOKEEPER_SERVER
     displayName: ZooKeeper Server

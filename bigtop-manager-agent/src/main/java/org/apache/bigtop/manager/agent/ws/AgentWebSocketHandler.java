@@ -6,11 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.ResultMessage;
+import org.apache.bigtop.manager.common.message.type.*;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.core.Executor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -29,9 +27,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static org.apache.bigtop.manager.common.constants.HostCacheConstants.*;
 
 @Slf4j
 @Component
@@ -63,30 +65,43 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
-        if (baseMessage instanceof CommandMessage) {
-            log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
-            handleCommandMessage(session, (CommandMessage) baseMessage);
+        if (baseMessage instanceof CommandMessage commandMessage) {
+            log.info("Received message type: {}", commandMessage.getClass().getSimpleName());
+            handleCommandMessage(session, commandMessage);
+        } else if (baseMessage instanceof HostCacheMessage hostCacheMessage) {
+            log.info("Received message type: {}", hostCacheMessage.getClass().getSimpleName());
+            handleHostCacheMessage(session, hostCacheMessage);
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
         }
     }
 
+    private void handleHostCacheMessage(WebSocketSession session, HostCacheMessage hostCacheMessage) {
+        String cacheDir = hostCacheMessage.getCacheDir();
+
+        JsonUtils.writeJson(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
+        JsonUtils.writeJson(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
+        JsonUtils.writeJson(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
+        JsonUtils.writeJson(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
+        JsonUtils.writeJson(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
+        JsonUtils.writeJson(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
+    }
+
     private void handleCommandMessage(WebSocketSession session, CommandMessage commandMessage) {
         Object result = stackExecutor.execute(commandMessage);
-        if (result != null) {
-            if (result instanceof ShellResult) {
-                ResultMessage resultMessage = new ResultMessage();
-                resultMessage.setCode(((ShellResult) result).getExitCode());
-                resultMessage.setResult(result.toString());
-                resultMessage.setMessageId(commandMessage.getMessageId());
-                resultMessage.setHostname(commandMessage.getHostname());
-                resultMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                try {
-                    session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-                } catch (IOException e) {
-                    log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-                }
+        if (result instanceof ShellResult shellResult) {
+            ResultMessage resultMessage = new ResultMessage();
+            resultMessage.setCode(shellResult.getExitCode());
+            resultMessage.setResult(shellResult.toString());
+            resultMessage.setMessageId(commandMessage.getMessageId());
+            resultMessage.setHostname(commandMessage.getHostname());
+            resultMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            try {
+                session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
+            } catch (IOException e) {
+                log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
             }
+
         }
     }
 

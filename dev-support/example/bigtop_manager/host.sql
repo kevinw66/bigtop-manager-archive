@@ -1,1 +1,1 @@
-insert into bigtop_manager.host (id, cluster_id, create_time, hostname, ipv4, ipv6, os_arch, os_name, physical_memory, processor_count, update_time) values (1, null, null, 'node237', null, null, null, null, null, null, null);
+INSERT INTO bigtop_manager.host (id, cluster_id, create_time, hostname, ipv4, ipv6, os_arch, os_name, physical_memory, processor_count, update_time) VALUES (1, null, null, 'node237', null, null, null, null, null, null, null);

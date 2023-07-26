@@ -41,4 +41,6 @@ public interface HostService {
      * @return Host
      */
     Boolean delete(Long id);
+
+    void cache(Long clusterId);
 }
