@@ -1,9 +1,55 @@
 import React from "react";
-import {Avatar, Menu} from "antd";
-import {UploadOutlined, UserOutlined, VideoCameraOutlined} from "@ant-design/icons";
+import {Avatar, Menu, MenuProps} from "antd";
+import {
+  AppstoreOutlined, BarsOutlined,
+  ContainerOutlined,
+  DesktopOutlined, MailOutlined,
+  PieChartOutlined,
+} from "@ant-design/icons";
 import Sider from "antd/es/layout/Sider";
+import Link from "next/link";
 
 const AdminSider = () => {
+
+  type MenuItem = Required<MenuProps>['items'][number];
+
+  function getItem(
+    label: React.ReactNode,
+    key: React.Key,
+    icon?: React.ReactNode,
+    children?: MenuItem[],
+    type?: 'group',
+  ): MenuItem {
+    return {
+      key,
+      icon,
+      children,
+      label,
+      type,
+    } as MenuItem;
+  }
+
+  // noinspection HtmlUnknownTarget
+  const items: MenuItem[] = [
+    getItem(<Link href="/admin/dashboard">Dashboard</Link> , 'dashboard', <PieChartOutlined />),
+    getItem('Option 2', '2', <DesktopOutlined />),
+    getItem('Option 3', '3', <ContainerOutlined />),
+
+    getItem('Services', 'services', <AppstoreOutlined />, [
+      getItem(<Link href="/admin/services/zookeeper">ZooKeeper</Link>, 'zookeeper'),
+      getItem('Option 6', '6'),
+      getItem('Option 7', '7'),
+      getItem('Option 8', '8'),
+    ]),
+
+    getItem('Navigation Two', 'sub2', <AppstoreOutlined />, [
+      getItem('Option 9', '9'),
+      getItem('Option 10', '10'),
+
+      getItem('Submenu', 'sub3', null, [getItem('Option 11', '11'), getItem('Option 12', '12')]),
+    ]),
+  ];
+
   return (
     <Sider
       width="250"
@@ -25,14 +71,8 @@ const AdminSider = () => {
       <Menu
         theme="dark"
         mode="inline"
-        defaultSelectedKeys={['4']}
-        items={[UserOutlined, VideoCameraOutlined, UploadOutlined, UserOutlined].map(
-          (icon, index) => ({
-            key: String(index + 1),
-            icon: React.createElement(icon),
-            label: `nav ${index + 1}`,
-          }),
-        )}
+        defaultSelectedKeys={['dashboard']}
+        items={items}
       />
     </Sider>
   )
