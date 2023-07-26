@@ -52,4 +52,11 @@ public class HostController {
     private ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return ResponseEntity.success(hostService.delete(id));
     }
+
+    @Operation(summary = "cache", description = "distribute cache")
+    @GetMapping("/cache")
+    private void cache(@RequestParam Long clusterId) {
+        hostService.cache(clusterId);
+    }
+
 }

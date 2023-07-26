@@ -2,16 +2,14 @@ package org.apache.bigtop.manager.common.message.serializer;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.util.Pool;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.ResultMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecific;
+import org.apache.bigtop.manager.common.message.type.*;
+import org.apache.bigtop.manager.common.message.type.pojo.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 public class KryoPoolHolder {
 
@@ -26,10 +24,14 @@ public class KryoPoolHolder {
             kryo.register(HeartbeatMessage.class);
             kryo.register(CommandMessage.class);
             kryo.register(ResultMessage.class);
+            kryo.register(HostCacheMessage.class);
 
             // message pojo
             kryo.register(HostInfo.class);
             kryo.register(OSSpecific.class);
+            kryo.register(BasicInfo.class);
+            kryo.register(ClusterInfo.class);
+            kryo.register(RepoInfo.class);
 
             // java classes
             kryo.register(BigDecimal.class);
@@ -37,6 +39,8 @@ public class KryoPoolHolder {
             kryo.register(ArrayList.class);
             kryo.register(Integer.class);
             kryo.register(String.class);
+            kryo.register(HashMap.class);
+            kryo.register(HashSet.class);
 
             return kryo;
         }

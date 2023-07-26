@@ -13,8 +13,6 @@ public abstract class AbstractParams {
 
     /**
      * get the package list according to the os and arch
-     *
-     * @return
      */
     public static List<String> getPackageList() {
         List<OSSpecific> osSpecifics = commandMessage.getOsSpecifics();
@@ -37,8 +35,6 @@ public abstract class AbstractParams {
 
     /**
      * service cache dir
-     *
-     * @return
      */
     public static String serviceCacheDir() {
         String stack = commandMessage.getStack();
@@ -50,11 +46,8 @@ public abstract class AbstractParams {
 
     /**
      * service home dir
-     *
-     * @return
      */
     public static String serviceHome() {
-        String stack = commandMessage.getStack();
         String version = commandMessage.getVersion();
         String service = commandMessage.getService();
         String root = commandMessage.getRoot();
@@ -64,11 +57,17 @@ public abstract class AbstractParams {
 
     /**
      * service conf dir
-     *
-     * @return
      */
     public static String confDir() {
         return "/etc/" + commandMessage.getService() + "/conf";
+    }
+
+    public static String user() {
+        return StringUtils.isNotBlank(commandMessage.getServiceUser()) ? commandMessage.getServiceUser() : "root";
+    }
+
+    public static String group() {
+        return StringUtils.isNotBlank(commandMessage.getServiceGroup()) ? commandMessage.getServiceGroup() : "root";
     }
 
 }

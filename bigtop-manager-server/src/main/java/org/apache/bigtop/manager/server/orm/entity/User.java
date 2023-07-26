@@ -1,14 +1,15 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
-import lombok.Data;
-
 import jakarta.persistence.*;
-import java.sql.Timestamp;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_username", columnNames = {"username"})})
 @TableGenerator(name = "user_generator", table = "sequence")
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "user_generator")
@@ -20,7 +21,4 @@ public class User {
 
     private Boolean status;
 
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
 }

@@ -2,13 +2,14 @@ package org.apache.bigtop.manager.server.orm.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.sql.Timestamp;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_cluster_name", columnNames = {"clusterName"})})
 @TableGenerator(name = "cluster_generator", table = "sequence")
-public class Cluster {
+public class Cluster extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "cluster_generator")
@@ -16,17 +17,21 @@ public class Cluster {
 
     private String clusterName;
 
+    private String clusterDesc;
+
     private Integer clusterType;
 
     private String cacheDir;
 
     private String root;
 
-    private Timestamp createTime;
+    private String userGroup;
 
-    private Timestamp updateTime;
+    private String packages;
+
+    private String repoTemplate;
 
     @ManyToOne
-    @JoinColumn(name = "stack_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_cluster_stack_id"))
     private Stack stack;
 }

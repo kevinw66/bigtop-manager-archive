@@ -7,6 +7,7 @@ import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.spi.PackageManager;
 import org.apache.bigtop.manager.stack.spi.SPIFactory;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class PackageUtils {
      *
      * @param packageList packages need to be installed
      */
-    public static ShellResult install(List<String> packageList) {
+    public static ShellResult install(Collection<String> packageList) {
         if (packageList == null || packageList.isEmpty()) {
             return null;
         }

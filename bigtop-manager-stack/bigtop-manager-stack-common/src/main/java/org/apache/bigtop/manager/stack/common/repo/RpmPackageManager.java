@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.stack.spi.PackageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -18,7 +19,7 @@ public class RpmPackageManager implements PackageManager {
     private static final String YUM = "/usr/bin/yum";
 
     @Override
-    public ShellResult installPackage(List<String> packages) {
+    public ShellResult installPackage(Collection<String> packages) {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add(YUM);
 
@@ -40,7 +41,7 @@ public class RpmPackageManager implements PackageManager {
     }
 
     @Override
-    public ShellResult uninstallPackage(List<String> packages) {
+    public ShellResult uninstallPackage(Collection<String> packages) {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add(YUM);
 

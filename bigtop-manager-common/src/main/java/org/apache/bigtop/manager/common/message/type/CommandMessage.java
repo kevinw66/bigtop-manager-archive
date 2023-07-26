@@ -18,6 +18,10 @@ public class CommandMessage extends BaseMessage {
 
     private String command;
 
+    private String serviceUser;
+
+    private String serviceGroup;
+
     private String stack;
 
     private String version;

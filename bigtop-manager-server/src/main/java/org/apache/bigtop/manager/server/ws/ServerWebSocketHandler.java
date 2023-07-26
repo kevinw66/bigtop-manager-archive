@@ -48,12 +48,12 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
-        if (baseMessage instanceof HeartbeatMessage) {
-            log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
-            handleHeartbeatMessage(session, (HeartbeatMessage) baseMessage);
-        } else if (baseMessage instanceof ResultMessage) {
-            log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
-            handleResultMessage((ResultMessage) baseMessage);
+        if (baseMessage instanceof HeartbeatMessage heartbeatMessage) {
+            log.info("Received message type: {}", heartbeatMessage.getClass().getSimpleName());
+            handleHeartbeatMessage(session, heartbeatMessage);
+        } else if (baseMessage instanceof ResultMessage resultMessage) {
+            log.info("Received message type: {}", resultMessage.getClass().getSimpleName());
+            handleResultMessage(resultMessage);
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
         }

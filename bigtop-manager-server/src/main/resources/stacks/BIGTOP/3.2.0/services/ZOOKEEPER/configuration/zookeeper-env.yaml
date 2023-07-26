@@ -1,7 +1,3 @@
-- name: userName
-  value: zookeeper
-- name: userGroup
-  value: zookeeper
 - name: logDir
   value: /var/log/zookeeper
 - name: pidDir
