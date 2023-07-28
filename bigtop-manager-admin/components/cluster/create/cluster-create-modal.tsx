@@ -1,6 +1,10 @@
 import {Button, Modal, StepProps, Steps} from "antd";
 import React, {Dispatch, SetStateAction, useState} from "react";
 import {ExclamationCircleFilled} from "@ant-design/icons";
+import Step1 from "@/components/cluster/create/step1";
+import Step2 from "@/components/cluster/create/step2";
+import Step3 from "@/components/cluster/create/step3";
+import Step4 from "@/components/cluster/create/step4";
 
 const ClusterCreateModal = ({open, setOpen}: {
   open: boolean,
@@ -11,18 +15,22 @@ const ClusterCreateModal = ({open, setOpen}: {
     {
       status: 'process',
       title: 'Step 1',
+      content: <Step1 />,
     },
     {
       status: 'wait',
       title: 'Step 2',
+      content: <Step2 />,
     },
     {
       status: 'wait',
       title: 'Step 3',
+      content: <Step3 />,
     },
     {
       status: 'wait',
       title: 'Step 4',
+      content: <Step4 />,
     },
   ];
 
@@ -102,7 +110,7 @@ const ClusterCreateModal = ({open, setOpen}: {
           // className="site-navigation-steps"
           items={items as StepProps[]}
         />
-        <div className="mt-4 h-[35rem] w-full text-center bg-amber-300">aaa</div>
+        <div className="mt-4 h-[35rem] w-full text-center">{steps[current].content}</div>
       </div>
     </Modal>
   )

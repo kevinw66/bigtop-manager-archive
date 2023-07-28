@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Header} from "antd/es/layout/layout";
 import {Avatar, Badge, Button, Dropdown, MenuProps, message, Modal, Space} from "antd";
 import {BellOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
-import ClusterCreateModal from "@/components/cluster-create-modal";
+import ClusterCreateModal from "@/components/cluster/create/cluster-create-modal";
 
 const AdminHeader = () => {
 
@@ -32,7 +32,7 @@ const AdminHeader = () => {
 
   const items: MenuProps['items'] = [
     {
-      label: 'Switch clusters',
+      label: 'Switch cluster',
       key: 'switch',
     },
     getItem(<a onClick={() => setOpenClusterCreateModal(true)}>Create cluster</a> , 'create'),

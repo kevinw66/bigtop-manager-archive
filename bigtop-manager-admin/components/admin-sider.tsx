@@ -52,7 +52,7 @@ const AdminSider = () => {
 
   return (
     <Sider
-      width="250"
+      width="20%"
       breakpoint="lg"
       collapsedWidth="0"
       onBreakpoint={(broken) => {
