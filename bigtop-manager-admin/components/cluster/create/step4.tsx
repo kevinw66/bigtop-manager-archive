@@ -6,7 +6,7 @@ const Step1 = () => {
     return (
         <div className={"flex flex-col justify-center items-center content-center h-full"}>
             <Result
-                icon={<LikeOutlined />}
+                status={"success"}
                 title="Congratulations!"
                 subTitle={"Cluster created successfully, please enjoy it."}
             />
