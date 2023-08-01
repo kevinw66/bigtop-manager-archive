@@ -157,49 +157,44 @@ const App: React.FC = () => {
     memory: string;
     disk: number;
     load: string;
-    stack: string;
   }
 
   const dataSource: DataType[] = [
     {
-      key: '1',
+      key: '192.168.0.1',
       name: 'bigtop-manager-server',
       ip: '192.168.0.1',
       cores: '4',
       memory: '16GB',
-      disk: 10,
+      disk: 90,
       load: '2%',
-      stack: 'BIGTOP-3.2.0',
     },
     {
-      key: '1',
+      key: '192.168.0.2',
       name: 'bigtop-manager-agent-01',
-      ip: '192.168.0.1',
+      ip: '192.168.0.2',
       cores: '4',
       memory: '16GB',
       disk: 30,
       load: '2%',
-      stack: 'BIGTOP-3.2.0',
     },
     {
-      key: '1',
+      key: '192.168.0.3',
       name: 'bigtop-manager-agent-02',
-      ip: '192.168.0.1',
+      ip: '192.168.0.3',
       cores: '4',
       memory: '16GB',
-      disk: 20,
+      disk: 70,
       load: '2%',
-      stack: 'BIGTOP-3.2.0',
     },
     {
-      key: '1',
+      key: '192.168.0.4',
       name: 'bigtop-manager-agent-03',
-      ip: '192.168.0.1',
+      ip: '192.168.0.4',
       cores: '4',
       memory: '16GB',
       disk: 15,
       load: '2%',
-      stack: 'BIGTOP-3.2.0',
     },
   ];
 
@@ -211,7 +206,7 @@ const App: React.FC = () => {
       align: 'center',
     },
     {
-      title: 'Ip Address',
+      title: 'IP Address',
       dataIndex: 'ip',
       key: 'ip',
       align: 'center',
@@ -233,18 +228,12 @@ const App: React.FC = () => {
       dataIndex: 'disk',
       key: 'disk',
       align: 'center',
-      render: (text: number) => <Progress strokeColor={{from: '#52c41a', to: '#52c41a'}} percent={text} size="small" />,
+      render: (text: number) => <Progress strokeColor={'#52c41a'} percent={text} size="small" />,
     },
     {
       title: 'Load Avg',
       dataIndex: 'load',
       key: 'load',
-      align: 'center',
-    },
-    {
-      title: 'Stack',
-      dataIndex: 'stack',
-      key: 'stack',
       align: 'center',
     },
   ];
@@ -254,7 +243,7 @@ const App: React.FC = () => {
       <div className={"flex justify-between items-center"}>
         <Card className={"w-1/5"} bodyStyle={{textAlign: "center"}}>
           <Statistic title="Hosts" value={4}/>
-          <div className={"text-xs text-gray-400 mt-1"}>health: 3</div>
+          <div className={"text-xs text-gray-400 mt-1"}>Healthy: 3</div>
         </Card>
         <Card className={"w-1/5"} bodyStyle={{textAlign: "center"}}>
           <Statistic title="Cores" value={12} suffix={" / " + 16}/>

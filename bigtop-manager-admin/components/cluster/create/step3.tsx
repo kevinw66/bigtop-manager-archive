@@ -11,22 +11,22 @@ const Step1 = () => {
 
     const data: DataType[] = [
         {
-            key: '1',
+            key: 'host-1',
             host: 'bigtop-manager-server',
             progress: <Progress className={"w-4/5"} percent={50} status="active" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />,
         },
         {
-            key: '2',
+            key: 'host-2',
             host: 'bigtop-manager-agent-01',
             progress: <Progress className={"w-4/5"} percent={90} status="active" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />,
         },
         {
-            key: '3',
+            key: 'host-3',
             host: 'bigtop-manager-agent-02',
             progress: <Progress className={"w-4/5"} percent={70} status="active" strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />,
         },
         {
-            key: '4',
+            key: 'host-4',
             host: 'bigtop-manager-agent-03',
             progress: <Progress className={"w-4/5"} percent={100} strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }} />,
         },

@@ -12,22 +12,22 @@ const Step2 = () => {
 
     const stackInfoData: StackDataType[] = [
         {
-            key: '1',
+            key: 'flink',
             name: 'Flink',
             version: '1.15.3',
         },
         {
-            key: '2',
+            key: 'spark',
             name: 'Spark',
             version: '3.2.3',
         },
         {
-            key: '3',
+            key: 'hive',
             name: 'Hive',
             version: '3.1.3',
         },
         {
-            key: '4',
+            key: 'hadoop',
             name: 'Hadoop',
             version: '3.3.4',
         },
@@ -80,7 +80,7 @@ const Step2 = () => {
 
     const repositoryInfoData: RepositoryDataType[] = [
         {
-            key: '1',
+            key: 'centos',
             os: 'CentOS 7',
             name: 'BIGTOP-3.2.0',
             baseUrl: 'https://your.repo.com',
