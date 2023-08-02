@@ -58,7 +58,7 @@ const AdminSider = () => {
   // noinspection HtmlUnknownTarget
   const items: MenuItem[] = [
     getItem(<Link href="/admin/dashboard">Dashboard</Link>, 'dashboard', <PieChartOutlined/>),
-    getItem('Option 2', '2', <DesktopOutlined/>),
+    getItem(<Link href="/admin/hosts">Hosts</Link>, 'hosts', <DesktopOutlined/>),
     getItem('Option 3', '3', <ContainerOutlined/>),
 
     getItem(
