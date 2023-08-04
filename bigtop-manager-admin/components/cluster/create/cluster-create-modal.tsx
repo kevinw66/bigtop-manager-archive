@@ -92,7 +92,7 @@ const ClusterCreateModal = ({open, setOpen}: {
            maskClosable={false}
            keyboard={false}
            footer={[
-             <div>
+             <div key={"footer"}>
                {current > 0 && (
                  <Button type="primary" className={"w-1/12"} onClick={() => prev()}>
                    Previous
@@ -115,13 +115,10 @@ const ClusterCreateModal = ({open, setOpen}: {
     >
       <div className={"flex flex-row items-center"}>
         <Steps
-          // type="navigation"
-          // progressDot
           direction={"vertical"}
           className={"w-1/5 h-[35rem]"}
           current={current}
           size={"small"}
-          // className="site-navigation-steps"
           items={items as StepProps[]}
         />
         <div className="mt-4 h-[35rem] w-full text-center pl-5 border-l-[1px] border-[#d9d9d9] border-solid">{steps[current].content}</div>

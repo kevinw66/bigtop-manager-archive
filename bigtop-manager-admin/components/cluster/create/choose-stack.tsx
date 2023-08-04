@@ -156,7 +156,7 @@ const ChooseStack = () => {
   ];
 
   return (
-    <div className={"flex flex-col justify-center items-center content-center h-full"}>
+    <div className={"flex flex-col justify-start items-center content-center h-full"}>
       <div className={"text-2xl mb-4"}>Choose stack</div>
       <Space wrap className={"flex mb-4 items-start"}>
         <Select
@@ -174,7 +174,7 @@ const ChooseStack = () => {
         />
       </Space>
 
-      <Table pagination={false} scroll={{y: 300}} columns={stackInfoColumns} dataSource={stackInfoData}/>
+      <Table pagination={false} scroll={{y: 400}} columns={stackInfoColumns} dataSource={stackInfoData}/>
     </div>
   )
 }

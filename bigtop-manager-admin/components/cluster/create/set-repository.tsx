@@ -143,7 +143,7 @@ const SetRepository: React.FC = () => {
             align: 'center',
         },
         {
-            title: 'name',
+            title: 'Name',
             dataIndex: 'name',
             align: 'center',
         },
@@ -192,9 +192,9 @@ const SetRepository: React.FC = () => {
     });
 
     return (
-      <div className={"flex flex-col justify-center items-center content-center h-full"}>
+      <div className={"flex flex-col justify-start items-center content-center h-full"}>
           <div className={"text-2xl mb-4"}>Set Repository</div>
-          <Table pagination={false} scroll={{y: 300}} components={components} dataSource={dataSource} columns={columns as ColumnTypes}/>
+          <Table pagination={false} scroll={{y: 400}} components={components} dataSource={dataSource} columns={columns as ColumnTypes}/>
       </div>
     );
 };
