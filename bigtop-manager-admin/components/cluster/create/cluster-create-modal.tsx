@@ -1,10 +1,12 @@
 import {Button, Modal, StepProps, Steps} from "antd";
 import React, {Dispatch, SetStateAction, useState} from "react";
 import {ExclamationCircleFilled} from "@ant-design/icons";
-import Step1 from "@/components/cluster/create/step1";
-import Step2 from "@/components/cluster/create/step2";
-import Step3 from "@/components/cluster/create/step3";
-import Step4 from "@/components/cluster/create/step4";
+import SetClusterName from "@/components/cluster/create/set-cluster-name";
+import ChooseStack from "@/components/cluster/create/choose-stack";
+import Install from "@/components/cluster/create/install";
+import Finish from "@/components/cluster/create/finish";
+import SetRepository from "@/components/cluster/create/set-repository";
+import SetHosts from "@/components/cluster/create/set-hosts";
 
 const ClusterCreateModal = ({open, setOpen}: {
   open: boolean,
@@ -14,23 +16,33 @@ const ClusterCreateModal = ({open, setOpen}: {
   const steps = [
     {
       status: 'process',
-      title: 'Step 1',
-      content: <Step1 />,
+      title: 'Set Cluster Name',
+      content: <SetClusterName />,
     },
     {
       status: 'wait',
-      title: 'Step 2',
-      content: <Step2 />,
+      title: 'Choose Stack',
+      content: <ChooseStack />,
     },
     {
       status: 'wait',
-      title: 'Step 3',
-      content: <Step3 />,
+      title: 'Set Repository',
+      content: <SetRepository />,
     },
     {
       status: 'wait',
-      title: 'Step 4',
-      content: <Step4 />,
+      title: 'Set Hosts',
+      content: <SetHosts />,
+    },
+    {
+      status: 'wait',
+      title: 'Install',
+      content: <Install />,
+    },
+    {
+      status: 'wait',
+      title: 'Finish',
+      content: <Finish />,
     },
   ];
 
@@ -101,16 +113,18 @@ const ClusterCreateModal = ({open, setOpen}: {
              </div>
            ]}
     >
-      <div>
+      <div className={"flex flex-row items-center"}>
         <Steps
-          type="navigation"
-          // direction={"vertical"}
-          // className={"w-1/5"}
+          // type="navigation"
+          // progressDot
+          direction={"vertical"}
+          className={"w-1/5 h-[35rem]"}
           current={current}
+          size={"small"}
           // className="site-navigation-steps"
           items={items as StepProps[]}
         />
-        <div className="mt-4 h-[35rem] w-full text-center">{steps[current].content}</div>
+        <div className="mt-4 h-[35rem] w-full text-center pl-5 border-l-[1px] border-[#d9d9d9] border-solid">{steps[current].content}</div>
       </div>
     </Modal>
   )

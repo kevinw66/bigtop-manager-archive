@@ -55,10 +55,9 @@ const AdminSider = () => {
     },
   ];
 
-  // noinspection HtmlUnknownTarget
   const items: MenuItem[] = [
-    getItem(<Link href="/admin/dashboard">Dashboard</Link>, 'dashboard', <PieChartOutlined/>),
-    getItem(<Link href="/admin/hosts">Hosts</Link>, 'hosts', <DesktopOutlined/>),
+    getItem(<Link href={{ pathname: "/admin/dashboard" }}>Dashboard</Link>, 'dashboard', <PieChartOutlined/>),
+    getItem(<Link href={{ pathname: "/admin/hosts" }}>Hosts</Link>, 'hosts', <DesktopOutlined/>),
     getItem('Option 3', '3', <ContainerOutlined/>),
 
     getItem(
@@ -79,7 +78,7 @@ const AdminSider = () => {
           }}>···</a>
         </Dropdown>
       </div>, 'services', <AppstoreOutlined/>, [
-        getItem(<Link href="/admin/services/zookeeper">ZooKeeper</Link>, 'zookeeper'),
+        getItem(<Link href={{ pathname: "/admin/services/zookeeper" }}>ZooKeeper</Link>, 'zookeeper'),
         getItem('Option 6', '6'),
         getItem('Option 7', '7'),
         getItem('Option 8', '8'),

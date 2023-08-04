@@ -2,7 +2,7 @@ import React, {ReactNode} from "react";
 import {Input, Progress, Result, Table} from "antd";
 import {ColumnsType} from "antd/es/table";
 
-const Step1 = () => {
+const Install = () => {
     interface DataType {
         key: string;
         host: string;
@@ -57,4 +57,4 @@ const Step1 = () => {
     )
 }
 
-export default Step1;
+export default Install;

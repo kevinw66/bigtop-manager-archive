@@ -2,7 +2,7 @@ import React from "react";
 import {Input, Result} from "antd";
 import {LikeOutlined, SmileOutlined} from "@ant-design/icons";
 
-const Step1 = () => {
+const Finish = () => {
     return (
         <div className={"flex flex-col justify-center items-center content-center h-full"}>
             <Result
@@ -14,4 +14,4 @@ const Step1 = () => {
     )
 }
 
-export default Step1;
+export default Finish;

@@ -2,7 +2,7 @@ import React from "react";
 import {Input, Result} from "antd";
 import {SmileOutlined} from "@ant-design/icons";
 
-const Step1 = () => {
+const SetClusterName = () => {
     return (
         <div className={"flex flex-col justify-center items-center content-center h-full"}>
             <Result
@@ -15,4 +15,4 @@ const Step1 = () => {
     )
 }
 
-export default Step1;
+export default SetClusterName;
