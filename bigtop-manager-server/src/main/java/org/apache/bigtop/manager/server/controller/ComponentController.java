@@ -19,9 +19,9 @@ public class ComponentController {
 
     @Operation(summary = "handleComponent", description = "action for component, only support start/stop/restart/status/configuration")
     @GetMapping("/{clusterName}/components/{componentName}/{action}")
-    private void handleComponent(@PathVariable String clusterName,
-                                 @PathVariable String componentName,
-                                 @PathVariable String action) {
+    public void handleComponent(@PathVariable String clusterName,
+                                @PathVariable String componentName,
+                                @PathVariable String action) {
 
         componentService.handleComponent(clusterName, componentName, action);
     }

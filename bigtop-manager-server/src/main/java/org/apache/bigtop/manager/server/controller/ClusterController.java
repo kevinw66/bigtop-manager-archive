@@ -23,33 +23,33 @@ public class ClusterController {
 
     @Operation(summary = "list", description = "List clusters")
     @GetMapping
-    private ResponseEntity<List<ClusterVO>> list() {
+    public ResponseEntity<List<ClusterVO>> list() {
         return ResponseEntity.success(clusterService.list());
     }
 
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
-    private ResponseEntity<ClusterVO> create(@RequestBody ClusterRequest clusterRequest) {
+    public ResponseEntity<ClusterVO> create(@RequestBody ClusterRequest clusterRequest) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Request2DTO(clusterRequest);
         return ResponseEntity.success(clusterService.create(clusterDTO));
     }
 
     @Operation(summary = "get", description = "Get a cluster")
     @GetMapping("/{id}")
-    private ResponseEntity<ClusterVO> get(@PathVariable Long id) {
+    public ResponseEntity<ClusterVO> get(@PathVariable Long id) {
         return ResponseEntity.success(clusterService.get(id));
     }
 
     @Operation(summary = "update", description = "Update a cluster")
     @PutMapping("/{id}")
-    private ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody ClusterRequest clusterRequest) {
+    public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody ClusterRequest clusterRequest) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Request2DTO(clusterRequest);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
     }
 
     @Operation(summary = "delete", description = "Delete a cluster")
     @DeleteMapping("/{id}")
-    private ResponseEntity<Boolean> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return ResponseEntity.success(clusterService.delete(id));
     }
 }
