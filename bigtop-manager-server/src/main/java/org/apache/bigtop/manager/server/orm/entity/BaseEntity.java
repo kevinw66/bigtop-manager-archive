@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.sql.Timestamp;
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEntity {
 
+    @Column(updatable = false)
     @CreatedDate
     private Timestamp createTime;
 
