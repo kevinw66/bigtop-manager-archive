@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_hostname", columnNames = {"hostname"})})
-@TableGenerator(name = "host_generator", table = "sequence")
+@TableGenerator(name = "host_generator", table = "sequence", allocationSize = 1)
 public class Host extends BaseEntity {
 
     @Id

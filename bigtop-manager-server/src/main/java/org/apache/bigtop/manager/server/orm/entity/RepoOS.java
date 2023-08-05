@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(name = "repo_os")
-@TableGenerator(name = "repo_os_generator", table = "sequence")
+@TableGenerator(name = "repo_os_generator", table = "sequence", allocationSize = 1)
 public class RepoOS extends BaseEntity {
 
     @Id

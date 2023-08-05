@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_type_version", columnNames = {"serviceName", "typeName", "version"})})
-@TableGenerator(name = "service_config_generator", table = "sequence")
+@TableGenerator(name = "service_config_generator", table = "sequence", allocationSize = 1)
 public class ServiceConfig extends BaseEntity {
 
     @Id

@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@TableGenerator(name = "host_component_generator", table = "sequence")
+@TableGenerator(name = "host_component_generator", table = "sequence", allocationSize = 1)
 public class HostComponent extends BaseEntity {
 
     @Id

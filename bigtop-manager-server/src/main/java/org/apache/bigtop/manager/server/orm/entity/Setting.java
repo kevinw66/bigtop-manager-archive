@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_version", columnNames = {"version"})})
-@TableGenerator(name = "settings_generator", table = "sequence")
+@TableGenerator(name = "settings_generator", table = "sequence", allocationSize = 1)
 public class Setting extends BaseEntity {
 
     @Id

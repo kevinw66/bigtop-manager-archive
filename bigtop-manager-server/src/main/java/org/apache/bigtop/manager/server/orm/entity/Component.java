@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_component_name", columnNames = {"componentName"})})
-@TableGenerator(name = "component_generator", table = "sequence")
+@TableGenerator(name = "component_generator", table = "sequence", allocationSize = 1)
 public class Component extends BaseEntity {
 
     @Id

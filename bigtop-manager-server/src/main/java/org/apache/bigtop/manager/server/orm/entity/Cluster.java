@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_cluster_name", columnNames = {"clusterName"})})
-@TableGenerator(name = "cluster_generator", table = "sequence")
+@TableGenerator(name = "cluster_generator", table = "sequence", allocationSize = 1)
 public class Cluster extends BaseEntity {
 
     @Id
