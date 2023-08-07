@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.message.type.pojo;
+package org.apache.bigtop.manager.common.pojo.stack;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RepoInfo {
+
+    private String repoId;
 
     private String repoName;
 

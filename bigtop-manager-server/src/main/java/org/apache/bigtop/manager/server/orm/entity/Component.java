@@ -17,6 +17,8 @@ public class Component extends BaseEntity {
 
     private String componentName;
 
+    private String displayName;
+
     private String scriptId;
 
     @ManyToOne

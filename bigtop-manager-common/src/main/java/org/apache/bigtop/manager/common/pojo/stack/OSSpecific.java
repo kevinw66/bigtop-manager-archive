@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.message.type.pojo;
+package org.apache.bigtop.manager.common.pojo.stack;
 
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.ArchType;

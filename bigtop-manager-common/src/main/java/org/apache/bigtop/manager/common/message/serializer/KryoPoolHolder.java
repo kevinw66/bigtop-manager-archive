@@ -4,6 +4,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.util.Pool;
 import org.apache.bigtop.manager.common.message.type.*;
 import org.apache.bigtop.manager.common.message.type.pojo.*;
+import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
+import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;

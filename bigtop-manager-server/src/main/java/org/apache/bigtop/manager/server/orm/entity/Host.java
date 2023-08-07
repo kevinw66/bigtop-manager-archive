@@ -15,8 +15,6 @@ public class Host extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "host_generator")
     private Long id;
 
-    private Long clusterId;
-
     private String hostname;
 
     private String ipv4;
@@ -30,5 +28,9 @@ public class Host extends BaseEntity {
     private Integer processorCount;
 
     private Long physicalMemory;
+
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_host_cluster_id"))
+    private Cluster cluster;
 
 }

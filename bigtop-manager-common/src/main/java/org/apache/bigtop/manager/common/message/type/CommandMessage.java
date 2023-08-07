@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecific;
+import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
 
 import java.util.List;
 

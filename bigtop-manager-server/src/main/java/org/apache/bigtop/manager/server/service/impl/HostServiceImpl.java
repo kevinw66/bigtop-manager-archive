@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
@@ -83,7 +83,7 @@ public class HostServiceImpl implements HostService {
     private ServiceConfigRepository serviceConfigRepository;
 
     @Resource
-    private RepoOSRepository repoOSRepository;
+    private RepoRepository repoRepository;
 
     @Resource
     private SettingRepository settingRepository;
@@ -103,7 +103,7 @@ public class HostServiceImpl implements HostService {
         List<org.apache.bigtop.manager.server.orm.entity.Service> services = serviceRepository.findAllByClusterId(clusterId);
         List<ServiceConfig> serviceConfigs = serviceConfigRepository.findAllByClusterId(clusterId);
         List<HostComponent> hostComponents = hostComponentRepository.findAllByClusterId(clusterId);
-        List<RepoOS> osRepos = repoOSRepository.findAllByStackId(stackId);
+        List<Repo> repos = repoRepository.findAllByStackId(stackId);
         Setting setting = settingRepository.findFirstByOrderByVersionDesc().orElse(new Setting());
 
 
@@ -113,6 +113,7 @@ public class HostServiceImpl implements HostService {
         clusterInfo.setStackVersion(stackVersion);
         clusterInfo.setUserGroup(cluster.getUserGroup());
         clusterInfo.setRepoTemplate(cluster.getRepoTemplate());
+        clusterInfo.setRoot(cluster.getRoot());
         try {
             Set<String> packages = JsonUtils.OBJECTMAPPER.readValue(cluster.getPackages(),
                     new TypeReference<>() {
@@ -145,12 +146,14 @@ public class HostServiceImpl implements HostService {
         });
 
         List<RepoInfo> repoList = new ArrayList<>();
-        osRepos.forEach(x -> {
+
+        repos.forEach(x -> {
             RepoInfo repoInfo = new RepoInfo();
-            repoInfo.setRepoName(x.getRepo().getRepoName());
-            repoInfo.setBaseurl(x.getRepo().getBaseurl());
-            repoInfo.setOs(x.getOs().getOsName() + x.getOs().getOsVersion());
-            repoInfo.setOs(x.getOs().getOsArch());
+            repoInfo.setRepoId(x.getRepoId());
+            repoInfo.setRepoName(x.getRepoName());
+            repoInfo.setBaseurl(x.getBaseurl());
+            repoInfo.setOs(x.getOs());
+            repoInfo.setArch(x.getArch());
             repoList.add(repoInfo);
         });
 

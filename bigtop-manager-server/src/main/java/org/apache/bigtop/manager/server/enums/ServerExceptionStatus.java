@@ -11,6 +11,10 @@ public enum ServerExceptionStatus {
 
     // Host Exceptions -- 12000 ~ 12999
     HOST_NOT_FOUND(12000, "Host not exist"),
+
+    // Host Exceptions -- 13000 ~ 13999
+    STACK_NOT_FOUND(13000, "Stack not exist"),
+    STACK_CHECK_INVALID(13001, "Stack check invalid"),
     ;
 
     private final Integer code;

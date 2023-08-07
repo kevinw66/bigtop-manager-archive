@@ -1,0 +1,12 @@
+{
+  "deps": {
+    "ZOOKEEPER_SERVER-START": [
+      "ZOOKEEPER_SERVER-INSTALL"
+    ]
+  },
+  "after": {
+    "ZOOKEEPER_SERVER-START": [
+      "ZOOKEEPER_SERVER-INSTALL"
+    ]
+  }
+}

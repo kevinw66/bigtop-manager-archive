@@ -1,9 +1,6 @@
 package org.apache.bigtop.manager.common.message.type;
 
 import lombok.*;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecific;
-
-import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

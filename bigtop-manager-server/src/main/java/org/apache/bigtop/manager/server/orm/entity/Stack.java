@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_stack_name", columnNames = {"stackName"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_stack_name", columnNames = {"stackName", "stackVersion"})})
 @TableGenerator(name = "stack_generator", table = "sequence")
 public class Stack extends BaseEntity {
 
