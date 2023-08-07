@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.stack.common;
 
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecific;
+import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.commons.lang3.StringUtils;
 

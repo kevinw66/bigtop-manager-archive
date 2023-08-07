@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
 
 import java.util.List;
 import java.util.Map;

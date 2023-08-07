@@ -1,12 +1,9 @@
 package org.apache.bigtop.manager.server.model.dto;
 
 import lombok.Data;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
-
-import java.util.List;
 
 @Data
-public class ClusterDTO {
+public class ServiceDTO {
 
     private String clusterName;
 
@@ -16,6 +13,9 @@ public class ClusterDTO {
 
     private String stackVersion;
 
-    private List<RepoInfo> repoInfoList;
+    private String serviceName;
 
+    private String displayName;
+
+    private String serviceDesc;
 }

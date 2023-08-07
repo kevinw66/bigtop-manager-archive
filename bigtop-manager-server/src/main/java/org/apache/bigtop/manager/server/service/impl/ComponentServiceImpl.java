@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecific;
+import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Component;
