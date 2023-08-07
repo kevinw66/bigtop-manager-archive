@@ -26,8 +26,8 @@ public class LoginController {
 
     @Operation(summary = "login", description = "User Login")
     @PostMapping(value = "/login")
-    private ResponseEntity<Void> login(HttpSession session, @RequestBody LoginRequest loginRequest) {
-        if (!StringUtils.hasText(loginRequest.getUsername()) || ! StringUtils.hasText(loginRequest.getPassword())) {
+    public ResponseEntity<Void> login(HttpSession session, @RequestBody LoginRequest loginRequest) {
+        if (!StringUtils.hasText(loginRequest.getUsername()) || !StringUtils.hasText(loginRequest.getPassword())) {
             throw new ServerException(ServerExceptionStatus.USERNAME_OR_PASSWORD_REQUIRED);
         }
 
@@ -37,7 +37,7 @@ public class LoginController {
 
     @Operation(summary = "test", description = "test")
     @GetMapping(value = "/test")
-    private ResponseEntity<String> login(HttpSession session) {
+    public ResponseEntity<String> login(HttpSession session) {
         User user = (User) session.getAttribute("user");
         return ResponseEntity.success("111");
     }

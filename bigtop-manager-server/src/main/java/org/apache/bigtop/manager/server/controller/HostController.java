@@ -23,39 +23,39 @@ public class HostController {
 
     @Operation(summary = "list", description = "List hosts")
     @GetMapping
-    private ResponseEntity<List<HostVO>> list() {
+    public ResponseEntity<List<HostVO>> list() {
         return ResponseEntity.success(hostService.list());
     }
 
     @Operation(summary = "create", description = "Create a host")
     @PostMapping
-    private ResponseEntity<HostVO> create(@RequestBody HostRequest hostRequest) {
+    public ResponseEntity<HostVO> create(@RequestBody HostRequest hostRequest) {
         HostDTO hostDTO = HostMapper.INSTANCE.Request2DTO(hostRequest);
         return ResponseEntity.success(hostService.create(hostDTO));
     }
 
     @Operation(summary = "get", description = "Get a host")
     @GetMapping("/{id}")
-    private ResponseEntity<HostVO> get(@PathVariable Long id) {
+    public ResponseEntity<HostVO> get(@PathVariable Long id) {
         return ResponseEntity.success(hostService.get(id));
     }
 
     @Operation(summary = "update", description = "Update a host")
     @PutMapping("/{id}")
-    private ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody HostRequest hostRequest) {
+    public ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody HostRequest hostRequest) {
         HostDTO hostDTO = HostMapper.INSTANCE.Request2DTO(hostRequest);
         return ResponseEntity.success(hostService.update(id, hostDTO));
     }
 
     @Operation(summary = "delete", description = "Delete a host")
     @DeleteMapping("/{id}")
-    private ResponseEntity<Boolean> delete(@PathVariable Long id) {
+    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return ResponseEntity.success(hostService.delete(id));
     }
 
     @Operation(summary = "cache", description = "distribute cache")
     @GetMapping("/cache")
-    private void cache(@RequestParam Long clusterId) {
+    public void cache(@RequestParam Long clusterId) {
         hostService.cache(clusterId);
     }
 
