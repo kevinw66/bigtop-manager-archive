@@ -6,7 +6,7 @@ const AdminContent = ({children}: {
 }) => {
   return (
     <Content className="mt-6 mx-4">
-      <div className="p-6 min-h-full bg-white">{children}</div>
+      <div className="p-6 h-full bg-white">{children}</div>
     </Content>
   )
 }
