@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_type_version", columnNames = {"serviceName", "typeName", "version"})},
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_type_version", columnNames = {"typeName", "version", "service_id", "cluster_id"})},
         indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
                 @Index(name = "idx_service_id", columnList = "service_id")})
 @TableGenerator(name = "service_config_generator", table = "sequence")
@@ -16,8 +16,6 @@ public class ServiceConfig extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "service_config_generator")
     private Long id;
-
-    private String serviceName;
 
     private Integer version;
 
@@ -28,6 +26,8 @@ public class ServiceConfig extends BaseEntity {
     private String typeName;
 
     @Lob
+    @Basic(fetch= FetchType.LAZY)
+    @Column(length = 16777216)
     private String configData;
 
     private String configDesc;

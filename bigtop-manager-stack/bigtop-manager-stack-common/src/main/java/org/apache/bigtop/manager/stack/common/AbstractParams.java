@@ -1,11 +1,18 @@
 package org.apache.bigtop.manager.stack.common;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
+import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+
+import static org.apache.bigtop.manager.common.constants.HostCacheConstants.CONFIGURATIONS_INFO;
 
 public abstract class AbstractParams {
 
@@ -34,17 +41,6 @@ public abstract class AbstractParams {
     }
 
     /**
-     * service cache dir
-     */
-    public static String serviceCacheDir() {
-        String stack = commandMessage.getStack();
-        String version = commandMessage.getVersion();
-        String service = commandMessage.getService();
-        String cacheDir = commandMessage.getCacheDir();
-        return StringUtils.join(cacheDir + "/stacks/", stack.toUpperCase(), "/", version, "/services/", service.toUpperCase());
-    }
-
-    /**
      * service home dir
      */
     public static String serviceHome() {
@@ -68,6 +64,42 @@ public abstract class AbstractParams {
 
     public static String group() {
         return StringUtils.isNotBlank(commandMessage.getServiceGroup()) ? commandMessage.getServiceGroup() : "root";
+    }
+
+    public static String serviceName() {
+        return commandMessage.getService();
+    }
+
+    /**
+     * Get all service configurations
+     */
+    public static Map<String, Map<String, Object>> configDict() {
+        String cacheDir = commandMessage.getCacheDir();
+
+        TypeReference<Map<String, Map<String, Object>>> typeReference = new TypeReference<>() {
+        };
+
+        return JsonUtils.readJson(cacheDir + CONFIGURATIONS_INFO, typeReference);
+    }
+
+    /**
+     * Get the configuration of a service
+     * @param serviceName service name
+     * @param typeName property type name
+     * @return property value
+     */
+    public static Map<String, Object> configDict(String serviceName, String typeName) {
+        Map<String, Map<String, Object>> config = configDict();
+
+        Object configData = config.get(serviceName).get(typeName);
+
+        try {
+            return JsonUtils.OBJECTMAPPER.readValue(configData.toString(),
+                    new TypeReference<>() {
+                    });
+        } catch (JsonProcessingException e) {
+            throw new StackException(e);
+        }
     }
 
 }
