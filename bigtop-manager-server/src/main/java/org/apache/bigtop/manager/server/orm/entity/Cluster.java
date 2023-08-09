@@ -7,7 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_cluster_name", columnNames = {"clusterName"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_cluster_name", columnNames = {"clusterName"})},
+        indexes = {@Index(name = "idx_stack_id", columnList = "stack_id")})
 @TableGenerator(name = "cluster_generator", table = "sequence")
 public class Cluster extends BaseEntity {
 
@@ -32,6 +33,6 @@ public class Cluster extends BaseEntity {
     private String repoTemplate;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_cluster_stack_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Stack stack;
 }

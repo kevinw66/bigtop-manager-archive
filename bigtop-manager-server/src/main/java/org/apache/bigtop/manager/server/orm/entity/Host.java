@@ -7,7 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_hostname", columnNames = {"hostname"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_hostname", columnNames = {"hostname"})},
+        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "host_generator", table = "sequence")
 public class Host extends BaseEntity {
 
@@ -30,7 +31,7 @@ public class Host extends BaseEntity {
     private Long physicalMemory;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_host_cluster_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
 
 }

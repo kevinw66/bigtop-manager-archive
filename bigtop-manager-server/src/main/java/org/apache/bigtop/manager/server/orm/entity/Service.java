@@ -7,7 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_service_name", columnNames = {"serviceName"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_service_name", columnNames = {"serviceName"})},
+        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "service_generator", table = "sequence")
 public class Service extends BaseEntity {
 
@@ -30,7 +31,7 @@ public class Service extends BaseEntity {
     private String serviceGroup;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_service_cluster_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
 
 
