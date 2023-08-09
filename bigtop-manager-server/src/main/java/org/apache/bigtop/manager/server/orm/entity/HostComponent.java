@@ -7,6 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
+@Table(indexes = {@Index(name = "idx_host_id", columnList = "host_id"),
+        @Index(name = "idx_component_id", columnList = "component_id")})
 @TableGenerator(name = "host_component_generator", table = "sequence")
 public class HostComponent extends BaseEntity {
 
@@ -15,10 +17,10 @@ public class HostComponent extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_hc_host_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Host host;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_hc_component_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Component component;
 }

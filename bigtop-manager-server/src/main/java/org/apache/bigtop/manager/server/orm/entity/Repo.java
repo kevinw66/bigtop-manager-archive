@@ -7,7 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repo_id", columnNames = {"repoId", "os", "arch"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repo_id", columnNames = {"repoId", "os", "arch"})},
+        indexes = {@Index(name = "idx_stack_id", columnList = "stack_id")})
 @TableGenerator(name = "repo_generator", table = "sequence")
 public class Repo extends BaseEntity {
 
@@ -26,6 +27,6 @@ public class Repo extends BaseEntity {
     private String arch;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_repo_stack_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Stack stack;
 }

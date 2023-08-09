@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_component_name", columnNames = {"componentName"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_component_name", columnNames = {"componentName"})},
+        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
+                @Index(name = "idx_service_id", columnList = "service_id")})
 @TableGenerator(name = "component_generator", table = "sequence")
 public class Component extends BaseEntity {
 
@@ -22,11 +24,11 @@ public class Component extends BaseEntity {
     private String scriptId;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_component_service_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Service service;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_component_cluster_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
 
 

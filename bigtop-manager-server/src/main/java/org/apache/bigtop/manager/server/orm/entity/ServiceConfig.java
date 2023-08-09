@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_type_version", columnNames = {"serviceName", "typeName", "version"})})
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_type_version", columnNames = {"serviceName", "typeName", "version"})},
+        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
+                @Index(name = "idx_service_id", columnList = "service_id")})
 @TableGenerator(name = "service_config_generator", table = "sequence")
 public class ServiceConfig extends BaseEntity {
 
@@ -31,11 +33,11 @@ public class ServiceConfig extends BaseEntity {
     private String configDesc;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_serviceconfig_service_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Service service;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_serviceconfig_cluster_id"))
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
 
 }
