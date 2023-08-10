@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.stack.common;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
+import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
@@ -22,14 +22,14 @@ public abstract class AbstractParams {
      * get the package list according to the os and arch
      */
     public static List<String> getPackageList() {
-        List<OSSpecific> osSpecifics = commandMessage.getOsSpecifics();
+        List<OSSpecificInfo> osSpecifics = commandMessage.getOsSpecifics();
         if (osSpecifics == null) {
             return null;
         }
 
         String os = OSDetection.getOS();
         String arch = OSDetection.getArch();
-        for (OSSpecific osSpecific : osSpecifics) {
+        for (OSSpecificInfo osSpecific : osSpecifics) {
             List<String> pkgOS = osSpecific.getOs();
             List<String> pkgArch = osSpecific.getArch();
             if (pkgOS.contains(os) && pkgArch.contains(arch)) {

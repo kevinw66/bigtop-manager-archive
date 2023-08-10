@@ -7,7 +7,7 @@ public class ServiceVersionVO {
 
     private String serviceName;
 
-    private String serviceDisplay;
+    private String displayName;
 
     private String serviceVersion;
 }

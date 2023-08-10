@@ -1,9 +1,9 @@
-package org.apache.bigtop.manager.common.pojo.stack;
+package org.apache.bigtop.manager.server.stack.pojo;
 
 import lombok.Data;
 
 @Data
-public class ScriptInfo {
+public class ScriptModel {
 
     private String scriptType;
 

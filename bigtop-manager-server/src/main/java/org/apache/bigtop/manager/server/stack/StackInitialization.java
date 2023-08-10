@@ -3,9 +3,9 @@ package org.apache.bigtop.manager.server.stack;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
-import org.apache.bigtop.manager.common.pojo.stack.ServiceInfo;
-import org.apache.bigtop.manager.common.pojo.stack.StackInfo;
+import org.apache.bigtop.manager.server.model.dto.RepoDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.Repo;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
@@ -38,25 +38,25 @@ public class StackInitialization implements ApplicationListener<ApplicationStart
     private RepoRepository repoRepository;
 
     @Getter
-    private Map<String, ImmutablePair<StackInfo, Set<ServiceInfo>>> stackKeyMap;
+    private Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap;
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         log.info("StackInitialization starting...");
         stackKeyMap = new HashMap<>();
 
-        Map<StackInfo, Set<ServiceInfo>> stackMap = StackUtils.stackList();
+        Map<StackDTO, Set<ServiceDTO>> stackMap = StackUtils.stackList();
 
-        for (Map.Entry<StackInfo, Set<ServiceInfo>> entry : stackMap.entrySet()) {
+        for (Map.Entry<StackDTO, Set<ServiceDTO>> entry : stackMap.entrySet()) {
 
-            StackInfo stackModel = entry.getKey();
-            Set<ServiceInfo> serviceModels = entry.getValue();
+            StackDTO stackDTO = entry.getKey();
+            Set<ServiceDTO> serviceDTOSet = entry.getValue();
 
-            String stackName = stackModel.getStackName();
-            String stackVersion = stackModel.getStackVersion();
-            List<RepoInfo> repoInfos = stackModel.getRepos();
+            String stackName = stackDTO.getStackName();
+            String stackVersion = stackDTO.getStackVersion();
+            List<RepoDTO> repoDTOList = stackDTO.getRepos();
 
-            stackKeyMap.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackModel, serviceModels));
+            stackKeyMap.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, serviceDTOSet));
 
             /*
              * Update strategy:
@@ -71,10 +71,10 @@ public class StackInitialization implements ApplicationListener<ApplicationStart
                 stackRepository.save(stack);
 
                 stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
-                List<Repo> repos = RepoMapper.INSTANCE.POJO2Entity(repoInfos, stack);
+                List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(repoDTOList, stack);
                 repoRepository.saveAll(repos);
             } else {
-                List<Repo> repos = RepoMapper.INSTANCE.POJO2Entity(repoInfos, stack);
+                List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(repoDTOList, stack);
                 for (Repo repo : repos) {
                     Optional<Repo> repoOptional = repoRepository.findByRepoIdAndOsAndArchAndStackId(repo.getRepoId(), repo.getOs(), repo.getArch(), stack.getId());
 

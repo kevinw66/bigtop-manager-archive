@@ -3,11 +3,11 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
-import org.apache.bigtop.manager.common.pojo.stack.ServiceInfo;
-import org.apache.bigtop.manager.common.pojo.stack.StackInfo;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.model.dto.RepoDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
@@ -57,15 +57,15 @@ public class StackServiceImpl implements StackService {
 
     @Override
     public List<ServiceVersionVO> versions(String stackName, String stackVersion) {
-        Map<String, ImmutablePair<StackInfo, Set<ServiceInfo>>> stackKeyMap = stackInitialization.getStackKeyMap();
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = stackInitialization.getStackKeyMap();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 
-        ImmutablePair<StackInfo, Set<ServiceInfo>> stackInfoSetImmutablePair = stackKeyMap.get(fullStackName);
+        ImmutablePair<StackDTO, Set<ServiceDTO>> stackDTOSetImmutablePair = stackKeyMap.get(fullStackName);
 
         List<ServiceVersionVO> serviceVersionVOList = new ArrayList<>();
-        for (ServiceInfo serviceInfo : stackInfoSetImmutablePair.right) {
-            ServiceVersionVO serviceVersionVO = ServiceMapper.INSTANCE.POJO2VO(serviceInfo);
+        for (ServiceDTO serviceDTO : stackDTOSetImmutablePair.right) {
+            ServiceVersionVO serviceVersionVO = ServiceMapper.INSTANCE.DTO2VO(serviceDTO);
             serviceVersionVOList.add(serviceVersionVO);
         }
 
@@ -74,18 +74,18 @@ public class StackServiceImpl implements StackService {
 
     @Override
     public List<StackRepoVO> repos(String stackName, String stackVersion) {
-        Map<String, ImmutablePair<StackInfo, Set<ServiceInfo>>> stackKeyMap = stackInitialization.getStackKeyMap();
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = stackInitialization.getStackKeyMap();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 
-        ImmutablePair<StackInfo, Set<ServiceInfo>> stackInfoSetImmutablePair = stackKeyMap.get(fullStackName);
+        ImmutablePair<StackDTO, Set<ServiceDTO>> stackDTOSetImmutablePair = stackKeyMap.get(fullStackName);
 
-        StackInfo stackInfo = stackInfoSetImmutablePair.left;
-        List<RepoInfo> repoInfos = stackInfo.getRepos();
+        StackDTO stackDTO = stackDTOSetImmutablePair.left;
+        List<RepoDTO> repoInfos = stackDTO.getRepos();
 
         List<StackRepoVO> stackRepoVOList = new ArrayList<>();
-        for (RepoInfo repoInfo : repoInfos) {
-            StackRepoVO stackRepoVO = RepoMapper.INSTANCE.POJO2VO(repoInfo, stackInfo);
+        for (RepoDTO repoDTO : repoInfos) {
+            StackRepoVO stackRepoVO = RepoMapper.INSTANCE.DTO2VO(repoDTO, stackDTO);
             stackRepoVOList.add(stackRepoVO);
         }
 

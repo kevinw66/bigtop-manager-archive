@@ -1,15 +1,15 @@
-package org.apache.bigtop.manager.common.pojo.stack;
+package org.apache.bigtop.manager.server.model.dto;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class ServiceInfo {
+public class ServiceDTO {
 
     private String serviceName;
 
-    private String serviceDisplay;
+    private String displayName;
 
     private String serviceDesc;
 
@@ -19,7 +19,7 @@ public class ServiceInfo {
 
     private String serviceGroup;
 
-    private List<OSSpecific> osSpecifics;
+    private List<OSSpecificDTO> osSpecifics;
 
-    private List<ComponentInfo> components;
+    private List<ComponentDTO> components;
 }

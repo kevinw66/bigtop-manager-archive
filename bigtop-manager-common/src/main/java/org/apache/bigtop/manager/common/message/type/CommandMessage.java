@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
+import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class CommandMessage extends BaseMessage {
 
     private String cacheDir;
 
-    private List<OSSpecific> osSpecifics;
+    private List<OSSpecificInfo> osSpecifics;
 
     private String hostname;
 

@@ -2,12 +2,12 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
-import org.apache.bigtop.manager.common.pojo.stack.ServiceInfo;
-import org.apache.bigtop.manager.common.pojo.stack.StackInfo;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.RepoDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
@@ -24,7 +24,10 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -60,7 +63,7 @@ public class ClusterServiceImpl implements ClusterService {
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 
-        ImmutablePair<StackInfo, Set<ServiceInfo>> stackTuple = stackInitialization.getStackKeyMap().get(fullStackName);
+        ImmutablePair<StackDTO, Set<ServiceDTO>> stackTuple = stackInitialization.getStackKeyMap().get(fullStackName);
         // save cluster
         Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
         if (stack.getId() == null) {
@@ -76,11 +79,11 @@ public class ClusterServiceImpl implements ClusterService {
         }
         log.info("stack: {}, cluster: {}", stack, cluster);
 
-        List<RepoInfo> repoInfoList = clusterDTO.getRepoInfoList();
-        if (!CollectionUtils.isEmpty(repoInfoList)) {
-            for (RepoInfo repoInfo : repoInfoList) {
+        List<RepoDTO> repoDTOList = clusterDTO.getRepoInfoList();
+        if (!CollectionUtils.isEmpty(repoDTOList)) {
+            for (RepoDTO repoDTO : repoDTOList) {
 
-                Repo repo = RepoMapper.INSTANCE.POJO2Entity(repoInfo, stack);
+                Repo repo = RepoMapper.INSTANCE.DTO2Entity(repoDTO, stack);
 
                 Optional<Repo> repoOptional = repoRepository.findByRepoIdAndOsAndArchAndStackId(repo.getRepoId(), repo.getOs(), repo.getArch(), stack.getId());
 

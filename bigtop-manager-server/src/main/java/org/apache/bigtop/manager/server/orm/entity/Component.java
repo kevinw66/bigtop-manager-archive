@@ -19,7 +19,7 @@ public class Component extends BaseEntity {
 
     private String componentName;
 
-    private String componentDisplay;
+    private String displayName;
 
     private String scriptId;
 

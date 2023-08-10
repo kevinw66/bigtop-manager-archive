@@ -1,8 +1,12 @@
 package org.apache.bigtop.manager.server.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.pojo.stack.ServiceInfo;
-import org.apache.bigtop.manager.common.pojo.stack.StackInfo;
+import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
+import org.apache.bigtop.manager.server.model.mapper.StackMapper;
+import org.apache.bigtop.manager.server.stack.pojo.ServiceModel;
+import org.apache.bigtop.manager.server.stack.pojo.StackModel;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
@@ -25,49 +29,50 @@ public class StackUtils {
      * Parse stack file to generate stack model
      * @param stackName stack name
      * @param stackVersion stack version
-     * @return stack model {@link StackInfo}
+     * @return stack model {@link StackModel}
      */
-    public static StackInfo parseStack(String stackName, String stackVersion) {
+    public static StackDTO parseStack(String stackName, String stackVersion) {
         String formatPath = MessageFormat.format(STACK_META_TEMPLATE, stackName, stackVersion, META_FILE);
         log.info("formatPath: {}", formatPath);
         String stackMetaPath = StackUtils.class.getClassLoader().getResource(formatPath).getPath();
-        return YamlUtils.readYaml(stackMetaPath, StackInfo.class);
+        return StackMapper.INSTANCE.Model2DTO(YamlUtils.readYaml(stackMetaPath, StackModel.class));
     }
 
     /**
      *  Parse service file to generate service model
      * @param stackName stack name
      * @param stackVersion stack version
-     * @return service model {@link ServiceInfo}
+     * @return service model {@link ServiceModel}
      */
-    public static Set<ServiceInfo> parseService(String stackName, String stackVersion) {
+    public static Set<ServiceDTO> parseService(String stackName, String stackVersion) {
         String servicesPath = MessageFormat.format(SERVICES_TEMPLATE, stackName, stackVersion);
         log.info("servicesPath: {}", servicesPath);
         String path = StackUtils.class.getClassLoader().getResource(servicesPath).getPath();
         File[] files = new File(path).listFiles();
 
-        Set<ServiceInfo> serviceSet = new HashSet<>();
+        Set<ServiceDTO> serviceDTOSet = new HashSet<>();
         if (files != null) {
             for (File file : files) {
                 log.info("file: {}", file);
 
-                ServiceInfo serviceModel = YamlUtils.readYaml(file.getAbsolutePath() + "/" + META_FILE, ServiceInfo.class);
-                serviceSet.add(serviceModel);
+                ServiceModel serviceModel = YamlUtils.readYaml(file.getAbsolutePath() + "/" + META_FILE, ServiceModel.class);
+                ServiceDTO serviceDTO = ServiceMapper.INSTANCE.Model2DTO(serviceModel);
+                serviceDTOSet.add(serviceDTO);
             }
         }
 
-        return serviceSet;
+        return serviceDTOSet;
     }
 
     /**
      *
      * @return stack list map
      */
-    public static Map<StackInfo, Set<ServiceInfo>> stackList() throws ServerException {
+    public static Map<StackDTO, Set<ServiceDTO>> stackList() throws ServerException {
         String path = StackUtils.class.getClassLoader().getResource("stacks").getPath();
         File[] files = new File(path).listFiles();
 
-        Map<StackInfo, Set<ServiceInfo>> stackMap = new HashMap<>();
+        Map<StackDTO, Set<ServiceDTO>> stackMap = new HashMap<>();
 
         for (File file : files) {
             String stackName = file.getName();
@@ -77,13 +82,13 @@ public class StackUtils {
                 String stackVersion = subVersion.getName();
                 log.info("stackName: {}, stackVersion: {}", stackName, stackVersion);
 
-                StackInfo stackModel = parseStack(stackName, stackVersion);
+                StackDTO stackDTO = parseStack(stackName, stackVersion);
 
                 checkStack(subVersion);
 
-                Set<ServiceInfo> serviceSet = parseService(stackName, stackVersion);
+                Set<ServiceDTO> serviceDTOSet = parseService(stackName, stackVersion);
 
-                stackMap.put(stackModel, serviceSet);
+                stackMap.put(stackDTO, serviceDTOSet);
             }
         }
         return stackMap;
