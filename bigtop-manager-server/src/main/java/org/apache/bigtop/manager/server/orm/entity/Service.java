@@ -18,7 +18,7 @@ public class Service extends BaseEntity {
 
     private String serviceName;
 
-    private String displayName;
+    private String serviceDisplay;
 
     private String serviceDesc;
 

@@ -80,7 +80,7 @@ public class ClusterServiceImpl implements ClusterService {
         if (!CollectionUtils.isEmpty(repoInfoList)) {
             for (RepoInfo repoInfo : repoInfoList) {
 
-                Repo repo = RepoMapper.INSTANCE.DTO2Entity(repoInfo, stack);
+                Repo repo = RepoMapper.INSTANCE.POJO2Entity(repoInfo, stack);
 
                 Optional<Repo> repoOptional = repoRepository.findByRepoIdAndOsAndArchAndStackId(repo.getRepoId(), repo.getOs(), repo.getArch(), stack.getId());
 

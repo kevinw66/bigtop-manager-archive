@@ -71,10 +71,10 @@ public class StackInitialization implements ApplicationListener<ApplicationStart
                 stackRepository.save(stack);
 
                 stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
-                List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(repoInfos, stack);
+                List<Repo> repos = RepoMapper.INSTANCE.POJO2Entity(repoInfos, stack);
                 repoRepository.saveAll(repos);
             } else {
-                List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(repoInfos, stack);
+                List<Repo> repos = RepoMapper.INSTANCE.POJO2Entity(repoInfos, stack);
                 for (Repo repo : repos) {
                     Optional<Repo> repoOptional = repoRepository.findByRepoIdAndOsAndArchAndStackId(repo.getRepoId(), repo.getOs(), repo.getArch(), stack.getId());
 

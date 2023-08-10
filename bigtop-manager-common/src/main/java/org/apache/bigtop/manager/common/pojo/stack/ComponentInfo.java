@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class ComponentInfo {
 
-    private String name;
+    private String componentName;
 
-    private String displayName;
+    private String componentDisplay;
 
     private String category;
 

@@ -1,13 +1,13 @@
-name: ZOOKEEPER
+serviceName: ZOOKEEPER
 active: true
-displayName: Zookeeper
-desc: Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.
-version: 3.5.9
-user: zookeeper
-group: zookeeper
+serviceDisplay: Zookeeper
+serviceDesc: Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.
+serviceVersion: 3.5.9
+serviceUser: zookeeper
+serviceGroup: zookeeper
 components:
-  - name: ZOOKEEPER_SERVER
-    displayName: ZooKeeper Server
+  - componentName: ZOOKEEPER_SERVER
+    componentDisplay: ZooKeeper Server
     category: MASTER
     cardinality: 1+
     commandScript:

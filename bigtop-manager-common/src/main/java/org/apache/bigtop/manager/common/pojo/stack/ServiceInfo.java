@@ -7,17 +7,17 @@ import java.util.List;
 @Data
 public class ServiceInfo {
 
-    private String name;
+    private String serviceName;
 
-    private String displayName;
+    private String serviceDisplay;
 
-    private String desc;
+    private String serviceDesc;
 
-    private String version;
+    private String serviceVersion;
 
-    private String user;
+    private String serviceUser;
 
-    private String group;
+    private String serviceGroup;
 
     private List<OSSpecific> osSpecifics;
 
