@@ -2,7 +2,6 @@ package org.apache.bigtop.manager.server.model.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
 
 import java.util.List;
 
@@ -21,6 +20,6 @@ public class ClusterRequest {
     @Schema(example = "3.2.0")
     private String stackVersion;
 
-    private List<RepoInfo> repoInfoList;
+    private List<RepoRequest> repoInfoList;
 
 }

@@ -6,12 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
+import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
@@ -146,14 +147,8 @@ public class HostServiceImpl implements HostService {
         });
 
         List<RepoInfo> repoList = new ArrayList<>();
-
-        repos.forEach(x -> {
-            RepoInfo repoInfo = new RepoInfo();
-            repoInfo.setRepoId(x.getRepoId());
-            repoInfo.setRepoName(x.getRepoName());
-            repoInfo.setBaseurl(x.getBaseurl());
-            repoInfo.setOs(x.getOs());
-            repoInfo.setArch(x.getArch());
+        repos.forEach(repo -> {
+            RepoInfo repoInfo = RepoMapper.INSTANCE.Entity2Message(repo);
             repoList.add(repoInfo);
         });
 

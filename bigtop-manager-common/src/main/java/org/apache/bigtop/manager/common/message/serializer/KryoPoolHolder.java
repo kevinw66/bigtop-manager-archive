@@ -4,8 +4,8 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.util.Pool;
 import org.apache.bigtop.manager.common.message.type.*;
 import org.apache.bigtop.manager.common.message.type.pojo.*;
-import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -30,7 +30,7 @@ public class KryoPoolHolder {
 
             // message pojo
             kryo.register(HostInfo.class);
-            kryo.register(OSSpecific.class);
+            kryo.register(OSSpecificInfo.class);
             kryo.register(BasicInfo.class);
             kryo.register(ClusterInfo.class);
             kryo.register(RepoInfo.class);

@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.stack.core.hooks;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.stack.common.utils.HostCacheUtils;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;

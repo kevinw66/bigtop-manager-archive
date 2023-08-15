@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.pojo.stack;
+package org.apache.bigtop.manager.common.message.type.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
