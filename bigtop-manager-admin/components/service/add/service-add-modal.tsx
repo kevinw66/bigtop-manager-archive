@@ -1,6 +1,6 @@
-import {Button, Modal, StepProps, Steps} from "antd";
-import React, {Dispatch, SetStateAction, useState} from "react";
-import {ExclamationCircleFilled} from "@ant-design/icons";
+import { Button, Modal, StepProps, Steps } from "antd";
+import React, { Dispatch, SetStateAction, useState } from "react";
+import { ExclamationCircleFilled } from "@ant-design/icons";
 import SetClusterName from "@/components/cluster/create/set-cluster-name";
 import ChooseStack from "@/components/cluster/create/choose-stack";
 import Install from "@/components/cluster/create/install";
@@ -8,7 +8,7 @@ import Finish from "@/components/cluster/create/finish";
 import SetRepository from "@/components/cluster/create/set-repository";
 import SetHosts from "@/components/cluster/create/set-hosts";
 
-const ClusterCreateModal = ({open, setOpen}: {
+const ServiceAddModal = ({ open, setOpen }: {
   open: boolean,
   setOpen: Dispatch<SetStateAction<boolean>>
 }) => {
@@ -16,33 +16,38 @@ const ClusterCreateModal = ({open, setOpen}: {
   const steps = [
     {
       status: 'process',
-      title: 'Set Cluster Name',
-      content: <SetClusterName />,
-    },
-    {
-      status: 'wait',
-      title: 'Choose Stack',
+      title: 'Choose Services',
       content: <ChooseStack />,
     },
     {
       status: 'wait',
-      title: 'Set Repository',
+      title: 'Assign Masters',
       content: <SetRepository />,
     },
     {
       status: 'wait',
-      title: 'Set Hosts',
-      content: <SetHosts />,
+      title: 'Assign Coodinators',
+      content: <SetRepository />,
+    },
+    {
+      status: 'wait',
+      title: 'Customize Services',
+      content: <SetRepository />,
+    },
+    {
+      status: 'wait',
+      title: 'Review',
+      content: <SetRepository />,
     },
     {
       status: 'wait',
       title: 'Install',
-      content: <Install />,
+      content: <SetRepository />,
     },
     {
       status: 'wait',
       title: 'Finish',
-      content: <Finish />,
+      content: <SetRepository />,
     },
   ];
 
@@ -86,32 +91,32 @@ const ClusterCreateModal = ({open, setOpen}: {
 
   return (
     <Modal width="80%"
-           open={open}
-           centered={true}
-           onCancel={handleCancel}
-           maskClosable={false}
-           keyboard={false}
-           footer={[
-             <div key={"footer"}>
-               {current > 0 && (
-                 <Button type="primary" className={"w-1/12"} onClick={() => prev()}>
-                   Previous
-                 </Button>
-               )}
+      open={open}
+      centered={true}
+      onCancel={handleCancel}
+      maskClosable={false}
+      keyboard={false}
+      footer={[
+        <div key={"footer"}>
+          {current > 0 && (
+            <Button type="primary" className={"w-1/12"} onClick={() => prev()}>
+              Previous
+            </Button>
+          )}
 
-               {current < items.length - 1 && (
-                 <Button type="primary" className={"w-1/12"} onClick={() => next()}>
-                   Next
-                 </Button>
-               )}
+          {current < items.length - 1 && (
+            <Button type="primary" className={"w-1/12"} onClick={() => next()}>
+              Next
+            </Button>
+          )}
 
-               {current === items.length - 1 && (
-                 <Button type="primary" className={"w-1/12"} onClick={() => handleSubmit()}>
-                   Done
-                 </Button>
-               )}
-             </div>
-           ]}
+          {current === items.length - 1 && (
+            <Button type="primary" className={"w-1/12"} onClick={() => handleSubmit()}>
+              Done
+            </Button>
+          )}
+        </div>
+      ]}
     >
       <div className={"flex flex-row items-center"}>
         <Steps
@@ -127,4 +132,4 @@ const ClusterCreateModal = ({open, setOpen}: {
   )
 }
 
-export default ClusterCreateModal;
+export default ServiceAddModal;

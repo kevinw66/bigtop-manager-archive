@@ -1,4 +1,4 @@
-import { CheckCircleFilled, CheckCircleTwoTone } from "@ant-design/icons";
+import { CheckCircleFilled, CheckCircleTwoTone, CloseCircleFilled } from "@ant-design/icons";
 import { Space } from "antd";
 import Link from "next/link";
 
@@ -30,8 +30,8 @@ const ServiceSummary = () => {
             <Space className={"flex justify-start items-center mt-10"} size={40}>
               <div className={"flex flex-col justify-center items-center"}>
                 <div className={"flex justify-center items-center w-full"}>
-                  <CheckCircleFilled style={{ fontSize: '12px', color: '#52c41a' }} />
-                  <div className={"ml-1 text-lg"}>3/3 Started</div>
+                  <CloseCircleFilled style={{ fontSize: '12px', color: '#ff4d4f' }} />
+                  <div className={"ml-1 text-lg"}>1/3 Started</div>
                 </div>
                 <Link className={"visited:text-[#1677ff] text-[#1677ff]"} href="https://www.baidu.com">ZooKeeper Server</Link>
               </div>

@@ -1,5 +1,4 @@
 import {message} from "antd";
-import {Response} from "next/dist/compiled/@edge-runtime/primitives/fetch";
 
 export class APIResponse {
   success: boolean;
