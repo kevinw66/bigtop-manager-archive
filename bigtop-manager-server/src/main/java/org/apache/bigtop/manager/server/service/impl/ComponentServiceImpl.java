@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.pojo.stack.OSSpecific;
+import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Component;
@@ -59,7 +59,7 @@ public class ComponentServiceImpl implements ComponentService {
         commandMessage.setCacheDir(component.getCluster().getCacheDir());
 
         try {
-            List<OSSpecific> osSpecifics = JsonUtils.OBJECTMAPPER.readValue(component.getService().getOsSpecifics(),
+            List<OSSpecificInfo> osSpecifics = JsonUtils.OBJECTMAPPER.readValue(component.getService().getOsSpecifics(),
                     new TypeReference<>() {
                     });
             commandMessage.setOsSpecifics(osSpecifics);

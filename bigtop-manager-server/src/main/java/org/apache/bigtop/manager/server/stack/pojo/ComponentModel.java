@@ -1,9 +1,9 @@
-package org.apache.bigtop.manager.common.pojo.stack;
+package org.apache.bigtop.manager.server.stack.pojo;
 
 import lombok.Data;
 
 @Data
-public class ComponentInfo {
+public class ComponentModel {
 
     private String name;
 
@@ -13,5 +13,5 @@ public class ComponentInfo {
 
     private String cardinality;
 
-    private ScriptInfo commandScript;
+    private ScriptModel commandScript;
 }

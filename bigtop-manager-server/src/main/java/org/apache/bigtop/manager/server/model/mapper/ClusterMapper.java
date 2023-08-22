@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import org.apache.bigtop.manager.common.pojo.stack.StackInfo;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.request.ClusterRequest;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
@@ -24,5 +24,5 @@ public interface ClusterMapper {
 
     @Mapping(target = "stack.stackName", source = "clusterDTO.stackName")
     @Mapping(target = "stack.stackVersion", source = "clusterDTO.stackVersion")
-    Cluster DTO2Entity(ClusterDTO clusterDTO, StackInfo clusterModel);
+    Cluster DTO2Entity(ClusterDTO clusterDTO, StackDTO stackDTO);
 }

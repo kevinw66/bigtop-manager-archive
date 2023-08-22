@@ -4,6 +4,7 @@ import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.request.StackRequest;
 import org.apache.bigtop.manager.server.model.vo.StackVO;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
+import org.apache.bigtop.manager.server.stack.pojo.StackModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -17,5 +18,7 @@ public interface StackMapper {
     Stack DTO2Entity(StackDTO stackDTO);
 
     StackVO Entity2VO(Stack stack);
+
+    StackDTO Model2DTO(StackModel stackModel);
 
 }

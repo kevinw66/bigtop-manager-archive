@@ -4,7 +4,7 @@ package org.apache.bigtop.manager.stack.common.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.stack.common.AbstractParams;
 

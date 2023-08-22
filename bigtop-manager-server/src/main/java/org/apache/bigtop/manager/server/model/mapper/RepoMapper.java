@@ -1,6 +1,9 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import org.apache.bigtop.manager.common.pojo.stack.RepoInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.server.model.dto.RepoDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.vo.StackRepoVO;
 import org.apache.bigtop.manager.server.orm.entity.Repo;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.mapstruct.Context;
@@ -15,9 +18,13 @@ public interface RepoMapper {
 
     RepoMapper INSTANCE = Mappers.getMapper(RepoMapper.class);
 
-    @Mapping(target = "stack", expression = "java(stack)")
-    Repo DTO2Entity(RepoInfo repoInfo, @Context Stack stack);
+    StackRepoVO DTO2VO(RepoDTO repoDTO, StackDTO stackDTO);
 
-    List<Repo> DTO2Entity(List<RepoInfo> repoInfoList, @Context Stack stack);
+    @Mapping(target = "stack", expression = "java(stack)")
+    Repo DTO2Entity(RepoDTO repoDTO, @Context Stack stack);
+
+    List<Repo> DTO2Entity(List<RepoDTO> repoDTOList, @Context Stack stack);
+
+    RepoInfo Entity2Message(Repo repo);
 
 }

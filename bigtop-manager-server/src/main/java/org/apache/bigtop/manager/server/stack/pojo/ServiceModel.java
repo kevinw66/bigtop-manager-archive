@@ -1,11 +1,11 @@
-package org.apache.bigtop.manager.common.pojo.stack;
+package org.apache.bigtop.manager.server.stack.pojo;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class ServiceInfo {
+public class ServiceModel {
 
     private String name;
 
@@ -19,7 +19,7 @@ public class ServiceInfo {
 
     private String group;
 
-    private List<OSSpecific> osSpecifics;
+    private List<OSSpecificModel> osSpecifics;
 
-    private List<ComponentInfo> components;
+    private List<ComponentModel> components;
 }

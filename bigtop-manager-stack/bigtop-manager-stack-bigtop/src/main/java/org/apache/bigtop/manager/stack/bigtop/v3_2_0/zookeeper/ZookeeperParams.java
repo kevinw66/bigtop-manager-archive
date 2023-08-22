@@ -8,10 +8,10 @@ import java.util.Map;
 public class ZookeeperParams extends AbstractParams {
 
     public static Map<String, Object> zooCfg() {
-        return StackConfigUtils.loadConfig(serviceCacheDir() + "/configuration/zoo.cfg.yaml");
+        return configDict(serviceName(), "zoo.cfg");
     }
 
     public static Map<String, Object> zookeeperEnv() {
-        return StackConfigUtils.loadConfig(serviceCacheDir() + "/configuration/zookeeper-env.yaml");
+        return configDict(serviceName(), "zookeeper-env");
     }
 }

@@ -1,11 +1,11 @@
-package org.apache.bigtop.manager.common.pojo.stack;
+package org.apache.bigtop.manager.server.stack.pojo;
 
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class StackInfo {
+public class StackModel {
 
     private String stackName;
 
@@ -21,5 +21,5 @@ public class StackInfo {
 
     private String repoTemplate;
 
-    private List<RepoInfo> repos;
+    private List<RepoModel> repos;
 }
