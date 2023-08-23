@@ -3,6 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .flattened-pom.xml
+.DS_Store
 
 ### STS ###
 .apt_generated
