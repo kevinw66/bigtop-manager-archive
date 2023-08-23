@@ -45,7 +45,7 @@ public class StackInitialization implements ApplicationListener<ApplicationStart
         log.info("StackInitialization starting...");
         stackKeyMap = new HashMap<>();
 
-        Map<StackDTO, Set<ServiceDTO>> stackMap = StackUtils.stackList();
+        Map<StackDTO, Set<ServiceDTO>> stackMap = new HashMap<>();
 
         for (Map.Entry<StackDTO, Set<ServiceDTO>> entry : stackMap.entrySet()) {
 

@@ -31,6 +31,7 @@
     </properties>
 
     <modules>
+        <module>bigtop-manager-ui</module>
         <module>bigtop-manager-agent</module>
         <module>bigtop-manager-bom</module>
         <module>bigtop-manager-common</module>

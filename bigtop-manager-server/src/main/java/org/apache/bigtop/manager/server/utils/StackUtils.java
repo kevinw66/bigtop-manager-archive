@@ -12,6 +12,7 @@ import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 
 import java.io.File;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -69,7 +70,13 @@ public class StackUtils {
      * @return stack list map
      */
     public static Map<StackDTO, Set<ServiceDTO>> stackList() throws ServerException {
-        String path = StackUtils.class.getClassLoader().getResource("stacks").getPath();
+        URL url = StackUtils.class.getProtectionDomain().getCodeSource().getLocation();
+        File file1 = new File(url.getPath());
+        String path = file1.getParentFile().getParentFile().getPath() + "/stacks";
+
+        System.out.println("1111");
+        System.out.println(path);
+        System.out.println("1111");
         File[] files = new File(path).listFiles();
 
         Map<StackDTO, Set<ServiceDTO>> stackMap = new HashMap<>();
