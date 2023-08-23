@@ -1,5 +1,12 @@
 <script setup lang="ts">
+  import axios from 'axios'
   import HelloWorld from './components/HelloWorld.vue'
+
+  const test = async () => {
+    const response = await axios.get('/api/test')
+    // eslint-disable-next-line no-console
+    console.log(response)
+  }
 </script>
 
 <template>
@@ -10,6 +17,7 @@
     <a href="https://vuejs.org/" target="_blank">
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
+    <button @click="test()">click me</button>
   </div>
   <hello-world msg="Vite + Vue" />
 </template>

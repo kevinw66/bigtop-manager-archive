@@ -3,8 +3,8 @@ package org.apache.bigtop.manager.server.configuration;
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.interceptor.AuthInterceptor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -21,7 +21,7 @@ import java.util.zip.ZipFile;
 
 
 @Configuration
-public class InterceptorConfiguration implements WebMvcConfigurer {
+public class WebConfiguration implements WebMvcConfigurer {
 
     @Resource
     private AuthInterceptor authInterceptor;
@@ -31,11 +31,16 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
                 // Server APIs
-                .excludePathPatterns("/login")
+                .excludePathPatterns("/api/test", "/api/login")
                 // Frontend pages
-                .excludePathPatterns("/", "/ui/**")
+                .excludePathPatterns("/", "/ui/**", "/favicon.ico", "/error")
                 // Swagger pages
                 .excludePathPatterns("/swagger-ui/**", "/v3/**", "/swagger-ui.html");
+    }
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix("/api", c -> c.getPackageName().equals("org.apache.bigtop.manager.server.controller"));
     }
 
     @Override

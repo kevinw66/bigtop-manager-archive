@@ -37,8 +37,7 @@ public class LoginController {
 
     @Operation(summary = "test", description = "test")
     @GetMapping(value = "/test")
-    public ResponseEntity<String> login(HttpSession session) {
-        User user = (User) session.getAttribute("user");
+    public ResponseEntity<String> test() {
         return ResponseEntity.success("111");
     }
 }
