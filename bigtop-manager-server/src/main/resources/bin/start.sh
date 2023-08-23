@@ -29,4 +29,5 @@ fi
 
 $JAVA_HOME/bin/java $JAVA_OPTS \
   -cp "${BIGTOP_MANAGER_HOME}/conf":"${BIGTOP_MANAGER_HOME}/libs/*" \
+  -Dbigtop.manager.stack.path="${BIGTOP_MANAGER_HOME}/stacks" \
   org.apache.bigtop.manager.server.ServerApplication
