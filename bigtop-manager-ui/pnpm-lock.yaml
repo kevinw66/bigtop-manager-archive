@@ -28,6 +28,9 @@ dependencies:
     version: registry.npmmirror.com/vue-router@4.2.4(vue@3.3.4)
 
 devDependencies:
+  '@types/node':
+    specifier: ^20.5.3
+    version: registry.npmmirror.com/@types/node@20.5.3
   '@typescript-eslint/eslint-plugin':
     specifier: ^6.4.1
     version: registry.npmmirror.com/@typescript-eslint/eslint-plugin@6.4.1(@typescript-eslint/parser@6.4.1)(eslint@8.47.0)(typescript@5.0.2)
@@ -60,7 +63,7 @@ devDependencies:
     version: registry.npmmirror.com/typescript@5.0.2
   vite:
     specifier: ^4.4.5
-    version: registry.npmmirror.com/vite@4.4.5(sass@1.66.1)
+    version: registry.npmmirror.com/vite@4.4.5(@types/node@20.5.3)(sass@1.66.1)
   vue-tsc:
     specifier: ^1.8.5
     version: registry.npmmirror.com/vue-tsc@1.8.5(typescript@5.0.2)
@@ -583,6 +586,12 @@ packages:
     version: 7.0.12
     dev: true
 
+  registry.npmmirror.com/@types/node@20.5.3:
+    resolution: {integrity: sha512-ITI7rbWczR8a/S6qjAW7DMqxqFMjjTo61qZVWJ1ubPvbIQsL5D/TvwjYEalM8Kthpe3hTzOGrF2TGbAu2uyqeA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/node/-/node-20.5.3.tgz}
+    name: '@types/node'
+    version: 20.5.3
+    dev: true
+
   registry.npmmirror.com/@types/semver@7.5.0:
     resolution: {integrity: sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/@types/semver/-/semver-7.5.0.tgz}
     name: '@types/semver'
@@ -751,7 +760,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: registry.npmmirror.com/vite@4.4.5(sass@1.66.1)
+      vite: registry.npmmirror.com/vite@4.4.5(@types/node@20.5.3)(sass@1.66.1)
       vue: registry.npmmirror.com/vue@3.3.4
     dev: true
 
@@ -2597,7 +2606,7 @@ packages:
     version: 1.0.2
     dev: true
 
-  registry.npmmirror.com/vite@4.4.5(sass@1.66.1):
+  registry.npmmirror.com/vite@4.4.5(@types/node@20.5.3)(sass@1.66.1):
     resolution: {integrity: sha512-4m5kEtAWHYr0O1Fu7rZp64CfO1PsRGZlD3TAB32UmQlpd7qg15VF7ROqGN5CyqN7HFuwr7ICNM2+fDWRqFEKaA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/vite/-/vite-4.4.5.tgz}
     id: registry.npmmirror.com/vite/4.4.5
     name: vite
@@ -2628,6 +2637,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': registry.npmmirror.com/@types/node@20.5.3
       esbuild: registry.npmmirror.com/esbuild@0.18.20
       postcss: registry.npmmirror.com/postcss@8.4.28
       rollup: registry.npmmirror.com/rollup@3.28.1

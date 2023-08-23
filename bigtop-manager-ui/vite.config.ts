@@ -3,6 +3,6 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/ui/',
+  base: process.env.NODE_ENV === 'production' ? '/ui/' : '/',
   plugins: [vue()],
 })
