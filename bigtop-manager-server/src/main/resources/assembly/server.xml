@@ -44,6 +44,10 @@
             <fileMode>0755</fileMode>
             <directoryMode>0755</directoryMode>
         </fileSet>
+        <fileSet>
+            <directory>${basedir}/../bigtop-manager-ui/dist</directory>
+            <outputDirectory>./ui</outputDirectory>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>

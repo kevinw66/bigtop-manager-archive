@@ -31,12 +31,12 @@
     </properties>
 
     <modules>
-        <module>bigtop-manager-ui</module>
         <module>bigtop-manager-agent</module>
         <module>bigtop-manager-bom</module>
         <module>bigtop-manager-common</module>
         <module>bigtop-manager-server</module>
         <module>bigtop-manager-stack</module>
+        <module>bigtop-manager-ui</module>
     </modules>
 
     <dependencyManagement>
@@ -44,6 +44,12 @@
             <dependency>
                 <groupId>org.apache.bigtop</groupId>
                 <artifactId>bigtop-manager-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.bigtop</groupId>
+                <artifactId>bigtop-manager-ui</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
