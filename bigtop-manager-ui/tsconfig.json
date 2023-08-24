@@ -8,9 +8,15 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "skipLibCheck": true,
+    "types": ["vite/client"],
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    // "moduleResolution": "Bundler",
+    "moduleResolution": "Node",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

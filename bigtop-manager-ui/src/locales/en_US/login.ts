@@ -15,9 +15,6 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
-
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
+export default {
+  test: 'Test'
 }

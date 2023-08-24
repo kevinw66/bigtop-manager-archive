@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
+import login from '@/locales/zh_CN/login'
 
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
+export default {
+  login
 }

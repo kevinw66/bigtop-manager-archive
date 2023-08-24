@@ -15,9 +15,18 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
+import { createI18n } from 'vue-i18n'
+import zh_CN from './zh_CN'
+import en_US from './en_US'
 
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
-}
+const i18n = createI18n({
+  legacy: false,
+  globalInjection: true,
+  locale: 'en_US',
+  messages: {
+    zh_CN,
+    en_US
+  }
+})
+
+export default i18n

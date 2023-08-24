@@ -1,11 +1,14 @@
 <script setup lang="ts">
-  import axios from 'axios'
+  // import axios from 'axios'
   import HelloWorld from './components/HelloWorld.vue'
+  import i18n from '@/locales'
 
-  const test = async () => {
-    const response = await axios.get('/api/test')
+  const test = () => {
+    // const response = await axios.get('/api/test')
     // eslint-disable-next-line no-console
-    console.log(response)
+    i18n.global.locale.value =
+      i18n.global.locale.value === 'zh_CN' ? 'en_US' : 'zh_CN'
+    // console.log(response)
   }
 </script>
 
@@ -17,9 +20,10 @@
     <a href="https://vuejs.org/" target="_blank">
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
+    <p>{{ $t('login.test') }}</p>
     <button @click="test()">click me</button>
   </div>
-  <hello-world msg="Vite + Vue" />
+  <hello-world msg="Vite + Vue" text="heiheihie" />
 </template>
 
 <style lang="scss" scoped>
