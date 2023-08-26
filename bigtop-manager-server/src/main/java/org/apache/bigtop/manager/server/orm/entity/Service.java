@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_service_name", columnNames = {"serviceName"})},
+@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_service_name", columnNames = {"serviceName", "cluster_id"})},
         indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "service_generator", table = "sequence")
 public class Service extends BaseEntity {

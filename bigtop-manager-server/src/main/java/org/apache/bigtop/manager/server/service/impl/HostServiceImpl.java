@@ -3,22 +3,32 @@ package org.apache.bigtop.manager.server.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
+import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.enums.CommandEvent;
+import org.apache.bigtop.manager.server.enums.HostState;
+import org.apache.bigtop.manager.server.enums.RequestState;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
+import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
+import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
+import org.apache.bigtop.manager.server.ws.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -29,6 +39,42 @@ public class HostServiceImpl implements HostService {
 
     @Resource
     private HostRepository hostRepository;
+
+    @Resource
+    private ComponentRepository componentRepository;
+
+    @Resource
+    private HostComponentRepository hostComponentRepository;
+
+    @Resource
+    private ClusterRepository clusterRepository;
+
+    @Resource
+    private ServiceRepository serviceRepository;
+
+    @Resource
+    private ServiceConfigRepository serviceConfigRepository;
+
+    @Resource
+    private RepoRepository repoRepository;
+
+    @Resource
+    private SettingRepository settingRepository;
+
+    @Resource
+    private RequestRepository requestRepository;
+
+    @Resource
+    private ServerWebSocketHandler serverWebSocketHandler;
+
+    @Resource
+    private TaskFlowHandler taskFlowHandler;
+
+    @Resource
+    private HostCheckHandler hostCheckHandler;
+
+    @Resource
+    private HostCacheHandler hostCacheHandler;
 
     @Override
     public List<HostVO> list() {
@@ -43,8 +89,44 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public HostVO create(HostDTO hostDTO) {
-        Host host = HostMapper.INSTANCE.DTO2Entity(hostDTO);
-        hostRepository.save(host);
+        String hostname = hostDTO.getHostname();
+
+        Cluster cluster = clusterRepository.findById(hostDTO.getClusterId()).orElse(new Cluster());
+
+        //websocket
+        int retry = 3;
+        Host host = new Host();
+        while (retry >= 0) {
+            WebSocketSession webSocketSession = ServerWebSocketSessionManager.SESSIONS.get(hostDTO.getHostname());
+            boolean open = webSocketSession.isOpen();
+            System.out.println("open = " + open);
+
+            if (open) {
+                HeartbeatMessage heartbeatMessage = ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.get(hostname);
+                host = HostMapper.INSTANCE.Message2Entity(heartbeatMessage.getHostInfo());
+                Host savedHost = hostRepository.findByHostname(hostDTO.getHostname()).orElse(new Host());
+                if (savedHost.getId() != null) {
+                    host.setId(savedHost.getId());
+                }
+                // todo 向前端发送进度消息
+
+                break;
+            }
+            retry--;
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        //检测时间同步服务
+        hostCheckHandler.checkHost(hostname);
+
+        host.setCluster(cluster);
+        host.setStatus(true);
+        host.setState(HostState.REGISTERED.name());
+        host = hostRepository.save(host);
 
         return HostMapper.INSTANCE.Entity2VO(host);
     }
@@ -71,125 +153,44 @@ public class HostServiceImpl implements HostService {
         return true;
     }
 
-    @Resource
-    private HostComponentRepository hostComponentRepository;
-
-    @Resource
-    private ClusterRepository clusterRepository;
-
-    @Resource
-    private ServiceRepository serviceRepository;
-
-    @Resource
-    private ServiceConfigRepository serviceConfigRepository;
-
-    @Resource
-    private RepoRepository repoRepository;
-
-    @Resource
-    private SettingRepository settingRepository;
-
-    @Resource
-    private ServerWebSocketHandler serverWebSocketHandler;
+    @Override
+    public Boolean cache(Long clusterId) {
+        hostCacheHandler.cache(clusterId);
+        return true;
+    }
 
     @Override
-    public void cache(Long clusterId) {
-        Cluster cluster = clusterRepository.findById(clusterId).orElse(new Cluster());
+    public CommandVO command(CommandDTO commandDTO) {
+        String command = commandDTO.getCommand();
+        List<String> componentNameList = commandDTO.getComponentNames();
+        String hostname = commandDTO.getHostname();
+        String clusterName = commandDTO.getClusterName();
 
-        String clusterName = cluster.getClusterName();
-        Long stackId = cluster.getStack().getId();
-        String stackName = cluster.getStack().getStackName();
-        String stackVersion = cluster.getStack().getStackVersion();
+        if (command.equals(CommandEvent.INSTALL.name())) {
+            //Persist hostComponent to database
+            List<Component> componentList = componentRepository.findAllByClusterClusterNameAndComponentNameIn(clusterName, componentNameList);
+            Host host = hostRepository.findByHostname(hostname).orElse(new Host());
+            for (Component component : componentList) {
+                HostComponent hostComponent = new HostComponent();
+                hostComponent.setHost(host);
+                hostComponent.setComponent(component);
+                hostComponent.setStatus(true);
 
-        List<org.apache.bigtop.manager.server.orm.entity.Service> services = serviceRepository.findAllByClusterId(clusterId);
-        List<ServiceConfig> serviceConfigs = serviceConfigRepository.findAllByClusterId(clusterId);
-        List<HostComponent> hostComponents = hostComponentRepository.findAllByClusterId(clusterId);
-        List<Repo> repos = repoRepository.findAllByStackId(stackId);
-        Setting setting = settingRepository.findFirstByOrderByVersionDesc().orElse(new Setting());
-
-
-        ClusterInfo clusterInfo = new ClusterInfo();
-        clusterInfo.setClusterName(clusterName);
-        clusterInfo.setStackName(stackName);
-        clusterInfo.setStackVersion(stackVersion);
-        clusterInfo.setUserGroup(cluster.getUserGroup());
-        clusterInfo.setRepoTemplate(cluster.getRepoTemplate());
-        clusterInfo.setRoot(cluster.getRoot());
-        try {
-            Set<String> packages = JsonUtils.OBJECTMAPPER.readValue(cluster.getPackages(),
-                    new TypeReference<>() {
-                    });
-            clusterInfo.setPackages(packages);
-        } catch (Exception ignored) {
+                Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
+                hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
+                hostComponentRepository.save(hostComponent);
+            }
         }
 
-        Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
-        serviceConfigs.forEach(x -> {
-            if (serviceConfigMap.containsKey(x.getService().getServiceName())) {
-                serviceConfigMap.get(x.getService().getServiceName()).put(x.getTypeName(), x.getConfigData());
-            } else {
-                Map<String, Object> hashMap = new HashMap<>();
-                hashMap.put(x.getTypeName(), x.getConfigData());
-                serviceConfigMap.put(x.getService().getServiceName(), hashMap);
-            }
-        });
+        taskFlowHandler.submitTaskFlow(commandDTO);
 
-        Map<String, Set<String>> hostMap = new HashMap<>();
-        hostComponents.forEach(x -> {
-            if (hostMap.containsKey(x.getComponent().getComponentName())) {
-                hostMap.get(x.getComponent().getComponentName()).add(x.getHost().getHostname());
-            } else {
-                Set<String> set = new HashSet<>();
-                set.add(x.getHost().getHostname());
-                hostMap.put(x.getComponent().getComponentName(), set);
-            }
-            hostMap.get(x.getComponent().getComponentName()).add(x.getHost().getHostname());
-        });
+        //persist request to database
+        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
+        Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
+        request.setState(RequestState.PENDING.name());
+        request = requestRepository.save(request);
 
-        List<RepoInfo> repoList = new ArrayList<>();
-        repos.forEach(repo -> {
-            RepoInfo repoInfo = RepoMapper.INSTANCE.Entity2Message(repo);
-            repoList.add(repoInfo);
-        });
-
-        Map<String, Set<String>> userMap = new HashMap<>();
-        services.forEach(x -> {
-            if (userMap.containsKey(x.getServiceUser())) {
-                userMap.get(x.getServiceUser()).add(x.getServiceGroup());
-            } else {
-                Set<String> set = new HashSet<>();
-                set.add(x.getServiceGroup());
-                userMap.put(x.getServiceUser(), set);
-            }
-        });
-
-        BasicInfo basicInfo = new BasicInfo();
-        basicInfo.setJavaHome(setting.getJavaHome());
-        basicInfo.setJavaVersion(setting.getJavaVersion());
-        basicInfo.setJdbcDriver(setting.getJdbcDriver());
-        basicInfo.setJdbcDriverHome(setting.getJdbcDriverHome());
-
-        //Wrapper HostCacheMessage for websocket
-        HostCacheMessage hostCacheMessage = new HostCacheMessage();
-
-        hostCacheMessage.setStack(stackName);
-        hostCacheMessage.setVersion(stackVersion);
-        hostCacheMessage.setCacheDir(cluster.getCacheDir());
-
-        hostCacheMessage.setClusterInfo(clusterInfo);
-        hostCacheMessage.setConfigurations(serviceConfigMap);
-        hostCacheMessage.setClusterHostInfo(hostMap);
-        hostCacheMessage.setRepoInfo(repoList);
-        hostCacheMessage.setBasicInfo(basicInfo);
-        hostCacheMessage.setUserInfo(userMap);
-
-        for (HostComponent hostComponent : hostComponents) {
-            String hostname = hostComponent.getHost().getHostname();
-            hostCacheMessage.setHostname(hostname);
-            hostCacheMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
-            log.info("hostCacheMessage: {}", hostCacheMessage);
-            serverWebSocketHandler.sendMessage(hostname, hostCacheMessage);
-        }
+        return RequestMapper.INSTANCE.Entity2VO(request);
     }
+
 }

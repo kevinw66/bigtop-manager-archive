@@ -4,9 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
+import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.request.ClusterRequest;
+import org.apache.bigtop.manager.server.model.request.CommandRequest;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
+import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -52,4 +56,14 @@ public class ClusterController {
     public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return ResponseEntity.success(clusterService.delete(id));
     }
+
+
+    @Operation(summary = "cluster command", description = "Command for cluster, only support [START|STOP|RESTART]")
+    @PostMapping("/command")
+    public ResponseEntity<CommandVO> command(@RequestBody CommandRequest commandRequest) {
+        CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
+        CommandVO commandVO = clusterService.command(commandDTO);
+        return ResponseEntity.success(commandVO);
+    }
+
 }

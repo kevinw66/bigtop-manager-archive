@@ -16,6 +16,10 @@ public class HostComponent extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "host_component_generator")
     private Long id;
 
+    private Boolean status;
+
+    private String state;
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Host host;

@@ -23,8 +23,6 @@ public interface RepoMapper {
     @Mapping(target = "stack", expression = "java(stack)")
     Repo DTO2Entity(RepoDTO repoDTO, @Context Stack stack);
 
-    List<Repo> DTO2Entity(List<RepoDTO> repoDTOList, @Context Stack stack);
-
     RepoInfo Entity2Message(Repo repo);
 
 }

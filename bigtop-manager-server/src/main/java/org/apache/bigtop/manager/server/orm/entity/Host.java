@@ -22,13 +22,17 @@ public class Host extends BaseEntity {
 
     private String ipv6;
 
-    private String osArch;
+    private String arch;
 
-    private String osName;
+    private String os;
 
-    private Integer processorCount;
+    private Integer availableProcessors;
 
-    private Long physicalMemory;
+    private Long totalMemorySize;
+
+    private Boolean status;
+
+    private String state;
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

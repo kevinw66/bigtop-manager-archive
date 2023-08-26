@@ -44,18 +44,19 @@ public abstract class AbstractParams {
      * service home dir
      */
     public static String serviceHome() {
+        String stack = commandMessage.getStack();
         String version = commandMessage.getVersion();
         String service = commandMessage.getService();
         String root = commandMessage.getRoot();
 
-        return root + "/" + version + "/usr/lib/" + service.toLowerCase();
+        return root + "/" + stack.toLowerCase() + "/" + version + "/usr/lib/" + service.toLowerCase();
     }
 
     /**
      * service conf dir
      */
     public static String confDir() {
-        return "/etc/" + commandMessage.getService() + "/conf";
+        return "/etc/" + commandMessage.getService().toLowerCase() + "/conf";
     }
 
     public static String user() {
@@ -93,13 +94,8 @@ public abstract class AbstractParams {
 
         Object configData = config.get(serviceName).get(typeName);
 
-        try {
-            return JsonUtils.OBJECTMAPPER.readValue(configData.toString(),
-                    new TypeReference<>() {
-                    });
-        } catch (JsonProcessingException e) {
-            throw new StackException(e);
-        }
+        return JsonUtils.string2Json(configData.toString(), new TypeReference<>() {
+        });
     }
 
 }
