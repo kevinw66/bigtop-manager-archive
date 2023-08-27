@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.RequestState;
@@ -11,7 +12,6 @@ import org.apache.bigtop.manager.server.orm.entity.Request;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.RequestRepository;
 import org.apache.bigtop.manager.server.service.ComponentService;
-import org.apache.bigtop.manager.server.ws.TaskFlowHandler;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -25,14 +25,13 @@ public class ComponentServiceImpl implements ComponentService {
     private ClusterRepository clusterRepository;
 
     @Resource
-    private TaskFlowHandler taskFlowHandler;
-
+    private EventBus eventBus;
 
     @Override
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
 
-        taskFlowHandler.submitTaskFlow(commandDTO);
+        eventBus.post(commandDTO);
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

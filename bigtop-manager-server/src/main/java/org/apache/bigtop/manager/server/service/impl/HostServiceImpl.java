@@ -1,16 +1,9 @@
 package org.apache.bigtop.manager.server.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
-import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
-import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.CommandEvent;
 import org.apache.bigtop.manager.server.enums.HostState;
 import org.apache.bigtop.manager.server.enums.RequestState;
@@ -19,19 +12,19 @@ import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
-import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.ws.*;
+import org.apache.bigtop.manager.server.ws.ServerWebSocketSessionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -50,31 +43,10 @@ public class HostServiceImpl implements HostService {
     private ClusterRepository clusterRepository;
 
     @Resource
-    private ServiceRepository serviceRepository;
-
-    @Resource
-    private ServiceConfigRepository serviceConfigRepository;
-
-    @Resource
-    private RepoRepository repoRepository;
-
-    @Resource
-    private SettingRepository settingRepository;
-
-    @Resource
     private RequestRepository requestRepository;
 
     @Resource
-    private ServerWebSocketHandler serverWebSocketHandler;
-
-    @Resource
-    private TaskFlowHandler taskFlowHandler;
-
-    @Resource
-    private HostCheckHandler hostCheckHandler;
-
-    @Resource
-    private HostCacheHandler hostCacheHandler;
+    private EventBus eventBus;
 
     @Override
     public List<HostVO> list() {
@@ -121,7 +93,7 @@ public class HostServiceImpl implements HostService {
         }
 
         //检测时间同步服务
-        hostCheckHandler.checkHost(hostname);
+        eventBus.post(hostname);
 
         host.setCluster(cluster);
         host.setStatus(true);
@@ -155,7 +127,7 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public Boolean cache(Long clusterId) {
-        hostCacheHandler.cache(clusterId);
+        eventBus.post(clusterId);
         return true;
     }
 
@@ -182,7 +154,7 @@ public class HostServiceImpl implements HostService {
             }
         }
 
-        taskFlowHandler.submitTaskFlow(commandDTO);
+        eventBus.post(commandDTO);
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

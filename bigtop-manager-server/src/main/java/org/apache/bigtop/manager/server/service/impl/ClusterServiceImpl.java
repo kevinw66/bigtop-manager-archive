@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.RequestState;
@@ -20,7 +21,6 @@ import org.apache.bigtop.manager.server.orm.repository.RepoRepository;
 import org.apache.bigtop.manager.server.orm.repository.RequestRepository;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
-import org.apache.bigtop.manager.server.ws.TaskFlowHandler;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.util.CollectionUtils;
@@ -44,7 +44,7 @@ public class ClusterServiceImpl implements ClusterService {
     private RequestRepository requestRepository;
 
     @Resource
-    private TaskFlowHandler taskFlowHandler;
+    private EventBus eventBus;
 
     @Override
     public List<ClusterVO> list() {
@@ -120,7 +120,7 @@ public class ClusterServiceImpl implements ClusterService {
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
 
-        taskFlowHandler.submitTaskFlow(commandDTO);
+        eventBus.post(commandDTO);
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

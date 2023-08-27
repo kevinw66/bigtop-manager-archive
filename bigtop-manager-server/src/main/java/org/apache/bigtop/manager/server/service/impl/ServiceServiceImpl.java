@@ -1,15 +1,16 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
 import org.apache.bigtop.manager.server.enums.CommandEvent;
 import org.apache.bigtop.manager.server.enums.RequestState;
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
@@ -17,11 +18,13 @@ import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.ServiceService;
-import org.apache.bigtop.manager.server.ws.TaskFlowHandler;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -49,7 +52,7 @@ public class ServiceServiceImpl implements ServiceService {
     private HostComponentRepository hostComponentRepository;
 
     @Resource
-    private TaskFlowHandler taskFlowHandler;
+    private EventBus eventBus;
 
     @Override
     public CommandVO command(CommandDTO commandDTO) {
@@ -61,7 +64,7 @@ public class ServiceServiceImpl implements ServiceService {
             install(commandDTO);
         }
 
-        taskFlowHandler.submitTaskFlow(commandDTO);
+        eventBus.post(commandDTO);
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

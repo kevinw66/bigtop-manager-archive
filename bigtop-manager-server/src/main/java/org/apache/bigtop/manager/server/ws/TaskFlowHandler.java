@@ -1,6 +1,9 @@
 package org.apache.bigtop.manager.server.ws;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.Subscribe;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,10 +34,20 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @org.springframework.stereotype.Component
 public class TaskFlowHandler implements Callback {
+
+    @Resource
+    private AsyncEventBus asyncEventBus;
+
+    @PostConstruct
+    public void init() {
+        asyncEventBus.register(this);
+    }
 
     @Getter
     private final Map<String, List<Task>> displayTaskFlow = new TreeMap<>();
@@ -91,7 +104,7 @@ public class TaskFlowHandler implements Callback {
     }
 
     public Map<String, Set<String>> getComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList,
-                                                            CommandDTO commandDTO) throws ServerException{
+                                                            CommandDTO commandDTO) throws ServerException {
         Map<String, Set<String>> componentHostMapping = new HashMap<>();
 
         String clusterName = commandDTO.getClusterName();
@@ -256,6 +269,7 @@ public class TaskFlowHandler implements Callback {
         return task;
     }
 
+    @Subscribe
     public void submitTaskFlow(CommandDTO commandDTO) {
         this.generatedTaskFlow = generateTaskFlow(commandDTO);
 
@@ -293,6 +307,16 @@ public class TaskFlowHandler implements Callback {
                 taskStatusMap.put(getMessageId(task), task);
             }
 
+            countDownLatch = new CountDownLatch(taskList.size());
+
+            try {
+                boolean timeoutFlag = countDownLatch.await(60, TimeUnit.SECONDS);
+                if (!timeoutFlag) {
+                    log.error("execute task timeout");
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }
@@ -301,9 +325,12 @@ public class TaskFlowHandler implements Callback {
 
     private Queue<List<Task>> generatedTaskFlow;
 
+    private CountDownLatch countDownLatch;
+
     @Override
     public void call(ResultMessage resultMessage) {
         log.info("execute command completed");
+        countDownLatch.countDown();
 
         String messageId = resultMessage.getMessageId();
         Task task = taskStatusMap.get(messageId);

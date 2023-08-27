@@ -1,6 +1,9 @@
 package org.apache.bigtop.manager.server.ws;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.Subscribe;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
@@ -15,10 +18,20 @@ import org.apache.bigtop.manager.server.orm.repository.*;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @org.springframework.stereotype.Component
 public class HostCacheHandler implements Callback {
+
+    @Resource
+    private AsyncEventBus asyncEventBus;
+
+    @PostConstruct
+    public void init() {
+        asyncEventBus.register(this);
+    }
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -41,6 +54,7 @@ public class HostCacheHandler implements Callback {
     @Resource
     private ServerWebSocketHandler serverWebSocketHandler;
 
+    @Subscribe
     public void cache(Long clusterId) {
 
         Cluster cluster = clusterRepository.findById(clusterId).orElse(new Cluster());
@@ -138,11 +152,23 @@ public class HostCacheHandler implements Callback {
             serverWebSocketHandler.sendMessage(hostname, hostCacheMessage, this);
         }
 
+        countDownLatch = new CountDownLatch(hostComponents.size());
+        try {
+            boolean timeoutFlag = countDownLatch.await(30, TimeUnit.SECONDS);
+            if (!timeoutFlag) {
+                log.error("execute task timeout");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
+    private CountDownLatch countDownLatch;
 
     @Override
     public void call(ResultMessage resultMessage) {
+        countDownLatch.countDown();
         if (resultMessage.getCode() == 0) {
             log.info("host cache success");
         } else {
