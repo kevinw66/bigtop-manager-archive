@@ -17,7 +17,6 @@ import org.apache.bigtop.manager.server.model.vo.StackVO;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.StackService;
-import org.apache.bigtop.manager.server.stack.StackInitialization;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
@@ -33,9 +32,6 @@ public class StackServiceImpl implements StackService {
 
     @Resource
     private StackRepository stackRepository;
-
-    @Resource
-    private StackInitialization stackInitialization;
 
     @Override
     public List<StackVO> list() {
@@ -57,7 +53,7 @@ public class StackServiceImpl implements StackService {
 
     @Override
     public List<ServiceVersionVO> versions(String stackName, String stackVersion) {
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = stackInitialization.getStackKeyMap();
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 
@@ -74,7 +70,7 @@ public class StackServiceImpl implements StackService {
 
     @Override
     public List<StackRepoVO> repos(String stackName, String stackVersion) {
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = stackInitialization.getStackKeyMap();
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 

@@ -15,6 +15,7 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * WebSocket Endpoint for agent.
@@ -22,6 +23,8 @@ import java.text.MessageFormat;
 @Slf4j
 @Component
 public class ServerWebSocketHandler extends BinaryWebSocketHandler {
+
+    private final ConcurrentHashMap<String, Callback> callbackMap = new ConcurrentHashMap<>();
 
     @Resource
     private MessageDeserializer deserializer;
@@ -33,6 +36,16 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
         WebSocketSession session = ServerWebSocketSessionManager.SESSIONS.get(hostname);
         try {
             session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+        } catch (IOException e) {
+            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
+        }
+    }
+
+    public void sendMessage(String hostname, BaseMessage message, Callback callback) {
+        WebSocketSession session = ServerWebSocketSessionManager.SESSIONS.get(hostname);
+        try {
+            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+            callbackMap.put(message.getMessageId(), callback);
         } catch (IOException e) {
             log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
         }
@@ -60,12 +73,15 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     private void handleResultMessage(ResultMessage resultMessage) {
-        //TODO update result message to database
         log.info("handleResultMessage: {}", resultMessage);
+        String messageId = resultMessage.getMessageId();
+        callbackMap.get(messageId).call(resultMessage);
+        callbackMap.remove(messageId);
     }
 
     private void handleHeartbeatMessage(WebSocketSession session, HeartbeatMessage heartbeatMessage) {
         HostInfo hostInfo = heartbeatMessage.getHostInfo();
         ServerWebSocketSessionManager.SESSIONS.putIfAbsent(hostInfo.getHostname(), session);
+        ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.putIfAbsent(hostInfo.getHostname(), heartbeatMessage);
     }
 }

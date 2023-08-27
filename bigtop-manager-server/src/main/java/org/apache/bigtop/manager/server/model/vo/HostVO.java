@@ -15,11 +15,11 @@ public class HostVO {
 
     private String ipv6;
 
-    private String osArch;
+    private String arch;
 
-    private String osName;
+    private String os;
 
-    private Integer processorCount;
+    private Integer availableProcessors;
 
-    private Long physicalMemory;
+    private Long totalMemorySize;
 }

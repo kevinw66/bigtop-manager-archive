@@ -7,8 +7,12 @@ import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.*;
+import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
+import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.core.Executor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -27,8 +31,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -71,9 +75,37 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
         } else if (baseMessage instanceof HostCacheMessage hostCacheMessage) {
             log.info("Received message type: {}", hostCacheMessage.getClass().getSimpleName());
             handleHostCacheMessage(session, hostCacheMessage);
+        } else if (baseMessage instanceof HostCheckMessage hostCheckMessage) {
+            log.info("Received message type: {}", hostCheckMessage.getClass().getSimpleName());
+            handleHostCheckMessage(session, hostCheckMessage);
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
         }
+    }
+
+    private void handleHostCheckMessage(WebSocketSession session, HostCheckMessage hostCheckMessage) {
+        HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
+
+        for (HostCheckType hostCheckType : hostCheckTypes) {
+            switch (hostCheckType) {
+                case TIME_SYNC -> {
+                    ResultMessage resultMessage = new ResultMessage();
+                    ShellResult shellResult = TimeSyncDetection.checkTimeSync();
+
+                    resultMessage.setCode(shellResult.getExitCode());
+                    resultMessage.setMessageId(hostCheckMessage.getMessageId());
+                    resultMessage.setHostname(hostCheckMessage.getHostname());
+
+                    try {
+                        session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
+                    } catch (IOException e) {
+                        log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
+                    }
+                }
+
+            }
+        }
+
     }
 
     private void handleHostCacheMessage(WebSocketSession session, HostCacheMessage hostCacheMessage) {
@@ -85,6 +117,16 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
         JsonUtils.writeJson(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
         JsonUtils.writeJson(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
         JsonUtils.writeJson(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
+
+        ResultMessage resultMessage = new ResultMessage();
+        resultMessage.setMessageId(hostCacheMessage.getMessageId());
+        resultMessage.setHostname(hostCacheMessage.getHostname());
+        resultMessage.setCode(0);
+        try {
+            session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
+        } catch (IOException e) {
+            log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
+        }
     }
 
     private void handleCommandMessage(WebSocketSession session, CommandMessage commandMessage) {
@@ -95,7 +137,6 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
             resultMessage.setResult(shellResult.toString());
             resultMessage.setMessageId(commandMessage.getMessageId());
             resultMessage.setHostname(commandMessage.getHostname());
-            resultMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
             try {
                 session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
             } catch (IOException e) {
@@ -147,18 +188,18 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
         }
 
         OperatingSystemMXBean osmxb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        hostInfo.setName(osmxb.getName());
-        hostInfo.setVersion(osmxb.getVersion());
-        hostInfo.setArch(osmxb.getArch());
+        hostInfo.setOs(OSDetection.getOS());
+        hostInfo.setVersion(OSDetection.getOSVersion());
+        hostInfo.setArch(OSDetection.getArch());
         hostInfo.setAvailableProcessors(osmxb.getAvailableProcessors());
         hostInfo.setProcessCpuTime(osmxb.getProcessCpuTime());
-        hostInfo.setTotalPhysicalMemorySize(osmxb.getTotalPhysicalMemorySize());
-        hostInfo.setFreePhysicalMemorySize(osmxb.getFreePhysicalMemorySize());
+        hostInfo.setTotalMemorySize(osmxb.getTotalMemorySize());
+        hostInfo.setFreeMemorySize(osmxb.getFreeMemorySize());
         hostInfo.setTotalSwapSpaceSize(osmxb.getTotalSwapSpaceSize());
         hostInfo.setFreeSwapSpaceSize(osmxb.getFreeSwapSpaceSize());
         hostInfo.setCommittedVirtualMemorySize(osmxb.getCommittedVirtualMemorySize());
 
-        hostInfo.setSystemCpuLoad(new BigDecimal(String.valueOf(osmxb.getSystemCpuLoad())));
+        hostInfo.setCpuLoad(new BigDecimal(String.valueOf(osmxb.getCpuLoad())));
         hostInfo.setProcessCpuLoad(new BigDecimal(String.valueOf(osmxb.getProcessCpuLoad())));
         hostInfo.setSystemLoadAverage(new BigDecimal(String.valueOf(osmxb.getSystemLoadAverage())));
     }
@@ -173,7 +214,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
             int retryTime = 0;
             while (true) {
                 try {
-                    webSocketClient.doHandshake(this, uri).get();
+                    webSocketClient.execute(this, uri).get();
                     break;
                 } catch (Exception e) {
                     log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));

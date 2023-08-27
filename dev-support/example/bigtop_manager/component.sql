@@ -1,1 +1,0 @@
-INSERT INTO bigtop_manager.component (id, component_name, create_time, script_id, update_time, cluster_id, service_id) VALUES (1, 'zookeeper_server', null, 'org.apache.bigtop.manager.stack.bigtop.v3_2_0.zookeeper.ZookeeperServerScript', null, 1, 1);

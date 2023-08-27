@@ -40,4 +40,31 @@ public class JsonUtils {
         }
         return null;
     }
+
+    public static <T> T string2Json(String jsonStr, Class<T> clazz) {
+        try {
+            return JsonUtils.OBJECTMAPPER.readValue(jsonStr, clazz);
+        } catch (IOException e) {
+            log.error(MessageFormat.format("string2Json {0} error, ", jsonStr), e);
+        }
+        return null;
+    }
+
+    public static <T> T string2Json(String jsonStr, TypeReference<T> typeReference) {
+        try {
+            return JsonUtils.OBJECTMAPPER.readValue(jsonStr, typeReference);
+        } catch (IOException e) {
+            log.error(MessageFormat.format("string2Json {0} error, ", jsonStr), e);
+        }
+        return null;
+    }
+
+    public static String object2String(Object object) {
+        try {
+            return JsonUtils.OBJECTMAPPER.writeValueAsString(object);
+        } catch (IOException e) {
+            log.error(MessageFormat.format("object2String {0} error, ", object), e);
+        }
+        return null;
+    }
 }

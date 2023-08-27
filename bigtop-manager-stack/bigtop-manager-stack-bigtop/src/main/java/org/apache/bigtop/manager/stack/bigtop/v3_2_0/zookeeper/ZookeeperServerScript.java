@@ -33,23 +33,31 @@ public class ZookeeperServerScript implements Script {
     public ShellResult configuration() {
         log.info("ZookeeperServerScript configuration");
 
+        String zookeeperUser = ZookeeperParams.user();
+        String zookeeperGroup = ZookeeperParams.group();
+        String logDir = (String) ZookeeperParams.zookeeperEnv().get("logDir");
+        String pidDir = (String) ZookeeperParams.zookeeperEnv().get("pidDir");
+
         log.info("{}", ZookeeperParams.zooCfg());
-        LinuxFileUtils.toFile(ConfigType.PROPERTIES, ZookeeperParams.confDir() + "/zoo.cfg", ZookeeperParams.user(), ZookeeperParams.group(), "rw-r--r--", ZookeeperParams.zooCfg());
+        LinuxFileUtils.toFile(ConfigType.PROPERTIES, ZookeeperParams.confDir() + "/zoo.cfg", zookeeperUser, zookeeperGroup, "rw-r--r--", ZookeeperParams.zooCfg());
 
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
         modelMap.put("ZOOKEEPER_HOME", ZookeeperParams.serviceHome());
-        modelMap.put("ZOO_LOG_DIR", ZookeeperParams.zookeeperEnv().get("logDir"));
-        modelMap.put("ZOOPIDFILE", ZookeeperParams.zookeeperEnv().get("pidDir") + "/zookeeper_server.pid");
+        modelMap.put("ZOO_LOG_DIR", logDir);
+        modelMap.put("ZOOPIDFILE", pidDir + "/zookeeper_server.pid");
         modelMap.put("securityEnabled", false);
 
         log.info("modelMap: {}", modelMap);
         log.info("content: {}", ZookeeperParams.zookeeperEnv().get("content"));
-        LinuxFileUtils.toFile(ConfigType.TEMPLATE, ZookeeperParams.confDir() + "/zookeeper-env.sh", ZookeeperParams.user(), ZookeeperParams.group(), "rw-r--r--",
+        LinuxFileUtils.toFile(ConfigType.TEMPLATE, ZookeeperParams.confDir() + "/zookeeper-env.sh", zookeeperUser, zookeeperGroup, "rw-r--r--",
                 modelMap, ZookeeperParams.zookeeperEnv().get("content").toString());
 
 
-        LinuxFileUtils.updateOwner((String) ZookeeperParams.zooCfg().get("dataDir"), ZookeeperParams.user(), ZookeeperParams.group(), true);
+        LinuxFileUtils.updateOwner((String) ZookeeperParams.zooCfg().get("dataDir"), zookeeperUser, zookeeperGroup, true);
+        LinuxFileUtils.createDirectories(logDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
+        LinuxFileUtils.createDirectories(pidDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
+
         return new ShellResult(0, "", "");
     }
 

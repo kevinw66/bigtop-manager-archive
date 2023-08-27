@@ -1,7 +1,9 @@
 package org.apache.bigtop.manager.server.service;
 
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
+import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 
 import java.util.List;
 
@@ -42,5 +44,17 @@ public interface HostService {
      */
     Boolean delete(Long id);
 
-    void cache(Long clusterId);
+    /**
+     * Cache a host
+     * @param clusterId cluster id
+     * @return boolean
+     */
+    Boolean cache(Long clusterId);
+
+    /**
+     * execute command for a host
+     * @param commandDTO {@link CommandDTO}
+     * @return {@link CommandVO}
+     */
+    CommandVO command(CommandDTO commandDTO);
 }
