@@ -7,13 +7,17 @@ import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
 import org.apache.bigtop.manager.server.enums.CommandEvent;
 import org.apache.bigtop.manager.server.enums.RequestState;
+import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
+import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
+import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
+import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
@@ -21,10 +25,7 @@ import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -53,6 +54,29 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Resource
     private EventBus eventBus;
+
+    @Override
+    public List<ServiceVO> list() {
+        List<ServiceVO> serviceVOList = new ArrayList<>();
+        serviceRepository.findAll().forEach(stack -> {
+            ServiceVO serviceVO = ServiceMapper.INSTANCE.Entity2VO(stack);
+            serviceVOList.add(serviceVO);
+        });
+
+        return serviceVOList;
+    }
+
+    @Override
+    public ServiceVO get(Long id) {
+        Service service = serviceRepository.findById(id).orElse(new Service());
+        return ServiceMapper.INSTANCE.Entity2VO(service);
+    }
+
+    @Override
+    public List<HostComponentVO> hostComponent(Long id) {
+        List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentServiceId(id);
+        return HostComponentMapper.INSTANCE.Entity2VO(hostComponentList);
+    }
 
     @Override
     public CommandVO command(CommandDTO commandDTO) {
@@ -142,7 +166,7 @@ public class ServiceServiceImpl implements ServiceService {
                         HostComponent hostComponent = new HostComponent();
                         hostComponent.setHost(host);
                         hostComponent.setComponent(component);
-                        hostComponent.setStatus(true);
+                        hostComponent.setStatus(StatusType.INSTALLED.getCode());
 
                         Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(componentName, host.getHostname());
                         hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));

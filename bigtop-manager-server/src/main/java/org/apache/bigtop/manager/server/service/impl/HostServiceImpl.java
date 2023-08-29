@@ -4,15 +4,15 @@ import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.server.enums.CommandEvent;
-import org.apache.bigtop.manager.server.enums.HostState;
-import org.apache.bigtop.manager.server.enums.RequestState;
-import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
+import org.apache.bigtop.manager.server.enums.*;
+import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
+import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
+import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
@@ -96,8 +96,8 @@ public class HostServiceImpl implements HostService {
         eventBus.post(hostname);
 
         host.setCluster(cluster);
-        host.setStatus(true);
-        host.setState(HostState.REGISTERED.name());
+        host.setStatus(StatusType.INSTALLED.getCode());
+        host.setState(HostState.INSTALLED.name());
         host = hostRepository.save(host);
 
         return HostMapper.INSTANCE.Entity2VO(host);
@@ -126,6 +126,12 @@ public class HostServiceImpl implements HostService {
     }
 
     @Override
+    public List<HostComponentVO> hostComponent(Long id) {
+        List<HostComponent> hostComponentList = hostComponentRepository.findAllByHostId(id);
+        return HostComponentMapper.INSTANCE.Entity2VO(hostComponentList);
+    }
+
+    @Override
     public Boolean cache(Long clusterId) {
         eventBus.post(clusterId);
         return true;
@@ -146,7 +152,7 @@ public class HostServiceImpl implements HostService {
                 HostComponent hostComponent = new HostComponent();
                 hostComponent.setHost(host);
                 hostComponent.setComponent(component);
-                hostComponent.setStatus(true);
+                hostComponent.setStatus(StatusType.INSTALLED.getCode());
 
                 Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
                 hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));

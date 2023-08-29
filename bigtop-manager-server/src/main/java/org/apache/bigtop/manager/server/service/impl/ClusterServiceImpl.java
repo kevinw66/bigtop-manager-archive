@@ -5,6 +5,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.RequestState;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
+import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
@@ -70,12 +71,14 @@ public class ClusterServiceImpl implements ClusterService {
         if (stack.getId() == null) {
             throw new ServerException(ServerExceptionStatus.STACK_NOT_FOUND);
         }
-        Cluster cluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
-        if (cluster.getId() == null) {
-            cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
 
-            cluster = clusterRepository.save(cluster);
+        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
+        Cluster savedCluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
+        if (savedCluster.getId() != null) {
+            cluster.setId(savedCluster.getId());
         }
+        cluster.setStatus(StatusType.INSTALLED.getCode());
+        cluster = clusterRepository.save(cluster);
         log.info("stack: {}, cluster: {}", stack, cluster);
 
         //Update repos if isPresent

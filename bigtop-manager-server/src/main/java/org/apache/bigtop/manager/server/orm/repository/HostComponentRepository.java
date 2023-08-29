@@ -15,4 +15,9 @@ public interface HostComponentRepository extends CrudRepository<HostComponent, L
 
     Optional<HostComponent> findByComponentComponentNameAndHostHostname(String componentName, String hostName);
 
+    List<HostComponent> findAllByComponentId(Long componentId);
+
+    List<HostComponent> findAllByHostId(Long componentId);
+
+    List<HostComponent> findAllByComponentServiceId(Long serviceId);
 }

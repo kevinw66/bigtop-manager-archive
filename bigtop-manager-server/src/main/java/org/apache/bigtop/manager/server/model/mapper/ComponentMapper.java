@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
+import org.apache.bigtop.manager.server.model.vo.ComponentVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Component;
 import org.apache.bigtop.manager.server.orm.entity.Service;
@@ -9,8 +10,6 @@ import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper
 public interface ComponentMapper {
@@ -28,5 +27,9 @@ public interface ComponentMapper {
 
     @Mapping(target = "componentName", source = "name")
     ComponentDTO Model2DTO(ComponentModel componentModel);
+
+    @Mapping(target = "serviceName", source = "service.serviceName")
+    @Mapping(target = "clusterName", source = "cluster.clusterName")
+    ComponentVO Entity2VO(Component component);
 
 }

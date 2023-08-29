@@ -12,7 +12,7 @@ import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.CommandEvent;
-import org.apache.bigtop.manager.server.enums.CommandState;
+import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 import org.apache.bigtop.manager.server.enums.RequestState;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
@@ -200,7 +200,7 @@ public class TaskFlowHandler implements Callback {
                 }
             }
             case CLUSTER -> {
-                List<Component> componentList = componentRepository.findByClusterClusterName(clusterName);
+                List<Component> componentList = componentRepository.findAllByClusterClusterName(clusterName);
                 for (Component component : componentList) {
                     ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command);
                     componentCommandWrappers.add(componentCommandWrapper);

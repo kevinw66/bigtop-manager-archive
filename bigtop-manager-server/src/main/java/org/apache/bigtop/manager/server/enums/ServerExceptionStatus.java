@@ -15,6 +15,12 @@ public enum ServerExceptionStatus {
     // Host Exceptions -- 13000 ~ 13999
     STACK_NOT_FOUND(13000, "Stack not exist"),
     STACK_CHECK_INVALID(13001, "Stack check invalid"),
+
+    // Service Exceptions -- 13000 ~ 13999
+    SERVICE_NOT_FOUND(14000, "Service not exist"),
+
+    // Component Exceptions -- 13000 ~ 13999
+    COMPONENT_NOT_FOUND(15000, "Component not exist"),
     ;
 
     private final Integer code;

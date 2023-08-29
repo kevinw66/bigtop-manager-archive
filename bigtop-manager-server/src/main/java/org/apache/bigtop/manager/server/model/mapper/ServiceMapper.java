@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.model.mapper;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.dto.OSSpecificDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
+import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVersionVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Service;
@@ -31,6 +32,9 @@ public interface ServiceMapper {
     @Mapping(target = "serviceUser", source = "user")
     @Mapping(target = "serviceGroup", source = "group")
     ServiceDTO Model2DTO(ServiceModel serviceModel);
+
+    @Mapping(target = "clusterName", source = "cluster.clusterName")
+    ServiceVO Entity2VO(Service service);
 
     default String osSpecificDTO2str(List<OSSpecificDTO> osSpecifics) {
         return JsonUtils.object2String(osSpecifics);

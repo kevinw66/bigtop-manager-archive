@@ -30,7 +30,7 @@
     <description>Bigtop Manager Admin</description>
 
     <properties>
-        <node.version>v18.17.0</node.version>
+        <node.version>v16.17.0</node.version>
         <pnpm.version>v8.6.9</pnpm.version>
         <sonar.sources>src</sonar.sources>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
