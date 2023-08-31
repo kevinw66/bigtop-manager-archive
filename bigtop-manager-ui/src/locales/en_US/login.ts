@@ -16,5 +16,13 @@
  */
 
 export default {
-  test: 'Test'
+  desc: 'An easy deployment solution for Bigtop',
+  tips: 'Welcome to the system',
+  tab_account: 'Account Login',
+  username_placeholder: 'Please input your username',
+  username_required: 'Username cannot be empty',
+  password_placeholder: 'Please input your password',
+  password_required: 'Password cannot be empty',
+  remember_me: 'Remember me',
+  submit: 'Login'
 }

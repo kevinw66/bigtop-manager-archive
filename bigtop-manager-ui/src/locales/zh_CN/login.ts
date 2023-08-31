@@ -16,5 +16,13 @@
  */
 
 export default {
-  test: '测试'
+  desc: '更便捷的 Bigtop 部署工具',
+  tips: '欢迎使用本系统',
+  tab_account: '账号密码登录',
+  username_placeholder: '请输入用户名',
+  username_required: '用户名不能为空',
+  password_placeholder: '请输入密码',
+  password_required: '密码不能为空',
+  remember_me: '记住我',
+  submit: '登录'
 }

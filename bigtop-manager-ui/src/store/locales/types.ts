@@ -15,15 +15,10 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
+type Locales = 'zh_CN' | 'en_US'
 
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
+interface LocalesStore {
+  locales: Locales
 }
 
-interface ImportMetaEnv {
-  readonly VITE_APP_BASE: string
-  readonly VITE_APP_BASE_URL: string
-  readonly VITE_APP_BASE_API: string
-}
+export type { LocalesStore, Locales }

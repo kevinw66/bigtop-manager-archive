@@ -15,15 +15,23 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
+import { defineStore } from 'pinia'
+import { LocalesStore, Locales } from './types'
 
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
-}
-
-interface ImportMetaEnv {
-  readonly VITE_APP_BASE: string
-  readonly VITE_APP_BASE_URL: string
-  readonly VITE_APP_BASE_API: string
-}
+export const useLocalesStore = defineStore({
+  id: 'locales',
+  state: (): LocalesStore => ({
+    locales: 'en_US'
+  }),
+  persist: true,
+  getters: {
+    getLocales(): Locales {
+      return this.locales
+    }
+  },
+  actions: {
+    setLocales(lang: Locales): void {
+      this.locales = lang
+    }
+  }
+})

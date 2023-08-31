@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
-
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
+* {
+  outline: 0;
 }
 
-interface ImportMetaEnv {
-  readonly VITE_APP_BASE: string
-  readonly VITE_APP_BASE_URL: string
-  readonly VITE_APP_BASE_API: string
+html {
+  --text-color: rgba(0,0,0,.85);
+  --text-color-desc: rgba(0,0,0,.45);
+  --bg-color: #fff;
+  --hover-color:rgba(0,0,0,.025);
+  --bg-color-container: #f0f2f5;
+  --c-shadow: 2px 0 8px 0 rgba(29,35,41,.05);
+}
+
+
+.m-0 {
+  margin: 0;
+}
+
+.p-0 {
+  padding: 0;
 }

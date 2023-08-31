@@ -15,15 +15,16 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
 
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
-}
+const routes = [
+  { path: '/login', component: () => import('@/pages/login/index.vue') },
+  { path: '/admin', component: () => import('@/pages/admin/index.vue') }
+]
 
-interface ImportMetaEnv {
-  readonly VITE_APP_BASE: string
-  readonly VITE_APP_BASE_URL: string
-  readonly VITE_APP_BASE_API: string
-}
+const router = createRouter({
+  routes,
+  history: createWebHistory(import.meta.env.VITE_APP_BASE)
+})
+
+export default router

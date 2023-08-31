@@ -15,15 +15,24 @@
  * limitations under the License.
  */
 
-import { DefineComponent } from 'vue'
+import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import { message } from 'ant-design-vue'
 
-declare module '*.vue' {
-  const component: DefineComponent<{}, {}, any>
-  export default component
+const config: AxiosRequestConfig = {
+  baseURL: import.meta.env.VITE_APP_BASE_API,
+  withCredentials: true,
+  timeout: 3000
 }
 
-interface ImportMetaEnv {
-  readonly VITE_APP_BASE: string
-  readonly VITE_APP_BASE_URL: string
-  readonly VITE_APP_BASE_API: string
-}
+const request = axios.create(config)
+
+request.interceptors.response.use(
+  (res: AxiosResponse) => {
+    return res.data
+  },
+  (error: AxiosError) => {
+    message.error(error.message)
+  }
+)
+
+export default request
