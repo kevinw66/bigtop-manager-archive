@@ -6,7 +6,6 @@ import org.apache.bigtop.manager.server.model.request.ClusterRequest;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

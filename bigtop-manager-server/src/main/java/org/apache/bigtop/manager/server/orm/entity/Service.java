@@ -30,6 +30,9 @@ public class Service extends BaseEntity {
 
     private String serviceGroup;
 
+    // 0: not installed, 1: installed, 2: maintained
+    private Integer status;
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;

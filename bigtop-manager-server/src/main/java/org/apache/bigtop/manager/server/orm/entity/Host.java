@@ -30,7 +30,8 @@ public class Host extends BaseEntity {
 
     private Long totalMemorySize;
 
-    private Boolean status;
+    // 0: not installed, 1: installed, 2: maintained
+    private Integer status;
 
     private String state;
 

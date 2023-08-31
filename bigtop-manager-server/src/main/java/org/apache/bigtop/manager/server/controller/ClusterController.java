@@ -8,7 +8,7 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.request.ClusterRequest;
-import org.apache.bigtop.manager.server.model.request.CommandRequest;
+import org.apache.bigtop.manager.server.model.request.command.ClusterCommandRequest;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
@@ -57,10 +57,9 @@ public class ClusterController {
         return ResponseEntity.success(clusterService.delete(id));
     }
 
-
     @Operation(summary = "cluster command", description = "Command for cluster, only support [START|STOP|RESTART]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody CommandRequest commandRequest) {
+    public ResponseEntity<CommandVO> command(@RequestBody ClusterCommandRequest commandRequest) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
         CommandVO commandVO = clusterService.command(commandDTO);
         return ResponseEntity.success(commandVO);

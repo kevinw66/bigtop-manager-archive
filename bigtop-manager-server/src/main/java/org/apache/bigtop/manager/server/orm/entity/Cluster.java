@@ -32,6 +32,9 @@ public class Cluster extends BaseEntity {
 
     private String repoTemplate;
 
+    // 0: not installed, 1: installed, 2: maintained
+    private Integer status;
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Stack stack;

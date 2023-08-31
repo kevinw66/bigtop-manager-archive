@@ -16,7 +16,8 @@ public class HostComponent extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "host_component_generator")
     private Long id;
 
-    private Boolean status;
+    // 0: not installed, 1: installed, 2: maintained
+    private Integer status;
 
     private String state;
 

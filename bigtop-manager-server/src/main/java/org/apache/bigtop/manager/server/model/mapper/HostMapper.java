@@ -20,7 +20,7 @@ public interface HostMapper {
 
     Host Message2Entity(HostInfo hostInfo);
 
-    @Mapping(target = "clusterId", source = "cluster.id")
+    @Mapping(target = "clusterName", source = "cluster.clusterName")
     HostVO Entity2VO(Host host);
 
     HostDTO Entity2DTO(Host host);

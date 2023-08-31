@@ -7,7 +7,7 @@ public class HostVO {
 
     private Long id;
 
-    private Long clusterId;
+    private String clusterName;
 
     private String hostname;
 
@@ -22,4 +22,6 @@ public class HostVO {
     private Integer availableProcessors;
 
     private Long totalMemorySize;
+
+    private Integer status;
 }

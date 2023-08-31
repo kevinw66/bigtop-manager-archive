@@ -13,7 +13,7 @@ public interface ComponentRepository extends CrudRepository<Component, Long> {
 
     List<Component> findAllByClusterClusterNameAndComponentNameIn(String clusterName, Iterable<String> componentNames);
 
-    List<Component> findByClusterClusterName(String clusterName);
+    List<Component> findAllByClusterClusterName(String clusterName);
 
     List<Component> findAllByClusterClusterNameAndServiceServiceNameIn(String clusterName, Iterable<String> serviceNames);
 }

@@ -8,7 +8,8 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.request.HostRequest;
-import org.apache.bigtop.manager.server.model.request.CommandRequest;
+import org.apache.bigtop.manager.server.model.request.command.HostCommandRequest;
+import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.HostService;
@@ -57,6 +58,12 @@ public class HostController {
         return ResponseEntity.success(hostService.delete(id));
     }
 
+    @Operation(summary = "get", description = "Get host-component list by host id")
+    @GetMapping("/host-components/{id}")
+    public ResponseEntity<List<HostComponentVO>> hostComponent(@PathVariable Long id) {
+        return ResponseEntity.success(hostService.hostComponent(id));
+    }
+
     @Operation(summary = "cache", description = "distribute cache")
     @GetMapping("/cache")
     public Boolean cache(@RequestParam Long clusterId) {
@@ -65,7 +72,7 @@ public class HostController {
 
     @Operation(summary = "host-component command", description = "Command for host, only support [START|STOP|RESTART|INSTALL]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody CommandRequest commandRequest) {
+    public ResponseEntity<CommandVO> command(@RequestBody HostCommandRequest commandRequest) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
         CommandVO commandVO = hostService.command(commandDTO);
         return ResponseEntity.success(commandVO);
