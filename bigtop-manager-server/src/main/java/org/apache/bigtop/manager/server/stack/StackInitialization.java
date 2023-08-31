@@ -37,26 +37,19 @@ public class StackInitialization implements ApplicationListener<ApplicationStart
     @Resource
     private RepoRepository repoRepository;
 
-    @Getter
-    private Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap;
-
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         log.info("StackInitialization starting...");
-        stackKeyMap = new HashMap<>();
 
-        Map<StackDTO, Set<ServiceDTO>> stackMap = new HashMap<>();
+        Map<StackDTO, Set<ServiceDTO>> stackMap = StackUtils.stackList();
 
         for (Map.Entry<StackDTO, Set<ServiceDTO>> entry : stackMap.entrySet()) {
 
             StackDTO stackDTO = entry.getKey();
-            Set<ServiceDTO> serviceDTOSet = entry.getValue();
 
             String stackName = stackDTO.getStackName();
             String stackVersion = stackDTO.getStackVersion();
             List<RepoDTO> repoDTOList = stackDTO.getRepos();
-
-            stackKeyMap.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, serviceDTOSet));
 
             /*
              * Update strategy:
@@ -68,19 +61,14 @@ public class StackInitialization implements ApplicationListener<ApplicationStart
                 stack.setStackName(stackName);
                 stack.setStackVersion(stackVersion);
 
-                stackRepository.save(stack);
+                stack = stackRepository.save(stack);
+            }
+            for (RepoDTO repoDTO : repoDTOList) {
+                Repo repo = RepoMapper.INSTANCE.DTO2Entity(repoDTO, stack);
+                Optional<Repo> repoOptional = repoRepository.findByRepoIdAndOsAndArchAndStackId(repo.getRepoId(), repo.getOs(), repo.getArch(), stack.getId());
 
-                stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
-                List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(repoDTOList, stack);
-                repoRepository.saveAll(repos);
-            } else {
-                List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(repoDTOList, stack);
-                for (Repo repo : repos) {
-                    Optional<Repo> repoOptional = repoRepository.findByRepoIdAndOsAndArchAndStackId(repo.getRepoId(), repo.getOs(), repo.getArch(), stack.getId());
-
-                    repoOptional.ifPresent(value -> repo.setId(value.getId()));
-                    repoRepository.save(repo);
-                }
+                repoOptional.ifPresent(value -> repo.setId(value.getId()));
+                repoRepository.save(repo);
             }
         }
     }

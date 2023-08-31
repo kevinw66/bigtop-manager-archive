@@ -14,13 +14,13 @@ public class HostInfo implements Serializable {
 
     private String ipv6;
 
-    private String name;
+    private String os;
 
     private String version;
 
     private String arch;
 
-    private BigDecimal systemCpuLoad;
+    private BigDecimal cpuLoad;
 
     private Integer availableProcessors;
 
@@ -28,9 +28,9 @@ public class HostInfo implements Serializable {
 
     private Long processCpuTime;
 
-    private Long totalPhysicalMemorySize;
+    private Long totalMemorySize;
 
-    private Long freePhysicalMemorySize;
+    private Long freeMemorySize;
 
     private Long totalSwapSpaceSize;
 

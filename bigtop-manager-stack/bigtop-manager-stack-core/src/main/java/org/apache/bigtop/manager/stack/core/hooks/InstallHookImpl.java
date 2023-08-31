@@ -31,7 +31,7 @@ public class InstallHookImpl implements Hook {
 
         for (RepoInfo repo : repos) {
             if (OSDetection.getOS().equals(repo.getOs())) {
-                BaseTemplate.writeTemplateByContent("/etc/yum.repos.d/", repo, repoTemplate);
+                BaseTemplate.writeTemplateByContent("/etc/yum.repos.d/bigtop.repo", repo, repoTemplate);
             }
         }
 

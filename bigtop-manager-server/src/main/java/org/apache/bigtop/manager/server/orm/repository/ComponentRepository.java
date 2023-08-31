@@ -1,14 +1,19 @@
 package org.apache.bigtop.manager.server.orm.repository;
 
 import org.apache.bigtop.manager.server.orm.entity.Component;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
 public interface ComponentRepository extends CrudRepository<Component, Long> {
 
-    @Query(value = "select u from Component u where u.cluster.clusterName=?1 and u.componentName=?2")
-    Optional<Component> findByClusterNameAndComponentName(String clusterName, String componentName);
+    Optional<Component> findByClusterClusterNameAndComponentName(String clusterName, String componentName);
+
+    List<Component> findAllByClusterClusterNameAndComponentNameIn(String clusterName, Iterable<String> componentNames);
+
+    List<Component> findByClusterClusterName(String clusterName);
+
+    List<Component> findAllByClusterClusterNameAndServiceServiceNameIn(String clusterName, Iterable<String> serviceNames);
 }

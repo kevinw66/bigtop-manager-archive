@@ -2,7 +2,7 @@ stackName: BIGTOP
 stackVersion: 3.2.0
 userGroup: hadoop
 cacheDir: /opt/bigtop-manager-agent/cache
-root: /opt/bigtop
+root: /opt
 packages: '[ "curl", "wget" ]'
 repoTemplate: |
   [{{repo_id}}]

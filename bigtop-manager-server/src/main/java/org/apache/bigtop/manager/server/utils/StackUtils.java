@@ -13,8 +13,10 @@ import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
+import org.apache.bigtop.manager.server.stack.dag.DagHelper;
 import org.apache.bigtop.manager.server.stack.pojo.ServiceModel;
 import org.apache.bigtop.manager.server.stack.pojo.StackModel;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.util.*;
@@ -39,6 +41,9 @@ public class StackUtils {
 
     @Getter
     private static final Map<String, Map<String, Set<String>>> stackConfigMap = new HashMap<>();
+
+    @Getter
+    private static final Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = new HashMap<>();
 
     /**
      * Parse stack file to generate stack model
@@ -86,14 +91,18 @@ public class StackUtils {
                 //configurations
                 Set<String> serviceConfigSet = new HashSet<>();
                 File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER_NAME);
-
                 if (configFolder.exists()) {
-                    Arrays.stream(configFolder.listFiles()).map(x -> serviceConfigSet.add(x.getAbsolutePath()));
+                    for (File configFile : configFolder.listFiles()) {
+                        serviceConfigSet.add(configFile.getAbsolutePath());
+                    }
                 }
                 mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
             }
             stackDependencyMap.put(fullStackName(stackName, stackVersion), mergedDependencyMap);
             stackConfigMap.put(fullStackName(stackName, stackVersion), mergedConfigMap);
+
+            log.info("stackConfigMap: {}", stackConfigMap);
+            log.info("stackDependencyMap: {}", stackDependencyMap);
         }
 
         return serviceDTOSet;
@@ -123,8 +132,12 @@ public class StackUtils {
 
                 stackMap.put(stackDTO, serviceDTOSet);
 
+                stackKeyMap.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, serviceDTOSet));
             }
         }
+        log.info("stackKeyMap: {}", stackKeyMap);
+
+        DagHelper.dagInitialized(stackDependencyMap);
         return stackMap;
     }
 
