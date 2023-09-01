@@ -18,6 +18,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
+  { path: '/', redirect: '/login' },
   { path: '/login', component: () => import('@/pages/login/index.vue') },
   { path: '/admin', component: () => import('@/pages/admin/index.vue') }
 ]
