@@ -7,8 +7,8 @@ import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
-import org.apache.bigtop.manager.server.model.request.HostRequest;
-import org.apache.bigtop.manager.server.model.request.command.HostCommandRequest;
+import org.apache.bigtop.manager.server.model.req.HostReq;
+import org.apache.bigtop.manager.server.model.req.command.HostCommandReq;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
@@ -34,8 +34,8 @@ public class HostController {
 
     @Operation(summary = "create", description = "Create a host")
     @PostMapping
-    public ResponseEntity<HostVO> create(@RequestBody HostRequest hostRequest) {
-        HostDTO hostDTO = HostMapper.INSTANCE.Request2DTO(hostRequest);
+    public ResponseEntity<HostVO> create(@RequestBody HostReq hostReq) {
+        HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
         return ResponseEntity.success(hostService.create(hostDTO));
     }
 
@@ -47,8 +47,8 @@ public class HostController {
 
     @Operation(summary = "update", description = "Update a host")
     @PutMapping("/{id}")
-    public ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody HostRequest hostRequest) {
-        HostDTO hostDTO = HostMapper.INSTANCE.Request2DTO(hostRequest);
+    public ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody HostReq hostReq) {
+        HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
         return ResponseEntity.success(hostService.update(id, hostDTO));
     }
 
@@ -72,8 +72,8 @@ public class HostController {
 
     @Operation(summary = "host-component command", description = "Command for host, only support [START|STOP|RESTART|INSTALL]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody HostCommandRequest commandRequest) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
+    public ResponseEntity<CommandVO> command(@RequestBody HostCommandReq commandReq) {
+        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = hostService.command(commandDTO);
         return ResponseEntity.success(commandVO);
     }

@@ -6,7 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
-import org.apache.bigtop.manager.server.model.request.command.ComponentCommandRequest;
+import org.apache.bigtop.manager.server.model.req.command.ComponentCommandReq;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
@@ -45,8 +45,8 @@ public class ComponentController {
 
     @Operation(summary = "component command", description = "command for component, only support [START|STOP|RESTART]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody ComponentCommandRequest commandRequest) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
+    public ResponseEntity<CommandVO> command(@RequestBody ComponentCommandReq commandReq) {
+        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = componentService.command(commandDTO);
         return ResponseEntity.success(commandVO);
     }

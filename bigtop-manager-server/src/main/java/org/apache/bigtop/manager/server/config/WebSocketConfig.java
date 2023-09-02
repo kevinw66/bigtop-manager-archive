@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.configuration;
+package org.apache.bigtop.manager.server.config;
 
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
@@ -10,7 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 @Configuration
 @EnableWebSocket
-public class WebSocketConfiguration implements WebSocketConfigurer {
+public class WebSocketConfig implements WebSocketConfigurer {
 
     @Resource
     private ServerWebSocketHandler serverWebSocketHandler;

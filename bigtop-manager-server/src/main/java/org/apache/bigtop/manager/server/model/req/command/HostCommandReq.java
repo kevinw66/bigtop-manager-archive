@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.model.request.command;
+package org.apache.bigtop.manager.server.model.req.command;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -8,12 +8,12 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ComponentCommandRequest  extends AbstractCommandRequest {
+public class HostCommandReq extends AbstractCommandReq {
 
     @Schema(example = "[\"ZOOKEEPER_SERVER\"]")
     private List<String> componentNames;
 
-    @Schema(example = "ZOOKEEPER")
-    private String serviceName;
+    @Schema(example = "node1")
+    private String hostname;
 
 }

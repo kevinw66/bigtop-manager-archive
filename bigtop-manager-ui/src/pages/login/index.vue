@@ -2,12 +2,16 @@
   import { reactive, shallowRef } from 'vue'
   import SelectLang from '@/components/select-lang/index.vue'
   import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
+  import { login } from '@/api/login'
+  import { LoginRes } from '@/api/login/types.ts'
+  import router from '@/router'
+  import md5 from 'md5'
 
   const formRef = shallowRef()
   const submitLoading = shallowRef(false)
   const loginModel = reactive({
-    username: undefined,
-    password: undefined,
+    username: '',
+    password: '',
     type: 'account',
     remember: true
   })
@@ -16,9 +20,20 @@
     submitLoading.value = true
     try {
       await formRef.value?.validate()
+      const loginRes: LoginRes = await login({
+        username: loginModel.username,
+        password: md5(loginModel.password)
+      })
+
+      if (loginModel.remember) {
+        localStorage.setItem('Token', loginRes.token)
+      } else {
+        sessionStorage.setItem('Token', loginRes.token)
+      }
+
+      await router.push('/dashboard')
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e)
+      console.warn(e)
     } finally {
       submitLoading.value = false
     }

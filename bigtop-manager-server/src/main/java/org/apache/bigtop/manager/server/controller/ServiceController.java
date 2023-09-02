@@ -6,7 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
-import org.apache.bigtop.manager.server.model.request.command.ServiceCommandRequest;
+import org.apache.bigtop.manager.server.model.req.command.ServiceCommandReq;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
@@ -45,8 +45,8 @@ public class ServiceController {
 
     @Operation(summary = "service command", description = "Command for service, only support [START|STOP|RESTART|INSTALL]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody ServiceCommandRequest commandRequest) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
+    public ResponseEntity<CommandVO> command(@RequestBody ServiceCommandReq commandReq) {
+        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = serviceService.command(commandDTO);
         return ResponseEntity.success(commandVO);
     }

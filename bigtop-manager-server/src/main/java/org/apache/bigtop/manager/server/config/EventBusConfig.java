@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.configuration;
+package org.apache.bigtop.manager.server.config;
 
 import com.google.common.eventbus.AsyncEventBus;
 import org.springframework.context.annotation.Bean;

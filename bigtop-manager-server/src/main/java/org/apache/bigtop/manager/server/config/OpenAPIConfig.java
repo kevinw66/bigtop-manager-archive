@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.configuration;
+package org.apache.bigtop.manager.server.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class OpenAPIConfiguration {
+public class OpenAPIConfig {
 
     @Bean
     public OpenAPI apiV1Info1() {

@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.request.StackRequest;
+import org.apache.bigtop.manager.server.model.req.StackReq;
 import org.apache.bigtop.manager.server.model.vo.StackVO;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.stack.pojo.StackModel;
@@ -13,7 +13,7 @@ public interface StackMapper {
 
     StackMapper INSTANCE = Mappers.getMapper(StackMapper.class);
 
-    StackDTO Request2DTO(StackRequest stackRequest);
+    StackDTO Req2DTO(StackReq stackReq);
 
     Stack DTO2Entity(StackDTO stackDTO);
 

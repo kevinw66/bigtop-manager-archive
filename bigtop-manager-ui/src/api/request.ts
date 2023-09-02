@@ -15,23 +15,55 @@
  * limitations under the License.
  */
 
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
+import axios, {
+  InternalAxiosRequestConfig,
+  AxiosResponse,
+  AxiosError
+} from 'axios'
 import { message } from 'ant-design-vue'
+import { ResponseEntity } from '@/api/types'
+import router from '@/router'
 
-const config: AxiosRequestConfig = {
+const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
   withCredentials: true,
   timeout: 3000
-}
+})
 
-const request = axios.create(config)
+request.interceptors.request.use(
+  (
+    config: InternalAxiosRequestConfig<any>
+  ): InternalAxiosRequestConfig<any> => {
+    config.headers = config.headers || {}
+    const token =
+      localStorage.getItem('Token') ??
+      sessionStorage.getItem('Token') ??
+      undefined
+    if (token) {
+      config.headers['Token'] = token
+    }
+
+    return config
+  }
+)
 
 request.interceptors.response.use(
   (res: AxiosResponse) => {
-    return res.data
+    const responseEntity: ResponseEntity = res.data
+    if (responseEntity.code !== 0) {
+      message.error(responseEntity.message)
+      if (responseEntity.code === 10000) {
+        router.push('/login')
+      }
+
+      return Promise.reject(responseEntity)
+    } else {
+      return responseEntity.data
+    }
   },
   (error: AxiosError) => {
     message.error(error.message)
+    return Promise.reject(error)
   }
 )
 

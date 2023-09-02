@@ -1,5 +1,8 @@
 package org.apache.bigtop.manager.server.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ServerExceptionStatus {
 
     NEED_LOGIN(10000, "Not logged in"),
@@ -30,13 +33,5 @@ public enum ServerExceptionStatus {
     ServerExceptionStatus(Integer code, String message) {
         this.code = code;
         this.message = message;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
     }
 }

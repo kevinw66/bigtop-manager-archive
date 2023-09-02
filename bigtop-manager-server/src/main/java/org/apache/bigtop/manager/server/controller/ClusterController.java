@@ -7,8 +7,8 @@ import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
-import org.apache.bigtop.manager.server.model.request.ClusterRequest;
-import org.apache.bigtop.manager.server.model.request.command.ClusterCommandRequest;
+import org.apache.bigtop.manager.server.model.req.ClusterReq;
+import org.apache.bigtop.manager.server.model.req.command.ClusterCommandReq;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
@@ -33,8 +33,8 @@ public class ClusterController {
 
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
-    public ResponseEntity<ClusterVO> create(@RequestBody ClusterRequest clusterRequest) {
-        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Request2DTO(clusterRequest);
+    public ResponseEntity<ClusterVO> create(@RequestBody ClusterReq clusterReq) {
+        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.create(clusterDTO));
     }
 
@@ -46,8 +46,8 @@ public class ClusterController {
 
     @Operation(summary = "update", description = "Update a cluster")
     @PutMapping("/{id}")
-    public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody ClusterRequest clusterRequest) {
-        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Request2DTO(clusterRequest);
+    public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody ClusterReq clusterReq) {
+        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
     }
 
@@ -59,8 +59,8 @@ public class ClusterController {
 
     @Operation(summary = "cluster command", description = "Command for cluster, only support [START|STOP|RESTART]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody ClusterCommandRequest commandRequest) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Request2DTO(commandRequest);
+    public ResponseEntity<CommandVO> command(@RequestBody ClusterCommandReq commandReq) {
+        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = clusterService.command(commandDTO);
         return ResponseEntity.success(commandVO);
     }

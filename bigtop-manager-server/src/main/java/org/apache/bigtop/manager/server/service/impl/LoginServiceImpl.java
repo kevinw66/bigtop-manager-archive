@@ -1,15 +1,15 @@
 package org.apache.bigtop.manager.server.service.impl;
 
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpSession;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.model.vo.LoginVO;
 import org.apache.bigtop.manager.server.orm.entity.User;
 import org.apache.bigtop.manager.server.orm.repository.UserRepository;
 import org.apache.bigtop.manager.server.service.LoginService;
+import org.apache.bigtop.manager.server.utils.JWTUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
-
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -18,13 +18,16 @@ public class LoginServiceImpl implements LoginService {
     private UserRepository userRepository;
 
     @Override
-    public void login(HttpSession session, String username, String password) {
+    public LoginVO login(HttpSession session, String username, String password) {
         User user = userRepository.findByUsername(username).orElse(new User());
-        String hex = DigestUtils.md5DigestAsHex(password.getBytes());
-        if (!hex.equalsIgnoreCase(user.getPassword())) {
+        if (!password.equalsIgnoreCase(user.getPassword())) {
             throw new ServerException(ServerExceptionStatus.INCORRECT_USERNAME_OR_PASSWORD);
         }
 
-        session.setAttribute("user", user);
+        String token = JWTUtils.generateToken(user.getId(), user.getUsername());
+
+        LoginVO loginVO = new LoginVO();
+        loginVO.setToken(token);
+        return loginVO;
     }
 }

@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.configuration;
+package org.apache.bigtop.manager.server.config;
 
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.interceptor.AuthInterceptor;
@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @Configuration
-public class WebConfiguration implements WebMvcConfigurer {
+public class WebConfig implements WebMvcConfigurer {
 
     @Resource
     private AuthInterceptor authInterceptor;
@@ -25,7 +25,7 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
                 // Server APIs
-                .excludePathPatterns("/api/test", "/api/login")
+                .excludePathPatterns("/api/login")
                 // Frontend pages
                 .excludePathPatterns("/", "/ui/**", "/favicon.ico", "/error")
                 // Swagger pages
