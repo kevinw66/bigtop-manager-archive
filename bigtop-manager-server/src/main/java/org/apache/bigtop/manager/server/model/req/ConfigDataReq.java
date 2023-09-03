@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class ConfigDataRequest {
+public class ConfigDataReq {
 
     @Schema(example = "zoo.cfg", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeName;

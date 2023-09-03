@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ConfigurationRequest {
+public class ConfigurationReq {
 
     @Schema(example = "ZOOKEEPER")
     private String serviceName;
@@ -14,6 +14,6 @@ public class ConfigurationRequest {
     @Schema(example = "Initial Zookeeper configuration")
     private String configDesc;
 
-    private List<ConfigDataRequest> configurations;
+    private List<ConfigDataReq> configurations;
 }
 

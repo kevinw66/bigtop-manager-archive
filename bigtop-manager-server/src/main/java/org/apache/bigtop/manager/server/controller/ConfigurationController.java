@@ -6,7 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
-import org.apache.bigtop.manager.server.model.request.ConfigurationRequest;
+import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
 import org.apache.bigtop.manager.server.service.ConfigurationService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
@@ -40,8 +40,8 @@ public class ConfigurationController {
     @Operation(summary = "update", description = "update|create|roll-back configurations")
     @PutMapping("/{clusterName}")
     public ResponseEntity<List<ConfigurationVO>> update(@PathVariable String clusterName,
-                                                        @RequestBody List<ConfigurationRequest> configurationRequests) {
-        List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.Request2DTO(configurationRequests);
+                                                        @RequestBody List<ConfigurationReq> configurationReqs) {
+        List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.Request2DTO(configurationReqs);
         log.info("configurationDTOList: {}", configurationDTOList);
         List<ConfigurationVO> configurationVOList = configurationService.update(clusterName, configurationDTOList);
         return ResponseEntity.success(configurationVOList);
