@@ -11,6 +11,8 @@ import org.apache.bigtop.manager.server.model.vo.LoginVO;
 import org.apache.bigtop.manager.server.service.LoginService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.apache.bigtop.manager.server.utils.ThreadLocalUtils;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +34,6 @@ public class LoginController {
             throw new ServerException(ServerExceptionStatus.USERNAME_OR_PASSWORD_REQUIRED);
         }
 
-        ;
         return ResponseEntity.success(loginService.login(session, loginReq.getUsername(), loginReq.getPassword()));
     }
 

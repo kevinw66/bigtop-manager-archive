@@ -1,37 +1,42 @@
 package org.apache.bigtop.manager.server.enums;
 
 import lombok.Getter;
+import org.apache.bigtop.manager.server.utils.MessageSourceUtils;
 
 @Getter
 public enum ServerExceptionStatus {
 
-    NEED_LOGIN(10000, "Not logged in"),
-    USERNAME_OR_PASSWORD_REQUIRED(10001, "Username or password should not be empty"),
-    INCORRECT_USERNAME_OR_PASSWORD(10002, "Incorrect username or password"),
+    NEED_LOGIN(10000, LocaleKeys.LOGIN_REQUIRED),
+    USERNAME_OR_PASSWORD_REQUIRED(10001, LocaleKeys.LOGIN_ACCOUNT_REQUIRED),
+    INCORRECT_USERNAME_OR_PASSWORD(10002, LocaleKeys.LOGIN_ACCOUNT_INCORRECT),
 
     // Cluster Exceptions -- 11000 ~ 11999
-    CLUSTER_NOT_FOUND(11000, "Cluster not exist"),
+    CLUSTER_NOT_FOUND(11000, LocaleKeys.CLUSTER_NOT_FOUND),
 
     // Host Exceptions -- 12000 ~ 12999
-    HOST_NOT_FOUND(12000, "Host not exist"),
+    HOST_NOT_FOUND(12000, LocaleKeys.HOST_NOT_FOUND),
 
-    // Host Exceptions -- 13000 ~ 13999
-    STACK_NOT_FOUND(13000, "Stack not exist"),
-    STACK_CHECK_INVALID(13001, "Stack check invalid"),
+    // Stack Exceptions -- 13000 ~ 13999
+    STACK_NOT_FOUND(13000, LocaleKeys.STACK_NOT_FOUND),
+    STACK_CHECK_INVALID(13001, LocaleKeys.STACK_CHECK_INVALID),
 
-    // Service Exceptions -- 13000 ~ 13999
-    SERVICE_NOT_FOUND(14000, "Service not exist"),
+    // Service Exceptions -- 14000 ~ 14999
+    SERVICE_NOT_FOUND(14000, LocaleKeys.SERVICE_NOT_FOUND),
 
-    // Component Exceptions -- 13000 ~ 13999
-    COMPONENT_NOT_FOUND(15000, "Component not exist"),
+    // Component Exceptions -- 15000 ~ 15999
+    COMPONENT_NOT_FOUND(15000, LocaleKeys.COMPONENT_NOT_FOUND),
     ;
 
     private final Integer code;
 
-    private final String message;
+    private final LocaleKeys key;
 
-    ServerExceptionStatus(Integer code, String message) {
+    ServerExceptionStatus(Integer code, LocaleKeys key) {
         this.code = code;
-        this.message = message;
+        this.key = key;
+    }
+
+    public String getMessage() {
+        return MessageSourceUtils.getMessage(key);
     }
 }
