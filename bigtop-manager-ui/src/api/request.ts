@@ -16,17 +16,16 @@
  */
 
 import axios, {
-  InternalAxiosRequestConfig,
+  AxiosError,
   AxiosResponse,
-  AxiosError
+  InternalAxiosRequestConfig
 } from 'axios'
 import { message } from 'ant-design-vue'
 import { ResponseEntity } from '@/api/types'
 import router from '@/router'
-import { useLocalesStore } from '@/store/locales/locales.ts'
+import { useLocaleStore } from '@/store/locale/locale.ts'
 
-const localesStore = useLocalesStore()
-const acceptLanguage = localesStore.getLocales.replace('_', '-')
+const localeStore = useLocaleStore()
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
@@ -39,15 +38,18 @@ request.interceptors.request.use(
     config: InternalAxiosRequestConfig<any>
   ): InternalAxiosRequestConfig<any> => {
     config.headers = config.headers || {}
-    config.headers['Accept-Language'] = acceptLanguage
 
-    // const token =
-    //   localStorage.getItem('Token') ??
-    //   sessionStorage.getItem('Token') ??
-    //   undefined
-    // if (token) {
-    //   config.headers['Token'] = token
-    // }
+    config.headers['Accept-Language'] = (
+      localeStore.getLocale ?? 'en_US'
+    ).replace('_', '-')
+
+    const token =
+      localStorage.getItem('Token') ??
+      sessionStorage.getItem('Token') ??
+      undefined
+    if (token) {
+      config.headers['Token'] = token
+    }
 
     return config
   }

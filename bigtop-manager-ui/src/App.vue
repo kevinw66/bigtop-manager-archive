@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { watch, ref } from 'vue'
   import { useI18n } from 'vue-i18n'
-  import { useLocalesStore } from '@/store/locales/locales'
+  import { useLocaleStore } from '@/store/locale/locale.ts'
   import en_US from 'ant-design-vue/es/locale/en_US'
   import zh_CN from 'ant-design-vue/es/locale/zh_CN'
   import dayjs from 'dayjs'
@@ -9,17 +9,16 @@
   import 'dayjs/locale/en'
 
   const { locale } = useI18n()
-  const localesStore = useLocalesStore()
-  const locales = localesStore.getLocales
+  const localeStore = useLocaleStore()
 
-  locale.value = locales
-  const antdLocale = ref(locales === 'en_US' ? en_US : zh_CN)
+  locale.value = localeStore.getLocale
+  const antdLocale = ref(locale.value === 'en_US' ? en_US : zh_CN)
 
   watch(
-    () => localesStore.locales,
-    (locales) => {
-      locale.value = locales
-      antdLocale.value = locales === 'en_US' ? en_US : zh_CN
+    () => localeStore.locale,
+    (newValue) => {
+      locale.value = newValue
+      antdLocale.value = newValue === 'en_US' ? en_US : zh_CN
       dayjs.locale(antdLocale.value.locale)
     }
   )

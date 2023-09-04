@@ -37,7 +37,6 @@ public enum LocaleKeys {
     SERVICE_NOT_FOUND("service.not.found"),
 
     COMPONENT_NOT_FOUND("component.not.found"),
-
     ;
 
     private final String key;

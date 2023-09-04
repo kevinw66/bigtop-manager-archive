@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-type Locales = 'zh_CN' | 'en_US'
+type Locale = 'zh_CN' | 'en_US'
 
-interface LocalesStore {
-  locales: Locales
+interface LocaleStore {
+  locale: Locale
 }
 
-export type { LocalesStore, Locales }
+export type { LocaleStore, Locale }

@@ -3,7 +3,6 @@
   import SelectLang from '@/components/select-lang/index.vue'
   import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
   import { login } from '@/api/login'
-  import { LoginRes } from '@/api/login/types.ts'
   import router from '@/router'
   import md5 from 'md5'
 
@@ -20,15 +19,15 @@
     submitLoading.value = true
     try {
       await formRef.value?.validate()
-      const loginRes: LoginRes = await login({
+      const res = await login({
         username: loginModel.username,
         password: md5(loginModel.password)
       })
 
       if (loginModel.remember) {
-        localStorage.setItem('Token', loginRes.token)
+        localStorage.setItem('Token', res.token)
       } else {
-        sessionStorage.setItem('Token', loginRes.token)
+        sessionStorage.setItem('Token', res.token)
       }
 
       await router.push('/dashboard')
@@ -91,6 +90,7 @@
                     allow-clear
                     :placeholder="$t('login.username_placeholder')"
                     size="large"
+                    @press-enter="submit"
                   >
                     <template #prefix>
                       <UserOutlined />
@@ -111,6 +111,7 @@
                     allow-clear
                     :placeholder="$t('login.password_placeholder')"
                     size="large"
+                    @press-enter="submit"
                   >
                     <template #prefix>
                       <LockOutlined />

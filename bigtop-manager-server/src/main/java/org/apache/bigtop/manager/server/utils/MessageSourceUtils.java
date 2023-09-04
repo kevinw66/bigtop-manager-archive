@@ -34,7 +34,7 @@ public class MessageSourceUtils implements MessageSourceAware {
     }
 
     public static String getMessage(LocaleKeys localeKeys) {
-        return getMessage(localeKeys, null);
+        return getMessage(localeKeys, (String) null);
     }
 
     public static String getMessage(LocaleKeys localeKeys, String... args) {

@@ -16,22 +16,22 @@
  */
 
 import { defineStore } from 'pinia'
-import { LocalesStore, Locales } from './types'
+import { LocaleStore, Locale } from './types'
 
-export const useLocalesStore = defineStore({
-  id: 'locales',
-  state: (): LocalesStore => ({
-    locales: 'en_US'
+export const useLocaleStore = defineStore({
+  id: 'locale',
+  state: (): LocaleStore => ({
+    locale: 'en_US'
   }),
   persist: true,
   getters: {
-    getLocales(): Locales {
-      return this.locales
+    getLocale(): Locale {
+      return this.locale
     }
   },
   actions: {
-    setLocales(lang: Locales): void {
-      this.locales = lang
+    setLocale(locale: Locale): void {
+      this.locale = locale
     }
   }
 })

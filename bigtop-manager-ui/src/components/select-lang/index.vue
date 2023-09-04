@@ -1,12 +1,12 @@
 <script setup lang="ts">
-  import { useLocalesStore } from '@/store/locales/locales'
+  import { useLocaleStore } from '@/store/locale/locale.ts'
   import CarbonLanguage from '@/components/icons/carbon-language.vue'
-  import { Locales } from '@/store/locales/types'
+  import { Locale } from '@/store/locale/types'
 
-  const localesStore = useLocalesStore()
+  const localeStore = useLocaleStore()
 
-  const changeLocales = ({ key }: { key: string }) => {
-    localesStore.setLocales(key as Locales)
+  const changeLocale = ({ key }: { key: string }) => {
+    localeStore.setLocale(key as Locale)
   }
 </script>
 
@@ -16,7 +16,7 @@
       <CarbonLanguage />
     </div>
     <template #overlay>
-      <a-menu :selected-keys="[localesStore.getLocales]" @click="changeLocales">
+      <a-menu :selected-keys="[localeStore.getLocale]" @click="changeLocale">
         <a-menu-item key="en_US">
           <template #icon>
             <span>🇺🇸</span>
