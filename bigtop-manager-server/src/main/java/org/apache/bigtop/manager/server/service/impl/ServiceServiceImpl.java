@@ -53,6 +53,12 @@ public class ServiceServiceImpl implements ServiceService {
     private HostComponentRepository hostComponentRepository;
 
     @Resource
+    private ServiceConfigRecordRepository serviceConfigRecordRepository;
+
+    @Resource
+    private ServiceConfigMappingRepository serviceConfigMappingRepository;
+
+    @Resource
     private EventBus eventBus;
 
     @Override
@@ -101,7 +107,7 @@ public class ServiceServiceImpl implements ServiceService {
 
 
     private void install(CommandDTO commandDTO) {
-        System.out.println("Enter install");
+        log.info("Enter install method");
         List<String> serviceNameList = commandDTO.getServiceNames();
         String clusterName = commandDTO.getClusterName();
         String stackName = commandDTO.getStackName();
@@ -126,32 +132,15 @@ public class ServiceServiceImpl implements ServiceService {
             }
             service = serviceRepository.save(service);
 
-            // Persist serviceConfig
-            Map<String, Map<String, Set<String>>> stackConfigMap = StackUtils.getStackConfigMap();
-            Map<String, Set<String>> serviceConfigMap = stackConfigMap.get(StackUtils.fullStackName(stackName, stackVersion));
-            for (String configPath : serviceConfigMap.get(serviceName)) {
-                Map<String, Object> loadedConfig = StackConfigUtils.loadConfig(configPath);
-                String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
-
-                Integer savedMaxVersion = serviceConfigRepository.findMaxVersion(cluster.getId(), service.getId(), typeName).orElse(0);
-                ServiceConfig serviceConfig = new ServiceConfig();
-                serviceConfig.setVersion(savedMaxVersion + 1);
-                serviceConfig.setTypeName(typeName);
-                serviceConfig.setConfigData(JsonUtils.object2String(loadedConfig));
-                serviceConfig.setService(service);
-                serviceConfig.setCluster(cluster);
-                serviceConfig.setStatus(true);
-
-                serviceConfigRepository.save(serviceConfig);
-
-            }
+            // 2. Initial config
+            initialConfig(cluster, service);
 
             if (serviceNameList.contains(serviceName)) {
                 List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
                 for (ComponentDTO componentDTO : componentDTOList) {
                     String componentName = componentDTO.getComponentName();
 
-                    // 2. Persist component
+                    // 3. Persist component
                     Component component = ComponentMapper.INSTANCE.DTO2Entity(componentDTO, service, cluster);
                     Optional<Component> componentOptional = componentRepository.findByClusterClusterNameAndComponentName(clusterName, componentName);
                     if (componentOptional.isPresent()) {
@@ -159,7 +148,7 @@ public class ServiceServiceImpl implements ServiceService {
                     }
                     component = componentRepository.save(component);
 
-                    // 3. Persist hostComponent
+                    // 4. Persist hostComponent
                     Set<String> hostSet = componentHostMapping.get(componentName);
                     List<Host> hostList = hostRepository.findAllByHostnameIn(hostSet);
                     for (Host host : hostList) {
@@ -174,6 +163,62 @@ public class ServiceServiceImpl implements ServiceService {
                     }
                 }
             }
+        }
+    }
+
+    private void initialConfig(Cluster cluster, Service service) {
+        String stackName = cluster.getStack().getStackName();
+        String stackVersion = cluster.getStack().getStackVersion();
+        String serviceName = service.getServiceName();
+
+        //ServiceConfigRecord
+        ServiceConfigRecord latestServiceConfigRecord = serviceConfigRecordRepository.findFirstByClusterIdAndServiceIdOrderByVersionDesc(cluster.getId(), service.getId())
+                .orElse(new ServiceConfigRecord());
+
+        ServiceConfigRecord serviceConfigRecord = new ServiceConfigRecord();
+        if (latestServiceConfigRecord.getId() != null) {
+            serviceConfigRecord.setVersion(latestServiceConfigRecord.getVersion() + 1);
+        } else {
+            serviceConfigRecord.setVersion(1);
+        }
+        serviceConfigRecord.setConfigDesc("Initial config " + serviceName + " for " + cluster.getClusterName() + " cluster");
+        serviceConfigRecord.setService(service);
+        serviceConfigRecord.setCluster(cluster);
+        serviceConfigRecord = serviceConfigRecordRepository.save(serviceConfigRecord);
+
+        //ServiceConfig
+        Map<String, Map<String, Set<String>>> stackConfigMap = StackUtils.getStackConfigMap();
+        Map<String, Set<String>> serviceConfigMap = stackConfigMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        for (String configPath : serviceConfigMap.get(serviceName)) {
+            String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
+            String configData = JsonUtils.object2String(StackConfigUtils.loadConfig(configPath));
+
+            ServiceConfig latestServiceConfig = serviceConfigRepository.findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
+                    .orElse(new ServiceConfig());
+
+            ServiceConfig serviceConfig = new ServiceConfig();
+            serviceConfig.setService(service);
+            serviceConfig.setCluster(cluster);
+            serviceConfig.setTypeName(typeName);
+            serviceConfig.setConfigData(configData);
+
+            if (latestServiceConfig.getId() == null) {
+                log.info("insert serviceConfig");
+                serviceConfig.setVersion(1);
+                serviceConfig = serviceConfigRepository.save(serviceConfig);
+            } else if (!configData.equals(latestServiceConfig.getConfigData())) {
+                log.info("update serviceConfig");
+                serviceConfig.setVersion(latestServiceConfig.getVersion() + 1);
+                serviceConfig = serviceConfigRepository.save(serviceConfig);
+            } else {
+                log.info("don't need update serviceConfig");
+            }
+
+            //ServiceConfigMapping
+            ServiceConfigMapping serviceConfigMapping = new ServiceConfigMapping();
+            serviceConfigMapping.setServiceConfig(serviceConfig);
+            serviceConfigMapping.setServiceConfigRecord(serviceConfigRecord);
+            serviceConfigMappingRepository.save(serviceConfigMapping);
         }
     }
 }
