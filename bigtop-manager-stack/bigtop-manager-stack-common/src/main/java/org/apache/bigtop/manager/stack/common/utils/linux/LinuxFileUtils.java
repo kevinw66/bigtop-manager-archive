@@ -189,6 +189,10 @@ public class LinuxFileUtils {
      * @param recursive   recursive
      */
     public static void createDirectories(String dirPath, String owner, String group, String permissions, boolean recursive) {
+        if (StringUtils.isBlank(dirPath)) {
+            log.error("dirPath must not be null");
+            return;
+        }
         Path path = Paths.get(dirPath);
 
         if (Files.isSymbolicLink(path)) {

@@ -5,9 +5,13 @@ cacheDir: /opt/bigtop-manager-agent/cache
 root: /opt
 packages: '[ "curl", "wget" ]'
 repoTemplate: |
-  [{{repo_id}}]
-  name={{repo_id}}
-  {% if mirror_list %}mirrorlist={{mirror_list}}{% else %}baseurl={{base_url}}{% endif %}
+  [${repoId}]
+  name=${repoId}
+  <#if baseurl?? >
+  baseurl=${baseurl}
+  <#else>
+  mirrorlist=${mirrorlist}
+  </#if>
   path=/
   enabled=1
   gpgcheck=0

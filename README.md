@@ -25,6 +25,5 @@ mvn clean package -DskipTests
 > 1. Login
 > 2. Create cluster ->Register host
 > 3. Installation Services
-> 4. Execute Configuration Cache
-> 5. Start Service
-> 6. Stop Service
+> 4. Start Service
+> 5. Stop Service

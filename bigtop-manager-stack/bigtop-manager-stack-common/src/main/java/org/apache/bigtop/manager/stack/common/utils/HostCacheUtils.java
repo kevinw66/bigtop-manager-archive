@@ -30,8 +30,7 @@ public class HostCacheUtils {
         };
         Map<String, Map<String, Map<String, Object>>> configJson = JsonUtils.readJson(cacheDir + CONFIGURATIONS_INFO, typeReference);
 
-        return configJson.getOrDefault(service, new HashMap<>())
-                .get(type);
+        return configJson.getOrDefault(service, new HashMap<>()).get(type);
     }
 
     public static Set<String> hosts(String service) {
@@ -41,7 +40,7 @@ public class HostCacheUtils {
         };
         Map<String, Set<String>> hostJson = JsonUtils.readJson(cacheDir + HOSTS_INFO, typeReference);
 
-        return hostJson.get(service);
+        return hostJson.get(service) == null ? Set.of() : hostJson.get(service);
     }
 
     public static BasicInfo basicInfo() {
@@ -49,7 +48,10 @@ public class HostCacheUtils {
 
         TypeReference<BasicInfo> typeReference = new TypeReference<>() {
         };
-        return JsonUtils.readJson(cacheDir + BASIC_INFO, typeReference);
+
+        BasicInfo basicInfo = JsonUtils.readJson(cacheDir + BASIC_INFO, typeReference);
+
+        return basicInfo == null ? new BasicInfo() : basicInfo;
     }
 
     public static Map<String, Set<String>> users() {
@@ -58,7 +60,9 @@ public class HostCacheUtils {
         TypeReference<Map<String, Set<String>>> typeReference = new TypeReference<>() {
         };
 
-        return JsonUtils.readJson(cacheDir + USERS_INFO, typeReference);
+        Map<String, Set<String>> userMap = JsonUtils.readJson(cacheDir + USERS_INFO, typeReference);
+
+        return userMap == null ? new HashMap<>() : userMap;
     }
 
     public static Set<String> packages() {
@@ -71,8 +75,9 @@ public class HostCacheUtils {
 
         TypeReference<List<RepoInfo>> typeReference = new TypeReference<>() {
         };
+        List<RepoInfo> repoInfoList = JsonUtils.readJson(cacheDir + REPOS_INFO, typeReference);
 
-        return JsonUtils.readJson(cacheDir + REPOS_INFO, typeReference);
+        return repoInfoList == null ? List.of() : repoInfoList;
     }
 
     public static ClusterInfo cluster() {
@@ -80,6 +85,7 @@ public class HostCacheUtils {
 
         TypeReference<ClusterInfo> typeReference = new TypeReference<>() {
         };
-        return JsonUtils.readJson(cacheDir + CLUSTER_INFO, typeReference);
+        ClusterInfo clusterInfo = JsonUtils.readJson(cacheDir + CLUSTER_INFO, typeReference);
+        return clusterInfo == null ? new ClusterInfo() : clusterInfo;
     }
 }

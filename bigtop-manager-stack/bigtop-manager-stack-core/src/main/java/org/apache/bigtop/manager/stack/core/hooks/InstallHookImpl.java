@@ -27,10 +27,10 @@ public class InstallHookImpl implements Hook {
     public void before() {
         log.info("before install");
         List<RepoInfo> repos = HostCacheUtils.repos();
-        String repoTemplate =  HostCacheUtils.cluster().getRepoTemplate();
+        String repoTemplate = HostCacheUtils.cluster().getRepoTemplate();
 
         for (RepoInfo repo : repos) {
-            if (OSDetection.getOS().equals(repo.getOs())) {
+            if (OSDetection.getOS().equals(repo.getOs()) && OSDetection.getArch().equals(repo.getArch())) {
                 BaseTemplate.writeTemplateByContent("/etc/yum.repos.d/bigtop.repo", repo, repoTemplate);
             }
         }

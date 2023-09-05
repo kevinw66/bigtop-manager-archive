@@ -100,6 +100,9 @@ public class HostServiceImpl implements HostService {
         host.setState(HostState.INSTALLED.name());
         host = hostRepository.save(host);
 
+        // cache
+        cache(cluster.getId());
+
         return HostMapper.INSTANCE.Entity2VO(host);
     }
 
@@ -143,6 +146,7 @@ public class HostServiceImpl implements HostService {
         List<String> componentNameList = commandDTO.getComponentNames();
         String hostname = commandDTO.getHostname();
         String clusterName = commandDTO.getClusterName();
+        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
         if (command.equals(CommandEvent.INSTALL.name())) {
             //Persist hostComponent to database
@@ -158,12 +162,13 @@ public class HostServiceImpl implements HostService {
                 hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
                 hostComponentRepository.save(hostComponent);
             }
+            // cache
+            cache(cluster.getId());
         }
 
         eventBus.post(commandDTO);
 
         //persist request to database
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
         Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
         request.setState(RequestState.PENDING.name());
         request = requestRepository.save(request);

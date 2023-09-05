@@ -52,6 +52,9 @@ public class HostCacheHandler implements Callback {
     private SettingRepository settingRepository;
 
     @Resource
+    private HostRepository hostRepository;
+
+    @Resource
     private ServerWebSocketHandler serverWebSocketHandler;
 
     @Subscribe
@@ -69,6 +72,7 @@ public class HostCacheHandler implements Callback {
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterId(clusterId);
         List<Repo> repos = repoRepository.findAllByStackId(stackId);
         Setting setting = settingRepository.findFirstByOrderByVersionDesc().orElse(new Setting());
+        List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 
 
         ClusterInfo clusterInfo = new ClusterInfo();
@@ -143,8 +147,8 @@ public class HostCacheHandler implements Callback {
         hostCacheMessage.setBasicInfo(basicInfo);
         hostCacheMessage.setUserInfo(userMap);
 
-        for (HostComponent hostComponent : hostComponents) {
-            String hostname = hostComponent.getHost().getHostname();
+        for (Host host : hostList) {
+            String hostname = host.getHostname();
             hostCacheMessage.setHostname(hostname);
             hostCacheMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
@@ -152,7 +156,7 @@ public class HostCacheHandler implements Callback {
             serverWebSocketHandler.sendMessage(hostname, hostCacheMessage, this);
         }
 
-        countDownLatch = new CountDownLatch(hostComponents.size());
+        countDownLatch = new CountDownLatch(hostList.size());
         try {
             boolean timeoutFlag = countDownLatch.await(30, TimeUnit.SECONDS);
             if (!timeoutFlag) {

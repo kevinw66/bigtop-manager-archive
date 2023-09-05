@@ -37,6 +37,7 @@ public class ZookeeperServerScript implements Script {
         String zookeeperGroup = ZookeeperParams.group();
         String logDir = (String) ZookeeperParams.zookeeperEnv().get("logDir");
         String pidDir = (String) ZookeeperParams.zookeeperEnv().get("pidDir");
+        String dataDir = (String) ZookeeperParams.zooCfg().get("dataDir");
 
         log.info("{}", ZookeeperParams.zooCfg());
         LinuxFileUtils.toFile(ConfigType.PROPERTIES, ZookeeperParams.confDir() + "/zoo.cfg", zookeeperUser, zookeeperGroup, "rw-r--r--", ZookeeperParams.zooCfg());
@@ -54,7 +55,7 @@ public class ZookeeperServerScript implements Script {
                 modelMap, ZookeeperParams.zookeeperEnv().get("content").toString());
 
 
-        LinuxFileUtils.updateOwner((String) ZookeeperParams.zooCfg().get("dataDir"), zookeeperUser, zookeeperGroup, true);
+        LinuxFileUtils.createDirectories(dataDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
         LinuxFileUtils.createDirectories(logDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
         LinuxFileUtils.createDirectories(pidDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
 

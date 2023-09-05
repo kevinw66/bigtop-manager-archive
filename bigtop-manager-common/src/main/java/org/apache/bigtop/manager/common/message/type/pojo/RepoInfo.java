@@ -19,4 +19,6 @@ public class RepoInfo {
 
     private String arch;
 
+    private String mirrorlist;
+
 }

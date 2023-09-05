@@ -21,6 +21,7 @@ import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -55,6 +56,9 @@ public class ServiceServiceImpl implements ServiceService {
     @Resource
     private EventBus eventBus;
 
+    @Resource
+    private HostService hostService;
+
     @Override
     public List<ServiceVO> list() {
         List<ServiceVO> serviceVOList = new ArrayList<>();
@@ -82,16 +86,17 @@ public class ServiceServiceImpl implements ServiceService {
     public CommandVO command(CommandDTO commandDTO) {
         CommandEvent commandEvent = CommandEvent.valueOf(commandDTO.getCommand());
         String clusterName = commandDTO.getClusterName();
-
+        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
         if (commandEvent == CommandEvent.INSTALL) {
             install(commandDTO);
+            // cache
+            hostService.cache(cluster.getId());
         }
 
         eventBus.post(commandDTO);
 
         //persist request to database
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
         Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
         request.setState(RequestState.PENDING.name());
         request = requestRepository.save(request);
