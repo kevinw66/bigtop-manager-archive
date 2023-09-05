@@ -12,4 +12,8 @@ public interface HostRepository extends CrudRepository<Host, Long> {
 
     List<Host> findAllByHostnameIn(Iterable<String> hostnames);
 
+    List<Host> findAllByClusterId(Long clusterId);
+
+    List<Host> findAllByClusterClusterName(String clusterName);
+
 }

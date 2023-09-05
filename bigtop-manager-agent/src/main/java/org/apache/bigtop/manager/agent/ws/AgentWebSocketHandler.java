@@ -14,6 +14,7 @@ import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.apache.bigtop.manager.stack.core.Executor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
@@ -110,6 +111,8 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
     private void handleHostCacheMessage(WebSocketSession session, HostCacheMessage hostCacheMessage) {
         String cacheDir = hostCacheMessage.getCacheDir();
+
+        LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
 
         JsonUtils.writeJson(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
         JsonUtils.writeJson(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
