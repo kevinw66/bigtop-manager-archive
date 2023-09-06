@@ -30,7 +30,8 @@ public class ResponseEntity<T> {
 
     private T data;
 
-    public ResponseEntity() {}
+    public ResponseEntity() {
+    }
 
     public ResponseEntity(ResponseStatus status) {
         this.code = status.getCode();
@@ -64,6 +65,10 @@ public class ResponseEntity<T> {
 
     public static <T> ResponseEntity<T> error(ResponseStatus status) {
         return new ResponseEntity<>(status);
+    }
+
+    public static <T> ResponseEntity<T> error(ResponseStatus status, T data) {
+        return new ResponseEntity<>(status, data);
     }
 
     public static <T> ResponseEntity<T> error(ServerExceptionStatus ex) {

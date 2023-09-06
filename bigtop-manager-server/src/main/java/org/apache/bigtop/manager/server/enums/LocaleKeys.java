@@ -22,6 +22,9 @@ import lombok.Getter;
 public enum LocaleKeys {
     REQUEST_SUCCESS("request.success"),
     REQUEST_FAILED("request.failed"),
+    PARAMETER_ERROR("request.parameter.incorrect"),
+    NOTEMPTY("NotEmpty"),
+    NOTNULL("NotNull"),
 
     LOGIN_REQUIRED("login.required"),
     LOGIN_ACCOUNT_REQUIRED("login.account.required"),

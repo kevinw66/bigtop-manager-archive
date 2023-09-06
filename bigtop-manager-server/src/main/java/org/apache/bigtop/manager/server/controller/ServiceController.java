@@ -12,6 +12,7 @@ import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class ServiceController {
 
     @Operation(summary = "service command", description = "Command for service, only support [START|STOP|RESTART|INSTALL]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody ServiceCommandReq commandReq) {
+    public ResponseEntity<CommandVO> command(@RequestBody @Validated ServiceCommandReq commandReq) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = serviceService.command(commandDTO);
         return ResponseEntity.success(commandVO);

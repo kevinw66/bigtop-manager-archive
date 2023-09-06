@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
@@ -14,6 +15,7 @@ import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +36,7 @@ public class HostController {
 
     @Operation(summary = "create", description = "Create a host")
     @PostMapping
-    public ResponseEntity<HostVO> create(@RequestBody HostReq hostReq) {
+    public ResponseEntity<HostVO> create(@RequestBody @Validated HostReq hostReq) {
         HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
         return ResponseEntity.success(hostService.create(hostDTO));
     }
@@ -47,7 +49,7 @@ public class HostController {
 
     @Operation(summary = "update", description = "Update a host")
     @PutMapping("/{id}")
-    public ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody HostReq hostReq) {
+    public ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody @Validated HostReq hostReq) {
         HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
         return ResponseEntity.success(hostService.update(id, hostDTO));
     }
@@ -72,7 +74,7 @@ public class HostController {
 
     @Operation(summary = "host-component command", description = "Command for host, only support [START|STOP|RESTART|INSTALL]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody HostCommandReq commandReq) {
+    public ResponseEntity<CommandVO> command(@RequestBody @Validated HostCommandReq commandReq) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = hostService.command(commandDTO);
         return ResponseEntity.success(commandVO);

@@ -9,6 +9,9 @@ public enum ResponseStatus {
     SUCCESS(0, LocaleKeys.REQUEST_SUCCESS),
 
     INTERNAL_SERVER_ERROR(-1, LocaleKeys.REQUEST_FAILED),
+
+    PARAMETER_ERROR(1, LocaleKeys.PARAMETER_ERROR),
+
     ;
 
     private final Integer code;
