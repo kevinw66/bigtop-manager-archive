@@ -15,12 +15,30 @@
  * limitations under the License.
  */
 
-import { createRouter, createWebHistory } from 'vue-router'
-import routes from './routes'
+import { RouteRecordRaw } from 'vue-router'
 
-const router = createRouter({
-  routes,
-  history: createWebHistory(import.meta.env.VITE_APP_BASE)
-})
+const commonPages: RouteRecordRaw[] = [
+  { path: '/login', component: () => import('@/pages/login/index.vue') }
+]
 
-export default router
+const baseLayoutPages: RouteRecordRaw[] = [
+  {
+    path: '/',
+    redirect: '/dashboard',
+    component: () => import('@/layouts/index.vue'),
+    children: [
+      {
+        path: '/dashboard',
+        component: () => import('@/pages/dashboard/index.vue')
+      },
+      {
+        path: '/admin',
+        component: () => import('@/pages/dashboard/admin.vue')
+      }
+    ]
+  }
+]
+
+const routes = [...commonPages, ...baseLayoutPages]
+
+export default routes

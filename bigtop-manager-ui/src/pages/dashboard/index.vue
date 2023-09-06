@@ -19,4 +19,4 @@
   <a-button type="primary" @click="clickButtom">Click Me</a-button>
 </template>
 
-<style lang="scss" scoped></style>
+<style scoped lang="scss"></style>

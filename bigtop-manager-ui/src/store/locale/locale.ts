@@ -15,23 +15,36 @@
  * limitations under the License.
  */
 
+import { watch, ref, computed } from 'vue'
+import i18n, { DEFAULT_LOCALE } from '@/locales'
+import en_US from 'ant-design-vue/es/locale/en_US'
+import zh_CN from 'ant-design-vue/es/locale/zh_CN'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import 'dayjs/locale/en'
 import { defineStore } from 'pinia'
-import { LocaleStore, Locale } from './types'
+import { Locale } from './types'
 
-export const useLocaleStore = defineStore({
-  id: 'locale',
-  state: (): LocaleStore => ({
-    locale: 'en_US'
-  }),
-  persist: true,
-  getters: {
-    getLocale(): Locale {
-      return this.locale
+export const useLocaleStore = defineStore(
+  'locale',
+  () => {
+    const locale = ref(DEFAULT_LOCALE as Locale)
+    const antd = computed(() => (locale.value === 'en_US' ? en_US : zh_CN))
+
+    const setLocale = (newLocale: Locale) => {
+      locale.value = newLocale
+    }
+
+    watch(locale, async (newLocale: Locale) => {
+      i18n.global.locale.value = newLocale as Locale
+      dayjs.locale(antd.value.locale)
+    })
+
+    return {
+      locale,
+      antd,
+      setLocale
     }
   },
-  actions: {
-    setLocale(locale: Locale): void {
-      this.locale = locale
-    }
-  }
-})
+  { persist: true }
+)
