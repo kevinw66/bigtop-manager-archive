@@ -10,6 +10,7 @@ import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
@@ -83,5 +84,13 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
         HostInfo hostInfo = heartbeatMessage.getHostInfo();
         ServerWebSocketSessionManager.SESSIONS.putIfAbsent(hostInfo.getHostname(), session);
         ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.putIfAbsent(hostInfo.getHostname(), heartbeatMessage);
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        log.error("session closed: {}, remove it!!!", session.getId());
+        ServerWebSocketSessionManager.SESSIONS.values().removeIf(value -> value.getId().equals(session.getId()));
+        ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.clear();
+        log.info("latest ServerWebSocketSessionManager.SESSIONS: {}", ServerWebSocketSessionManager.SESSIONS);
     }
 }
