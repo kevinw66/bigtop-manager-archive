@@ -37,10 +37,8 @@ public class GlobalExceptionHandler {
         boolean validEnum = EnumUtils.isValidEnum(LocaleKeys.class, code.toUpperCase());
         if (validEnum) {
             message = MessageSourceUtils.getMessage(LocaleKeys.valueOf(code.toUpperCase()), field);
-            return ResponseEntity.error(ResponseStatus.PARAMETER_ERROR, message);
         }
         log.error("Request Body incorrect, message: {}", message, e);
-
         return ResponseEntity.error(ResponseStatus.PARAMETER_ERROR, message);
     }
 
