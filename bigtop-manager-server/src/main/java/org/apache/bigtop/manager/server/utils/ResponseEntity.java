@@ -67,8 +67,8 @@ public class ResponseEntity<T> {
         return new ResponseEntity<>(status);
     }
 
-    public static <T> ResponseEntity<T> error(ResponseStatus status, T data) {
-        return new ResponseEntity<>(status, data);
+    public static <T> ResponseEntity<T> error(ResponseStatus status, String appendMessage) {
+        return new ResponseEntity<>(status.getCode(), status.getMessage() + ": " + appendMessage);
     }
 
     public static <T> ResponseEntity<T> error(ServerExceptionStatus ex) {

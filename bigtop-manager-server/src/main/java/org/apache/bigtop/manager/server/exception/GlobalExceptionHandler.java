@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<String> exceptionHandler(MethodArgumentNotValidException e) {
+    public ResponseEntity<Void> exceptionHandler(MethodArgumentNotValidException e) {
 
         FieldError fieldError = e.getBindingResult().getFieldError();
         String code = fieldError.getCode();
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({ConstraintViolationException.class})
-    public ResponseEntity<String> exceptionHandler(ConstraintViolationException e) {
+    public ResponseEntity<Void> exceptionHandler(ConstraintViolationException e) {
         String message = e.getMessage();
         log.error("Method parameter exception, message: {}", message, e);
         return ResponseEntity.error(ResponseStatus.PARAMETER_ERROR, message);
