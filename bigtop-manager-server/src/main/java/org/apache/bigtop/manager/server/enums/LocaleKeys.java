@@ -23,8 +23,9 @@ public enum LocaleKeys {
     REQUEST_SUCCESS("request.success"),
     REQUEST_FAILED("request.failed"),
     PARAMETER_ERROR("request.parameter.incorrect"),
-    NOTEMPTY("NotEmpty"),
-    NOTNULL("NotNull"),
+
+    NOTEMPTY("validation.not.empty"),
+    NOTNULL("validation.not.null"),
 
     LOGIN_REQUIRED("login.required"),
     LOGIN_ACCOUNT_REQUIRED("login.account.required"),
