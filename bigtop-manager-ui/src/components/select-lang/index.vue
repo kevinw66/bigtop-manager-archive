@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useLocaleStore } from '@/store/locale/locale.ts'
+  import { useLocaleStore } from '@/store/locale'
   import { Locale } from '@/store/locale/types.ts'
   import CarbonLanguage from '@/components/icons/carbon-language.vue'
   import { storeToRefs } from 'pinia'
@@ -15,7 +15,7 @@
 <template>
   <a-dropdown placement="bottom">
     <div class="icon">
-      <CarbonLanguage />
+      <carbon-language />
     </div>
     <template #overlay>
       <a-menu :selected-keys="[locale]" @click="handleClick">
@@ -38,9 +38,17 @@
 
 <style lang="scss" scoped>
   .icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     font-size: 16px;
     cursor: pointer;
-    line-height: 0;
-    padding: 0 1rem;
+    border-radius: 50%;
+    height: 36px;
+    width: 36px;
+
+    &:hover {
+      background-color: var(--hover-color);
+    }
   }
 </style>

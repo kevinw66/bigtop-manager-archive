@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useLocaleStore } from '@/store/locale/locale.ts'
+  import { useLocaleStore } from '@/store/locale'
   import { storeToRefs } from 'pinia'
 
   const localeStore = useLocaleStore()

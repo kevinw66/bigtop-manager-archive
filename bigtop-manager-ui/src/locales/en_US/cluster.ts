@@ -15,27 +15,7 @@
  * limitations under the License.
  */
 
-* {
-  outline: 0;
-}
-
-html {
-  --text-color: rgba(0,0,0,.85);
-  --text-color-desc: rgba(0,0,0,.45);
-  --bg-color: #fff;
-  --hover-color: rgba(0, 0, 0, 0.05);
-  --bg-color-container: #f0f2f5;
-  --c-shadow: 2px 0 8px 0 rgba(29,35,41,.05);
-}
-
-.m-0 {
-  margin: 0;
-}
-
-.p-0 {
-  padding: 0;
-}
-
-.hidden {
-  display: none;
+export default {
+  switch: 'Switch Cluster',
+  create: 'Create Cluster'
 }

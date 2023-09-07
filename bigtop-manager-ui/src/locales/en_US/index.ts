@@ -16,7 +16,11 @@
  */
 
 import login from '@/locales/en_US/login'
+import user from '@/locales/en_US/user.ts'
+import cluster from '@/locales/en_US/cluster.ts'
 
 export default {
-  login
+  login,
+  user,
+  cluster
 }

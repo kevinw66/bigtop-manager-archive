@@ -23,7 +23,7 @@ import axios, {
 import { message } from 'ant-design-vue'
 import { ResponseEntity } from '@/api/types'
 import router from '@/router'
-import { useLocaleStore } from '@/store/locale/locale.ts'
+import { useLocaleStore } from '@/store/locale'
 import { storeToRefs } from 'pinia'
 
 const localeStore = useLocaleStore()

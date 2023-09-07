@@ -50,7 +50,7 @@
             <div class="login-title">Bigtop Manager</div>
             <div class="login-desc">{{ $t('login.desc') }}</div>
           </div>
-          <div class="login-header-right"><SelectLang /></div>
+          <div class="login-header-right"><select-lang /></div>
         </div>
         <a-divider class="m-0" />
         <!-- 登录框主体 -->
@@ -93,7 +93,7 @@
                     @press-enter="submit"
                   >
                     <template #prefix>
-                      <UserOutlined />
+                      <user-outlined />
                     </template>
                   </a-input>
                 </a-form-item>
@@ -114,7 +114,7 @@
                     @press-enter="submit"
                   >
                     <template #prefix>
-                      <LockOutlined />
+                      <lock-outlined />
                     </template>
                   </a-input-password>
                 </a-form-item>

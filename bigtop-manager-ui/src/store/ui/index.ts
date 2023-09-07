@@ -15,27 +15,22 @@
  * limitations under the License.
  */
 
-* {
-  outline: 0;
-}
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
 
-html {
-  --text-color: rgba(0,0,0,.85);
-  --text-color-desc: rgba(0,0,0,.45);
-  --bg-color: #fff;
-  --hover-color: rgba(0, 0, 0, 0.05);
-  --bg-color-container: #f0f2f5;
-  --c-shadow: 2px 0 8px 0 rgba(29,35,41,.05);
-}
+export const useUIStore = defineStore(
+  'ui',
+  () => {
+    const siderCollapsed = ref(false)
 
-.m-0 {
-  margin: 0;
-}
+    const changeCollapsed = () => {
+      siderCollapsed.value = !siderCollapsed.value
+    }
 
-.p-0 {
-  padding: 0;
-}
-
-.hidden {
-  display: none;
-}
+    return {
+      siderCollapsed,
+      changeCollapsed
+    }
+  },
+  { persist: true }
+)
