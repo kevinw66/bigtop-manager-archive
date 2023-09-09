@@ -53,7 +53,7 @@ public class StackServiceImpl implements StackService {
 
     @Override
     public List<ServiceVersionVO> versions(String stackName, String stackVersion) {
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.STACK_KEY_MAP;
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 
@@ -70,7 +70,7 @@ public class StackServiceImpl implements StackService {
 
     @Override
     public List<StackRepoVO> repos(String stackName, String stackVersion) {
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.STACK_KEY_MAP;
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
 
