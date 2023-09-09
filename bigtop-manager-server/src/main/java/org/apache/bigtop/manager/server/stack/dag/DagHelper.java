@@ -1,10 +1,10 @@
 package org.apache.bigtop.manager.server.stack.dag;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,9 +15,11 @@ public class DagHelper {
 
     private static final String ROLE_COMMAND_SPLIT = "-";
 
-    @Getter
-    private static final Map<String, DAG<ComponentCommandWrapper, ComponentCommandWrapper, DagGraphEdge>> stackDagMap = new HashMap<>();
+    private static final Map<String, DAG<ComponentCommandWrapper, ComponentCommandWrapper, DagGraphEdge>> STACK_DAG_MAP = new HashMap<>();
 
+    public static Map<String, DAG<ComponentCommandWrapper, ComponentCommandWrapper, DagGraphEdge>> getStackDagMap() {
+        return Collections.unmodifiableMap(STACK_DAG_MAP);
+    }
 
     /**
      * Initialize the DAG for each stack
@@ -51,7 +53,7 @@ public class DagHelper {
                     dag.addEdge(blockerRcp, blockedRcp, roleCommandEdge, true);
                 }
 
-                stackDagMap.put(fullStackName, dag);
+                STACK_DAG_MAP.put(fullStackName, dag);
             }
         }
 

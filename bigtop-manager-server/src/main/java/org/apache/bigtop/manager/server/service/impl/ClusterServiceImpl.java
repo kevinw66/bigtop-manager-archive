@@ -62,7 +62,7 @@ public class ClusterServiceImpl implements ClusterService {
     public ClusterVO create(ClusterDTO clusterDTO) {
         String stackName = clusterDTO.getStackName();
         String stackVersion = clusterDTO.getStackVersion();
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.STACK_KEY_MAP;
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
         ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
         StackDTO stackDTO = immutablePair.getLeft();
 

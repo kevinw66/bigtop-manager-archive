@@ -119,7 +119,7 @@ public class ServiceServiceImpl implements ServiceService {
         String stackVersion = commandDTO.getStackVersion();
         Map<String, Set<String>> componentHostMapping = commandDTO.getComponentHosts();
 
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.STACK_KEY_MAP;
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
         ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
         Set<ServiceDTO> serviceDTOSet = immutablePair.getRight();
@@ -192,7 +192,7 @@ public class ServiceServiceImpl implements ServiceService {
         serviceConfigRecord = serviceConfigRecordRepository.save(serviceConfigRecord);
 
         //ServiceConfig
-        Map<String, Map<String, Set<String>>> stackConfigMap = StackUtils.STACK_CONFIG_MAP;
+        Map<String, Map<String, Set<String>>> stackConfigMap = StackUtils.getStackConfigMap();
         Map<String, Set<String>> serviceConfigMap = stackConfigMap.get(StackUtils.fullStackName(stackName, stackVersion));
         for (String configPath : serviceConfigMap.get(serviceName)) {
             String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));

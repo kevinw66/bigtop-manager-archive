@@ -179,7 +179,7 @@ public class TaskFlowHandler implements Callback {
             }
             case INSTALL_SERVICE -> {
                 List<String> serviceNameList = commandDTO.getServiceNames();
-                Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.STACK_KEY_MAP;
+                Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
                 ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
                 Set<ServiceDTO> serviceDTOSet = immutablePair.getRight();
