@@ -34,13 +34,13 @@
         sessionStorage.setItem('Token', res.token)
       }
 
+      message.success(i18n.t('login.login_success'))
       await router.push('/dashboard')
     } catch (e) {
       console.warn(e)
     } finally {
       hide()
       submitLoading.value = false
-      message.success(i18n.t('login.login_success'))
     }
   }
 </script>

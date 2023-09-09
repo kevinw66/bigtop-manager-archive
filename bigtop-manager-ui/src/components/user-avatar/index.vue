@@ -19,12 +19,12 @@
     const hide = message.loading(i18n.t('login.logging_out'), 0)
     try {
       await userStore.logout()
+      message.success(i18n.t('login.logout_success'))
       await router.push({ path: '/login' })
     } catch (e) {
       console.warn(e)
     } finally {
       hide()
-      message.success(i18n.t('login.logout_success'))
     }
   }
 </script>
