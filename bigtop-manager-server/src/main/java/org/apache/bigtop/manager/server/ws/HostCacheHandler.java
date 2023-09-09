@@ -83,7 +83,7 @@ public class HostCacheHandler implements Callback {
         clusterInfo.setRepoTemplate(cluster.getRepoTemplate());
         clusterInfo.setRoot(cluster.getRoot());
 
-        Set<String> packages = JsonUtils.string2Json(cluster.getPackages(), new TypeReference<>() {
+        Set<String> packages = JsonUtils.readFromString(cluster.getPackages(), new TypeReference<>() {
         });
         clusterInfo.setPackages(packages);
 

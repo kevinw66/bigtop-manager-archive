@@ -55,7 +55,7 @@ public class LinuxFileUtils {
                 XmlUtils.writeXml(filename, content);
                 break;
             case JSON:
-                JsonUtils.writeJson(filename, content);
+                JsonUtils.writeToFile(filename, content);
                 break;
             case ENV:
                 BaseTemplate.writeTemplate(filename, content, "env");

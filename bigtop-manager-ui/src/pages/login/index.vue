@@ -5,6 +5,8 @@
   import { login } from '@/api/login'
   import router from '@/router'
   import md5 from 'md5'
+  import { message } from 'ant-design-vue'
+  import { useI18n } from 'vue-i18n'
 
   const formRef = shallowRef()
   const submitLoading = shallowRef(false)
@@ -15,8 +17,10 @@
     remember: true
   })
 
+  const i18n = useI18n()
   const submit = async () => {
     submitLoading.value = true
+    const hide = message.loading(i18n.t('login.logging_in'), 0)
     try {
       await formRef.value?.validate()
       const res = await login({
@@ -34,7 +38,9 @@
     } catch (e) {
       console.warn(e)
     } finally {
+      hide()
       submitLoading.value = false
+      message.success(i18n.t('login.login_success'))
     }
   }
 </script>

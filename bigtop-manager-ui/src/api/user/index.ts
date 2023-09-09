@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,21 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.bigtop.manager.server.utils;
 
-public class ThreadLocalUtils {
+import request from '@/api/request.ts'
+import { UserVO } from '@/api/user/types.ts'
 
-    private static final ThreadLocal<Long> USER_ID = new ThreadLocal<>();
-
-    public static void setUserId(Long userId) {
-        USER_ID.set(userId);
-    }
-
-    public static Long getUserId() {
-        return USER_ID.get();
-    }
-
-    public static void removeUserId() {
-        USER_ID.remove();
-    }
+export const getCurrentUser = (): Promise<UserVO> => {
+  return request({
+    method: 'get',
+    url: '/users/current'
+  })
 }

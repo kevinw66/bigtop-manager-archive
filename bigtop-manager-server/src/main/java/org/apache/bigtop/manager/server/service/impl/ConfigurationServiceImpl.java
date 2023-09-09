@@ -83,8 +83,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         //ServiceConfig
         List<ConfigDataDTO> configurations = configurationDTO.getConfigurations();
         for (ConfigDataDTO configDataDTO : configurations) {
-            String configData = JsonUtils.object2String(configDataDTO.getConfigData());
-            String configAttributes = configDataDTO.getConfigAttributes() != null ? JsonUtils.object2String(configDataDTO.getConfigAttributes()) : null;
+            String configData = JsonUtils.writeAsString(configDataDTO.getConfigData());
+            String configAttributes = configDataDTO.getConfigAttributes() != null ? JsonUtils.writeAsString(configDataDTO.getConfigAttributes()) : null;
             String typeName = configDataDTO.getTypeName();
             Integer version = configDataDTO.getVersion();
 

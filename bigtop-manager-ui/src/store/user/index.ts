@@ -15,8 +15,33 @@
  * limitations under the License.
  */
 
-export default {
-  profile: 'Profile',
-  settings: 'Settings',
-  logout: 'Log Out'
-}
+import { defineStore } from 'pinia'
+import { getCurrentUser } from '@/api/user'
+import { shallowRef } from 'vue'
+import { UserVO } from '@/api/user/types.ts'
+
+export const useUserStore = defineStore(
+  'user',
+  () => {
+    const userVO = shallowRef<UserVO>()
+
+    const getUserInfo = async () => {
+      userVO.value = await getCurrentUser()
+    }
+
+    const logout = async () => {
+      userVO.value = undefined
+      localStorage.removeItem('Token')
+      sessionStorage.removeItem('Token')
+
+      return Promise.resolve()
+    }
+
+    return {
+      userVO,
+      getUserInfo,
+      logout
+    }
+  },
+  { persist: true }
+)

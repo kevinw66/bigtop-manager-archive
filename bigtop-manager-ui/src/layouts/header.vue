@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
   import ClusterInfo from '@/components/cluster-info/index.vue'
-  import ProcessInfo from '@/components/process-info/index.vue'
-  import AlertMessage from '@/components/alert-message/index.vue'
+  import JobInfo from '@/components/job-info/index.vue'
+  import AlertInfo from '@/components/alert-info/index.vue'
   import SelectLang from '@/components/select-lang/index.vue'
   import UserAvatar from '@/components/user-avatar/index.vue'
   import { useUIStore } from '@/store/ui'
@@ -23,8 +23,8 @@
     </div>
     <div class="header-right">
       <cluster-info />
-      <process-info />
-      <alert-message />
+      <job-info />
+      <alert-info />
       <select-lang />
       <user-avatar />
     </div>

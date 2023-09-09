@@ -2,7 +2,6 @@ package org.apache.bigtop.manager.server.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -19,7 +18,14 @@ import org.apache.bigtop.manager.server.stack.pojo.StackModel;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
-import java.util.*;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -37,13 +43,11 @@ public class StackUtils {
 
     private static final String DEPENDENCY_FILE = "order.json";
 
-    private static final Map<String, Map<String, Set<String>>> stackDependencyMap = new HashMap<>();
+    public static final Map<String, Map<String, Set<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
-    @Getter
-    private static final Map<String, Map<String, Set<String>>> stackConfigMap = new HashMap<>();
+    public static final Map<String, Map<String, Set<String>>> STACK_CONFIG_MAP = new HashMap<>();
 
-    @Getter
-    private static final Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = new HashMap<>();
+    public static final Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
     /**
      * Parse stack file to generate stack model
@@ -72,37 +76,35 @@ public class StackUtils {
             for (File file : files) {
                 log.info("service dir: {}", file);
 
-                //metainfo.yaml
+                // metainfo.yaml
                 ServiceModel serviceModel = YamlUtils.readYaml(file.getAbsolutePath() + "/" + META_FILE, ServiceModel.class);
                 ServiceDTO serviceDTO = ServiceMapper.INSTANCE.Model2DTO(serviceModel);
                 serviceDTOSet.add(serviceDTO);
 
-                //order.json
+                // order.json
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE);
                 if (dependencyFile.exists()) {
-                    Map<String, Set<String>> singleDependencyMap = JsonUtils.readJson(dependencyFile.getAbsolutePath(),
-                            new TypeReference<>() {
-                            });
+                    Map<String, Set<String>> singleDependencyMap = JsonUtils.readFromFile(dependencyFile.getAbsolutePath(), new TypeReference<>() {});
                     if (Objects.nonNull(singleDependencyMap)) {
                         mergedDependencyMap.putAll(singleDependencyMap);
                     }
                 }
 
-                //configurations
+                // configurations
                 Set<String> serviceConfigSet = new HashSet<>();
                 File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER_NAME);
                 if (configFolder.exists()) {
-                    for (File configFile : configFolder.listFiles()) {
+                    for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
                         serviceConfigSet.add(configFile.getAbsolutePath());
                     }
                 }
                 mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
             }
-            stackDependencyMap.put(fullStackName(stackName, stackVersion), mergedDependencyMap);
-            stackConfigMap.put(fullStackName(stackName, stackVersion), mergedConfigMap);
+            STACK_DEPENDENCY_MAP.put(fullStackName(stackName, stackVersion), mergedDependencyMap);
+            STACK_CONFIG_MAP.put(fullStackName(stackName, stackVersion), mergedConfigMap);
 
-            log.info("stackConfigMap: {}", stackConfigMap);
-            log.info("stackDependencyMap: {}", stackDependencyMap);
+            log.info("stackConfigMap: {}", STACK_CONFIG_MAP);
+            log.info("stackDependencyMap: {}", STACK_DEPENDENCY_MAP);
         }
 
         return serviceDTOSet;
@@ -113,12 +115,12 @@ public class StackUtils {
      */
     public static Map<StackDTO, Set<ServiceDTO>> stackList() throws ServerException {
         File stacksFile = loadStackFile();
-        File[] files = stacksFile.listFiles();
+        File[] files = Optional.ofNullable(stacksFile.listFiles()).orElse(new File[0]);
         Map<StackDTO, Set<ServiceDTO>> stackMap = new HashMap<>();
 
         for (File stackFile : files) {
             String stackName = stackFile.getName();
-            File[] subVersions = stackFile.listFiles();
+            File[] subVersions = Optional.ofNullable(stackFile.listFiles()).orElse(new File[0]);
 
             for (File stackVersionFile : subVersions) {
                 String stackVersion = stackVersionFile.getName();
@@ -132,12 +134,12 @@ public class StackUtils {
 
                 stackMap.put(stackDTO, serviceDTOSet);
 
-                stackKeyMap.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, serviceDTOSet));
+                STACK_KEY_MAP.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, serviceDTOSet));
             }
         }
-        log.info("stackKeyMap: {}", stackKeyMap);
+        log.info("stackKeyMap: {}", STACK_KEY_MAP);
 
-        DagHelper.dagInitialized(stackDependencyMap);
+        DagHelper.dagInitialized(STACK_DEPENDENCY_MAP);
         return stackMap;
     }
 
@@ -150,7 +152,12 @@ public class StackUtils {
 
         File file = new File(stackPath);
         if (!file.exists() || !file.isDirectory()) {
-            stackPath = StackUtils.class.getClassLoader().getResource(STACKS_FOLDER_NAME).getPath();
+            URL url = StackUtils.class.getClassLoader().getResource(STACKS_FOLDER_NAME);
+            if (url == null) {
+                throw new ServerException("Can't find stack folder");
+            }
+
+            stackPath = url.getPath();
             file = new File(stackPath);
             if (!file.exists()) {
                 throw new ServerException("Can't find stack folder");
@@ -165,7 +172,8 @@ public class StackUtils {
      * @param stackVersionFile stack version file
      */
     private static void checkStack(File stackVersionFile) throws ServerException {
-        if (!Arrays.stream(stackVersionFile.list()).toList().contains(META_FILE)) {
+        String[] list = stackVersionFile.list();
+        if (list != null && !Arrays.stream(list).toList().contains(META_FILE)) {
             throw new ServerException(ServerExceptionStatus.STACK_CHECK_INVALID);
         }
     }

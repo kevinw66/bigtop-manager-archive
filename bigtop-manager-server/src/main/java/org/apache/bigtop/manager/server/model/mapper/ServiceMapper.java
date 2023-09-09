@@ -37,6 +37,6 @@ public interface ServiceMapper {
     ServiceVO Entity2VO(Service service);
 
     default String osSpecificDTO2str(List<OSSpecificDTO> osSpecifics) {
-        return JsonUtils.object2String(osSpecifics);
+        return JsonUtils.writeAsString(osSpecifics);
     }
 }

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.utils.JWTUtils;
-import org.apache.bigtop.manager.server.utils.ThreadLocalUtils;
+import org.apache.bigtop.manager.server.holder.SessionUserHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -37,7 +37,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     }
 
     private void clearStatus() {
-        ThreadLocalUtils.removeUserId();
+        SessionUserHolder.clear();
     }
 
     private void checkLogin(HttpServletRequest request) {
@@ -48,7 +48,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
         try {
             DecodedJWT decodedJWT = JWTUtils.resolveToken(token);
-            ThreadLocalUtils.setUserId(decodedJWT.getClaim(JWTUtils.CLAIM_ID).asLong());
+            SessionUserHolder.setUserId(decodedJWT.getClaim(JWTUtils.CLAIM_ID).asLong());
         } catch (Exception e) {
             throw new ServerException(ServerExceptionStatus.NEED_LOGIN);
         }

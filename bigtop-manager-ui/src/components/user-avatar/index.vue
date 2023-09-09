@@ -5,10 +5,26 @@
     LogoutOutlined
   } from '@ant-design/icons-vue'
   import { message } from 'ant-design-vue'
+  import { useUserStore } from '@/store/user'
+  import { storeToRefs } from 'pinia'
+  import router from '@/router'
+  import { useI18n } from 'vue-i18n'
 
-  const handleClick = ({ key }: { key: string }) => {
-    if (key === 'about' || key === 'settings') {
-      message.info('Coming soon!')
+  const i18n = useI18n()
+
+  const userStore = useUserStore()
+  const { userVO } = storeToRefs(userStore)
+
+  const logout = async () => {
+    const hide = message.loading(i18n.t('login.logging_out'), 0)
+    try {
+      await userStore.logout()
+      await router.push({ path: '/login' })
+    } catch (e) {
+      console.warn(e)
+    } finally {
+      hide()
+      message.success(i18n.t('login.logout_success'))
     }
   }
 </script>
@@ -17,15 +33,15 @@
   <a-dropdown placement="bottom">
     <div class="icon">
       <user-outlined />
-      <div class="name">Administrator</div>
+      <div class="name">{{ userVO?.nickname }}</div>
     </div>
     <template #overlay>
-      <a-menu @click="handleClick">
+      <a-menu>
         <a-menu-item key="about">
           <template #icon>
             <user-outlined />
           </template>
-          {{ $t('user.about') }}
+          {{ $t('user.profile') }}
         </a-menu-item>
         <a-menu-item key="settings">
           <template #icon>
@@ -34,7 +50,7 @@
           {{ $t('user.settings') }}
         </a-menu-item>
         <a-menu-divider />
-        <a-menu-item key="logout">
+        <a-menu-item key="logout" @click="logout">
           <template #icon>
             <logout-outlined />
           </template>

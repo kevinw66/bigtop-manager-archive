@@ -24,5 +24,9 @@ export default {
   password_placeholder: 'Please input your password',
   password_required: 'Password cannot be empty',
   remember_me: 'Remember me',
-  submit: 'Login'
+  submit: 'Login',
+  logging_in: 'Logging in...',
+  login_success: 'Login success',
+  logging_out: 'Logging out...',
+  logout_success: 'Logout success'
 }

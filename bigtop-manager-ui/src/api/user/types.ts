@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-export default {
-  profile: 'Profile',
-  settings: 'Settings',
-  logout: 'Log Out'
+export interface UserVO {
+  id: number
+  username: string
+  nickname: string
 }

@@ -2,12 +2,11 @@ package org.apache.bigtop.manager.common.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.MessageFormat;
 
 @Slf4j
 public class JsonUtils {
@@ -18,53 +17,53 @@ public class JsonUtils {
         OBJECTMAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    /**
-     * Generate json file
-     *
-     * @param fileName json file
-     * @param object   json content
-     */
-    public static void writeJson(String fileName, Object object) {
+    public static <T> void writeToFile(String fileName, T obj) {
+        writeToFile(new File(fileName), obj);
+    }
+
+    public static <T> void writeToFile(File file, T obj) {
         try {
-            JsonUtils.OBJECTMAPPER.writeValue(new File(fileName), object);
+            OBJECTMAPPER.writeValue(file, obj);
         } catch (Exception e) {
-            log.error(MessageFormat.format("Write Json {0} error, ", fileName), e);
+            throw new RuntimeException(e);
         }
     }
 
-    public static <T> T readJson(String fileName, TypeReference<T> typeReference) {
-        try {
-            return JsonUtils.OBJECTMAPPER.readValue(new File(fileName), typeReference);
-        } catch (Exception e) {
-            log.error(MessageFormat.format("Read Json {0} error, ", fileName), e);
-        }
-        return null;
+    public static <T> T readFromFile(String fileName, TypeReference<T> typeReference) {
+        return readFromFile(new File(fileName), typeReference);
     }
 
-    public static <T> T string2Json(String jsonStr, Class<T> clazz) {
+    public static <T> T readFromFile(File file, TypeReference<T> typeReference) {
         try {
-            return JsonUtils.OBJECTMAPPER.readValue(jsonStr, clazz);
+            return OBJECTMAPPER.readValue(file, typeReference);
         } catch (Exception e) {
-            log.error(MessageFormat.format("string2Json {0} error, ", jsonStr), e);
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
-    public static <T> T string2Json(String jsonStr, TypeReference<T> typeReference) {
+    public static <T> T readFromString(String json, TypeReference<T> typeReference) {
         try {
-            return JsonUtils.OBJECTMAPPER.readValue(jsonStr, typeReference);
+            return OBJECTMAPPER.readValue(json, typeReference);
         } catch (Exception e) {
-            log.error(MessageFormat.format("string2Json {0} error, ", jsonStr), e);
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
-    public static String object2String(Object object) {
+    public static JsonNode readTree(String filename) {
         try {
-            return JsonUtils.OBJECTMAPPER.writeValueAsString(object);
+            return OBJECTMAPPER.readTree(new File(filename));
         } catch (Exception e) {
-            log.error(MessageFormat.format("object2String {0} error, ", object), e);
+            throw new RuntimeException(e);
         }
-        return null;
     }
+
+    public static <T> String writeAsString(T obj) {
+        try {
+            return OBJECTMAPPER.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

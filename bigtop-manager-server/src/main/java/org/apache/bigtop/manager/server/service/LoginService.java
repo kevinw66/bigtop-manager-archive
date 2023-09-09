@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.service;
 
 
-import jakarta.servlet.http.HttpSession;
+import org.apache.bigtop.manager.server.model.dto.LoginDTO;
 import org.apache.bigtop.manager.server.model.vo.LoginVO;
 
 public interface LoginService {
@@ -9,9 +9,7 @@ public interface LoginService {
     /**
      * Login by username and password
      *
-     * @param session HttpSession
-     * @param username username
-     * @param password password
+     * @param loginDTO loginDTO
      */
-    LoginVO login(HttpSession session, String username, String password);
+    LoginVO login(LoginDTO loginDTO);
 }

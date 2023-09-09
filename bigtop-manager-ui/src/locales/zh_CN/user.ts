@@ -16,7 +16,7 @@
  */
 
 export default {
-  about: '个人中心',
+  profile: '个人中心',
   settings: '个人设置',
   logout: '退出登录'
 }

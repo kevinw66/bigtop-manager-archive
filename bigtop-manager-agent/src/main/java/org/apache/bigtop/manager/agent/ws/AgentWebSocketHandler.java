@@ -12,7 +12,6 @@ import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
-import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.apache.bigtop.manager.stack.core.Executor;
@@ -32,8 +31,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -114,12 +111,12 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
         LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
 
-        JsonUtils.writeJson(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
-        JsonUtils.writeJson(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
-        JsonUtils.writeJson(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
-        JsonUtils.writeJson(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
-        JsonUtils.writeJson(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
-        JsonUtils.writeJson(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
+        JsonUtils.writeToFile(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
+        JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
+        JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
+        JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
+        JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
+        JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
 
         ResultMessage resultMessage = new ResultMessage();
         resultMessage.setMessageId(hostCacheMessage.getMessageId());

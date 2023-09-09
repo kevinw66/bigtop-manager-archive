@@ -48,6 +48,7 @@ CREATE TABLE `user` (
     `id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(32) DEFAULT NULL,
     `password` VARCHAR(32) DEFAULT NULL,
+    `nickname` VARCHAR(32) DEFAULT NULL,
     `status` BIT(1) DEFAULT 1 COMMENT '0-Disable, 1-Enable',
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,

@@ -26,6 +26,7 @@ public enum LocaleKeys {
     LOGIN_REQUIRED("login.required"),
     LOGIN_ACCOUNT_REQUIRED("login.account.required"),
     LOGIN_ACCOUNT_INCORRECT("login.account.incorrect"),
+    LOGIN_ACCOUNT_DISABLED("login.account.disabled"),
 
     CLUSTER_NOT_FOUND("cluster.not.found"),
 

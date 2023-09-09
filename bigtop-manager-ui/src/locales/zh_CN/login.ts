@@ -24,5 +24,9 @@ export default {
   password_placeholder: '请输入密码',
   password_required: '密码不能为空',
   remember_me: '记住我',
-  submit: '登录'
+  submit: '登录',
+  logging_in: '登录中...',
+  login_success: '登录成功',
+  logging_out: '退出登录中...',
+  logout_success: '退出登录成功'
 }

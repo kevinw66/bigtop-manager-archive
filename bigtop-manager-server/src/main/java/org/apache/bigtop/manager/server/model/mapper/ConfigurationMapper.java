@@ -40,10 +40,10 @@ public interface ConfigurationMapper {
             ConfigDataVO configDataVO = new ConfigDataVO();
             String configAttributes = serviceConfig.getConfigAttributes();
             if (configAttributes != null) {
-                configDataVO.setConfigAttributes(JsonUtils.string2Json(serviceConfig.getConfigAttributes(), new TypeReference<>() {
+                configDataVO.setConfigAttributes(JsonUtils.readFromString(serviceConfig.getConfigAttributes(), new TypeReference<>() {
                 }));
             }
-            configDataVO.setConfigData(JsonUtils.string2Json(serviceConfig.getConfigData(), new TypeReference<>() {
+            configDataVO.setConfigData(JsonUtils.readFromString(serviceConfig.getConfigData(), new TypeReference<>() {
             }));
             configDataVO.setVersion(serviceConfig.getVersion());
             configDataVO.setTypeName(serviceConfig.getTypeName());

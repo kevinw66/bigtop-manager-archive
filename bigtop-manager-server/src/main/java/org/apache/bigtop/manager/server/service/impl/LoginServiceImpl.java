@@ -1,9 +1,9 @@
 package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.model.dto.LoginDTO;
 import org.apache.bigtop.manager.server.model.vo.LoginVO;
 import org.apache.bigtop.manager.server.orm.entity.User;
 import org.apache.bigtop.manager.server.orm.repository.UserRepository;
@@ -18,10 +18,14 @@ public class LoginServiceImpl implements LoginService {
     private UserRepository userRepository;
 
     @Override
-    public LoginVO login(HttpSession session, String username, String password) {
-        User user = userRepository.findByUsername(username).orElse(new User());
-        if (!password.equalsIgnoreCase(user.getPassword())) {
+    public LoginVO login(LoginDTO loginDTO) {
+        User user = userRepository.findByUsername(loginDTO.getUsername()).orElse(new User());
+        if (!loginDTO.getPassword().equalsIgnoreCase(user.getPassword())) {
             throw new ServerException(ServerExceptionStatus.INCORRECT_USERNAME_OR_PASSWORD);
+        }
+
+        if (!user.getStatus()) {
+            throw new ServerException(ServerExceptionStatus.USER_IS_DISABLED);
         }
 
         String token = JWTUtils.generateToken(user.getId(), user.getUsername());

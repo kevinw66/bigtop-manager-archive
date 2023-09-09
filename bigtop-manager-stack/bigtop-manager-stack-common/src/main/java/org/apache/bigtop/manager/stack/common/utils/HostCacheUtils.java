@@ -28,7 +28,7 @@ public class HostCacheUtils {
 
         TypeReference<Map<String, Map<String, Map<String, Object>>>> typeReference = new TypeReference<>() {
         };
-        Map<String, Map<String, Map<String, Object>>> configJson = JsonUtils.readJson(cacheDir + CONFIGURATIONS_INFO, typeReference);
+        Map<String, Map<String, Map<String, Object>>> configJson = JsonUtils.readFromFile(cacheDir + CONFIGURATIONS_INFO, typeReference);
 
         return configJson.getOrDefault(service, new HashMap<>()).get(type);
     }
@@ -38,7 +38,7 @@ public class HostCacheUtils {
 
         TypeReference<Map<String, Set<String>>> typeReference = new TypeReference<>() {
         };
-        Map<String, Set<String>> hostJson = JsonUtils.readJson(cacheDir + HOSTS_INFO, typeReference);
+        Map<String, Set<String>> hostJson = JsonUtils.readFromFile(cacheDir + HOSTS_INFO, typeReference);
 
         return hostJson.get(service) == null ? Set.of() : hostJson.get(service);
     }
@@ -49,7 +49,7 @@ public class HostCacheUtils {
         TypeReference<BasicInfo> typeReference = new TypeReference<>() {
         };
 
-        BasicInfo basicInfo = JsonUtils.readJson(cacheDir + BASIC_INFO, typeReference);
+        BasicInfo basicInfo = JsonUtils.readFromFile(cacheDir + BASIC_INFO, typeReference);
 
         return basicInfo == null ? new BasicInfo() : basicInfo;
     }
@@ -60,7 +60,7 @@ public class HostCacheUtils {
         TypeReference<Map<String, Set<String>>> typeReference = new TypeReference<>() {
         };
 
-        Map<String, Set<String>> userMap = JsonUtils.readJson(cacheDir + USERS_INFO, typeReference);
+        Map<String, Set<String>> userMap = JsonUtils.readFromFile(cacheDir + USERS_INFO, typeReference);
 
         return userMap == null ? new HashMap<>() : userMap;
     }
@@ -75,7 +75,7 @@ public class HostCacheUtils {
 
         TypeReference<List<RepoInfo>> typeReference = new TypeReference<>() {
         };
-        List<RepoInfo> repoInfoList = JsonUtils.readJson(cacheDir + REPOS_INFO, typeReference);
+        List<RepoInfo> repoInfoList = JsonUtils.readFromFile(cacheDir + REPOS_INFO, typeReference);
 
         return repoInfoList == null ? List.of() : repoInfoList;
     }
@@ -85,7 +85,7 @@ public class HostCacheUtils {
 
         TypeReference<ClusterInfo> typeReference = new TypeReference<>() {
         };
-        ClusterInfo clusterInfo = JsonUtils.readJson(cacheDir + CLUSTER_INFO, typeReference);
+        ClusterInfo clusterInfo = JsonUtils.readFromFile(cacheDir + CLUSTER_INFO, typeReference);
         return clusterInfo == null ? new ClusterInfo() : clusterInfo;
     }
 }

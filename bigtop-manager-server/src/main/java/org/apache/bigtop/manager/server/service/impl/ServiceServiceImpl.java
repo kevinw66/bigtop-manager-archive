@@ -119,7 +119,7 @@ public class ServiceServiceImpl implements ServiceService {
         String stackVersion = commandDTO.getStackVersion();
         Map<String, Set<String>> componentHostMapping = commandDTO.getComponentHosts();
 
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.STACK_KEY_MAP;
 
         ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
         Set<ServiceDTO> serviceDTOSet = immutablePair.getRight();
@@ -192,11 +192,11 @@ public class ServiceServiceImpl implements ServiceService {
         serviceConfigRecord = serviceConfigRecordRepository.save(serviceConfigRecord);
 
         //ServiceConfig
-        Map<String, Map<String, Set<String>>> stackConfigMap = StackUtils.getStackConfigMap();
+        Map<String, Map<String, Set<String>>> stackConfigMap = StackUtils.STACK_CONFIG_MAP;
         Map<String, Set<String>> serviceConfigMap = stackConfigMap.get(StackUtils.fullStackName(stackName, stackVersion));
         for (String configPath : serviceConfigMap.get(serviceName)) {
             String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
-            String configData = JsonUtils.object2String(StackConfigUtils.loadConfig(configPath));
+            String configData = JsonUtils.writeAsString(StackConfigUtils.loadConfig(configPath));
 
             ServiceConfig latestServiceConfig = serviceConfigRepository.findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
                     .orElse(new ServiceConfig());

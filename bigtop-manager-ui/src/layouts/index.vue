@@ -3,6 +3,13 @@
   import LayoutContent from '@/layouts/content.vue'
   import LayoutHeader from '@/layouts/header.vue'
   import LayoutSider from '@/layouts/sider.vue'
+  import { useUserStore } from '@/store/user'
+  import { onMounted } from 'vue'
+
+  onMounted(async () => {
+    const userStore = useUserStore()
+    await userStore.getUserInfo()
+  })
 </script>
 
 <template>
