@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
@@ -10,12 +11,14 @@ import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
 import org.apache.bigtop.manager.server.service.ConfigurationService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Slf4j
 @Tag(name = "Configuration Controller")
+@Validated
 @RestController
 @RequestMapping("/configurations")
 public class ConfigurationController {
@@ -40,7 +43,7 @@ public class ConfigurationController {
     @Operation(summary = "update", description = "update|create|roll-back configurations")
     @PutMapping("/{clusterName}")
     public ResponseEntity<List<ConfigurationVO>> update(@PathVariable String clusterName,
-                                                        @RequestBody List<ConfigurationReq> configurationReqs) {
+                                                        @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
         List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.Request2DTO(configurationReqs);
         log.info("configurationDTOList: {}", configurationDTOList);
         List<ConfigurationVO> configurationVOList = configurationService.update(clusterName, configurationDTOList);

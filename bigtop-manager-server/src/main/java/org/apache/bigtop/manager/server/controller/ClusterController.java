@@ -13,6 +13,7 @@ import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class ClusterController {
 
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
-    public ResponseEntity<ClusterVO> create(@RequestBody ClusterReq clusterReq) {
+    public ResponseEntity<ClusterVO> create(@RequestBody @Validated ClusterReq clusterReq) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.create(clusterDTO));
     }
@@ -46,7 +47,7 @@ public class ClusterController {
 
     @Operation(summary = "update", description = "Update a cluster")
     @PutMapping("/{id}")
-    public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody ClusterReq clusterReq) {
+    public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody @Validated ClusterReq clusterReq) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
     }
@@ -59,7 +60,7 @@ public class ClusterController {
 
     @Operation(summary = "cluster command", description = "Command for cluster, only support [START|STOP|RESTART]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody ClusterCommandReq commandReq) {
+    public ResponseEntity<CommandVO> command(@RequestBody @Validated ClusterCommandReq commandReq) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = clusterService.command(commandDTO);
         return ResponseEntity.success(commandVO);

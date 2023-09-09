@@ -12,6 +12,7 @@ import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class ComponentController {
 
     @Operation(summary = "component command", description = "command for component, only support [START|STOP|RESTART]")
     @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody ComponentCommandReq commandReq) {
+    public ResponseEntity<CommandVO> command(@RequestBody @Validated ComponentCommandReq commandReq) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
         CommandVO commandVO = componentService.command(commandDTO);
         return ResponseEntity.success(commandVO);
