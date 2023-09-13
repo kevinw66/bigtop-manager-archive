@@ -15,30 +15,64 @@
  * limitations under the License.
  */
 
+import { h } from 'vue'
 import { RouteRecordRaw } from 'vue-router'
+import {
+  AppstoreOutlined,
+  DesktopOutlined,
+  PieChartOutlined
+} from '@ant-design/icons-vue'
+import CircleFilled from '@/components/icons/circle-filled.vue'
 
-const commonPages: RouteRecordRaw[] = [
-  { path: '/login', component: () => import('@/pages/login/index.vue') }
-]
-
-const baseLayoutPages: RouteRecordRaw[] = [
+const layoutPages: RouteRecordRaw[] = [
   {
-    path: '/',
-    redirect: '/dashboard',
-    component: () => import('@/layouts/index.vue'),
+    path: '/dashboard',
+    component: () => import('@/pages/dashboard/index.vue'),
+    meta: {
+      title: 'Dashboard',
+      icon: h(PieChartOutlined)
+    }
+  },
+  {
+    path: '/hosts',
+    component: () => import('@/pages/hosts/index.vue'),
+    meta: {
+      title: 'Hosts',
+      icon: h(DesktopOutlined)
+    }
+  },
+  {
+    path: '/services',
+    component: () => import('@/pages/hosts/index.vue'),
+    meta: {
+      title: 'Services',
+      icon: h(AppstoreOutlined)
+    },
     children: [
       {
-        path: '/dashboard',
-        component: () => import('@/pages/dashboard/index.vue')
-      },
-      {
-        path: '/admin',
-        component: () => import('@/pages/dashboard/admin.vue')
+        path: '/zookeeper',
+        component: () => import('@/pages/hosts/index.vue'),
+        children: [],
+        meta: {
+          title: 'ZooKeeper',
+          icon: h(CircleFilled, {
+            style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
+          })
+        }
       }
     ]
   }
 ]
 
-const routes = [...commonPages, ...baseLayoutPages]
+const routes: RouteRecordRaw[] = [
+  { path: '/login', component: () => import('@/pages/login/index.vue') },
+  {
+    path: '/',
+    redirect: '/dashboard',
+    component: () => import('@/layouts/index.vue'),
+    children: layoutPages
+  }
+]
 
+export const menuPages = layoutPages
 export default routes

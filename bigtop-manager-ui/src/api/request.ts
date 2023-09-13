@@ -25,6 +25,7 @@ import { ResponseEntity } from '@/api/types'
 import router from '@/router'
 import { useLocaleStore } from '@/store/locale'
 import { storeToRefs } from 'pinia'
+import i18n from '@/locales'
 
 const localeStore = useLocaleStore()
 const { locale } = storeToRefs(localeStore)
@@ -56,12 +57,12 @@ request.interceptors.request.use(
 )
 
 request.interceptors.response.use(
-  (res: AxiosResponse) => {
+  async (res: AxiosResponse) => {
     const responseEntity: ResponseEntity = res.data
     if (responseEntity.code !== 0) {
       message.error(responseEntity.message)
       if (responseEntity.code === 10000) {
-        router.push('/login')
+        await router.push('/login')
       }
 
       return Promise.reject(responseEntity)
@@ -69,8 +70,10 @@ request.interceptors.response.use(
       return responseEntity.data
     }
   },
-  (error: AxiosError) => {
-    message.error(error.message)
+  async (error: AxiosError) => {
+    message.error(i18n.global.t('common.unknown_axios_error'))
+    console.warn(error)
+    await router.push('/login')
     return Promise.reject(error)
   }
 )

@@ -1,19 +1,20 @@
 <script setup lang="ts">
-  import {
-    PieChartOutlined,
-    DesktopOutlined,
-    UserOutlined,
-    TeamOutlined,
-    FileOutlined
-  } from '@ant-design/icons-vue'
-  import { ref } from 'vue'
+  import { createVNode, ref, h, render, VNode } from 'vue'
   import { useUIStore } from '@/store/ui'
+  import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
+  import { RouterLink, useRouter } from 'vue-router'
 
   const uiStore = useUIStore()
-  const { siderCollapsed } = storeToRefs(uiStore)
+  const userStore = useUserStore()
+  const router = useRouter()
 
-  const selectedKeys = ref<string[]>(['1'])
+  const { siderCollapsed } = storeToRefs(uiStore)
+  const { menuItems } = storeToRefs(userStore)
+
+  const splitPath = router.currentRoute.value.path.split('/')
+  const selectedKey = splitPath[splitPath.length - 1]
+  const selectedKeys = ref<string[]>([selectedKey])
 </script>
 
 <template>
@@ -23,39 +24,73 @@
       <div v-if="!siderCollapsed" class="header-title">Bigtop Manager</div>
     </div>
     <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
-      <a-menu-item key="1">
-        <pie-chart-outlined />
-        <span><router-link to="/dashboard">Dashboard</router-link></span>
-      </a-menu-item>
-      <a-menu-item key="2">
-        <desktop-outlined />
-        <span><router-link to="/admin">Admin</router-link></span>
-      </a-menu-item>
-      <a-sub-menu key="sub1">
-        <template #title>
-          <span>
-            <user-outlined />
-            <span>User</span>
-          </span>
+      <template v-for="item in menuItems">
+        <template v-if="item.children !== undefined">
+          <a-sub-menu :key="item.key">
+            <template #title>
+              <span>
+                <component :is="item.icon" />
+                <span>
+                  {{ item.title }}
+                </span>
+              </span>
+            </template>
+            <a-menu-item v-for="subItem in item.children" :key="subItem.key">
+              <component :is="subItem.icon" />
+              <span>
+                <router-link :to="subItem.to">{{ subItem.title }}</router-link>
+              </span>
+            </a-menu-item>
+          </a-sub-menu>
         </template>
-        <a-menu-item key="3">Tom</a-menu-item>
-        <a-menu-item key="4">Bill</a-menu-item>
-        <a-menu-item key="5">Alex</a-menu-item>
-      </a-sub-menu>
-      <a-sub-menu key="sub2">
-        <template #title>
-          <span>
-            <team-outlined />
-            <span>Team</span>
-          </span>
+        <template v-else>
+          <a-menu-item :key="item.key">
+            <component :is="item.icon" />
+            <span>
+              <router-link :to="item.to">{{ item.title }}</router-link>
+            </span>
+          </a-menu-item>
         </template>
-        <a-menu-item key="6">Team 1</a-menu-item>
-        <a-menu-item key="8">Team 2</a-menu-item>
-      </a-sub-menu>
-      <a-menu-item key="9">
-        <file-outlined />
-        <span>File</span>
-      </a-menu-item>
+      </template>
+
+      <!--      <a-menu-item key="1">-->
+      <!--        <pie-chart-outlined />-->
+      <!--        <span><router-link to="/dashboard">Dashboard</router-link></span>-->
+      <!--      </a-menu-item>-->
+      <!--      <a-menu-item key="2">-->
+      <!--        <desktop-outlined />-->
+      <!--        <span><router-link to="/hosts">Hosts</router-link></span>-->
+      <!--      </a-menu-item>-->
+      <!--      <a-sub-menu key="sub1">-->
+      <!--        <template #title>-->
+      <!--          <span>-->
+      <!--            <user-outlined />-->
+      <!--            <span>User</span>-->
+      <!--          </span>-->
+      <!--        </template>-->
+      <!--        <a-menu-item key="3">-->
+      <!--          <circle-filled class="menu-service-item" />-->
+      <!--          <span><router-link to="/dsd">ZooKeeper</router-link></span>-->
+      <!--        </a-menu-item>-->
+      <!--        <a-menu-item key="4">-->
+      <!--          <span><router-link to="/sds">Kafka</router-link></span>-->
+      <!--        </a-menu-item>-->
+      <!--        <a-menu-item key="5">Alex</a-menu-item>-->
+      <!--      </a-sub-menu>-->
+      <!--      <a-sub-menu key="sub2">-->
+      <!--        <template #title>-->
+      <!--          <span>-->
+      <!--            <team-outlined />-->
+      <!--            <span>Team</span>-->
+      <!--          </span>-->
+      <!--        </template>-->
+      <!--        <a-menu-item key="6">Team 1</a-menu-item>-->
+      <!--        <a-menu-item key="8">Team 2</a-menu-item>-->
+      <!--      </a-sub-menu>-->
+      <!--      <a-menu-item key="9">-->
+      <!--        <file-outlined />-->
+      <!--        <span>File</span>-->
+      <!--      </a-menu-item>-->
     </a-menu>
   </a-layout-sider>
 </template>
@@ -81,6 +116,15 @@
         margin-left: 1rem;
       }
     }
+  }
+
+  .menu-service {
+  }
+
+  .menu-service-item {
+    font-size: 8px;
+    color: #52c41a;
+    margin-right: 0.5rem;
   }
 
   .site-layout .site-layout-background {

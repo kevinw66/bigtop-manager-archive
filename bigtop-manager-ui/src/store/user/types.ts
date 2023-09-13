@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import common from '@/locales/zh_CN/common.ts'
-import login from '@/locales/zh_CN/login'
-import user from '@/locales/zh_CN/user.ts'
-import cluster from '@/locales/zh_CN/cluster.ts'
+import { VNode } from 'vue'
 
-export default {
-  common,
-  login,
-  user,
-  cluster
+type MenuItem = {
+  key?: string
+  to: string
+  title?: string
+  icon?: VNode
+  children?: MenuItem[]
 }
+
+export type { MenuItem }

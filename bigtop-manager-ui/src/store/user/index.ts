@@ -17,16 +17,47 @@
 
 import { defineStore } from 'pinia'
 import { getCurrentUser } from '@/api/user'
-import { shallowRef } from 'vue'
+import { reactive, shallowRef } from 'vue'
 import { UserVO } from '@/api/user/types.ts'
+import { MenuItem } from '@/store/user/types.ts'
+import { menuPages } from '@/router/routes.ts'
 
 export const useUserStore = defineStore(
   'user',
   () => {
     const userVO = shallowRef<UserVO>()
+    const menuItems = reactive<MenuItem[]>([])
 
     const getUserInfo = async () => {
       userVO.value = await getCurrentUser()
+    }
+
+    const generateMenu = async () => {
+      menuItems.splice(0, menuItems.length)
+      menuPages.forEach((route) => {
+        const menuItem: MenuItem = {
+          key: route.meta?.title?.toLowerCase(),
+          to: route.path,
+          title: route.meta?.title,
+          icon: route.meta?.icon
+        }
+
+        if (route.children !== undefined) {
+          menuItem.children = []
+          route.children.forEach((child) => {
+            menuItem.children?.push({
+              key: child.meta?.title?.toLowerCase(),
+              to: route.path + child.path,
+              title: child.meta?.title,
+              icon: child.meta?.icon
+            })
+          })
+        }
+
+        menuItems.push(menuItem)
+      })
+
+      return Promise.resolve()
     }
 
     const logout = async () => {
@@ -39,7 +70,9 @@ export const useUserStore = defineStore(
 
     return {
       userVO,
+      menuItems,
       getUserInfo,
+      generateMenu,
       logout
     }
   },

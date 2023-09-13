@@ -9,6 +9,7 @@
   onMounted(async () => {
     const userStore = useUserStore()
     await userStore.getUserInfo()
+    await userStore.generateMenu()
   })
 </script>
 

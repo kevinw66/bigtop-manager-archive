@@ -1,5 +1,5 @@
 <script setup lang="ts"></script>
 
-<template>admin page</template>
+<template>hosts page</template>
 
 <style scoped lang="scss"></style>
