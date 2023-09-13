@@ -17,7 +17,6 @@
  */
 package org.apache.bigtop.manager.server.stack.dag;
 
-import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.AbstractMap;
@@ -49,20 +48,21 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
     /**
      * node map, key is node, value is node information
      */
-    @Getter
     private final Map<Node, NodeInfo> nodesMap;
 
     /**
      * edge map. key is node of origin;value is Map with key for destination node and value for edge
      */
-    @Getter
     private final Map<Node, Map<Node, EdgeInfo>> edgesMap;
 
     /**
      * reversed edge set，key is node of destination, value is Map with key for origin node and value for edge
      */
-    @Getter
     private final Map<Node, Map<Node, EdgeInfo>> reverseEdgesMap;
+
+    public Map<Node, Map<Node, EdgeInfo>> getReverseEdgesMap(){
+        return Collections.unmodifiableMap(reverseEdgesMap);
+    }
 
     public DAG() {
         nodesMap = new HashMap<>();

@@ -19,13 +19,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -43,11 +37,20 @@ public class StackUtils {
 
     private static final String DEPENDENCY_FILE = "order.json";
 
-    public static final Map<String, Map<String, Set<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
+    private static final Map<String, Map<String, Set<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
-    public static final Map<String, Map<String, Set<String>>> STACK_CONFIG_MAP = new HashMap<>();
+    private static final Map<String, Map<String, Set<String>>> STACK_CONFIG_MAP = new HashMap<>();
 
-    public static final Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
+    private static final Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
+
+
+    public static Map<String, Map<String, Set<String>>> getStackConfigMap() {
+        return Collections.unmodifiableMap(STACK_CONFIG_MAP);
+    }
+
+    public static Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> getStackKeyMap() {
+        return Collections.unmodifiableMap(STACK_KEY_MAP);
+    }
 
     /**
      * Parse stack file to generate stack model
