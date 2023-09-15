@@ -5,17 +5,14 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
-import org.apache.bigtop.manager.server.enums.CommandEvent;
+import org.apache.bigtop.manager.server.enums.Command;
 import org.apache.bigtop.manager.server.enums.RequestState;
 import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
-import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
-import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
-import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
+import org.apache.bigtop.manager.server.model.mapper.*;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
@@ -90,17 +87,17 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public CommandVO command(CommandDTO commandDTO) {
-        CommandEvent commandEvent = CommandEvent.valueOf(commandDTO.getCommand());
+        Command commandEvent = Command.valueOf(commandDTO.getCommand());
         String clusterName = commandDTO.getClusterName();
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
-        if (commandEvent == CommandEvent.INSTALL) {
+        if (commandEvent == Command.INSTALL) {
             install(commandDTO);
             // cache
             hostService.cache(cluster.getId());
         }
 
-        eventBus.post(commandDTO);
+        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
 
         //persist request to database
         Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
@@ -216,6 +213,7 @@ public class ServiceServiceImpl implements ServiceService {
                 serviceConfig.setVersion(latestServiceConfig.getVersion() + 1);
                 serviceConfig = serviceConfigRepository.save(serviceConfig);
             } else {
+                serviceConfig = latestServiceConfig;
                 log.info("don't need update serviceConfig");
             }
 

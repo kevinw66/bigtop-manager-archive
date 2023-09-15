@@ -12,14 +12,17 @@ import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -58,7 +61,8 @@ public class HostCacheHandler implements Callback {
     private ServerWebSocketHandler serverWebSocketHandler;
 
     @Subscribe
-    public void cache(Long clusterId) {
+    public void cache(HostCacheEvent hostCacheEvent) {
+        Long clusterId = hostCacheEvent.getClusterId();
 
         Cluster cluster = clusterRepository.findById(clusterId).orElse(new Cluster());
 
@@ -74,7 +78,7 @@ public class HostCacheHandler implements Callback {
         Setting setting = settingRepository.findFirstByOrderByVersionDesc().orElse(new Setting());
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 
-
+        //Wrapper clusterInfo for HostCacheMessage
         ClusterInfo clusterInfo = new ClusterInfo();
         clusterInfo.setClusterName(clusterName);
         clusterInfo.setStackName(stackName);
@@ -83,10 +87,15 @@ public class HostCacheHandler implements Callback {
         clusterInfo.setRepoTemplate(cluster.getRepoTemplate());
         clusterInfo.setRoot(cluster.getRoot());
 
-        Set<String> packages = JsonUtils.readFromString(cluster.getPackages(), new TypeReference<>() {
-        });
-        clusterInfo.setPackages(packages);
+        try {
+            Set<String> packages = JsonUtils.readFromString(cluster.getPackages(), new TypeReference<>() {
+            });
+            clusterInfo.setPackages(packages);
+        } catch (Exception e) {
+            log.warn("no packages");
+        }
 
+        //Wrapper serviceConfigMap for HostCacheMessage
         Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
         serviceConfigs.forEach(x -> {
             if (serviceConfigMap.containsKey(x.getService().getServiceName())) {
@@ -98,6 +107,7 @@ public class HostCacheHandler implements Callback {
             }
         });
 
+        //Wrapper hostMap for HostCacheMessage
         Map<String, Set<String>> hostMap = new HashMap<>();
         hostComponents.forEach(x -> {
             if (hostMap.containsKey(x.getComponent().getComponentName())) {
@@ -110,12 +120,17 @@ public class HostCacheHandler implements Callback {
             hostMap.get(x.getComponent().getComponentName()).add(x.getHost().getHostname());
         });
 
+        Set<String> hostNameSet = hostList.stream().map(Host::getHostname).collect(Collectors.toSet());
+        hostMap.put(ALL_HOST_KEY, hostNameSet);
+
+        //Wrapper repoList for HostCacheMessage
         List<RepoInfo> repoList = new ArrayList<>();
         repos.forEach(repo -> {
             RepoInfo repoInfo = RepoMapper.INSTANCE.Entity2Message(repo);
             repoList.add(repoInfo);
         });
 
+        //Wrapper userMap for HostCacheMessage
         Map<String, Set<String>> userMap = new HashMap<>();
         services.forEach(x -> {
             if (userMap.containsKey(x.getServiceUser())) {
@@ -127,6 +142,7 @@ public class HostCacheHandler implements Callback {
             }
         });
 
+        //Wrapper basicInfo for HostCacheMessage
         BasicInfo basicInfo = new BasicInfo();
         basicInfo.setJavaHome(setting.getJavaHome());
         basicInfo.setJavaVersion(setting.getJavaVersion());
@@ -136,9 +152,8 @@ public class HostCacheHandler implements Callback {
         //Wrapper HostCacheMessage for websocket
         HostCacheMessage hostCacheMessage = new HostCacheMessage();
 
-        hostCacheMessage.setStack(stackName);
-        hostCacheMessage.setVersion(stackVersion);
-        hostCacheMessage.setCacheDir(cluster.getCacheDir());
+        hostCacheMessage.setStackName(stackName);
+        hostCacheMessage.setStackVersion(stackVersion);
 
         hostCacheMessage.setClusterInfo(clusterInfo);
         hostCacheMessage.setConfigurations(serviceConfigMap);
@@ -150,7 +165,6 @@ public class HostCacheHandler implements Callback {
         for (Host host : hostList) {
             String hostname = host.getHostname();
             hostCacheMessage.setHostname(hostname);
-            hostCacheMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
             log.info("hostCacheMessage: {}", hostCacheMessage);
             serverWebSocketHandler.sendMessage(hostname, hostCacheMessage, this);

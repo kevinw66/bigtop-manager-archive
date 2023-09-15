@@ -4,6 +4,7 @@ import com.sun.management.OperatingSystemMXBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
+import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.*;
@@ -14,7 +15,7 @@ import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
-import org.apache.bigtop.manager.stack.core.Executor;
+import org.apache.bigtop.manager.stack.core.executor.Executor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -107,17 +108,20 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     }
 
     private void handleHostCacheMessage(WebSocketSession session, HostCacheMessage hostCacheMessage) {
-        String cacheDir = hostCacheMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
         LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
 
-        JsonUtils.writeToFile(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
-        JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
-        JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
-        JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
+        try {
+            JsonUtils.writeToFile(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
+            JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
+            JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
+            JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
+        } catch (Exception e) {
+            log.warn(" [{}|{}|{}|{}] cache error: ", BASIC_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
+        }
         JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
-        JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
-
+        JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
         ResultMessage resultMessage = new ResultMessage();
         resultMessage.setMessageId(hostCacheMessage.getMessageId());
         resultMessage.setHostname(hostCacheMessage.getHostname());

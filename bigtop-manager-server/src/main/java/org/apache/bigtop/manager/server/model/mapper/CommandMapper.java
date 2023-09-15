@@ -1,8 +1,9 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import org.apache.bigtop.manager.server.enums.CommandEvent;
+import org.apache.bigtop.manager.server.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandType;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.req.command.AbstractCommandReq;
 import org.apache.bigtop.manager.server.model.req.command.ClusterCommandReq;
 import org.apache.bigtop.manager.server.model.req.command.ComponentCommandReq;
@@ -28,12 +29,13 @@ public interface CommandMapper {
     @Mapping(target = "commandType", expression = "java(command2Type(commandReq))")
     CommandDTO Req2DTO(HostCommandReq commandReq);
 
+    CommandEvent DTO2Event(CommandDTO commandDTO);
 
     default CommandType command2Type(AbstractCommandReq commandReq) {
         CommandType commandType = null;
 
         if (commandReq instanceof ServiceCommandReq) {
-            if (commandReq.getCommand().equals(CommandEvent.INSTALL.name())) {
+            if (commandReq.getCommand().equals(Command.INSTALL.name())) {
                 commandType = CommandType.INSTALL_SERVICE;
             } else {
                 commandType = CommandType.SERVICE;

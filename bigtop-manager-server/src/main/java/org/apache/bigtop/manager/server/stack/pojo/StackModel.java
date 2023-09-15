@@ -15,8 +15,6 @@ public class StackModel {
 
     private String userGroup;
 
-    private String cacheDir;
-
     private String packages;
 
     private String repoTemplate;
