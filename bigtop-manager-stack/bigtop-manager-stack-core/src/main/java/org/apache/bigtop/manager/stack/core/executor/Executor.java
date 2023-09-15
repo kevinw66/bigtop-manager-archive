@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.stack.core;
+package org.apache.bigtop.manager.stack.core.executor;
 
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 

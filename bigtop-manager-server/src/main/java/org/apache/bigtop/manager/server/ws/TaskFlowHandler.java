@@ -11,14 +11,14 @@ import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.enums.CommandEvent;
+import org.apache.bigtop.manager.server.enums.Command;
 import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 import org.apache.bigtop.manager.server.enums.RequestState;
 import org.apache.bigtop.manager.server.exception.ServerException;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.orm.entity.Component;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.HostComponent;
@@ -104,21 +104,21 @@ public class TaskFlowHandler implements Callback {
     }
 
     public Map<String, Set<String>> getComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList,
-                                                            CommandDTO commandDTO) throws ServerException {
+                                                            CommandEvent commandEvent) throws ServerException {
         Map<String, Set<String>> componentHostMapping = new HashMap<>();
 
-        String clusterName = commandDTO.getClusterName();
+        String clusterName = commandEvent.getClusterName();
 
-        switch (commandDTO.getCommandType()) {
+        switch (commandEvent.getCommandType()) {
             case HOST -> {
-                String hostname = commandDTO.getHostname();
+                String hostname = commandEvent.getHostname();
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                     Set<String> hostSet = new HashSet<>();
                     hostSet.add(hostname);
                     componentHostMapping.put(componentCommandWrapper.getComponentName(), hostSet);
                 }
             }
-            case INSTALL_SERVICE -> componentHostMapping = commandDTO.getComponentHosts();
+            case INSTALL_SERVICE -> componentHostMapping = commandEvent.getComponentHosts();
             case CLUSTER, SERVICE, COMPONENT -> {
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                     String componentName = componentCommandWrapper.getComponentName();
@@ -132,7 +132,7 @@ public class TaskFlowHandler implements Callback {
                     componentHostMapping.put(componentName, hostSet);
                 }
             }
-            default -> log.warn("Unknown commandType: {}", commandDTO);
+            default -> log.warn("Unknown commandType: {}", commandEvent);
         }
 
         //Check
@@ -151,20 +151,20 @@ public class TaskFlowHandler implements Callback {
 
     /**
      *
-     * @param commandDTO
+     * @param commandEvent
      * componentHostMapping key: component name, value: host list
      * @return task flow
      */
-    public Queue<List<Task>> generateTaskFlow(CommandDTO commandDTO) {
-        String clusterName = commandDTO.getClusterName();
-        String stackName = commandDTO.getStackName();
-        String stackVersion = commandDTO.getStackVersion();
-        String command = commandDTO.getCommand();
+    public Queue<List<Task>> generateTaskFlow(CommandEvent commandEvent) {
+        String clusterName = commandEvent.getClusterName();
+        String stackName = commandEvent.getStackName();
+        String stackVersion = commandEvent.getStackVersion();
+        String command = commandEvent.getCommand();
 
         List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
-        switch (commandDTO.getCommandType()) {
+        switch (commandEvent.getCommandType()) {
             case SERVICE -> {
-                List<String> serviceNameList = commandDTO.getServiceNames();
+                List<String> serviceNameList = commandEvent.getServiceNames();
                 List<Component> componentList = componentRepository.findAllByClusterClusterNameAndServiceServiceNameIn(clusterName, serviceNameList);
                 for (Component component : componentList) {
                     ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command);
@@ -172,13 +172,13 @@ public class TaskFlowHandler implements Callback {
                 }
             }
             case COMPONENT, HOST -> {
-                for (String componentName : commandDTO.getComponentNames()) {
+                for (String componentName : commandEvent.getComponentNames()) {
                     ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command);
                     componentCommandWrappers.add(componentCommandWrapper);
                 }
             }
             case INSTALL_SERVICE -> {
-                List<String> serviceNameList = commandDTO.getServiceNames();
+                List<String> serviceNameList = commandEvent.getServiceNames();
                 Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
                 ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
@@ -193,7 +193,7 @@ public class TaskFlowHandler implements Callback {
                         for (ComponentDTO componentDTO : componentDTOList) {
                             String componentName = componentDTO.getComponentName();
                             //generate componentCommandWrapper
-                            ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, CommandEvent.INSTALL.name());
+                            ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, Command.INSTALL.name());
                             componentCommandWrappers.add(componentCommandWrapper);
                         }
                     }
@@ -206,12 +206,12 @@ public class TaskFlowHandler implements Callback {
                     componentCommandWrappers.add(componentCommandWrapper);
                 }
             }
-            default -> log.warn("Unknown commandType: {}", commandDTO);
+            default -> log.warn("Unknown commandType: {}", commandEvent);
         }
 
 
         List<ComponentCommandWrapper> sortedRcpList = generateProcessWrapper(componentCommandWrappers, stackName, stackVersion);
-        Map<String, Set<String>> componentHostMapping = getComponentHostMapping(sortedRcpList, commandDTO);
+        Map<String, Set<String>> componentHostMapping = getComponentHostMapping(sortedRcpList, commandEvent);
 
         Queue<List<Task>> taskFlow = new LinkedList<>();
         displayTaskFlow.clear();
@@ -256,7 +256,6 @@ public class TaskFlowHandler implements Callback {
         task.setCommand(command);
         task.setScriptId(component.getScriptId());
         task.setRoot(component.getCluster().getRoot());
-        task.setCacheDir(component.getCluster().getCacheDir());
         task.setServiceName(component.getService().getServiceName());
         task.setStackName(component.getCluster().getStack().getStackName());
         task.setStackVersion(component.getCluster().getStack().getStackVersion());
@@ -270,8 +269,8 @@ public class TaskFlowHandler implements Callback {
     }
 
     @Subscribe
-    public void submitTaskFlow(CommandDTO commandDTO) {
-        this.generatedTaskFlow = generateTaskFlow(commandDTO);
+    public void submitTaskFlow(CommandEvent commandEvent) {
+        this.generatedTaskFlow = generateTaskFlow(commandEvent);
 
         List<Task> taskList;
         taskStatusMap.clear();
@@ -286,11 +285,10 @@ public class TaskFlowHandler implements Callback {
                 commandMessage.setCommand(task.getCommand());
                 commandMessage.setScriptId(task.getScriptId());
                 commandMessage.setRoot(task.getRoot());
-                commandMessage.setCacheDir(task.getCacheDir());
                 commandMessage.setHostname(hostname);
-                commandMessage.setService(task.getServiceName());
-                commandMessage.setStack(task.getStackName());
-                commandMessage.setVersion(task.getStackVersion());
+                commandMessage.setServiceName(task.getServiceName());
+                commandMessage.setStackName(task.getStackName());
+                commandMessage.setStackVersion(task.getStackVersion());
 
                 List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {
                 });
@@ -345,7 +343,7 @@ public class TaskFlowHandler implements Callback {
 
             Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(componentName, hostname);
             HostComponent hostComponent = hostComponentOptional.get();
-            switch (CommandEvent.valueOf(command)) {
+            switch (Command.valueOf(command)) {
                 case INSTALL -> hostComponent.setState(CommandState.INSTALLED.name());
                 case START -> hostComponent.setState(CommandState.STARTED.name());
                 case STOP -> hostComponent.setState(CommandState.INSTALLED.name());

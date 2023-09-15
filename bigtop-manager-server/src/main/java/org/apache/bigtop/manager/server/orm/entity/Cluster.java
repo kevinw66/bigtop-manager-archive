@@ -22,8 +22,6 @@ public class Cluster extends BaseEntity {
 
     private Integer clusterType;
 
-    private String cacheDir;
-
     private String root;
 
     private String userGroup;

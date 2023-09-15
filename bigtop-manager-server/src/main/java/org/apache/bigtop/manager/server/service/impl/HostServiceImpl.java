@@ -8,7 +8,10 @@ import org.apache.bigtop.manager.server.enums.*;
 import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
+import org.apache.bigtop.manager.server.model.event.HostCheckEvent;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
+import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
@@ -91,9 +94,9 @@ public class HostServiceImpl implements HostService {
                 throw new RuntimeException(ex);
             }
         }
-
         //检测时间同步服务
-        eventBus.post(hostname);
+        HostCheckEvent hostCheckEvent = HostMapper.INSTANCE.DTO2CheckEvent(hostDTO);
+        eventBus.post(hostCheckEvent);
 
         host.setCluster(cluster);
         host.setStatus(StatusType.INSTALLED.getCode());
@@ -136,7 +139,7 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public Boolean cache(Long clusterId) {
-        eventBus.post(clusterId);
+        eventBus.post(new HostCacheEvent(clusterId));
         return true;
     }
 
@@ -148,7 +151,7 @@ public class HostServiceImpl implements HostService {
         String clusterName = commandDTO.getClusterName();
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
-        if (command.equals(CommandEvent.INSTALL.name())) {
+        if (command.equals(Command.INSTALL.name())) {
             //Persist hostComponent to database
             List<Component> componentList = componentRepository.findAllByClusterClusterNameAndComponentNameIn(clusterName, componentNameList);
             Host host = hostRepository.findByHostname(hostname).orElse(new Host());
@@ -166,7 +169,7 @@ public class HostServiceImpl implements HostService {
             cache(cluster.getId());
         }
 
-        eventBus.post(commandDTO);
+        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
 
         //persist request to database
         Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);

@@ -1,6 +1,8 @@
 package org.apache.bigtop.manager.stack.core.annotations;
 
 
+import org.apache.bigtop.manager.stack.common.enums.HookType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,7 +12,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HookAnnotation {
 
-    String before() default "";
+    HookType before() default HookType.NONE;
 
-    String after() default "";
+    HookType after() default HookType.NONE;
+
 }

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
+import org.apache.bigtop.manager.server.model.event.HostCheckEvent;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CountDownLatch;
@@ -29,7 +30,9 @@ public class HostCheckHandler implements Callback {
     private ServerWebSocketHandler serverWebSocketHandler;
 
     @Subscribe
-    public void checkHost(String hostname) {
+    public void checkHost(HostCheckEvent hostCheckEvent) {
+        String hostname = hostCheckEvent.getHostname();
+
         HostCheckMessage hostCheckMessage = new HostCheckMessage();
         hostCheckMessage.setHostname(hostname);
         hostCheckMessage.setHostCheckTypes(HostCheckType.values());

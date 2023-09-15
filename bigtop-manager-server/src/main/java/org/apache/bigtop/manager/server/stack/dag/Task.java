@@ -43,9 +43,6 @@ public class Task {
     @NonNull
     private String root;
 
-    @NonNull
-    private String cacheDir;
-
     private String serviceUser;
 
     private String serviceGroup;
