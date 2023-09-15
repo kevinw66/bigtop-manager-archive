@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { createVNode, ref, h, render, VNode } from 'vue'
+  import { ref } from 'vue'
   import { useUIStore } from '@/store/ui'
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
@@ -29,14 +29,14 @@
           <a-sub-menu :key="item.key">
             <template #title>
               <span>
-                <component :is="item.icon" />
+                <component :is="() => item.icon" />
                 <span>
                   {{ item.title }}
                 </span>
               </span>
             </template>
             <a-menu-item v-for="subItem in item.children" :key="subItem.key">
-              <component :is="subItem.icon" />
+              <component :is="() => subItem.icon" />
               <span>
                 <router-link :to="subItem.to">{{ subItem.title }}</router-link>
               </span>
@@ -45,52 +45,13 @@
         </template>
         <template v-else>
           <a-menu-item :key="item.key">
-            <component :is="item.icon" />
+            <component :is="() => item.icon" />
             <span>
               <router-link :to="item.to">{{ item.title }}</router-link>
             </span>
           </a-menu-item>
         </template>
       </template>
-
-      <!--      <a-menu-item key="1">-->
-      <!--        <pie-chart-outlined />-->
-      <!--        <span><router-link to="/dashboard">Dashboard</router-link></span>-->
-      <!--      </a-menu-item>-->
-      <!--      <a-menu-item key="2">-->
-      <!--        <desktop-outlined />-->
-      <!--        <span><router-link to="/hosts">Hosts</router-link></span>-->
-      <!--      </a-menu-item>-->
-      <!--      <a-sub-menu key="sub1">-->
-      <!--        <template #title>-->
-      <!--          <span>-->
-      <!--            <user-outlined />-->
-      <!--            <span>User</span>-->
-      <!--          </span>-->
-      <!--        </template>-->
-      <!--        <a-menu-item key="3">-->
-      <!--          <circle-filled class="menu-service-item" />-->
-      <!--          <span><router-link to="/dsd">ZooKeeper</router-link></span>-->
-      <!--        </a-menu-item>-->
-      <!--        <a-menu-item key="4">-->
-      <!--          <span><router-link to="/sds">Kafka</router-link></span>-->
-      <!--        </a-menu-item>-->
-      <!--        <a-menu-item key="5">Alex</a-menu-item>-->
-      <!--      </a-sub-menu>-->
-      <!--      <a-sub-menu key="sub2">-->
-      <!--        <template #title>-->
-      <!--          <span>-->
-      <!--            <team-outlined />-->
-      <!--            <span>Team</span>-->
-      <!--          </span>-->
-      <!--        </template>-->
-      <!--        <a-menu-item key="6">Team 1</a-menu-item>-->
-      <!--        <a-menu-item key="8">Team 2</a-menu-item>-->
-      <!--      </a-sub-menu>-->
-      <!--      <a-menu-item key="9">-->
-      <!--        <file-outlined />-->
-      <!--        <span>File</span>-->
-      <!--      </a-menu-item>-->
     </a-menu>
   </a-layout-sider>
 </template>

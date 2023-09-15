@@ -10,7 +10,7 @@
     try {
       await test()
     } catch (e) {
-      console.log(e)
+      // console.log(e)
     }
   }
 </script>
