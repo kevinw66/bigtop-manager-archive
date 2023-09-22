@@ -17,7 +17,7 @@
 
 export type StackOptionProps = {
   id?: number
-  value?: string
+  value?: number
   label: string
   children?: StackOptionProps[]
 }

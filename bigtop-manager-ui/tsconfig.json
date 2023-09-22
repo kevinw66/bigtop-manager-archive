@@ -15,7 +15,7 @@
     "skipLibCheck": true,
     "types": ["vite/client"],
     /* Bundler mode */
-    // "moduleResolution": "Bundler",
+//     "moduleResolution": "Bundler",
     "moduleResolution": "Node",
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,

@@ -19,12 +19,12 @@ import { defineStore } from 'pinia'
 import { list } from '@/api/stack'
 import { shallowReactive } from 'vue'
 import { StackOptionProps } from '@/store/stack/types.ts'
-import { StackServiceVO, StackVO } from '@/api/stack/types.ts'
+import { StackVO } from '@/api/stack/types.ts'
 
 export const useStackStore = defineStore(
   'stack',
   () => {
-    const stackServiceVOList = shallowReactive<StackServiceVO[]>([])
+    // const stackServiceVOList = shallowReactive<StackServiceVO[]>([])
     const stackOptions = shallowReactive<StackOptionProps[]>([])
 
     const initStacks = async () => {

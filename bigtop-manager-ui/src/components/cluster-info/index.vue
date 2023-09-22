@@ -1,15 +1,8 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { message } from 'ant-design-vue'
   import ClusterCreate from '@/components/cluster-create/index.vue'
 
   const createWindowOpened = ref(false)
-
-  const handleClick = ({ key }: { key: string }) => {
-    if (key === 'about' || key === 'settings') {
-      message.info('Coming soon!')
-    }
-  }
 
   const openClusterCreateWindows = () => {
     createWindowOpened.value = true
