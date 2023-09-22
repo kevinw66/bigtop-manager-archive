@@ -2,90 +2,112 @@ package org.apache.bigtop.manager.stack.common.utils;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.stack.common.AbstractParams;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.apache.bigtop.manager.common.constants.HostCacheConstants.*;
 
+@Slf4j
 public class HostCacheUtils {
 
     public static Object configurations(String service, String type, String key, Object defaultValue) {
         Map<String, Object> configMap = configurations(service, type);
-
-        return configMap == null ? defaultValue : configMap.getOrDefault(key, defaultValue);
+        return configMap.getOrDefault(key, defaultValue);
     }
 
     public static Map<String, Object> configurations(String service, String type) {
-        String cacheDir = AbstractParams.commandMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
-        TypeReference<Map<String, Map<String, Map<String, Object>>>> typeReference = new TypeReference<>() {
-        };
-        Map<String, Map<String, Map<String, Object>>> configJson = JsonUtils.readFromFile(cacheDir + CONFIGURATIONS_INFO, typeReference);
+        Map<String, Object> configDataMap = new HashMap<>();
+        try {
+            Map<String, Map<String, Object>> configJson = JsonUtils.readFromFile(cacheDir + CONFIGURATIONS_INFO, new TypeReference<>() {
+            });
+            Object configData = configJson.getOrDefault(service, new HashMap<>()).get(type);
+            if (configData != null) {
+                configDataMap = JsonUtils.readFromString((String) configData, new TypeReference<>() {
+                });
+            }
+        } catch (Exception e) {
+            log.warn("{} parse error, ", CONFIGURATIONS_INFO, e);
+        }
 
-        return configJson.getOrDefault(service, new HashMap<>()).get(type);
+        return configDataMap;
     }
 
     public static Set<String> hosts(String service) {
-        String cacheDir = AbstractParams.commandMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
-        TypeReference<Map<String, Set<String>>> typeReference = new TypeReference<>() {
-        };
-        Map<String, Set<String>> hostJson = JsonUtils.readFromFile(cacheDir + HOSTS_INFO, typeReference);
-
-        return hostJson.get(service) == null ? Set.of() : hostJson.get(service);
+        Map<String, Set<String>> hostJson = new HashMap<>();
+        try {
+            hostJson = JsonUtils.readFromFile(cacheDir + HOSTS_INFO, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            log.warn("{} parse error, ", HOSTS_INFO, e);
+        }
+        return hostJson.getOrDefault(service, Set.of());
     }
 
     public static BasicInfo basicInfo() {
-        String cacheDir = AbstractParams.commandMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
-        TypeReference<BasicInfo> typeReference = new TypeReference<>() {
-        };
-
-        BasicInfo basicInfo = JsonUtils.readFromFile(cacheDir + BASIC_INFO, typeReference);
-
-        return basicInfo == null ? new BasicInfo() : basicInfo;
+        BasicInfo basicInfo = new BasicInfo();
+        try {
+            basicInfo = JsonUtils.readFromFile(cacheDir + BASIC_INFO, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            log.warn("{} parse error, ", BASIC_INFO, e);
+        }
+        return basicInfo;
     }
 
     public static Map<String, Set<String>> users() {
-        String cacheDir = AbstractParams.commandMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
-        TypeReference<Map<String, Set<String>>> typeReference = new TypeReference<>() {
-        };
-
-        Map<String, Set<String>> userMap = JsonUtils.readFromFile(cacheDir + USERS_INFO, typeReference);
-
-        return userMap == null ? new HashMap<>() : userMap;
+        Map<String, Set<String>> userMap = new HashMap<>();
+        try {
+            userMap = JsonUtils.readFromFile(cacheDir + USERS_INFO, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            log.warn("{} parse error, ", USERS_INFO, e);
+        }
+        return userMap;
     }
 
     public static Set<String> packages() {
         ClusterInfo cluster = cluster();
-        return cluster.getPackages();
+        return Optional.of(cluster.getPackages()).orElse(Set.of());
     }
 
     public static List<RepoInfo> repos() {
-        String cacheDir = AbstractParams.commandMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
-        TypeReference<List<RepoInfo>> typeReference = new TypeReference<>() {
-        };
-        List<RepoInfo> repoInfoList = JsonUtils.readFromFile(cacheDir + REPOS_INFO, typeReference);
-
-        return repoInfoList == null ? List.of() : repoInfoList;
+        List<RepoInfo> repoInfoList = List.of();
+        try {
+            repoInfoList = JsonUtils.readFromFile(cacheDir + REPOS_INFO, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            log.warn("{} parse error, ", REPOS_INFO, e);
+        }
+        return repoInfoList;
     }
 
     public static ClusterInfo cluster() {
-        String cacheDir = AbstractParams.commandMessage.getCacheDir();
+        String cacheDir = Constants.STACK_CACHE_DIR;
 
         TypeReference<ClusterInfo> typeReference = new TypeReference<>() {
         };
-        ClusterInfo clusterInfo = JsonUtils.readFromFile(cacheDir + CLUSTER_INFO, typeReference);
-        return clusterInfo == null ? new ClusterInfo() : clusterInfo;
+        ClusterInfo clusterInfo = new ClusterInfo();
+        try {
+            clusterInfo = JsonUtils.readFromFile(cacheDir + CLUSTER_INFO, typeReference);
+        } catch (Exception e) {
+            log.warn("{} parse error, ", CLUSTER_INFO, e);
+        }
+        return clusterInfo;
     }
 }

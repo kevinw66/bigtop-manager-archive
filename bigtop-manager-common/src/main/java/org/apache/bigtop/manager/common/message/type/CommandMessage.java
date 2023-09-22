@@ -12,7 +12,7 @@ import java.util.List;
 public class CommandMessage extends BaseMessage {
 
     @NonNull
-    private String service;
+    private String serviceName;
 
     @NonNull
     private String command;
@@ -22,21 +22,18 @@ public class CommandMessage extends BaseMessage {
     private String serviceGroup;
 
     @NonNull
-    private String stack;
+    private String stackName;
 
     @NonNull
-    private String version;
+    private String stackVersion;
 
     @NonNull
     private String root;
 
-    private String component;
+    private String componentName;
 
     @NonNull
     private String scriptId;
-
-    @NonNull
-    private String cacheDir;
 
     private List<OSSpecificInfo> osSpecifics;
 

@@ -7,6 +7,7 @@ import org.apache.bigtop.manager.server.enums.RequestState;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
@@ -73,7 +74,7 @@ public class ComponentServiceImpl implements ComponentService {
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
 
-        eventBus.post(commandDTO);
+        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

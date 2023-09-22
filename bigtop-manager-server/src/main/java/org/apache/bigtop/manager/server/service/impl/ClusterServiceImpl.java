@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
+import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
@@ -123,7 +124,7 @@ public class ClusterServiceImpl implements ClusterService {
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
 
-        eventBus.post(commandDTO);
+        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

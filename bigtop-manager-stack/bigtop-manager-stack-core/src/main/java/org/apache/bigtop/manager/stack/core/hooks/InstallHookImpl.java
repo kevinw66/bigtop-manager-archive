@@ -5,6 +5,7 @@ import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.utils.HostCacheUtils;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
@@ -21,9 +22,8 @@ import java.util.Set;
 @AutoService(Hook.class)
 public class InstallHookImpl implements Hook {
 
-
     @Override
-    @HookAnnotation(before = "any")
+    @HookAnnotation(before = HookType.ANY)
     public void before() {
         log.info("before install");
         List<RepoInfo> repos = HostCacheUtils.repos();
@@ -31,7 +31,7 @@ public class InstallHookImpl implements Hook {
 
         for (RepoInfo repo : repos) {
             if (OSDetection.getOS().equals(repo.getOs()) && OSDetection.getArch().equals(repo.getArch())) {
-                BaseTemplate.writeTemplateByContent("/etc/yum.repos.d/bigtop.repo", repo, repoTemplate);
+                BaseTemplate.writeTemplateByContent("/etc/yum.repos.d/" + repo.getRepoName() + ".repo", repo, repoTemplate);
             }
         }
 
@@ -40,13 +40,13 @@ public class InstallHookImpl implements Hook {
     }
 
     @Override
-    @HookAnnotation(after = "any")
+    @HookAnnotation(after = HookType.ANY)
     public void after() {
         log.info("after install");
     }
 
     @Override
     public String getName() {
-        return "install";
+        return HookType.INSTALL.name();
     }
 }

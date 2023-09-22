@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.stack.core.hooks;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.utils.HostCacheUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxAccountUtils;
 import org.apache.bigtop.manager.stack.spi.Hook;
@@ -16,7 +17,6 @@ import java.util.Set;
 @Slf4j
 @AutoService(Hook.class)
 public class AnyHookImpl implements Hook {
-
 
     @Override
     public void before() {
@@ -41,6 +41,6 @@ public class AnyHookImpl implements Hook {
 
     @Override
     public String getName() {
-        return "any";
+        return HookType.ANY.name();
     }
 }

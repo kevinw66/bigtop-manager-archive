@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.server.enums;
 
-public enum CommandEvent {
+public enum Command {
 
     INSTALL,
 

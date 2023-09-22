@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.common.message.serializer;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.util.Pool;
+import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.type.*;
 import org.apache.bigtop.manager.common.message.type.pojo.*;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
@@ -37,6 +38,7 @@ public class KryoPoolHolder {
             kryo.register(RepoInfo.class);
             kryo.register(HostCheckType.class);
             kryo.register(HostCheckType[].class);
+            kryo.register(MessageType.class);
 
             // java classes
             kryo.register(BigDecimal.class);
