@@ -3,19 +3,14 @@ package org.apache.bigtop.manager.agent.ws;
 import com.sun.management.OperatingSystemMXBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.runner.*;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.*;
-import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
-import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
-import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
-import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
-import org.apache.bigtop.manager.stack.core.executor.Executor;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -36,8 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.bigtop.manager.common.constants.HostCacheConstants.*;
-
 @Slf4j
 @Component
 public class AgentWebSocketHandler extends BinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
@@ -52,7 +45,13 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     private MessageDeserializer deserializer;
 
     @Resource
-    private Executor stackExecutor;
+    private CommandService commandService;
+
+    @Resource
+    private HostCacheService hostCacheService;
+
+    @Resource
+    private HostCheckService hostCheckService;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
@@ -68,14 +67,13 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
+        log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
+
         if (baseMessage instanceof CommandMessage commandMessage) {
-            log.info("Received message type: {}", commandMessage.getClass().getSimpleName());
             handleCommandMessage(session, commandMessage);
         } else if (baseMessage instanceof HostCacheMessage hostCacheMessage) {
-            log.info("Received message type: {}", hostCacheMessage.getClass().getSimpleName());
             handleHostCacheMessage(session, hostCacheMessage);
         } else if (baseMessage instanceof HostCheckMessage hostCheckMessage) {
-            log.info("Received message type: {}", hostCheckMessage.getClass().getSimpleName());
             handleHostCheckMessage(session, hostCheckMessage);
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
@@ -83,71 +81,18 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     }
 
     private void handleHostCheckMessage(WebSocketSession session, HostCheckMessage hostCheckMessage) {
-        HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
-
-        for (HostCheckType hostCheckType : hostCheckTypes) {
-            switch (hostCheckType) {
-                case TIME_SYNC -> {
-                    ResultMessage resultMessage = new ResultMessage();
-                    ShellResult shellResult = TimeSyncDetection.checkTimeSync();
-
-                    resultMessage.setCode(shellResult.getExitCode());
-                    resultMessage.setMessageId(hostCheckMessage.getMessageId());
-                    resultMessage.setHostname(hostCheckMessage.getHostname());
-
-                    try {
-                        session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-                    } catch (IOException e) {
-                        log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-                    }
-                }
-
-            }
-        }
-
+        HostCheckContext context = new HostCheckContext(session, hostCheckMessage);
+        hostCheckService.addEvent(context);
     }
 
     private void handleHostCacheMessage(WebSocketSession session, HostCacheMessage hostCacheMessage) {
-        String cacheDir = Constants.STACK_CACHE_DIR;
-
-        LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
-
-        try {
-            JsonUtils.writeToFile(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
-            JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
-            JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
-            JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
-        } catch (Exception e) {
-            log.warn(" [{}|{}|{}|{}] cache error: ", BASIC_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
-        }
-        JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
-        JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
-        ResultMessage resultMessage = new ResultMessage();
-        resultMessage.setMessageId(hostCacheMessage.getMessageId());
-        resultMessage.setHostname(hostCacheMessage.getHostname());
-        resultMessage.setCode(0);
-        try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-        } catch (IOException e) {
-            log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-        }
+        HostCacheContext context = new HostCacheContext(session, hostCacheMessage);
+        hostCacheService.addEvent(context);
     }
 
     private void handleCommandMessage(WebSocketSession session, CommandMessage commandMessage) {
-        Object result = stackExecutor.execute(commandMessage);
-        if (result instanceof ShellResult shellResult) {
-            ResultMessage resultMessage = new ResultMessage();
-            resultMessage.setCode(shellResult.getExitCode());
-            resultMessage.setResult(shellResult.toString());
-            resultMessage.setMessageId(commandMessage.getMessageId());
-            resultMessage.setHostname(commandMessage.getHostname());
-            try {
-                session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-            } catch (IOException e) {
-                log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-            }
-
-        }
+        CommandContext context = new CommandContext(session, commandMessage);
+        commandService.addEvent(context);
     }
 
     @Override
@@ -225,7 +170,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
                     // retry after 5 seconds
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
                     } catch (InterruptedException ex) {
                         throw new RuntimeException(ex);
                     }

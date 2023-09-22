@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.common.message.type;
 
 import lombok.*;
+import org.apache.bigtop.manager.common.enums.MessageType;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -14,5 +15,7 @@ public class ResultMessage extends BaseMessage {
     private String result;
 
     private String hostname;
+
+    private MessageType messageType;
 
 }

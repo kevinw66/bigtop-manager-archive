@@ -1,8 +1,11 @@
 package org.apache.bigtop.manager.common.utils.os;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.OSArchType;
+import org.apache.bigtop.manager.common.enums.OSType;
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.IOException;
@@ -14,11 +17,16 @@ import java.util.regex.Pattern;
 @Slf4j
 public class OSDetection {
 
-    private static final Pattern ID_PATTERN = Pattern.compile("ID=(.*)");
-    private static final Pattern VERSION_PATTERN = Pattern.compile("VERSION_ID=(.*)");
+    private static final Pattern ID_PATTERN = Pattern.compile("ID=[\"]?([\\w]+)[\"]?");
+
+    private static final Pattern VERSION_PATTERN = Pattern.compile("VERSION_ID=[\"]?(\\d+)([\\.\\d]*)[\"]?");
 
     public static String getOS() {
-        return getOSType().toLowerCase() + getOSVersion().toLowerCase();
+        String os = getOSType().toLowerCase() + getOSVersion().toLowerCase();
+
+        ifSupportedOS(os);
+
+        return os;
     }
 
     public static String getOSType() {
@@ -26,7 +34,7 @@ public class OSDetection {
 
         String osType = regexOS(ID_PATTERN, output);
 
-        log.info(osType);
+        log.info("osType: {}", osType);
         return osType;
     }
 
@@ -35,14 +43,12 @@ public class OSDetection {
 
         String osVersion = regexOS(VERSION_PATTERN, output);
 
-        log.info(osVersion);
+        log.info("osVersion: {}", osVersion);
         return osVersion;
     }
 
 
     public static String getOSRelease() {
-        checkIfLinux();
-
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("cat");
         builderParameters.add("/etc/os-release");
@@ -51,7 +57,9 @@ public class OSDetection {
             ShellResult shellResult = ShellExecutor.execCommand(builderParameters);
             String output = shellResult.getOutput();
 
-            log.debug("getOSRelease: {}", output);
+            if (log.isDebugEnabled()) {
+                log.debug("getOSRelease: {}", output);
+            }
             return output;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -63,40 +71,50 @@ public class OSDetection {
     private static String regexOS(Pattern pattern, String content) {
         Matcher matcher = pattern.matcher(content);
         if (matcher.find()) {
-            return matcher.group(1).replace("\"", "");
+            try {
+                return matcher.group(1);
+            } catch (Exception e) {
+                throw new RuntimeException("Unable to find OS: " + content, e);
+            }
         } else {
-            return null;
+            throw new RuntimeException("Unable to find OS: " + content);
         }
     }
 
 
     public static String getArch() {
-        checkIfLinux();
-
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("arch");
 
         try {
             ShellResult shellResult = ShellExecutor.execCommand(builderParameters);
             String output = shellResult.getOutput().replace("\n", "");
+            if (log.isDebugEnabled()) {
+                log.debug("getArch: {}", output);
+            }
 
-            log.debug("getArch: {}", output);
+            ifSupportedArch(output);
             return output;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void checkIfLinux() {
+    public static void ifSupportedOS(String os) {
         if (!SystemUtils.IS_OS_LINUX) {
-            throw new RuntimeException("Only Linux is supported");
+            throw new RuntimeException("Only Linux is supported: [" + os + "]");
         }
-        ifSupportedOS();
+        if (!EnumUtils.isValidEnumIgnoreCase(OSType.class, os)) {
+            throw new RuntimeException("Unsupported OS: [" + os + "]");
+        }
+        log.info("OS [{}] is Supported", os);
     }
 
-    //TODO: Define the system support logic
-    public static boolean ifSupportedOS() {
-        return true;
+    public static void ifSupportedArch(String arch) {
+        if (!EnumUtils.isValidEnumIgnoreCase(OSArchType.class, arch)) {
+            throw new RuntimeException("Unsupported Arch: [" + arch + "]");
+        }
+        log.info("Arch [{}] is Supported", arch);
     }
 
 }
