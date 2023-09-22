@@ -60,7 +60,7 @@ module.exports = {
       }
     ],
     'space-before-function-paren': 'off',
-    quotes: ['error', 'single'],
+    quotes: ['error', 'single', { avoidEscape: true }],
     'comma-dangle': ['error', 'never'],
     'vue/multi-word-component-names': 'off',
     'vue/component-definition-name-casing': 'off',

@@ -16,5 +16,13 @@
  */
 
 export default {
-  unknown_axios_error: 'Unknown axios error'
+  prev: 'Previous',
+  next: 'Next',
+  done: 'Done',
+  exit: 'Exit',
+  exit_confirm: 'Are you sure you want to exit?',
+  install: 'Install',
+  finish: 'Finish',
+  select_tips: 'Please select',
+  unknown_error: 'Unknown error'
 }

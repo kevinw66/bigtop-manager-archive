@@ -15,14 +15,9 @@
  * limitations under the License.
  */
 
-export default {
-  prev: '上一步',
-  next: '下一步',
-  done: '完成',
-  exit: '退出',
-  exit_confirm: '确定要退出吗？',
-  install: '安装',
-  finish: '完成',
-  select_tips: '请选择',
-  unknown_error: '未知错误'
+export type StackOptionProps = {
+  id?: number
+  value?: string
+  label: string
+  children?: StackOptionProps[]
 }

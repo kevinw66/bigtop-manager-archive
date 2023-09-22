@@ -18,13 +18,12 @@
 import { createI18n } from 'vue-i18n'
 import zh_CN from './zh_CN'
 import en_US from './en_US'
-
-export const DEFAULT_LOCALE = 'en_US'
+import { defaultLocale } from '@/store/locale/types.ts'
 
 const i18n = createI18n({
   legacy: false,
   globalInjection: true,
-  locale: DEFAULT_LOCALE,
+  locale: defaultLocale,
   messages: {
     zh_CN,
     en_US

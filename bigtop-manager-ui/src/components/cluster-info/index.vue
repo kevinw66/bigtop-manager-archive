@@ -1,10 +1,18 @@
 <script setup lang="ts">
+  import { ref } from 'vue'
   import { message } from 'ant-design-vue'
+  import ClusterCreate from '@/components/cluster-create/index.vue'
+
+  const createWindowOpened = ref(false)
 
   const handleClick = ({ key }: { key: string }) => {
     if (key === 'about' || key === 'settings') {
       message.info('Coming soon!')
     }
+  }
+
+  const openClusterCreateWindows = () => {
+    createWindowOpened.value = true
   }
 </script>
 
@@ -14,16 +22,18 @@
       <div class="name">Cluster A</div>
     </div>
     <template #overlay>
-      <a-menu @click="handleClick">
+      <a-menu>
         <a-menu-item key="switch">
           {{ $t('cluster.switch') }}
         </a-menu-item>
-        <a-menu-item key="create">
+        <a-menu-item key="create" @click="openClusterCreateWindows">
           {{ $t('cluster.create') }}
         </a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>
+
+  <cluster-create v-model:open="createWindowOpened" />
 </template>
 
 <style lang="scss" scoped>

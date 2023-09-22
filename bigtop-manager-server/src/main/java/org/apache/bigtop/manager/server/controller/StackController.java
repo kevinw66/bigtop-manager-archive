@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.server.model.vo.ServiceVersionVO;
+import org.apache.bigtop.manager.server.model.vo.StackServiceVO;
 import org.apache.bigtop.manager.server.model.vo.StackRepoVO;
 import org.apache.bigtop.manager.server.model.vo.StackVO;
 import org.apache.bigtop.manager.server.service.StackService;
@@ -32,16 +32,16 @@ public class StackController {
         return ResponseEntity.success(stackService.get(id));
     }
 
-    @Operation(summary = "get", description = "Get a stack service versions")
-    @GetMapping("/versions/{stackName}/{stackVersion}")
-    public ResponseEntity<List<ServiceVersionVO>> versions(@PathVariable String stackName, @PathVariable String stackVersion) {
-        return ResponseEntity.success(stackService.versions(stackName, stackVersion));
+    @Operation(summary = "get stack services", description = "Get services under a stack")
+    @GetMapping("/{id}/services")
+    public ResponseEntity<List<StackServiceVO>> services(@PathVariable Long id) {
+        return ResponseEntity.success(stackService.services(id));
     }
 
-    @Operation(summary = "get", description = "Get a stack repos")
-    @GetMapping("/repos/{stackName}/{stackVersion}")
-    public ResponseEntity<List<StackRepoVO>> repos(@PathVariable String stackName, @PathVariable String stackVersion) {
-        return ResponseEntity.success(stackService.repos(stackName, stackVersion));
+    @Operation(summary = "get stack repos", description = "Get repos under a stack")
+    @GetMapping("/{id}/repos")
+    public ResponseEntity<List<StackRepoVO>> repos(@PathVariable Long id) {
+        return ResponseEntity.success(stackService.repos(id));
     }
 
 }

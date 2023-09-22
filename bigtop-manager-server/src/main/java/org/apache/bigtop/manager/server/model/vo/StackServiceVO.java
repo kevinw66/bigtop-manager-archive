@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.server.model.vo;
 import lombok.Data;
 
 @Data
-public class ServiceVersionVO {
+public class StackServiceVO {
 
     private String serviceName;
 

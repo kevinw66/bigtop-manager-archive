@@ -17,5 +17,12 @@
 
 export default {
   switch: '切换集群',
-  create: '创建集群'
+  create: '创建集群',
+  set_cluster_name: '设置集群名称',
+  set_cluster_name_title: '让我们来开始吧',
+  set_cluster_name_sub_title: '请跟随后续步骤来创建你的集群',
+  set_cluster_name_input: '输入你的集群名',
+  choose_stack: '选择组件栈',
+  set_repository: '设置源',
+  set_hosts: '设置节点'
 }

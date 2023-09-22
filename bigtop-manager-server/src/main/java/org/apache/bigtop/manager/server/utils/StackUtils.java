@@ -185,7 +185,7 @@ public class StackUtils {
      * Generate full stack name
      * @param stackName BIGTOP
      * @param stackVersion 3.2.0
-     * @return stackName-stackVersion BIGTOP-3.2.0
+     * @return {stackName}-{stackVersion} eg. BIGTOP-3.2.0
      */
     public static String fullStackName(String stackName, String stackVersion) {
         return stackName + "-" + stackVersion;

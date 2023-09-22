@@ -78,20 +78,4 @@
       }
     }
   }
-
-  .menu-service {
-  }
-
-  .menu-service-item {
-    font-size: 8px;
-    color: #52c41a;
-    margin-right: 0.5rem;
-  }
-
-  .site-layout .site-layout-background {
-    background: #fff;
-  }
-  [data-theme='dark'] .site-layout .site-layout-background {
-    background: #141414;
-  }
 </style>

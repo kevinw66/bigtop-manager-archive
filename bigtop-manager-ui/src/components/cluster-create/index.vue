@@ -1,0 +1,183 @@
+<script setup lang="ts">
+  import { ref, reactive, h, watch } from 'vue'
+  import { Modal } from 'ant-design-vue'
+  import { ExclamationCircleFilled } from '@ant-design/icons-vue'
+  import { useI18n } from 'vue-i18n'
+  import SetClusterName from './set-cluster-name.vue'
+  import ChooseStack from './choose-stack.vue'
+  import SetRepository from './set-repository.vue'
+  import SetHosts from './set-hosts.vue'
+  import Install from './install.vue'
+  import Finish from './finish.vue'
+
+  const open = defineModel<boolean>('open')
+  const { t, locale } = useI18n()
+
+  const initItems = () => [
+    {
+      disabled: true,
+      status: 'process',
+      title: t('cluster.set_cluster_name'),
+      content: h(SetClusterName)
+    },
+    {
+      disabled: true,
+      status: 'wait',
+      title: t('cluster.choose_stack'),
+      content: h(ChooseStack)
+    },
+    {
+      disabled: true,
+      status: 'wait',
+      title: t('cluster.set_repository'),
+      content: h(SetRepository)
+    },
+    {
+      disabled: true,
+      status: 'wait',
+      title: t('cluster.set_hosts'),
+      content: h(SetHosts)
+    },
+    {
+      disabled: true,
+      status: 'wait',
+      title: t('common.install'),
+      content: h(Install)
+    },
+    {
+      disabled: true,
+      status: 'wait',
+      title: t('common.finish'),
+      content: h(Finish)
+    }
+  ]
+
+  const initClusterInfo = () => {
+    return {
+      clusterName: ''
+    }
+  }
+
+  const current = ref<number>(0)
+  const items = reactive(initItems())
+  const clusterInfo = reactive(initClusterInfo())
+  watch(locale, () => {
+    Object.assign(items, initItems())
+  })
+
+  const next = () => {
+    items[current.value].status = 'finish'
+    current.value++
+    items[current.value].status = 'process'
+  }
+
+  const prev = () => {
+    items[current.value].status = 'wait'
+    current.value--
+    items[current.value].status = 'process'
+  }
+
+  const clear = () => {
+    current.value = 0
+    open.value = false
+    Object.assign(items, initItems())
+    Object.assign(clusterInfo, initClusterInfo())
+  }
+
+  const done = () => {
+    clear()
+  }
+
+  const cancel = () => {
+    Modal.confirm({
+      title: t('common.exit'),
+      icon: h(ExclamationCircleFilled),
+      content: t('common.exit_confirm'),
+      onOk() {
+        clear()
+      }
+    })
+  }
+</script>
+
+<template>
+  <a-modal
+    :open="open"
+    width="80%"
+    centered
+    destroy-on-close
+    :mask-closable="false"
+    :keyboard="false"
+    @update:open="cancel"
+  >
+    <template #footer>
+      <a-button
+        v-if="current > 0"
+        class="footer-btn"
+        type="primary"
+        @click="prev"
+      >
+        {{ $t('common.prev') }}
+      </a-button>
+      <a-button
+        v-if="current < items.length - 1"
+        class="footer-btn"
+        type="primary"
+        @click="next"
+      >
+        {{ $t('common.next') }}
+      </a-button>
+      <a-button
+        v-if="current === items.length - 1"
+        class="footer-btn"
+        type="primary"
+        @click="done"
+      >
+        {{ $t('common.done') }}
+      </a-button>
+    </template>
+    <div class="container">
+      <a-steps
+        v-model:current="current"
+        class="step"
+        direction="vertical"
+        size="small"
+        :items="items"
+      >
+      </a-steps>
+      <div class="content">
+        <component
+          :is="items[current].content"
+          v-model:clusterInfo="clusterInfo"
+        />
+      </div>
+    </div>
+  </a-modal>
+</template>
+
+<style scoped lang="scss">
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    .step {
+      width: 25%;
+      height: 35rem;
+    }
+
+    .content {
+      margin-top: 1rem;
+      padding-left: 1rem;
+      height: 35rem;
+      width: 100%;
+      text-align: center;
+      border-left: 1px solid #d9d9d9;
+    }
+  }
+
+  .footer-btn {
+    width: 8.333333%;
+  }
+</style>

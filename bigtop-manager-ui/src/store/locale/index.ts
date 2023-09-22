@@ -16,19 +16,19 @@
  */
 
 import { watch, ref, computed } from 'vue'
-import i18n, { DEFAULT_LOCALE } from '@/locales'
+import i18n from '@/locales'
 import en_US from 'ant-design-vue/es/locale/en_US'
 import zh_CN from 'ant-design-vue/es/locale/zh_CN'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import 'dayjs/locale/en'
 import { defineStore } from 'pinia'
-import { Locale } from './types'
+import { Locale, defaultLocale } from './types'
 
 export const useLocaleStore = defineStore(
   'locale',
   () => {
-    const locale = ref(DEFAULT_LOCALE as Locale)
+    const locale = ref(defaultLocale)
     const antd = computed(() => (locale.value === 'en_US' ? en_US : zh_CN))
 
     const setLocale = (newLocale: Locale) => {
@@ -46,5 +46,9 @@ export const useLocaleStore = defineStore(
       setLocale
     }
   },
-  { persist: true }
+  {
+    persist: {
+      storage: localStorage
+    }
+  }
 )

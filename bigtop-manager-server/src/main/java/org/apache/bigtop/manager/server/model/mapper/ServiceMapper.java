@@ -4,7 +4,7 @@ import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.dto.OSSpecificDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVO;
-import org.apache.bigtop.manager.server.model.vo.ServiceVersionVO;
+import org.apache.bigtop.manager.server.model.vo.StackServiceVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Service;
 import org.apache.bigtop.manager.server.stack.pojo.ServiceModel;
@@ -24,7 +24,7 @@ public interface ServiceMapper {
     @Mapping(target = "cluster", expression = "java(cluster)")
     Service DTO2Entity(ServiceDTO serviceDTO, @Context Cluster cluster);
 
-    ServiceVersionVO DTO2VO(ServiceDTO serviceDTO);
+    StackServiceVO DTO2VO(ServiceDTO serviceDTO);
 
     @Mapping(target = "serviceName", source = "name")
     @Mapping(target = "serviceDesc", source = "desc")

@@ -32,5 +32,9 @@ export const useUIStore = defineStore(
       changeCollapsed
     }
   },
-  { persist: true }
+  {
+    persist: {
+      storage: sessionStorage
+    }
+  }
 )

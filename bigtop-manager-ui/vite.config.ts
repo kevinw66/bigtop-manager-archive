@@ -8,7 +8,13 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: env.VITE_APP_BASE,
-    plugins: [vue()],
+    plugins: [
+      vue({
+        script: {
+          defineModel: true
+        }
+      })
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src')

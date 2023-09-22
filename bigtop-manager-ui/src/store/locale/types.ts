@@ -15,6 +15,5 @@
  * limitations under the License.
  */
 
-type Locale = 'zh_CN' | 'en_US'
-
-export type { Locale }
+export const defaultLocale: Locale = 'en_US'
+export type Locale = 'zh_CN' | 'en_US'

@@ -32,8 +32,8 @@ export const useUserStore = defineStore(
       userVO.value = await getCurrentUser()
     }
 
-    const generateMenu = async () => {
-      menuItems.splice(0, menuItems.length)
+    const initMenu = async () => {
+      const items: MenuItem[] = []
       menuPages.forEach((route) => {
         const menuItem: MenuItem = {
           key: route.meta?.title?.toLowerCase(),
@@ -54,9 +54,14 @@ export const useUserStore = defineStore(
           })
         }
 
-        menuItems.push(menuItem)
+        items.push(menuItem)
       })
 
+      return Promise.resolve(items)
+    }
+
+    const generateMenu = async () => {
+      Object.assign(menuItems, await initMenu())
       return Promise.resolve()
     }
 
@@ -76,5 +81,9 @@ export const useUserStore = defineStore(
       logout
     }
   },
-  { persist: true }
+  {
+    persist: {
+      storage: localStorage
+    }
+  }
 )
