@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.stack.core.executor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
@@ -33,7 +34,7 @@ public class ExecutorImpl implements Executor {
     }
 
     private Hook getHook(CommandMessage commandMessage) {
-        return hookMap.get(commandMessage.getCommand());
+        return hookMap.get(commandMessage.getCommand().name());
     }
 
     @Override
@@ -44,7 +45,7 @@ public class ExecutorImpl implements Executor {
         }
 
         Hook hook = getHook(commandMessage);
-        String command = commandMessage.getCommand();
+        String command = commandMessage.getCommand().name();
 
         hookAspect(hook, HookAroundType.BEFORE.getType());
 

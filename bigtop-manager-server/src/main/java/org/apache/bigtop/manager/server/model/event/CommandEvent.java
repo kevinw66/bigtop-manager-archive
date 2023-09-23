@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.model.event;
 
 import lombok.Data;
 import lombok.NonNull;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandType;
 
 import java.util.List;
@@ -11,8 +12,10 @@ import java.util.Set;
 @Data
 public class CommandEvent {
 
+    private Long jobId;
+
     @NonNull
-    private String command;
+    private Command command;
 
     @NonNull
     private String stackName;

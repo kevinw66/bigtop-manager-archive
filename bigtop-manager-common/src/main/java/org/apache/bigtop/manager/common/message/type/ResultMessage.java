@@ -18,4 +18,10 @@ public class ResultMessage extends BaseMessage {
 
     private MessageType messageType;
 
+    private Long requestId;
+
+    private Long stageId;
+
+    private Long taskId;
+
 }

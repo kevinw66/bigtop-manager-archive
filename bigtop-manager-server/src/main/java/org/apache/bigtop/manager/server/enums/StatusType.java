@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.enums;
 
 public enum StatusType {
-    UNINSTALL(0, "uninstalled"),
+    UNINSTALLED(0, "uninstalled"),
     INSTALLED(1, "installed"),
     MAINTAINED(2, "maintained");
 

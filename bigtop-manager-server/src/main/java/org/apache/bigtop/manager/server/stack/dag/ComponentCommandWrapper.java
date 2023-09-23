@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.stack.dag;
 
 import lombok.*;
+import org.apache.bigtop.manager.common.enums.Command;
 
 
 @Data
@@ -9,6 +10,6 @@ public class ComponentCommandWrapper {
 
     private String componentName;
 
-    private String command;
+    private Command command;
 
 }

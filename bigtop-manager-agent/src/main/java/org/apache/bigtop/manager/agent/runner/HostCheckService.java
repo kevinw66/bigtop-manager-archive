@@ -117,7 +117,7 @@ public class HostCheckService {
                     ShellResult shellResult = TimeSyncDetection.checkTimeSync();
 
                     resultMessage.setCode(shellResult.getExitCode());
-                    resultMessage.setResult(shellResult.toString());
+                    resultMessage.setResult(shellResult.getResult());
                     resultMessage.setMessageId(hostCheckMessage.getMessageId());
                     resultMessage.setHostname(hostCheckMessage.getHostname());
                     resultMessage.setMessageType(MessageType.HOST_CHECK);

@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.server.enums;
 
-public enum RequestState {
+public enum JobState {
 
     PENDING,
 
@@ -11,5 +11,6 @@ public enum RequestState {
     FAILED,
 
     CANCELED,
+    ;
 
 }

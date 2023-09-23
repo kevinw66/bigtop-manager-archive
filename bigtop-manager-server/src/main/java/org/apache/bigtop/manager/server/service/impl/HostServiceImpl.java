@@ -3,18 +3,22 @@ package org.apache.bigtop.manager.server.service.impl;
 import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.constants.Constants;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.server.enums.*;
+import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
 import org.apache.bigtop.manager.server.model.event.HostCheckEvent;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
-import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
+import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
@@ -46,7 +50,7 @@ public class HostServiceImpl implements HostService {
     private ClusterRepository clusterRepository;
 
     @Resource
-    private RequestRepository requestRepository;
+    private JobRepository jobRepository;
 
     @Resource
     private EventBus eventBus;
@@ -89,7 +93,7 @@ public class HostServiceImpl implements HostService {
             }
             retry--;
             try {
-                Thread.sleep(5000);
+                Thread.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
@@ -145,13 +149,17 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public CommandVO command(CommandDTO commandDTO) {
-        String command = commandDTO.getCommand();
+        Command command = commandDTO.getCommand();
         List<String> componentNameList = commandDTO.getComponentNames();
         String hostname = commandDTO.getHostname();
         String clusterName = commandDTO.getClusterName();
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
-        if (command.equals(Command.INSTALL.name())) {
+        //persist request to database
+        Job job = JobMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
+        job = jobRepository.save(job);
+
+        if (command == Command.INSTALL) {
             //Persist hostComponent to database
             List<Component> componentList = componentRepository.findAllByClusterClusterNameAndComponentNameIn(clusterName, componentNameList);
             Host host = hostRepository.findByHostname(hostname).orElse(new Host());
@@ -159,7 +167,8 @@ public class HostServiceImpl implements HostService {
                 HostComponent hostComponent = new HostComponent();
                 hostComponent.setHost(host);
                 hostComponent.setComponent(component);
-                hostComponent.setStatus(StatusType.INSTALLED.getCode());
+                hostComponent.setStatus(StatusType.UNINSTALLED.getCode());
+                hostComponent.setState(CommandState.UNINSTALLED);
 
                 Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
                 hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
@@ -169,14 +178,10 @@ public class HostServiceImpl implements HostService {
             cache(cluster.getId());
         }
 
-        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
+        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
+        eventBus.post(commandEvent);
 
-        //persist request to database
-        Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
-        request.setState(RequestState.PENDING.name());
-        request = requestRepository.save(request);
-
-        return RequestMapper.INSTANCE.Entity2VO(request);
+        return JobMapper.INSTANCE.Entity2VO(job);
     }
 
 }

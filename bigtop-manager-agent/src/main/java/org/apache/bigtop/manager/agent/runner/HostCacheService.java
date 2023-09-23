@@ -5,6 +5,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
+import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
@@ -128,7 +129,7 @@ public class HostCacheService {
         ResultMessage resultMessage = new ResultMessage();
         resultMessage.setMessageId(hostCacheMessage.getMessageId());
         resultMessage.setHostname(hostCacheMessage.getHostname());
-        resultMessage.setCode(0);
+        resultMessage.setCode(MessageConstants.SUCCESS_CODE);
         resultMessage.setResult("Host cache success");
         resultMessage.setMessageType(MessageType.HOST_CACHE);
         try {

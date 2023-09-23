@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.common.message.type;
 
 import lombok.*;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 
 import java.util.List;
@@ -9,13 +10,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class CommandMessage extends BaseMessage {
+public class CommandMessage extends BaseCommandMessage {
 
     @NonNull
     private String serviceName;
 
     @NonNull
-    private String command;
+    private Command command;
 
     private String serviceUser;
 

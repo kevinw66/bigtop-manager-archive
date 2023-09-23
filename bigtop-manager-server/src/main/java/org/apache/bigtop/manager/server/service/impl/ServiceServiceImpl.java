@@ -5,13 +5,11 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
-import org.apache.bigtop.manager.server.enums.Command;
-import org.apache.bigtop.manager.server.enums.RequestState;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.StatusType;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
-import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
-import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
+import org.apache.bigtop.manager.server.model.dto.*;
+import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.*;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVO;
@@ -33,7 +31,7 @@ public class ServiceServiceImpl implements ServiceService {
     private ComponentRepository componentRepository;
 
     @Resource
-    private RequestRepository requestRepository;
+    private JobRepository jobRepository;
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -87,24 +85,23 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public CommandVO command(CommandDTO commandDTO) {
-        Command commandEvent = Command.valueOf(commandDTO.getCommand());
+        Command command = commandDTO.getCommand();
         String clusterName = commandDTO.getClusterName();
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
-        if (commandEvent == Command.INSTALL) {
+        //persist request to database
+        Job job = JobMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
+        job = jobRepository.save(job);
+
+        if (command == Command.INSTALL) {
             install(commandDTO);
             // cache
             hostService.cache(cluster.getId());
         }
+        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
+        eventBus.post(commandEvent);
 
-        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
-
-        //persist request to database
-        Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
-        request.setState(RequestState.PENDING.name());
-        request = requestRepository.save(request);
-
-        return RequestMapper.INSTANCE.Entity2VO(request);
+        return JobMapper.INSTANCE.Entity2VO(job);
     }
 
 
@@ -157,7 +154,8 @@ public class ServiceServiceImpl implements ServiceService {
                         HostComponent hostComponent = new HostComponent();
                         hostComponent.setHost(host);
                         hostComponent.setComponent(component);
-                        hostComponent.setStatus(StatusType.INSTALLED.getCode());
+                        hostComponent.setStatus(StatusType.UNINSTALLED.getCode());
+                        hostComponent.setState(CommandState.UNINSTALLED);
 
                         Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(componentName, host.getHostname());
                         hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));

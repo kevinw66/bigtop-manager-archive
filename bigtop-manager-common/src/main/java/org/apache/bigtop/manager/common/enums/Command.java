@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.enums;
+package org.apache.bigtop.manager.common.enums;
 
 public enum Command {
 

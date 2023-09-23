@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.text.MessageFormat;
+
 @Data
 @ToString
 @AllArgsConstructor
@@ -16,4 +18,8 @@ public class ShellResult {
     private String output;
 
     private String errMsg;
+
+    public String getResult() {
+        return MessageFormat.format("result=[output={0}, errMsg={1}]", output, errMsg);
+    }
 }
