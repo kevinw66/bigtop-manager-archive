@@ -115,10 +115,14 @@ public class CommandService {
         if (result instanceof ShellResult shellResult) {
             ResultMessage resultMessage = new ResultMessage();
             resultMessage.setCode(shellResult.getExitCode());
-            resultMessage.setResult(shellResult.toString());
+            resultMessage.setResult(shellResult.getResult());
             resultMessage.setMessageId(commandMessage.getMessageId());
             resultMessage.setHostname(commandMessage.getHostname());
             resultMessage.setMessageType(MessageType.COMMAND);
+
+            resultMessage.setRequestId(commandMessage.getJobId());
+            resultMessage.setStageId(commandMessage.getStageId());
+            resultMessage.setTaskId(commandMessage.getTaskId());
             try {
                 session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
             } catch (IOException e) {

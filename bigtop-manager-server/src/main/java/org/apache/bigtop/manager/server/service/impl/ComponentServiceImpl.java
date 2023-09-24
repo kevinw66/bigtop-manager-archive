@@ -3,25 +3,26 @@ package org.apache.bigtop.manager.server.service.impl;
 import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.RequestState;
+import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
-import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
+import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Component;
 import org.apache.bigtop.manager.server.orm.entity.HostComponent;
-import org.apache.bigtop.manager.server.orm.entity.Request;
+import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.RequestRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ import java.util.List;
 public class ComponentServiceImpl implements ComponentService {
 
     @Resource
-    private RequestRepository requestRepository;
+    private JobRepository jobRepository;
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -73,15 +74,15 @@ public class ComponentServiceImpl implements ComponentService {
     @Override
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
-
-        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
+        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
 
         //persist request to database
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
-        Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
-        request.setState(RequestState.PENDING.name());
-        request = requestRepository.save(request);
+        Job job = JobMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
+        job = jobRepository.save(job);
 
-        return RequestMapper.INSTANCE.Entity2VO(request);
+        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
+        eventBus.post(commandEvent);
+
+        return JobMapper.INSTANCE.Entity2VO(job);
     }
 }

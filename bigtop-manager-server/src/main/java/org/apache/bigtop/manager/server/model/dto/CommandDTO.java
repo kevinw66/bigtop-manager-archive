@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.model.dto;
 
 import lombok.Data;
 import lombok.NonNull;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandType;
 
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Set;
 public class CommandDTO {
 
     @NonNull
-    private String command;
+    private Command command;
 
     @NonNull
     private String stackName;

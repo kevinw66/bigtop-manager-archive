@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.orm.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,7 +20,8 @@ public class HostComponent extends BaseEntity {
     // 0: not installed, 1: installed, 2: maintained
     private Integer status;
 
-    private String state;
+    @Enumerated(EnumType.STRING)
+    private CommandState state;
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

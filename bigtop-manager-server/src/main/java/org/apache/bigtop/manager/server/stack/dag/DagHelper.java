@@ -3,6 +3,8 @@ package org.apache.bigtop.manager.server.stack.dag;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.commons.lang3.EnumUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,9 +47,11 @@ public class DagHelper {
                     String blockerRole = blockerTuple[0];
                     String blockerCommand = blockerTuple[1];
 
-
-                    ComponentCommandWrapper blockedRcp = new ComponentCommandWrapper(blockedRole, blockedCommand);
-                    ComponentCommandWrapper blockerRcp = new ComponentCommandWrapper(blockerRole, blockerCommand);
+                    if (!EnumUtils.isValidEnum(Command.class, blockedCommand) || !EnumUtils.isValidEnum(Command.class, blockerCommand)) {
+                        throw new RuntimeException("Unsupported command");
+                    }
+                    ComponentCommandWrapper blockedRcp = new ComponentCommandWrapper(blockedRole, Command.valueOf(blockedCommand));
+                    ComponentCommandWrapper blockerRcp = new ComponentCommandWrapper(blockerRole, Command.valueOf(blockerCommand));
 
                     DagGraphEdge roleCommandEdge = new DagGraphEdge(blockerRcp, blockedRcp);
                     dag.addEdge(blockerRcp, blockedRcp, roleCommandEdge, true);

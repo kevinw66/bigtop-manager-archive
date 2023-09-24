@@ -2,14 +2,16 @@ package org.apache.bigtop.manager.server.model.req.command;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.apache.bigtop.manager.common.enums.Command;
 
 @Data
 public abstract class AbstractCommandReq {
 
-    @NotEmpty
+    @NotNull
     @Schema(example = "START")
-    private String command;
+    private Command command;
 
     @NotEmpty
     @Schema(example = "c1")

@@ -4,5 +4,9 @@ import lombok.Data;
 
 @Data
 public class HostCheckEvent {
-    String hostname;
+
+    private Long jobId;
+
+    private String hostname;
+
 }

@@ -3,24 +3,25 @@ package org.apache.bigtop.manager.server.service.impl;
 import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.RequestState;
+import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
 import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.*;
+import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.server.model.mapper.RequestMapper;
+import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Repo;
-import org.apache.bigtop.manager.server.orm.entity.Request;
+import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.RepoRepository;
-import org.apache.bigtop.manager.server.orm.repository.RequestRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
@@ -43,7 +44,7 @@ public class ClusterServiceImpl implements ClusterService {
     private RepoRepository repoRepository;
 
     @Resource
-    private RequestRepository requestRepository;
+    private JobRepository jobRepository;
 
     @Resource
     private EventBus eventBus;
@@ -124,14 +125,16 @@ public class ClusterServiceImpl implements ClusterService {
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
 
-        eventBus.post(CommandMapper.INSTANCE.DTO2Event(commandDTO));
-
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
-        Request request = RequestMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
-        request.setState(RequestState.PENDING.name());
-        request = requestRepository.save(request);
+        Job job = JobMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
+        job = jobRepository.save(job);
 
-        return RequestMapper.INSTANCE.Entity2VO(request);
+        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
+        commandEvent.setJobId(job.getId());
+        eventBus.post(commandEvent);
+
+
+        return JobMapper.INSTANCE.Entity2VO(job);
     }
 }
