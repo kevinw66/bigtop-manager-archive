@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.stack.bigtop.v3_2_0.zookeeper;
+package org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper;
 
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.stack.common.AbstractParams;

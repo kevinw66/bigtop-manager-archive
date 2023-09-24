@@ -23,7 +23,7 @@ public class ClusterReq {
     private String stackName;
 
     @NotEmpty
-    @Schema(example = "3.2.0")
+    @Schema(example = "3.3.0")
     private String stackVersion;
 
     private List<RepoReq> repoInfoList;

@@ -1,5 +1,5 @@
 stackName: BIGTOP
-stackVersion: 3.2.0
+stackVersion: 3.3.0
 userGroup: hadoop
 root: /opt
 packages: '[ "curl", "wget" ]'
@@ -17,11 +17,11 @@ repoTemplate: |
 repos:
   - os: centos7
     arch: x86_64
-    baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
+    baseurl: http://192.168.1.80:81/BM_BIGTOP/3.3.0/
     repoName: BIGTOP
-    repoId: BIGTOP-3.2.0
+    repoId: BIGTOP-3.3.0
   - os: centos7
     arch: aarch64
     baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
     repoName: BIGTOP
-    repoId: BIGTOP-3.2.0
+    repoId: BIGTOP-3.3.0
