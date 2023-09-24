@@ -25,7 +25,7 @@ public class DagHelper {
 
     /**
      * Initialize the DAG for each stack
-     * @param stackDependencyMap {@code Map<BIGTOP-3.2.0=Map<blockedRole, Set<blockerRole>>>}
+     * @param stackDependencyMap {@code Map<BIGTOP-3.3.0=Map<blockedRole, Set<blockerRole>>>}
      */
     public static void dagInitialized(Map<String, Map<String, Set<String>>> stackDependencyMap) {
 
