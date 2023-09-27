@@ -3,11 +3,15 @@ package org.apache.bigtop.manager.stack.common;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Set;
 
-public abstract class AbstractParams {
+public abstract class BaseParams {
+
+    public static final String limitsConfDir = "/etc/security/limits.d";
 
     /**
      * get the package list according to the os and arch
@@ -60,6 +64,10 @@ public abstract class AbstractParams {
 
     public static String serviceName(CommandMessage commandMessage) {
         return commandMessage.getServiceName();
+    }
+
+    public static Set<String> serviceHosts(CommandMessage commandMessage) {
+        return LocalSettings.hosts(serviceName(commandMessage));
     }
 
 }

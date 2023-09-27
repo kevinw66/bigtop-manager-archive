@@ -8,7 +8,7 @@ import org.apache.bigtop.manager.common.enums.MessageType;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResultMessage extends BaseMessage {
+public class ResultMessage extends BaseCommandMessage {
 
     private Integer code;
 
@@ -17,11 +17,5 @@ public class ResultMessage extends BaseMessage {
     private String hostname;
 
     private MessageType messageType;
-
-    private Long requestId;
-
-    private Long stageId;
-
-    private Long taskId;
 
 }

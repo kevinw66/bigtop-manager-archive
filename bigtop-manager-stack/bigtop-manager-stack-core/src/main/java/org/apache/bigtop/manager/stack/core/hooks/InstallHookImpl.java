@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
-import org.apache.bigtop.manager.stack.common.utils.HostCacheUtils;
+import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
 import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
@@ -26,8 +26,8 @@ public class InstallHookImpl implements Hook {
     @HookAnnotation(before = HookType.ANY)
     public void before() {
         log.info("before install");
-        List<RepoInfo> repos = HostCacheUtils.repos();
-        String repoTemplate = HostCacheUtils.cluster().getRepoTemplate();
+        List<RepoInfo> repos = LocalSettings.repos();
+        String repoTemplate = LocalSettings.cluster().getRepoTemplate();
 
         for (RepoInfo repo : repos) {
             if (OSDetection.getOS().equals(repo.getOs()) && OSDetection.getArch().equals(repo.getArch())) {
@@ -35,7 +35,7 @@ public class InstallHookImpl implements Hook {
             }
         }
 
-        Set<String> packages = HostCacheUtils.packages();
+        Set<String> packages = LocalSettings.packages();
         PackageUtils.install(packages);
     }
 

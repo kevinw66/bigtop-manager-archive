@@ -4,19 +4,17 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.ws.AgentWebSocketHandler;
+import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.apache.bigtop.manager.stack.core.executor.Executor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -74,7 +72,7 @@ public class CommandService {
     private Executor stackExecutor;
 
     @Resource
-    private MessageSerializer serializer;
+    private AgentWsTools agentWsTools;
 
     /**
      * Dispatch event to target task runnable.
@@ -120,15 +118,11 @@ public class CommandService {
             resultMessage.setHostname(commandMessage.getHostname());
             resultMessage.setMessageType(MessageType.COMMAND);
 
-            resultMessage.setRequestId(commandMessage.getJobId());
+            resultMessage.setJobId(commandMessage.getJobId());
             resultMessage.setStageId(commandMessage.getStageId());
             resultMessage.setTaskId(commandMessage.getTaskId());
-            try {
-                session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-            } catch (IOException e) {
-                log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-            }
 
+            agentWsTools.sendMessage(session, resultMessage);
         }
     }
 }

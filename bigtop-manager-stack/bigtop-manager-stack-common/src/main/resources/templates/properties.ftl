@@ -2,6 +2,6 @@
 Generated datetime is ${.now}.
 <#list model as key,value>
 <#if value??>
-export ${key}=${value}
+${key}=${value}
 </#if>
 </#list>

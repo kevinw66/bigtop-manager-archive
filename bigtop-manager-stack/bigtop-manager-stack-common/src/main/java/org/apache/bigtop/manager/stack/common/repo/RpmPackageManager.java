@@ -4,6 +4,7 @@ import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.stack.common.enums.PackageManagerType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.spi.PackageManager;
 
@@ -82,6 +83,6 @@ public class RpmPackageManager implements PackageManager {
 
     @Override
     public String getName() {
-        return "rpm";
+        return PackageManagerType.RPM.name();
     }
 }

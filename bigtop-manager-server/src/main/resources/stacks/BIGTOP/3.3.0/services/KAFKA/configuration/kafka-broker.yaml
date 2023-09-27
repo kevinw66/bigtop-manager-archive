@@ -1,0 +1,315 @@
+-
+  name: log.dirs
+  display-name: Log directories
+  value: /kafka-logs
+  description:
+    A comma-separated list of one or more directories in which Kafka data is stored.
+    Each new partition that is created will be placed in the directory which currently has the fewest partitions.
+-
+  name: zookeeper.connect
+  value: localhost:2181
+  description:
+    Zookeeper also allows you to add a \"chroot\" path which will make all kafka data for this cluster appear under a particular path.
+    This is a way to setup multiple Kafka clusters or other applications on the same zookeeper cluster. To do this give a connection
+    string in the form hostname1:port1,hostname2:port2,hostname3:port3/chroot/path which would put all this cluster's data under the
+    path /chroot/path. Note that consumers must use the same connection string.
+-
+  name: listeners
+  value: PLAINTEXT://localhost:9092
+  description: host and port where kafka broker will be accepting connections. localhost will be substituted with hostname. This property managed with Ambari and every user-defined listeners need to be placed to raw.listeners property.
+-
+  name: raw.listeners
+  value:
+  description: User-defined listeners that will be unchanged by Ambari. Value of this property will be merged with Ambari-managed listeners.
+-
+  name: message.max.bytes
+  value: 1000000
+  description:
+    The maximum size of a message that the server can receive.
+    It is important that this property be in sync with the maximum fetch size your consumers use or
+    else an unruly producer will be able to publish messages too large for consumers to consume.
+-
+  name: num.network.threads
+  value: 3
+  description:
+    The number of network threads that the server uses for handling network requests.
+    You probably don't need to change this.
+-
+  name: num.io.threads
+  value: 8
+  description:
+    The number of I/O threads that the server uses for executing requests. You should have at least as many threads as you have disks.
+-
+  name: queued.max.requests
+  value: 500
+  description: The number of requests that can be queued up for processing by the I/O threads before the network threads stop reading in new requests.
+-
+  name: socket.send.buffer.bytes
+  value: 102400
+  description:
+    The SO_SNDBUFF buffer the server prefers for socket connections.
+-
+  name: socket.receive.buffer.bytes
+  value: 102400
+  description:
+    The SO_RCVBUFF buffer the server prefers for socket connections.
+-
+  name: socket.request.max.bytes
+  value: 104857600
+  description:
+    The maximum request size the server will allow. This prevents the server from running out of memory and should be smaller than the Java heap size.
+-
+  name: num.partitions
+  value: 1
+  description:
+    The default number of partitions per topic.
+-
+  name: log.segment.bytes
+  value: 1073741824
+  description:
+    The maximum request size the server will allow.
+    This prevents the server from running out of memory and should be smaller than the Java heap size.
+-
+  name: log.roll.hours
+  value: 168
+  description:
+    This setting will force Kafka to roll a new log segment even if the log.segment.bytes size has not been reached.
+-
+  name: log.retention.bytes
+  value: -1
+  description:
+    The amount of data to retain in the log for each topic-partitions. Note that this is the limit per-partition so multiply by the number of partitions to get the total data retained for the topic. Also note that if both log.retention.hours and log.retention.bytes are both set we delete a segment when either limit is exceeded.
+-
+  name: log.retention.hours
+  value: 168
+  description:
+    The number of hours to keep a log segment before it is deleted, i.e. the default data retention window for all topics. Note that if both log.retention.hours and log.retention.bytes are both set we delete a segment when either limit is exceeded.
+-
+  name: log.cleanup.interval.mins
+  value: 10
+  description: The frequency in minutes that the log cleaner checks whether any log segment is eligible for deletion to meet the retention policies.
+-
+  name: log.retention.check.interval.ms
+  value: 600000
+  description:
+    The frequency in milliseconds that the log cleaner checks whether any log segment is eligible for deletion to meet the retention policies.
+-
+  name: log.index.size.max.bytes
+  value: 10485760
+  description:
+    The maximum size in bytes we allow for the offset index for each log segment. Note that we will always pre-allocate a
+    sparse file with this much space and shrink it down when the log rolls. If the index fills up we will roll a new log segment
+    even if we haven't reached the log.segment.bytes limit.
+-
+  name: log.index.interval.bytes
+  value: 4096
+  description:
+    The byte interval at which we add an entry to the offset index. When executing a fetch request the server must do a linear scan for up to this many bytes to find the correct position in the log to begin and end the fetch. So setting this value to be larger will mean larger index files (and a bit more memory usage) but less scanning. However the server will never add more than one index entry per log append (even if more than log.index.interval worth of messages are appended). In general you probably don't need to mess with this value.
+-
+  name: auto.create.topics.enable
+  value: true
+  description:
+    Enable auto creation of topic on the server. If this is set to true then attempts to produce, consume, or fetch metadata for a non-existent topic will automatically create it with the default replication factor and number of partitions.
+-
+  name: controller.socket.timeout.ms
+  value: 30000
+  description: The socket timeout for commands from the partition management controller to the replicas.
+-
+  name: controller.message.queue.size
+  value: 10
+  description: The buffer size for controller-to-broker-channels
+-
+  name: default.replication.factor
+  value: 1
+  description: The default replication factor for automatically created topics.
+-
+  name: replica.lag.time.max.ms
+  value: 10000
+  description: If a follower hasn't sent any fetch requests for this window of time, the leader will remove the follower from ISR (in-sync replicas) and treat it as dead.
+-
+  name: replica.lag.max.messages
+  value: 4000
+  description:
+    If a replica falls more than this many messages behind the leader, the leader will remove the follower from ISR and treat it as dead.
+-
+  name: replica.socket.timeout.ms
+  value: 30000
+  description: The socket timeout for network requests to the leader for replicating data.
+-
+  name: replica.socket.receive.buffer.bytes
+  value: 65536
+  description: The socket receive buffer for network requests to the leader for replicating data.
+-
+  name: replica.fetch.max.bytes
+  value: 1048576
+  description: The number of byes of messages to attempt to fetch for each partition in the fetch requests the replicas send to the leader.
+-
+  name: replica.fetch.wait.max.ms
+  value: 500
+  description: The maximum amount of time to wait time for data to arrive on the leader in the fetch requests sent by the replicas to the leader.
+-
+  name: replica.fetch.min.bytes
+  value: 1
+  description: Minimum bytes expected for each fetch response for the fetch requests from the replica to the leader. If not enough bytes, wait up to replica.fetch.wait.max.ms for this many bytes to arrive.
+-
+  name: num.replica.fetchers
+  value: 1
+  description:
+    Number of threads used to replicate messages from leaders. Increasing this value can increase the degree of I/O parallelism in the follower broker.
+-
+  name: replica.high.watermark.checkpoint.interval.ms
+  value: 5000
+  description: The frequency with which each replica saves its high watermark to disk to handle recovery.
+-
+  name: fetch.purgatory.purge.interval.requests
+  value: 10000
+  description: The purge interval (in number of requests) of the fetch request purgatory.
+-
+  name: producer.purgatory.purge.interval.requests
+  value: 10000
+  description: The purge interval (in number of requests) of the producer request purgatory.
+-
+  name: zookeeper.session.timeout.ms
+  value: 30000
+  description: Zookeeper session timeout. If the server fails to heartbeat to zookeeper within this period of time it is considered dead. If you set this too low the server may be falsely considered dead; if you set it too high it may take too long to recognize a truly dead server.
+-
+  name: zookeeper.connection.timeout.ms
+  value: 25000
+  description: The maximum amount of time that the client waits to establish a connection to zookeeper.
+-
+  name: zookeeper.sync.time.ms
+  value: 2000
+  description: How far a ZK follower can be behind a ZK leader.
+-
+  name: controlled.shutdown.max.retries
+  value: 3
+  description: Number of retries to complete the controlled shutdown successfully before executing an unclean shutdown.
+-
+  name: controlled.shutdown.retry.backoff.ms
+  value: 5000
+  description:
+    Backoff time between shutdown retries.
+-
+  name: controlled.shutdown.enable
+  value: true
+  description: Enable controlled shutdown of the broker. If enabled, the broker will move all leaders on it to some other brokers before shutting itself down. This reduces the unavailability window during shutdown.
+-
+  name: auto.leader.rebalance.enable
+  value: true
+  description: Enables auto leader balancing. A background thread checks and triggers leader balance if required at regular intervals
+-
+  name: num.recovery.threads.per.data.dir
+  value: 1
+  description: The number of threads per data directory to be used for log recovery at startup and flushing at shutdown
+-
+  name: min.insync.replicas
+  value: 1
+  description: define the minimum number of replicas in ISR needed to satisfy a produce request with required.acks=-1 (or all)
+-
+  name: leader.imbalance.per.broker.percentage
+  value: 10
+  description: The ratio of leader imbalance allowed per broker. The controller would trigger a leader balance if it goes above this value per broker. The value is specified in percentage.
+-
+  name: leader.imbalance.check.interval.seconds
+  value: 300
+  description: The frequency with which the partition rebalance check is triggered by the controller
+-
+  name: offset.metadata.max.bytes
+  value: 4096
+  description: The maximum size for a metadata entry associated with an offset commit
+-
+  name: offsets.load.buffer.size
+  value: 5242880
+  description: Batch size for reading from the offsets segments when loading offsets into the cache.
+-
+  name: offsets.topic.replication.factor
+  value: 3
+  description: The replication factor for the offsets topic (set higher to ensure availability).
+    To ensure that the effective replication factor of the offsets topic is the configured value,
+    the number of alive brokers has to be at least the replication factor at the time of the
+    first request for the offsets topic. If not, either the offsets topic creation will fail or it will get a replication factor of min(alive brokers, configured replication factor).
+-
+  name: offsets.topic.num.partitions
+  value: 50
+  description: The number of partitions for the offset commit topic (should not change after deployment)
+-
+  name: offsets.topic.segment.bytes
+  value: 104857600
+  description: The offsets topic segment bytes should be kept relatively small in order to facilitate faster log compaction and cache loads
+-
+  name: offsets.topic.compression.codec
+  value: 0
+  description: Compression codec for the offsets topic - compression may be used to achieve \\"atomic\\" commits. Default is NoCompression. For Gzip add value 1 , SnappyCompression add value 2, LZ4CompressionCodec 3.
+-
+  name: offsets.retention.minutes
+  value: 86400000
+  description: Log retention window in minutes for offsets topic
+-
+  name: offsets.retention.check.interval.ms
+  value: 600000
+  description: Frequency at which to check for stale offsets
+-
+  name: offsets.commit.timeout.ms
+  value: 5000
+  description: Offset commit will be delayed until all replicas for the offsets topic receive the commit or this timeout is reached. This is similar to the producer request timeout.
+-
+  name: offsets.commit.required.acks
+  value: -1
+  description: The required acks before the commit can be accepted. In general, the default (-1) should not be overridden
+-
+  name: delete.topic.enable
+  value: true
+  description: Enables delete topic. Delete topic through the admin tool will have no effect if this config is turned off
+-
+  name: compression.type
+  description: Specify the final compression type for a given topic. This configuration accepts the standard compression codecs ('gzip', 'snappy', lz4). It additionally accepts 'uncompressed' which is equivalent to no compression; and 'producer' which means retain the original compression codec set by the producer.
+  value: producer
+-
+  name: external.kafka.metrics.exclude.prefix
+  value: kafka.network.RequestMetrics,kafka.server.DelayedOperationPurgatory,kafka.server.BrokerTopicMetrics.BytesRejectedPerSec
+  description:
+    Exclude metrics starting with these prefixes from being collected.
+-
+  name: external.kafka.metrics.include.prefix
+  value: kafka.network.RequestMetrics.ResponseQueueTimeMs.request.OffsetCommit.98percentile,kafka.network.RequestMetrics.ResponseQueueTimeMs.request.Offsets.95percentile,kafka.network.RequestMetrics.ResponseSendTimeMs.request.Fetch.95percentile,kafka.network.RequestMetrics.RequestsPerSec.request
+  description:
+    These metrics would be included even if the exclude prefix omits them.
+-
+  name: sasl.enabled.mechanisms
+  value: GSSAPI
+  description: The list of SASL mechanisms enabled in the Kafka server. The list may contain any mechanism for which a security provider is available. Only GSSAPI is enabled by default.
+-
+  name: security.inter.broker.protocol
+  value: PLAINTEXT
+  description: "Security protocol used to communicate between brokers. Valid values are: PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL. It is an error to set this and inter.broker.listener.name properties at the same time."
+-
+  name: sasl.mechanism.inter.broker.protocol
+  value: GSSAPI
+  description: SASL mechanism used for inter-broker communication. Default is GSSAPI.
+-
+  name: ssl.client.auth
+  value: none
+  description: Configures kafka broker to request client authentication.
+-
+  name: ssl.key.password
+  value:
+  description: The password of private key in the key store file.
+-
+  name: ssl.keystore.location
+  value:
+  description: The location of key store file.
+-
+  name: ssl.keystore.password
+  value:
+  description: The store password for key store file.
+-
+  name: ssl.truststore.location
+  value:
+  description: The location of trust store file.
+-
+  name: ssl.truststore.password
+  value:
+  description: The password for trust store file. If a password is not set access to the truststore is still available, but integrity checking is disabled
+-
+  name: producer.metrics.enable
+  value: false

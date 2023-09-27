@@ -25,3 +25,8 @@ repos:
     baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
     repoName: BIGTOP
     repoId: BIGTOP-3.3.0
+  - os: rocky8
+    arch: x86_64
+    baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
+    repoName: BIGTOP
+    repoId: BIGTOP-3.3.0
