@@ -4,7 +4,7 @@ package org.apache.bigtop.manager.stack.core.hooks;
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
-import org.apache.bigtop.manager.stack.common.utils.HostCacheUtils;
+import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxAccountUtils;
 import org.apache.bigtop.manager.stack.spi.Hook;
 
@@ -21,8 +21,8 @@ public class AnyHookImpl implements Hook {
     @Override
     public void before() {
         log.info("before any");
-        Map<String, Set<String>> users = HostCacheUtils.users();
-        String userGroup = HostCacheUtils.cluster().getUserGroup();
+        Map<String, Set<String>> users = LocalSettings.users();
+        String userGroup = LocalSettings.cluster().getUserGroup();
 
         for (Map.Entry<String, Set<String>> user : users.entrySet()) {
             Set<String> groups = user.getValue();

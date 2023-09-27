@@ -20,5 +20,6 @@ public class FreemarkerUtils {
         CONFIGURATION.setWrapUncheckedExceptions(true);
         CONFIGURATION.setFallbackOnNullLoopVariable(false);
         CONFIGURATION.setSQLDateAndTimeTimeZone(TimeZone.getDefault());
+        CONFIGURATION.setNumberFormat("0.##");
     }
 }
