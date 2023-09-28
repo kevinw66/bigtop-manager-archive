@@ -24,13 +24,15 @@ import { StackVO } from '@/api/stack/types.ts'
 export const useStackStore = defineStore(
   'stack',
   () => {
-    // const stackServiceVOList = shallowReactive<StackServiceVO[]>([])
     const stackOptions = shallowReactive<StackOptionProps[]>([])
+    const stackServices = shallowReactive<any>({})
 
-    const initStacks = async () => {
+    const initStacks = async (stackVOList: StackVO[]) => {
       const stacks: StackOptionProps[] = []
-      const stackVOList: StackVO[] = await list()
       stackVOList.forEach((stackVO) => {
+        const fullStackName = stackVO.stackName + '-' + stackVO.stackVersion
+        stackServices[fullStackName] = stackVO.services
+
         const props: StackOptionProps = {
           label: stackVO.stackVersion,
           value: stackVO.stackVersion
@@ -55,12 +57,14 @@ export const useStackStore = defineStore(
     }
 
     const getStacks = async () => {
-      Object.assign(stackOptions, await initStacks())
-      return Promise.resolve()
+      const stackVOList: StackVO[] = await list()
+
+      Object.assign(stackOptions, await initStacks(stackVOList))
     }
 
     return {
       stackOptions,
+      stackServices,
       getStacks
     }
   },

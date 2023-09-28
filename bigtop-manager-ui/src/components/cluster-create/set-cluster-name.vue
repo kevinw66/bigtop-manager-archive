@@ -2,15 +2,16 @@
   import { ref } from 'vue'
   import { SmileOutlined } from '@ant-design/icons-vue'
 
-  const formRef = ref<any>(null)
   const clusterInfo = defineModel<any>('clusterInfo')
+
+  const formRef = ref<any>(null)
 
   const onNextStep = async () => {
     try {
       await formRef.value?.validate()
-      return true
+      return Promise.resolve(true)
     } catch (e) {
-      return false
+      return Promise.resolve(false)
     }
   }
 

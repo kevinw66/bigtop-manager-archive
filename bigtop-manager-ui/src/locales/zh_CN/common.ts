@@ -24,5 +24,8 @@ export default {
   install: '安装',
   finish: '完成',
   select_tips: '请选择',
+  name: '名称',
+  version: '版本',
+  desc: '描述',
   unknown_error: '未知错误'
 }

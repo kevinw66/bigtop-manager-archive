@@ -24,5 +24,8 @@ export default {
   install: 'Install',
   finish: 'Finish',
   select_tips: 'Please select',
+  name: 'Name',
+  version: 'Version',
+  desc: 'Description',
   unknown_error: 'Unknown error'
 }

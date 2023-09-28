@@ -54,7 +54,9 @@
 
   const initClusterInfo = () => {
     return {
-      clusterName: ''
+      clusterName: '',
+      stackName: '',
+      stackVersion: ''
     }
   }
 
@@ -68,6 +70,7 @@
 
   const next = async () => {
     if (await currentItemRef.value?.onNextStep()) {
+      console.log('clusterInfo:', clusterInfo)
       items[current.value].status = 'finish'
       current.value++
       items[current.value].status = 'process'
