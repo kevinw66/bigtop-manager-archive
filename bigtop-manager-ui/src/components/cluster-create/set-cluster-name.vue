@@ -1,7 +1,22 @@
 <script setup lang="ts">
+  import { ref } from 'vue'
   import { SmileOutlined } from '@ant-design/icons-vue'
 
+  const formRef = ref<any>(null)
   const clusterInfo = defineModel<any>('clusterInfo')
+
+  const onNextStep = async () => {
+    try {
+      await formRef.value?.validate()
+      return true
+    } catch (e) {
+      return false
+    }
+  }
+
+  defineExpose({
+    onNextStep
+  })
 </script>
 
 <template>
@@ -14,10 +29,23 @@
         <smile-outlined />
       </template>
       <template #extra>
-        <a-input
-          v-model:value="clusterInfo.clusterName"
-          :placeholder="$t('cluster.set_cluster_name_input')"
-        />
+        <a-form ref="formRef" :model="clusterInfo">
+          <a-form-item
+            name="clusterName"
+            :rules="[
+              {
+                required: true,
+                message: $t('cluster.set_cluster_name_valid')
+              }
+            ]"
+          >
+            <a-input
+              v-model:value="clusterInfo.clusterName"
+              allow-clear
+              :placeholder="$t('cluster.set_cluster_name_input')"
+            />
+          </a-form-item>
+        </a-form>
       </template>
     </a-result>
   </div>

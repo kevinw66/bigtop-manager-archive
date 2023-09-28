@@ -19,6 +19,8 @@ public interface StackMapper {
 
     StackVO Entity2VO(Stack stack);
 
+    StackVO DTO2VO(StackDTO stackDTO);
+
     StackDTO Model2DTO(StackModel stackModel);
 
 }

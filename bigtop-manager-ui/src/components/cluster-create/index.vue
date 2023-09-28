@@ -61,14 +61,17 @@
   const current = ref<number>(0)
   const items = reactive(initItems())
   const clusterInfo = reactive(initClusterInfo())
+  const currentItemRef = ref<any>(null)
   watch(locale, () => {
     Object.assign(items, initItems())
   })
 
-  const next = () => {
-    items[current.value].status = 'finish'
-    current.value++
-    items[current.value].status = 'process'
+  const next = async () => {
+    if (await currentItemRef.value?.onNextStep()) {
+      items[current.value].status = 'finish'
+      current.value++
+      items[current.value].status = 'process'
+    }
   }
 
   const prev = () => {
@@ -148,6 +151,7 @@
       <div class="content">
         <component
           :is="items[current].content"
+          ref="currentItemRef"
           v-model:clusterInfo="clusterInfo"
         />
       </div>

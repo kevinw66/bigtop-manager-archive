@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
-import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
@@ -19,7 +19,16 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -41,14 +50,14 @@ public class StackUtils {
 
     private static final Map<String, Map<String, Set<String>>> STACK_CONFIG_MAP = new HashMap<>();
 
-    private static final Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
+    private static final Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
 
     public static Map<String, Map<String, Set<String>>> getStackConfigMap() {
         return Collections.unmodifiableMap(STACK_CONFIG_MAP);
     }
 
-    public static Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> getStackKeyMap() {
+    public static Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> getStackKeyMap() {
         return Collections.unmodifiableMap(STACK_KEY_MAP);
     }
 
@@ -56,9 +65,9 @@ public class StackUtils {
      * Parse stack file to generate stack model
      * @return stack model {@link StackModel}
      */
-    public static StackDTO parseStack(File stackVersionFile) {
+    public static StackDTO parseStack(File versionFolder) {
         return StackMapper.INSTANCE.Model2DTO(YamlUtils.readYaml(
-                stackVersionFile.getAbsolutePath() + File.separator + META_FILE,
+                versionFolder.getAbsolutePath() + File.separator + META_FILE,
                 StackModel.class));
     }
 
@@ -68,13 +77,13 @@ public class StackUtils {
      * @param stackVersion stack version
      * @return service model {@link ServiceModel}
      */
-    public static Set<ServiceDTO> parseService(File stackVersionFile, String stackName, String stackVersion) {
+    public static List<ServiceDTO> parseService(File versionFolder, String stackName, String stackVersion) {
         Map<String, Set<String>> mergedDependencyMap = new HashMap<>();
         Map<String, Set<String>> mergedConfigMap = new HashMap<>();
 
-        File[] files = new File(stackVersionFile.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
+        File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
 
-        Set<ServiceDTO> serviceDTOSet = new HashSet<>();
+        List<ServiceDTO> services = new ArrayList<>();
         if (files != null) {
             for (File file : files) {
                 log.info("service dir: {}", file);
@@ -82,7 +91,7 @@ public class StackUtils {
                 // metainfo.yaml
                 ServiceModel serviceModel = YamlUtils.readYaml(file.getAbsolutePath() + "/" + META_FILE, ServiceModel.class);
                 ServiceDTO serviceDTO = ServiceMapper.INSTANCE.Model2DTO(serviceModel);
-                serviceDTOSet.add(serviceDTO);
+                services.add(serviceDTO);
 
                 // order.json
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE);
@@ -101,8 +110,10 @@ public class StackUtils {
                         serviceConfigSet.add(configFile.getAbsolutePath());
                     }
                 }
+
                 mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
             }
+
             STACK_DEPENDENCY_MAP.put(fullStackName(stackName, stackVersion), mergedDependencyMap);
             STACK_CONFIG_MAP.put(fullStackName(stackName, stackVersion), mergedConfigMap);
 
@@ -110,37 +121,34 @@ public class StackUtils {
             log.info("stackDependencyMap: {}", STACK_DEPENDENCY_MAP);
         }
 
-        return serviceDTOSet;
+        return services;
     }
 
     /**
      * @return stack list map
      */
-    public static Map<StackDTO, Set<ServiceDTO>> stackList() throws ServerException {
-        File stacksFile = loadStackFile();
-        File[] files = Optional.ofNullable(stacksFile.listFiles()).orElse(new File[0]);
-        Map<StackDTO, Set<ServiceDTO>> stackMap = new HashMap<>();
+    public static Map<StackDTO, List<ServiceDTO>> stackList() {
+        File stacksFolder = loadStacksFolder();
+        File[] stackFolders = Optional.ofNullable(stacksFolder.listFiles()).orElse(new File[0]);
+        Map<StackDTO, List<ServiceDTO>> stackMap = new HashMap<>();
 
-        for (File stackFile : files) {
-            String stackName = stackFile.getName();
-            File[] subVersions = Optional.ofNullable(stackFile.listFiles()).orElse(new File[0]);
+        for (File stackFolder : stackFolders) {
+            String stackName = stackFolder.getName();
+            File[] versionFolders = Optional.ofNullable(stackFolder.listFiles()).orElse(new File[0]);
 
-            for (File stackVersionFile : subVersions) {
-                String stackVersion = stackVersionFile.getName();
-                log.info("stackName: {}, stackVersion: {}", stackName, stackVersion);
+            for (File versionFolder : versionFolders) {
+                String stackVersion = versionFolder.getName();
+                log.info("Parsing stack: {} {}", stackName, stackVersion);
 
-                StackDTO stackDTO = parseStack(stackVersionFile);
+                checkStack(versionFolder);
+                StackDTO stackDTO = parseStack(versionFolder);
+                List<ServiceDTO> services = parseService(versionFolder, stackName, stackVersion);
 
-                checkStack(stackVersionFile);
+                stackMap.put(stackDTO, services);
 
-                Set<ServiceDTO> serviceDTOSet = parseService(stackVersionFile, stackName, stackVersion);
-
-                stackMap.put(stackDTO, serviceDTOSet);
-
-                STACK_KEY_MAP.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, serviceDTOSet));
+                STACK_KEY_MAP.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, services));
             }
         }
-        log.info("stackKeyMap: {}", STACK_KEY_MAP);
 
         DagHelper.dagInitialized(STACK_DEPENDENCY_MAP);
         return stackMap;
@@ -149,7 +157,7 @@ public class StackUtils {
     /**
      * Load stack folder as file
      */
-    private static File loadStackFile() throws ServerException {
+    private static File loadStacksFolder() throws ApiException {
         String stackPath = System.getProperty(BIGTOP_MANAGER_STACK_PATH);
         stackPath = stackPath == null ? "" : stackPath;
 
@@ -166,18 +174,19 @@ public class StackUtils {
                 throw new ServerException("Can't find stack folder");
             }
         }
+
         log.info("stack file: {}", file);
         return file;
     }
 
     /**
      * Check stack file
-     * @param stackVersionFile stack version file
+     * @param versionFolder stack version folder
      */
-    private static void checkStack(File stackVersionFile) throws ServerException {
-        String[] list = stackVersionFile.list();
-        if (list != null && !Arrays.stream(list).toList().contains(META_FILE)) {
-            throw new ServerException(ServerExceptionStatus.STACK_CHECK_INVALID);
+    private static void checkStack(File versionFolder) {
+        String[] list = versionFolder.list();
+        if (list == null || !Arrays.asList(list).contains(META_FILE)) {
+            throw new ServerException("Missing metainfo.yaml in stack version folder: " + versionFolder.getAbsolutePath());
         }
     }
 

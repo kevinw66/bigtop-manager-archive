@@ -16,13 +16,22 @@
  */
 
 export interface StackVO {
-  id: number
   stackName: string
   stackVersion: string
+  services: StackServiceVO[]
+  repos: StackRepoVO[]
 }
 
 export interface StackServiceVO {
   serviceName: string
   displayName: string
+  serviceDesc: string
   serviceVersion: string
+}
+
+export interface StackRepoVO {
+  repoId: string
+  baseurl: string
+  os: string
+  arch: string
 }

@@ -19,7 +19,7 @@ package org.apache.bigtop.manager.server.utils;
 
 import lombok.Data;
 import org.apache.bigtop.manager.server.enums.ResponseStatus;
-import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 
 @Data
 public class ResponseEntity<T> {
@@ -71,7 +71,7 @@ public class ResponseEntity<T> {
         return new ResponseEntity<>(status.getCode(), status.getMessage() + ": " + appendMessage);
     }
 
-    public static <T> ResponseEntity<T> error(ServerExceptionStatus ex) {
+    public static <T> ResponseEntity<T> error(ApiExceptionEnum ex) {
         return new ResponseEntity<>(ex.getCode(), ex.getMessage());
     }
 }

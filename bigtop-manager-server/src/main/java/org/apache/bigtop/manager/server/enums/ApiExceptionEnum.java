@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.apache.bigtop.manager.server.utils.MessageSourceUtils;
 
 @Getter
-public enum ServerExceptionStatus {
+public enum ApiExceptionEnum {
 
     NEED_LOGIN(10000, LocaleKeys.LOGIN_REQUIRED),
     USERNAME_OR_PASSWORD_REQUIRED(10001, LocaleKeys.LOGIN_ACCOUNT_REQUIRED),
@@ -19,7 +19,6 @@ public enum ServerExceptionStatus {
 
     // Stack Exceptions -- 13000 ~ 13999
     STACK_NOT_FOUND(13000, LocaleKeys.STACK_NOT_FOUND),
-    STACK_CHECK_INVALID(13001, LocaleKeys.STACK_CHECK_INVALID),
 
     // Service Exceptions -- 14000 ~ 14999
     SERVICE_NOT_FOUND(14000, LocaleKeys.SERVICE_NOT_FOUND),
@@ -32,7 +31,7 @@ public enum ServerExceptionStatus {
 
     private final LocaleKeys key;
 
-    ServerExceptionStatus(Integer code, LocaleKeys key) {
+    ApiExceptionEnum(Integer code, LocaleKeys key) {
         this.code = code;
         this.key = key;
     }

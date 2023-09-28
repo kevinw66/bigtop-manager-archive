@@ -26,6 +26,8 @@ public interface ServiceMapper {
 
     StackServiceVO DTO2VO(ServiceDTO serviceDTO);
 
+    List<StackServiceVO> DTOList2VOList(List<ServiceDTO> serviceDTOList);
+
     @Mapping(target = "serviceName", source = "name")
     @Mapping(target = "serviceDesc", source = "desc")
     @Mapping(target = "serviceVersion", source = "version")

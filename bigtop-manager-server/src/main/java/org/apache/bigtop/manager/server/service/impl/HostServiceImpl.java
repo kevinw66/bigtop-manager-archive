@@ -9,7 +9,7 @@ import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.server.enums.*;
 import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
-import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
@@ -115,7 +115,7 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public HostVO get(Long id) {
-        Host host = hostRepository.findById(id).orElseThrow(() -> new ServerException(ServerExceptionStatus.HOST_NOT_FOUND));
+        Host host = hostRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.HOST_NOT_FOUND));
 
         return HostMapper.INSTANCE.Entity2VO(host);
     }

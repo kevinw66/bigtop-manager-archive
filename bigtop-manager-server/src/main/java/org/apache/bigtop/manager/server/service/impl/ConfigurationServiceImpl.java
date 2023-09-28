@@ -8,8 +8,16 @@ import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.server.orm.entity.Service;
+import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
+import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
+import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceConfigMappingRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceConfigRecordRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceConfigRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceRepository;
 import org.apache.bigtop.manager.server.service.ConfigurationService;
 import org.apache.commons.lang3.StringUtils;
 

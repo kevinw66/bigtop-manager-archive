@@ -4,7 +4,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.holder.SessionUserHolder;
 import org.apache.bigtop.manager.server.utils.JWTUtils;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
@@ -48,7 +48,7 @@ public class AuthInterceptor implements HandlerInterceptor {
     private Boolean checkLogin(HttpServletRequest request) {
         String token = request.getHeader("Token");
         if (StringUtils.isBlank(token)) {
-            responseEntity = ResponseEntity.error(ServerExceptionStatus.NEED_LOGIN);
+            responseEntity = ResponseEntity.error(ApiExceptionEnum.NEED_LOGIN);
             return false;
         }
 
@@ -56,7 +56,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             DecodedJWT decodedJWT = JWTUtils.resolveToken(token);
             SessionUserHolder.setUserId(decodedJWT.getClaim(JWTUtils.CLAIM_ID).asLong());
         } catch (Exception e) {
-            responseEntity = ResponseEntity.error(ServerExceptionStatus.NEED_LOGIN);
+            responseEntity = ResponseEntity.error(ApiExceptionEnum.NEED_LOGIN);
             return false;
         }
 

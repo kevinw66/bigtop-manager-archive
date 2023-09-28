@@ -22,6 +22,7 @@ export default {
   set_cluster_name_title: "Let's get started!",
   set_cluster_name_sub_title: 'Please follow the steps to create your cluster.',
   set_cluster_name_input: 'Input your cluster name',
+  set_cluster_name_valid: 'Cluster name is required',
   choose_stack: 'Choose Stack',
   set_repository: 'Set Repository',
   set_hosts: 'Set Hosts'

@@ -16,6 +16,7 @@ import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
@@ -113,7 +114,7 @@ public class TaskFlowHandler implements Callback {
     }
 
     public Map<String, Set<String>> getComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList,
-                                                            CommandEvent commandEvent) throws ServerException {
+                                                            CommandEvent commandEvent) throws ApiException {
         Map<String, Set<String>> componentHostMapping = new HashMap<>();
 
         String clusterName = commandEvent.getClusterName();
@@ -149,7 +150,6 @@ public class TaskFlowHandler implements Callback {
             Set<String> hostSet = entry.getValue();
             List<Host> hostList = hostRepository.findAllByHostnameIn(hostSet);
             if (hostList.size() != hostSet.size()) {
-                log.error("Can't find host in database");
                 throw new ServerException("Can't find host in database");
             }
 
@@ -188,10 +188,10 @@ public class TaskFlowHandler implements Callback {
             }
             case INSTALL_SERVICE -> {
                 List<String> serviceNameList = commandEvent.getServiceNames();
-                Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+                Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
-                ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-                Set<ServiceDTO> serviceDTOSet = immutablePair.getRight();
+                ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+                List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
 
                 // Persist service, component and hostComponent metadata to database
                 for (ServiceDTO serviceDTO : serviceDTOSet) {

@@ -22,8 +22,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.error(ResponseStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(value = ServerException.class)
-    public ResponseEntity<Void> exceptionHandler(ServerException e) {
+    @ExceptionHandler(value = ApiException.class)
+    public ResponseEntity<Void> exceptionHandler(ApiException e) {
         return ResponseEntity.error(e.getEx());
     }
 

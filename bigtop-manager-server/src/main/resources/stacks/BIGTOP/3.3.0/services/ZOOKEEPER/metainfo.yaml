@@ -1,6 +1,6 @@
 name: ZOOKEEPER
 active: true
-displayName: Zookeeper
+displayName: ZooKeeper
 desc: Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly reliable distributed coordination.
 version: 3.6.4
 user: zookeeper

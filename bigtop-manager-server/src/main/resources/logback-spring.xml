@@ -17,7 +17,7 @@
   -->
 
 <configuration scan="true" scanPeriod="120 seconds">
-    <property name="log.base" value="/var/log/bigtop-manager-server"/>
+    <property name="log.base" value="./logs"/>
     <property scope="context" name="log.base.ctx" value="${log.base}"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -41,6 +41,7 @@
             <charset>UTF-8</charset>
         </encoder>
     </appender>
+
     <appender name="SERVERLOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.base}/bigtop-manager-server.log</file>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
@@ -65,11 +66,14 @@
 
     <logger name="org.apache.bigtop.manager.server.ws.ServerWebSocketHandler" level="DEBUG" additivity="false">
         <appender-ref ref="WSLOGFILE"/>
+        <appender-ref ref="STDOUT"/>
     </logger>
+
     <logger name="org.hibernate.SQL" level="DEBUG" additivity="true"/>
     <logger name="org.hibernate.type.descriptor.sql" level="TRACE" additivity="true"/>
 
     <root level="INFO">
         <appender-ref ref="SERVERLOGFILE"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

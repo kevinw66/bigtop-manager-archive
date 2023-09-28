@@ -3,9 +3,8 @@ package org.apache.bigtop.manager.server.service.impl;
 import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
-import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
@@ -61,7 +60,7 @@ public class ComponentServiceImpl implements ComponentService {
 
     @Override
     public ComponentVO get(Long id) {
-        Component component = componentRepository.findById(id).orElseThrow(() -> new ServerException(ServerExceptionStatus.COMPONENT_NOT_FOUND));
+        Component component = componentRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.COMPONENT_NOT_FOUND));
         return ComponentMapper.INSTANCE.Entity2VO(component);
     }
 

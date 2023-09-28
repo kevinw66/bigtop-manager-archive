@@ -32,9 +32,8 @@ export const useStackStore = defineStore(
       const stackVOList: StackVO[] = await list()
       stackVOList.forEach((stackVO) => {
         const props: StackOptionProps = {
-          id: stackVO.id,
-          value: stackVO.id,
-          label: stackVO.stackVersion
+          label: stackVO.stackVersion,
+          value: stackVO.stackVersion
         }
 
         const existStackVO = stacks.find(
@@ -42,12 +41,13 @@ export const useStackStore = defineStore(
         )
 
         if (!existStackVO) {
-          stacks.push({
+          stacks.unshift({
             label: stackVO.stackName,
+            value: stackVO.stackName,
             children: [props]
           })
         } else {
-          existStackVO.children?.push(props)
+          existStackVO.children?.unshift(props)
         }
       })
 

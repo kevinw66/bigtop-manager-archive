@@ -9,5 +9,7 @@ public class StackServiceVO {
 
     private String displayName;
 
+    private String serviceDesc;
+
     private String serviceVersion;
 }

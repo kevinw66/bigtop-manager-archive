@@ -5,13 +5,7 @@ import lombok.Data;
 @Data
 public class StackRepoVO {
 
-    private String stackName;
-
-    private String stackVersion;
-
     private String repoId;
-
-    private String repoName;
 
     private String baseurl;
 

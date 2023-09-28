@@ -113,10 +113,10 @@ public class ServiceServiceImpl implements ServiceService {
         String stackVersion = commandDTO.getStackVersion();
         Map<String, Set<String>> componentHostMapping = commandDTO.getComponentHosts();
 
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
-        ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-        Set<ServiceDTO> serviceDTOSet = immutablePair.getRight();
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
 
         // Persist service, component and hostComponent metadata to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());

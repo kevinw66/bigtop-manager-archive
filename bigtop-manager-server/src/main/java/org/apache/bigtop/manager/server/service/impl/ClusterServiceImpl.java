@@ -3,10 +3,9 @@ package org.apache.bigtop.manager.server.service.impl;
 import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.enums.ServerExceptionStatus;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.StatusType;
-import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
@@ -64,14 +63,14 @@ public class ClusterServiceImpl implements ClusterService {
     public ClusterVO create(ClusterDTO clusterDTO) {
         String stackName = clusterDTO.getStackName();
         String stackVersion = clusterDTO.getStackVersion();
-        Map<String, ImmutablePair<StackDTO, Set<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
-        ImmutablePair<StackDTO, Set<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
         StackDTO stackDTO = immutablePair.getLeft();
 
         // save cluster
         Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
         if (stack.getId() == null) {
-            throw new ServerException(ServerExceptionStatus.STACK_NOT_FOUND);
+            throw new ApiException(ApiExceptionEnum.STACK_NOT_FOUND);
         }
 
         Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
@@ -101,7 +100,7 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Override
     public ClusterVO get(Long id) {
-        Cluster cluster = clusterRepository.findById(id).orElseThrow(() -> new ServerException(ServerExceptionStatus.CLUSTER_NOT_FOUND));
+        Cluster cluster = clusterRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.CLUSTER_NOT_FOUND));
 
         return ClusterMapper.INSTANCE.Entity2VO(cluster);
     }

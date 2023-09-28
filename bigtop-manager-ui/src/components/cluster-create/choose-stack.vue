@@ -5,20 +5,24 @@
 
   const stackStore = useStackStore()
 
-  const value = ref<string[]>([])
+  const defaultOption = ref<string[]>([])
   const { stackOptions } = storeToRefs(stackStore)
 
   onMounted(async () => {
     await stackStore.getStacks()
+    defaultOption.value = [
+      `${stackOptions.value?.[0]?.value}`,
+      `${stackOptions.value?.[0]?.children?.[0]?.value}`
+    ]
   })
 </script>
 
 <template>
   <div class="container">
     <div class="title">{{ $t('cluster.choose_stack') }}</div>
-    <div>{{ value }}</div>
+    <div>{{ defaultOption }}</div>
     <a-cascader
-      v-model:value="value"
+      v-model:value="defaultOption"
       :options="stackOptions"
       :placeholder="$t('common.select_tips')"
     />
