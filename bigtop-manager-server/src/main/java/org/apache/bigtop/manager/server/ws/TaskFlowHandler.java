@@ -112,6 +112,13 @@ public class TaskFlowHandler implements Callback {
         return sortedList;
     }
 
+    /**
+     * Fill in the mapping of components and hosts
+     *
+     * @param sortedRcpList result of {@link TaskFlowHandler#generateProcessWrapper}
+     * @param commandEvent command event
+     * @return componentHostMapping key: component name, value: host list. e.g. {ZOOKEEPER_SERVER=[node1], KAFKA_SERVER=[node1, node2]}
+     */
     public Map<String, Set<String>> getComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList,
                                                             CommandEvent commandEvent) throws ServerException {
         Map<String, Set<String>> componentHostMapping = new HashMap<>();
@@ -315,7 +322,6 @@ public class TaskFlowHandler implements Callback {
     @Subscribe
     public void submitTaskFlow(CommandEvent commandEvent) {
         this.taskFlowQueue = generateTaskFlow(commandEvent);
-        unmodifiedTaskFlowList = List.copyOf(taskFlowQueue);
 
         // job state is processing
         Long jobId = commandEvent.getJobId();
@@ -349,13 +355,16 @@ public class TaskFlowHandler implements Callback {
             countDownLatch = new CountDownLatch(stage.getTasks().size());
 
             try {
-                boolean timeoutFlag = countDownLatch.await(60, TimeUnit.SECONDS);
+                boolean timeoutFlag = countDownLatch.await(5 * 60 * 1000, TimeUnit.MILLISECONDS);
                 if (!timeoutFlag) {
                     log.error("execute task timeout");
-                    stage.setState(JobState.FAILED);
+                    stage.setState(JobState.TIMEOUT);
                     stageRepository.save(stage);
-                    job.setState(JobState.FAILED);
+                    job.setState(JobState.TIMEOUT);
                     jobRepository.save(job);
+
+                    releaseRemainStages();
+                    break;
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -378,9 +387,6 @@ public class TaskFlowHandler implements Callback {
     private BlockingQueue<Stage> taskFlowQueue;
 
     private CountDownLatch countDownLatch;
-
-    //todo 用于计算执行进度
-    private List<Stage> unmodifiedTaskFlowList;
 
     @Override
     public void call(ResultMessage resultMessage) {
@@ -424,42 +430,49 @@ public class TaskFlowHandler implements Callback {
 
             //Updating the current task status to FAILED
             //Pop up all subsequent tasks and assign CANCELED status
-            if (!taskFlowQueue.isEmpty()) {
-                List<Stage> remainEvents = new ArrayList<>(taskFlowQueue.size());
-                taskFlowQueue.drainTo(remainEvents);
-                for (Stage s : remainEvents) {
-                    //todo 余下stage状态设置为CANCELED
-                    s.setState(JobState.FAILED);
-                    stageRepository.save(s);
-
-                    s.getTasks().forEach(t -> t.setState(JobState.CANCELED));
-                    taskRepository.saveAll(s.getTasks());
-                }
-            }
-
+            releaseRemainStages();
         }
 
-        ImmutablePair<Float, Float> progress = getProgress(unmodifiedTaskFlowList, task);
+        ImmutablePair<Float, Float> progress = getProgress(task);
         log.info("job progress: {}, job-host progress: {}", progress.getLeft(), progress.getRight());
 
     }
 
     /**
-     * 执行进度计算
+     * Release remaining Stages
      */
-    private ImmutablePair<Float, Float> getProgress(List<Stage> unmodifiedTaskFlowList, Task task) {
-        int i = 0;
-        for (Stage stage : unmodifiedTaskFlowList) {
-            i += stage.getTasks().size();
-        }
+    private void releaseRemainStages() {
+        if (!taskFlowQueue.isEmpty()) {
+            List<Stage> remainStages = new ArrayList<>(taskFlowQueue.size());
+            taskFlowQueue.drainTo(remainStages);
+            for (Stage s : remainStages) {
+                //Setting the status of the remaining stages to CANCELED
+                s.setState(JobState.CANCELED);
+                stageRepository.save(s);
 
-        List<Task> completedTaskList = taskRepository.findAllByJobId(task.getJob().getId());
-        Float jobProgress = (float) completedTaskList.size() / (float) i;
+                s.getTasks().forEach(t -> t.setState(JobState.CANCELED));
+                taskRepository.saveAll(s.getTasks());
+            }
+        }
+    }
+
+    /**
+     * Calculate execution progress
+     */
+    private ImmutablePair<Float, Float> getProgress(Task task) {
+        List<Task> totalTaskList = taskRepository.findAllByJobId(task.getJob().getId());
+        int totalTaskSize = totalTaskList.size();
+
+        List<Task> completedTaskList = taskRepository.findAllByJobIdAndState(task.getJob().getId(), JobState.SUCCESSFUL);
+
+        log.info("completedTaskList.size(), i: {}, {}", completedTaskList.size(), totalTaskSize);
+        Float jobProgress = (float) completedTaskList.size() / (float) totalTaskSize;
 
         String hostname = task.getHostname();
         List<Task> hostTaskList = displayTaskFlow.get(hostname);
-        List<Task> hostCompletedTaskList = taskRepository.findAllByJobIdAndHostname(task.getJob().getId(), hostname);
-        Float jobHostProgress = (float) hostTaskList.size() / (float) hostCompletedTaskList.size();
+        List<Task> hostCompletedTaskList = taskRepository.findAllByJobIdAndHostnameAndState(task.getJob().getId(), hostname, JobState.SUCCESSFUL);
+        log.info("hostCompletedTaskList.size(), hostTaskList.size(): {}, {}", hostCompletedTaskList.size(), hostTaskList.size());
+        Float jobHostProgress = (float) hostCompletedTaskList.size() / (float) hostTaskList.size();
 
         return new ImmutablePair<>(jobProgress, jobHostProgress);
     }

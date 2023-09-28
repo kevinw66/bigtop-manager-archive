@@ -28,7 +28,10 @@ public class PackageUtils {
      */
     public static ShellResult install(Collection<String> packageList) {
         if (packageList == null || packageList.isEmpty()) {
-            return null;
+            ShellResult shellResult = new ShellResult();
+            shellResult.setExitCode(-1);
+            shellResult.setErrMsg("packageList is empty");
+            return shellResult;
         }
         List<OSType> rpmOsTypes = PackageManagerType.RPM.getOsTypes();
         List<OSType> debOsTypes = PackageManagerType.DEB.getOsTypes();
