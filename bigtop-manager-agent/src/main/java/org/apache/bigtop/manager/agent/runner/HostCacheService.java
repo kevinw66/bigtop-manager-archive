@@ -4,21 +4,18 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -75,7 +72,7 @@ public class HostCacheService {
     }
 
     @Resource
-    private MessageSerializer serializer;
+    private AgentWsTools agentWsTools;
 
     /**
      * Dispatch event to target task runnable.
@@ -132,10 +129,7 @@ public class HostCacheService {
         resultMessage.setCode(MessageConstants.SUCCESS_CODE);
         resultMessage.setResult("Host cache success");
         resultMessage.setMessageType(MessageType.HOST_CACHE);
-        try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-        } catch (IOException e) {
-            log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-        }
+
+        agentWsTools.sendMessage(session, resultMessage);
     }
 }

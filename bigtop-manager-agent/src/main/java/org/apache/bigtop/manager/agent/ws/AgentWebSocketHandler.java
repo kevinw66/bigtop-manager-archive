@@ -31,6 +31,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MESSAGE_SIZE_LIMIT;
+
 @Slf4j
 @Component
 public class AgentWebSocketHandler extends BinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
@@ -67,7 +69,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
-        log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
+        log.info("Received message type: {}, session: {}", baseMessage.getClass().getSimpleName(), session);
 
         if (baseMessage instanceof CommandMessage commandMessage) {
             handleCommandMessage(session, commandMessage);
@@ -163,7 +165,8 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
             int retryTime = 0;
             while (true) {
                 try {
-                    webSocketClient.execute(this, uri).get();
+                    WebSocketSession webSocketSession = webSocketClient.execute(this, uri).get();
+                    webSocketSession.setBinaryMessageSizeLimit(WS_BINARY_MESSAGE_SIZE_LIMIT);
                     break;
                 } catch (Exception e) {
                     log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));

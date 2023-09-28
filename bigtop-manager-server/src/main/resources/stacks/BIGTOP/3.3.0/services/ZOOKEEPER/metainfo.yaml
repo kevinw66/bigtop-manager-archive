@@ -21,6 +21,7 @@ components:
 osSpecifics:
   - os:
       - centos7
+      - rocky8
     arch:
       - x86_64
     packages:

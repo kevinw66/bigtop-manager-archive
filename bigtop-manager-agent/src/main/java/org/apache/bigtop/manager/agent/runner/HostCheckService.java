@@ -4,8 +4,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.ws.AgentWebSocketHandler;
+import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
@@ -13,11 +14,8 @@ import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -72,7 +70,7 @@ public class HostCheckService {
     }
 
     @Resource
-    private MessageSerializer serializer;
+    private AgentWsTools agentWsTools;
 
     /**
      * Dispatch event to target task runnable.
@@ -122,11 +120,7 @@ public class HostCheckService {
                     resultMessage.setHostname(hostCheckMessage.getHostname());
                     resultMessage.setMessageType(MessageType.HOST_CHECK);
 
-                    try {
-                        session.sendMessage(new BinaryMessage(serializer.serialize(resultMessage)));
-                    } catch (IOException e) {
-                        log.error(MessageFormat.format("Error sending resultMessage to server: {0}", e.getMessage()));
-                    }
+                    agentWsTools.sendMessage(session, resultMessage);
                 }
                 default -> log.warn("unknown hostCheckType");
 

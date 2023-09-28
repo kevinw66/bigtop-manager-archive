@@ -20,4 +20,11 @@ public final class Constants {
      * registry session timeout
      */
     public static final long REGISTRY_SESSION_TIMEOUT = 5 * 1000L;
+
+    /**
+     * kryo buffer size
+     */
+    public static final int KRYO_BUFFER_SIZE = 65536;
+
+    public static final int WS_BINARY_MESSAGE_SIZE_LIMIT = 65536;
 }

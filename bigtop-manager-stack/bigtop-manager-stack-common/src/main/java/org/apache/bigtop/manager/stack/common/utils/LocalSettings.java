@@ -14,7 +14,7 @@ import java.util.*;
 import static org.apache.bigtop.manager.common.constants.HostCacheConstants.*;
 
 @Slf4j
-public class HostCacheUtils {
+public class LocalSettings {
 
     public static Object configurations(String service, String type, String key, Object defaultValue) {
         Map<String, Object> configMap = configurations(service, type);
