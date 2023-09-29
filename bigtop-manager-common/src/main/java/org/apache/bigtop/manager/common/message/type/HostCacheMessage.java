@@ -30,10 +30,6 @@ public class HostCacheMessage extends BaseMessage {
 
     private Map<String, Set<String>> clusterHostInfo;
 
-    private String stackName;
-
-    private String stackVersion;
-
     private String hostname;
 
 }

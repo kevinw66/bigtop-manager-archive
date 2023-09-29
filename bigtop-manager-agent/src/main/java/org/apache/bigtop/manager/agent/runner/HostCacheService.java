@@ -16,6 +16,7 @@ import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -127,7 +128,7 @@ public class HostCacheService {
         resultMessage.setMessageId(hostCacheMessage.getMessageId());
         resultMessage.setHostname(hostCacheMessage.getHostname());
         resultMessage.setCode(MessageConstants.SUCCESS_CODE);
-        resultMessage.setResult("Host cache success");
+        resultMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", hostCacheMessage.getHostname()));
         resultMessage.setMessageType(MessageType.HOST_CACHE);
 
         agentWsTools.sendMessage(session, resultMessage);

@@ -36,7 +36,7 @@ public class HostController {
 
     @Operation(summary = "create", description = "Create a host")
     @PostMapping
-    public ResponseEntity<HostVO> create(@RequestBody @Validated HostReq hostReq) {
+    public ResponseEntity<List<HostVO>> create(@RequestBody @Validated HostReq hostReq) {
         HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
         return ResponseEntity.success(hostService.create(hostDTO));
     }

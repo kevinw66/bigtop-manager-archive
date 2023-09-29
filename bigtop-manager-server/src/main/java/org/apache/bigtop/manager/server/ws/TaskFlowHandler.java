@@ -390,7 +390,7 @@ public class TaskFlowHandler implements Callback {
 
     @Override
     public void call(ResultMessage resultMessage) {
-        log.info("execute command completed");
+        log.info("Execute command completed, {}", resultMessage);
         countDownLatch.countDown();
 
         Task task = taskRepository.findById(resultMessage.getTaskId()).orElse(new Task());

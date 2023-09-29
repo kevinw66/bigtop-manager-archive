@@ -58,11 +58,11 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
         handleMessage(session, baseMessage);
 
-//        log.debug(baseMessage.toString());
+        log.debug(baseMessage.toString());
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
-//        log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
+        log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
         if (baseMessage instanceof HeartbeatMessage heartbeatMessage) {
             handleHeartbeatMessage(session, heartbeatMessage);
         } else if (baseMessage instanceof ResultMessage resultMessage) {
@@ -73,7 +73,6 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     private void handleResultMessage(ResultMessage resultMessage) {
-        log.info("handleResultMessage: {}", resultMessage);
         String messageId = resultMessage.getMessageId();
         callbackMap.get(messageId).call(resultMessage);
         callbackMap.remove(messageId);

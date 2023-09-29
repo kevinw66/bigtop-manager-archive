@@ -149,22 +149,17 @@ public class HostCacheHandler implements Callback {
         basicInfo.setJdbcDriver(setting.getJdbcDriver());
         basicInfo.setJdbcDriverHome(setting.getJdbcDriverHome());
 
-        //Wrapper HostCacheMessage for websocket
-        HostCacheMessage hostCacheMessage = new HostCacheMessage();
-
-        hostCacheMessage.setStackName(stackName);
-        hostCacheMessage.setStackVersion(stackVersion);
-
-        hostCacheMessage.setClusterInfo(clusterInfo);
-        hostCacheMessage.setConfigurations(serviceConfigMap);
-        hostCacheMessage.setClusterHostInfo(hostMap);
-        hostCacheMessage.setRepoInfo(repoList);
-        hostCacheMessage.setBasicInfo(basicInfo);
-        hostCacheMessage.setUserInfo(userMap);
 
         for (Host host : hostList) {
             String hostname = host.getHostname();
-            hostCacheMessage.setHostname(hostname);
+            //Wrapper HostCacheMessage for websocket
+            HostCacheMessage hostCacheMessage = convertMessage(hostname,
+                    basicInfo,
+                    clusterInfo,
+                    serviceConfigMap,
+                    hostMap,
+                    repoList,
+                    userMap);
 
             log.info("hostCacheMessage: {}", hostCacheMessage);
             serverWebSocketHandler.sendMessage(hostname, hostCacheMessage, this);
@@ -182,15 +177,34 @@ public class HostCacheHandler implements Callback {
 
     }
 
+    private HostCacheMessage convertMessage(String hostname,
+                                            BasicInfo basicInfo,
+                                            ClusterInfo clusterInfo,
+                                            Map<String, Map<String, Object>> serviceConfigMap,
+                                            Map<String, Set<String>> hostMap,
+                                            List<RepoInfo> repoList,
+                                            Map<String, Set<String>> userMap) {
+        HostCacheMessage hostCacheMessage = new HostCacheMessage();
+
+        hostCacheMessage.setClusterInfo(clusterInfo);
+        hostCacheMessage.setConfigurations(serviceConfigMap);
+        hostCacheMessage.setClusterHostInfo(hostMap);
+        hostCacheMessage.setRepoInfo(repoList);
+        hostCacheMessage.setBasicInfo(basicInfo);
+        hostCacheMessage.setUserInfo(userMap);
+        hostCacheMessage.setHostname(hostname);
+        return hostCacheMessage;
+    }
+
     private CountDownLatch countDownLatch;
 
     @Override
     public void call(ResultMessage resultMessage) {
         countDownLatch.countDown();
         if (resultMessage.getCode() == 0) {
-            log.info("host cache success");
+            log.info("Host cache success, {}", resultMessage);
         } else {
-            log.error("host cache failed");
+            log.error("Host cache failed, {}", resultMessage);
         }
     }
 }
