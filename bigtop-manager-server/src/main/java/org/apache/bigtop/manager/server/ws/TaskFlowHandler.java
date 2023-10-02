@@ -434,7 +434,7 @@ public class TaskFlowHandler implements Callback {
         }
 
         ImmutablePair<Float, Float> progress = getProgress(task);
-        log.info("job progress: {}, job-host progress: {}", progress.getLeft(), progress.getRight());
+        log.info("job progress: {}, job-host progress: {}-{}", progress.getLeft(), task.getHostname(), progress.getRight());
 
     }
 

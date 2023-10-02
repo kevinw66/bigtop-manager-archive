@@ -114,12 +114,12 @@ public class HostCacheService {
         LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
 
         try {
-            JsonUtils.writeToFile(cacheDir + BASIC_INFO, hostCacheMessage.getBasicInfo());
+            JsonUtils.writeToFile(cacheDir + SETTINGS_INFO, hostCacheMessage.getSettings());
             JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
             JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
             JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
         } catch (Exception e) {
-            log.warn(" [{}|{}|{}|{}] cache error: ", BASIC_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
+            log.warn(" [{}|{}|{}|{}] cache error: ", SETTINGS_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
         }
         JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
         JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());

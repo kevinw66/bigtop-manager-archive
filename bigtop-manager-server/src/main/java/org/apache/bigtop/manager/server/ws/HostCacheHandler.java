@@ -8,7 +8,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -75,7 +74,7 @@ public class HostCacheHandler implements Callback {
         List<ServiceConfig> serviceConfigs = serviceConfigRepository.findAllByClusterId(clusterId);
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterId(clusterId);
         List<Repo> repos = repoRepository.findAllByStackId(stackId);
-        Setting setting = settingRepository.findFirstByOrderByVersionDesc().orElse(new Setting());
+        Iterable<Setting> settings = settingRepository.findAll();
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 
         //Wrapper clusterInfo for HostCacheMessage
@@ -142,19 +141,18 @@ public class HostCacheHandler implements Callback {
             }
         });
 
-        //Wrapper basicInfo for HostCacheMessage
-        BasicInfo basicInfo = new BasicInfo();
-        basicInfo.setJavaHome(setting.getJavaHome());
-        basicInfo.setJavaVersion(setting.getJavaVersion());
-        basicInfo.setJdbcDriver(setting.getJdbcDriver());
-        basicInfo.setJdbcDriverHome(setting.getJdbcDriverHome());
+        //Wrapper settings for HostCacheMessage
+        Map<String, Object> settingsMap = new HashMap<>();
+        settings.forEach(x -> {
+            settingsMap.put(x.getTypeName(), x.getConfigData());
+        });
 
 
         for (Host host : hostList) {
             String hostname = host.getHostname();
             //Wrapper HostCacheMessage for websocket
             HostCacheMessage hostCacheMessage = convertMessage(hostname,
-                    basicInfo,
+                    settingsMap,
                     clusterInfo,
                     serviceConfigMap,
                     hostMap,
@@ -178,7 +176,7 @@ public class HostCacheHandler implements Callback {
     }
 
     private HostCacheMessage convertMessage(String hostname,
-                                            BasicInfo basicInfo,
+                                            Map<String, Object> settingsMap,
                                             ClusterInfo clusterInfo,
                                             Map<String, Map<String, Object>> serviceConfigMap,
                                             Map<String, Set<String>> hostMap,
@@ -190,7 +188,7 @@ public class HostCacheHandler implements Callback {
         hostCacheMessage.setConfigurations(serviceConfigMap);
         hostCacheMessage.setClusterHostInfo(hostMap);
         hostCacheMessage.setRepoInfo(repoList);
-        hostCacheMessage.setBasicInfo(basicInfo);
+        hostCacheMessage.setSettings(settingsMap);
         hostCacheMessage.setUserInfo(userMap);
         hostCacheMessage.setHostname(hostname);
         return hostCacheMessage;

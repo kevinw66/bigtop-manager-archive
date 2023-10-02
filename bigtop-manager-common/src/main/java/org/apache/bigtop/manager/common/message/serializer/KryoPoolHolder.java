@@ -35,7 +35,6 @@ public class KryoPoolHolder {
             // message pojo
             kryo.register(HostInfo.class);
             kryo.register(OSSpecificInfo.class);
-            kryo.register(BasicInfo.class);
             kryo.register(ClusterInfo.class);
             kryo.register(RepoInfo.class);
             kryo.register(HostCheckType.class);
