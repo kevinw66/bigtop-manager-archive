@@ -69,16 +69,13 @@ public class OSDetection {
 
 
     private static String regexOS(Pattern pattern, String content) {
-        Matcher matcher = pattern.matcher(content);
-        if (matcher.find()) {
-            try {
+        for (String line : content.split("\\n", -1)) {
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.matches()) {
                 return matcher.group(1);
-            } catch (Exception e) {
-                throw new RuntimeException("Unable to find OS: " + content, e);
             }
-        } else {
-            throw new RuntimeException("Unable to find OS: " + content);
         }
+        throw new RuntimeException("Unable to find OS: " + content);
     }
 
 
