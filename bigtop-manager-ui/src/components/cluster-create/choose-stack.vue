@@ -3,7 +3,7 @@
   import { useStackStore } from '@/store/stack'
   import { storeToRefs } from 'pinia'
   import { useI18n } from 'vue-i18n'
-  import { StackOptionProps } from '@/store/stack/types.ts'
+  import { StackServiceVO } from '@/api/stack/types.ts'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
@@ -11,54 +11,55 @@
   const stackStore = useStackStore()
 
   const selectedOption = ref<string[]>([])
-  const serviceData = ref<any[]>([])
+  const serviceData = ref<StackServiceVO[]>([])
   const { stackOptions, stackServices } = storeToRefs(stackStore)
 
   watch(selectedOption, (val) => {
     clusterInfo.value.stackName = val[0]
     clusterInfo.value.stackVersion = val[1]
+    clusterInfo.value.fullStackName = val[0] + '-' + val[1]
 
-    serviceData.value = stackServices.value[val[0] + '-' + val[1]]
-  })
-
-  watch(stackStore.stackOptions, (val: StackOptionProps[]) => {
-    selectedOption.value = [
-      `${val?.[0]?.value}`,
-      `${val?.[0]?.children?.[0]?.value}`
-    ]
+    serviceData.value = stackServices.value[clusterInfo.value.fullStackName]
   })
 
   const serviceColumns = [
     {
       title: t('common.name'),
       dataIndex: 'displayName',
-      key: 'displayName',
       align: 'center',
-      ellipsis: true
+      width: 150
     },
     {
       title: t('common.version'),
       dataIndex: 'serviceVersion',
-      key: 'serviceVersion',
       align: 'center',
-      ellipsis: true
+      width: 150
     },
     {
       title: t('common.desc'),
       dataIndex: 'serviceDesc',
-      key: 'serviceDesc',
       align: 'center',
       ellipsis: true
     }
   ]
 
+  onMounted(async () => {
+    if (clusterInfo.value.stackName && clusterInfo.value.stackVersion) {
+      selectedOption.value = [
+        clusterInfo.value.stackName,
+        clusterInfo.value.stackVersion
+      ]
+    } else {
+      selectedOption.value = [
+        `${stackOptions.value?.[0]?.value}`,
+        `${stackOptions.value?.[0]?.children?.[0]?.value}`
+      ]
+    }
+  })
+
   const onNextStep = async () => {
     return Promise.resolve(true)
   }
-
-  onMounted(async () => {
-    await stackStore.getStacks()
-  })
 
   defineExpose({
     onNextStep

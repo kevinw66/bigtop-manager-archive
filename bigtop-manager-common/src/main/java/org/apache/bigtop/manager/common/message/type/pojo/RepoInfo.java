@@ -13,12 +13,12 @@ public class RepoInfo {
 
     private String repoName;
 
-    private String baseurl;
+    private String baseUrl;
 
     private String os;
 
     private String arch;
 
-    private String mirrorlist;
+    private String mirrorList;
 
 }

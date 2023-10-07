@@ -13,7 +13,7 @@ public class RepoReq {
 
     private String repoName;
 
-    private String baseurl;
+    private String baseUrl;
 
     private String os;
 

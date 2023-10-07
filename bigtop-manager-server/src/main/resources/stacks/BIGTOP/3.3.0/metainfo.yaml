@@ -6,27 +6,27 @@ packages: '[ "curl", "wget" ]'
 repoTemplate: |
   [${repoId}]
   name=${repoName}
-  <#if baseurl?? >
-  baseurl=${baseurl}
+  <#if baseUrl?? >
+  baseurl=${baseUrl}
   <#else>
-  mirrorlist=${mirrorlist}
+  mirrorlist=${mirrorList}
   </#if>
   path=/
   enabled=1
   gpgcheck=0
 repos:
-  - os: centos7
+  - os: CentOS 7
     arch: x86_64
-    baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
+    baseUrl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
     repoName: Bigtop 3.3.0 for CentOS 7 x86_64
     repoId: BIGTOP-3.3.0
-  - os: centos7
+  - os: CentOS 7
     arch: aarch64
-    baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
+    baseUrl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
     repoName: Bigtop 3.3.0 for CentOS 7 aarch64
     repoId: BIGTOP-3.3.0
-  - os: rocky8
+  - os: RockyLinux 8
     arch: x86_64
-    baseurl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
+    baseUrl: https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch
     repoName: Bigtop 3.3.0 for Rocky Linux 8 x86_64
     repoId: BIGTOP-3.3.0

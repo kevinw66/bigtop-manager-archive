@@ -13,7 +13,7 @@ public class RepoModel {
 
     private String repoName;
 
-    private String baseurl;
+    private String baseUrl;
 
     private String os;
 

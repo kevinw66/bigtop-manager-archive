@@ -7,7 +7,9 @@ public class StackRepoVO {
 
     private String repoId;
 
-    private String baseurl;
+    private String repoName;
+
+    private String baseUrl;
 
     private String os;
 

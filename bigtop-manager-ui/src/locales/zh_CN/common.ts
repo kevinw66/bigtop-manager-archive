@@ -27,5 +27,8 @@ export default {
   name: '名称',
   version: '版本',
   desc: '描述',
+  os: '系统',
+  arch: '架构',
+  base_url: '地址',
   unknown_error: '未知错误'
 }

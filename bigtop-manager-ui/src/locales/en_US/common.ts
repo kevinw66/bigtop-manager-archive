@@ -27,5 +27,8 @@ export default {
   name: 'Name',
   version: 'Version',
   desc: 'Description',
+  os: 'OS',
+  arch: 'Arch',
+  base_url: 'Base URL',
   unknown_error: 'Unknown error'
 }

@@ -20,7 +20,7 @@ public class Repo extends BaseEntity {
 
     private String repoName;
 
-    private String baseurl;
+    private String baseUrl;
 
     private String os;
 

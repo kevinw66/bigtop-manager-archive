@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { ref, reactive, h, watch } from 'vue'
+  import { ref, reactive, h, watch, onMounted } from 'vue'
   import { Modal } from 'ant-design-vue'
   import { ExclamationCircleFilled } from '@ant-design/icons-vue'
   import { useI18n } from 'vue-i18n'
+  import { useStackStore } from '@/store/stack'
   import SetClusterName from './set-cluster-name.vue'
   import ChooseStack from './choose-stack.vue'
   import SetRepository from './set-repository.vue'
@@ -12,6 +13,7 @@
 
   const open = defineModel<boolean>('open')
   const { t, locale } = useI18n()
+  const stackStore = useStackStore()
 
   const initItems = () => [
     {
@@ -56,7 +58,9 @@
     return {
       clusterName: '',
       stackName: '',
-      stackVersion: ''
+      stackVersion: '',
+      fullStackName: '',
+      repoInfoList: []
     }
   }
 
@@ -104,6 +108,10 @@
       }
     })
   }
+
+  onMounted(async () => {
+    await stackStore.getStacks()
+  })
 </script>
 
 <template>

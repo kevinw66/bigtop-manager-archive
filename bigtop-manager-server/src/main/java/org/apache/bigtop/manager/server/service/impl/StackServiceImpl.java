@@ -1,20 +1,12 @@
 package org.apache.bigtop.manager.server.service.impl;
 
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
-import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.model.dto.RepoDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
-import org.apache.bigtop.manager.server.model.vo.StackRepoVO;
-import org.apache.bigtop.manager.server.model.vo.StackServiceVO;
 import org.apache.bigtop.manager.server.model.vo.StackVO;
-import org.apache.bigtop.manager.server.orm.entity.Stack;
-import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.StackService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -27,9 +19,6 @@ import java.util.Map;
 @Slf4j
 @Service
 public class StackServiceImpl implements StackService {
-
-    @Resource
-    private StackRepository stackRepository;
 
     @Override
     public List<StackVO> list() {

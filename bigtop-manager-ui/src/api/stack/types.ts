@@ -31,7 +31,8 @@ export interface StackServiceVO {
 
 export interface StackRepoVO {
   repoId: string
-  baseurl: string
+  repoName: string
+  baseUrl: string
   os: string
   arch: string
 }

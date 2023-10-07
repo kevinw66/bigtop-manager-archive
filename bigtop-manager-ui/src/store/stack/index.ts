@@ -19,19 +19,22 @@ import { defineStore } from 'pinia'
 import { list } from '@/api/stack'
 import { shallowReactive } from 'vue'
 import { StackOptionProps } from '@/store/stack/types.ts'
-import { StackVO } from '@/api/stack/types.ts'
+import { StackRepoVO, StackServiceVO, StackVO } from '@/api/stack/types.ts'
 
 export const useStackStore = defineStore(
   'stack',
   () => {
     const stackOptions = shallowReactive<StackOptionProps[]>([])
-    const stackServices = shallowReactive<any>({})
+    const stackServices = shallowReactive<Record<string, StackServiceVO[]>>({})
+    const stackRepos = shallowReactive<Record<string, StackRepoVO[]>>({})
 
-    const initStacks = async (stackVOList: StackVO[]) => {
+    const initStacks = async () => {
+      const stackVOList: StackVO[] = await list()
       const stacks: StackOptionProps[] = []
       stackVOList.forEach((stackVO) => {
         const fullStackName = stackVO.stackName + '-' + stackVO.stackVersion
         stackServices[fullStackName] = stackVO.services
+        stackRepos[fullStackName] = stackVO.repos
 
         const props: StackOptionProps = {
           label: stackVO.stackVersion,
@@ -57,14 +60,15 @@ export const useStackStore = defineStore(
     }
 
     const getStacks = async () => {
-      const stackVOList: StackVO[] = await list()
+      Object.assign(stackOptions, await initStacks())
 
-      Object.assign(stackOptions, await initStacks(stackVOList))
+      return Promise.resolve()
     }
 
     return {
       stackOptions,
       stackServices,
+      stackRepos,
       getStacks
     }
   },
