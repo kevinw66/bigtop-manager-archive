@@ -11,6 +11,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface HostMapper {
 
@@ -24,6 +26,8 @@ public interface HostMapper {
 
     @Mapping(target = "clusterName", source = "cluster.clusterName")
     HostVO Entity2VO(Host host);
+
+    List<HostVO> Entity2VO(List<Host> hosts);
 
     HostDTO Entity2DTO(Host host);
 

@@ -22,7 +22,7 @@ public interface HostService {
      *
      * @return Host
      */
-    HostVO create(HostDTO hostDTO);
+    List<HostVO> create(HostDTO hostDTO);
 
     /**
      * Get a host

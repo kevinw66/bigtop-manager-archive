@@ -27,6 +27,8 @@ if [[ "$DOCKER" == "true" ]]; then
   JAVA_OPTS="${JAVA_OPTS} -XX:-UseContainerSupport"
 fi
 
+cd $BIGTOP_MANAGER_HOME
+
 $JAVA_HOME/bin/java $JAVA_OPTS \
   -cp "${BIGTOP_MANAGER_HOME}/conf":"${BIGTOP_MANAGER_HOME}/libs/*" \
   org.apache.bigtop.manager.agent.AgentApplication

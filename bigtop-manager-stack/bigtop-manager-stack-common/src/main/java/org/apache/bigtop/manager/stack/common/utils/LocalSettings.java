@@ -4,7 +4,6 @@ package org.apache.bigtop.manager.stack.common.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
-import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -53,17 +52,17 @@ public class LocalSettings {
         return hostJson.getOrDefault(service, Set.of());
     }
 
-    public static BasicInfo basicInfo() {
+    public static Map<String, Object> basicInfo() {
         String cacheDir = Constants.STACK_CACHE_DIR;
 
-        BasicInfo basicInfo = new BasicInfo();
+        Map<String, Object> settings = new HashMap<>();
         try {
-            basicInfo = JsonUtils.readFromFile(cacheDir + BASIC_INFO, new TypeReference<>() {
+            settings = JsonUtils.readFromFile(cacheDir + SETTINGS_INFO, new TypeReference<>() {
             });
         } catch (Exception e) {
-            log.warn("{} parse error, ", BASIC_INFO, e);
+            log.warn("{} parse error, ", SETTINGS_INFO, e);
         }
-        return basicInfo;
+        return settings;
     }
 
     public static Map<String, Set<String>> users() {

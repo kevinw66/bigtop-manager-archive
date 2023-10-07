@@ -11,6 +11,7 @@ import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.server.model.event.HostCheckEvent;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -31,15 +32,15 @@ public class HostCheckHandler implements Callback {
 
     @Subscribe
     public void checkHost(HostCheckEvent hostCheckEvent) {
-        String hostname = hostCheckEvent.getHostname();
+        List<String> hostnameList = hostCheckEvent.getHostnames();
 
-        HostCheckMessage hostCheckMessage = new HostCheckMessage();
-        hostCheckMessage.setHostname(hostname);
-        hostCheckMessage.setHostCheckTypes(HostCheckType.values());
-        log.info("Sending host check message: {}", hostCheckMessage);
-        serverWebSocketHandler.sendMessage(hostname, hostCheckMessage, this);
+        for (String hostname : hostnameList) {
+            HostCheckMessage hostCheckMessage = convertMessage(hostname);
+            log.info("Sending host check message: {}", hostCheckMessage);
+            serverWebSocketHandler.sendMessage(hostname, hostCheckMessage, this);
+        }
 
-        countDownLatch = new CountDownLatch(1);
+        countDownLatch = new CountDownLatch(hostnameList.size() * HostCheckType.values().length);
         try {
             boolean timeoutFlag = countDownLatch.await(30, TimeUnit.SECONDS);
             if (!timeoutFlag) {
@@ -50,6 +51,13 @@ public class HostCheckHandler implements Callback {
         }
     }
 
+    private HostCheckMessage convertMessage(String hostname) {
+        HostCheckMessage hostCheckMessage = new HostCheckMessage();
+        hostCheckMessage.setHostname(hostname);
+        hostCheckMessage.setHostCheckTypes(HostCheckType.values());
+        return hostCheckMessage;
+    }
+
     private CountDownLatch countDownLatch;
 
     @Override
@@ -57,9 +65,9 @@ public class HostCheckHandler implements Callback {
         countDownLatch.countDown();
         //TODO: 根据枚举大小为前端发送check进度
         if (resultMessage.getCode() == 0) {
-            log.info("host check success");
+            log.info("Host check success, {}", resultMessage);
         } else {
-            log.error("host check failed");
+            log.error("Host check failed, {}", resultMessage);
         }
     }
 }

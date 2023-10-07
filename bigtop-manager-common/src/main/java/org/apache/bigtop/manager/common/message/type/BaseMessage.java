@@ -12,5 +12,5 @@ public class BaseMessage {
 
     private Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
-    private String messageId = UUID.randomUUID().toString().replace("-", "");
+    private String messageId = UUID.randomUUID().toString();
 }

@@ -390,7 +390,7 @@ public class TaskFlowHandler implements Callback {
 
     @Override
     public void call(ResultMessage resultMessage) {
-        log.info("execute command completed");
+        log.info("Execute command completed, {}", resultMessage);
         countDownLatch.countDown();
 
         Task task = taskRepository.findById(resultMessage.getTaskId()).orElse(new Task());
@@ -434,7 +434,7 @@ public class TaskFlowHandler implements Callback {
         }
 
         ImmutablePair<Float, Float> progress = getProgress(task);
-        log.info("job progress: {}, job-host progress: {}", progress.getLeft(), progress.getRight());
+        log.info("job progress: {}, job-host progress: {}-{}", progress.getLeft(), task.getHostname(), progress.getRight());
 
     }
 

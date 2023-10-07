@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.message.type.pojo.BasicInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 
@@ -18,7 +17,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class HostCacheMessage extends BaseMessage {
 
-    private BasicInfo basicInfo;
+    private Map<String, Object> settings;
 
     private ClusterInfo clusterInfo;
 
@@ -29,10 +28,6 @@ public class HostCacheMessage extends BaseMessage {
     private Map<String, Map<String, Object>> configurations;
 
     private Map<String, Set<String>> clusterHostInfo;
-
-    private String stackName;
-
-    private String stackVersion;
 
     private String hostname;
 
