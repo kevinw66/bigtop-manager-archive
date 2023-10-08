@@ -15,6 +15,8 @@ public class CommandDTO {
     @NonNull
     private Command command;
 
+    private String customCommand;
+
     @NonNull
     private String stackName;
 

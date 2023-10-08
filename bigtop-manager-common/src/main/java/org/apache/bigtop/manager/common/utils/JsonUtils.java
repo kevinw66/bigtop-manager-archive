@@ -49,6 +49,14 @@ public class JsonUtils {
         }
     }
 
+    public static <T> T readFromString(String json, Class<T> clazz) {
+        try {
+            return OBJECTMAPPER.readValue(json, clazz);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static JsonNode readTree(String filename) {
         try {
             return OBJECTMAPPER.readTree(new File(filename));

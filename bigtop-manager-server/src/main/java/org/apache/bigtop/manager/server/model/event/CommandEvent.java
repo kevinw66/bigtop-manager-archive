@@ -17,6 +17,8 @@ public class CommandEvent {
     @NonNull
     private Command command;
 
+    private String customCommand;
+
     @NonNull
     private String stackName;
 

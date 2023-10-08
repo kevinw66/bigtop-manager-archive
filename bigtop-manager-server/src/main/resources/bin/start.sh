@@ -53,7 +53,7 @@ if [[ "$DOCKER" == "true" ]]; then
 fi
 
 if [[ "$DEBUG" == "true" ]]; then
-  JAVA_OPTS="${JAVA_OPTS} -Xdebug -Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=n"
+  JAVA_OPTS="${JAVA_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
 fi
 
 

@@ -21,7 +21,9 @@ public class Component extends BaseEntity {
 
     private String displayName;
 
-    private String scriptId;
+    private String commandScript;
+
+    private String customCommands;
 
     private String category;
 

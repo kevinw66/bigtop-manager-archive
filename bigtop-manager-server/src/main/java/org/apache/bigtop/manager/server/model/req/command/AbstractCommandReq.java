@@ -13,6 +13,9 @@ public abstract class AbstractCommandReq {
     @Schema(example = "START")
     private Command command;
 
+    @Schema(example = "AAA")
+    private String customCommand;
+
     @NotEmpty
     @Schema(example = "c1")
     private String clusterName;

@@ -12,6 +12,7 @@ import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.StatusType;
@@ -19,6 +20,7 @@ import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
+import org.apache.bigtop.manager.server.model.dto.ScriptDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
@@ -73,6 +75,9 @@ public class TaskFlowHandler implements Callback {
 
     @Resource
     private TaskRepository taskRepository;
+
+    @Resource
+    private CommandLogRepository commandLogRepository;
 
     @Resource
     private ServerWebSocketHandler serverWebSocketHandler;
@@ -175,6 +180,7 @@ public class TaskFlowHandler implements Callback {
         String stackName = commandEvent.getStackName();
         String stackVersion = commandEvent.getStackVersion();
         Command command = commandEvent.getCommand();
+        String customCommand = commandEvent.getCustomCommand();
         Long jobId = commandEvent.getJobId();
 
         List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
@@ -249,7 +255,7 @@ public class TaskFlowHandler implements Callback {
             //generate task list
             if (component.getId() != null) {
                 for (String hostname : hostSet) {
-                    Task task = convertTask(component, hostname, command, job, stage);
+                    Task task = convertTask(component, hostname, command, job, stage, customCommand);
                     stage.getTasks().add(task);
                     //Map of task flow for display frontend
                     displayTaskFlow.computeIfAbsent(hostname, key -> new ArrayList<>()).add(task);
@@ -263,12 +269,11 @@ public class TaskFlowHandler implements Callback {
     }
 
 
-    private Task convertTask(Component component, String hostname, Command command, Job job, Stage stage) {
+    private Task convertTask(Component component, String hostname, Command command, Job job, Stage stage, String customCommand) {
         Task task = new Task();
         //Required fields
         task.setHostname(hostname);
         task.setCommand(command);
-        task.setScriptId(component.getScriptId());
         task.setRoot(component.getCluster().getRoot());
         task.setServiceName(component.getService().getServiceName());
         task.setStackName(component.getCluster().getStack().getStackName());
@@ -279,6 +284,10 @@ public class TaskFlowHandler implements Callback {
         task.setServiceGroup(component.getService().getServiceGroup());
         task.setOsSpecifics(component.getService().getOsSpecifics());
         task.setCluster(component.getCluster());
+        task.setCustomCommands(component.getCustomCommands());
+        task.setCustomCommand(customCommand);
+        task.setCommandScript(component.getCommandScript());
+
         log.debug("convertTask() task: {}", task);
 
         task.setCluster(job.getCluster());
@@ -294,7 +303,6 @@ public class TaskFlowHandler implements Callback {
         CommandMessage commandMessage = new CommandMessage();
 
         commandMessage.setCommand(task.getCommand());
-        commandMessage.setScriptId(task.getScriptId());
         commandMessage.setRoot(task.getRoot());
         commandMessage.setHostname(task.getHostname());
         commandMessage.setServiceName(task.getServiceName());
@@ -308,8 +316,23 @@ public class TaskFlowHandler implements Callback {
         } catch (Exception ignored) {
         }
 
+        try {
+            Map<String, ScriptInfo> customCommands = JsonUtils.readFromString(task.getCustomCommands(), new TypeReference<>() {
+            });
+            commandMessage.setCustomCommand(task.getCustomCommand());
+            commandMessage.setCustomCommands(customCommands);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            ScriptInfo commandScript = JsonUtils.readFromString(task.getCommandScript(), ScriptInfo.class);
+            commandMessage.setCommandScript(commandScript);
+        } catch (Exception ignored) {
+        }
+
         commandMessage.setServiceUser(task.getServiceUser());
         commandMessage.setServiceGroup(task.getServiceGroup());
+        commandMessage.setCustomCommand(task.getCustomCommand());
 
         // requestId stageId taskId
         commandMessage.setJobId(task.getJob().getId());
@@ -398,6 +421,14 @@ public class TaskFlowHandler implements Callback {
         String componentName = task.getComponentName();
         String hostname = task.getHostname();
         Command command = task.getCommand();
+
+        CommandLog commandLog = new CommandLog();
+        commandLog.setTask(task);
+        commandLog.setStage(task.getStage());
+        commandLog.setJob(task.getJob());
+        commandLog.setResult(resultMessage.getResult());
+        commandLog.setHostname(hostname);
+        commandLogRepository.save(commandLog);
 
         //TODO: Send success or failure messages to the frontend
         if (resultMessage.getCode() == MessageConstants.SUCCESS_CODE) {

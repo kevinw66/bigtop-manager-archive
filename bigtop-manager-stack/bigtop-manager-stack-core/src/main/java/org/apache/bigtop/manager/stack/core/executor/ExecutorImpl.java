@@ -30,7 +30,7 @@ public class ExecutorImpl implements Executor {
     }
 
     private Script getScript(CommandMessage commandMessage) {
-        return scriptMap.get(commandMessage.getScriptId());
+        return scriptMap.get(commandMessage.getCommandScript().getScriptId());
     }
 
     private Hook getHook(CommandMessage commandMessage) {
@@ -41,7 +41,7 @@ public class ExecutorImpl implements Executor {
     public Object execute(CommandMessage commandMessage) {
         Script script = getScript(commandMessage);
         if (script == null) {
-            throw new StackException("Cannot find Class {0}", commandMessage.getScriptId());
+            throw new StackException("Cannot find Class {0}", commandMessage.getCommandScript().getScriptId());
         }
 
         Hook hook = getHook(commandMessage);
@@ -51,7 +51,12 @@ public class ExecutorImpl implements Executor {
 
         Object result;
         try {
-            Method method = script.getClass().getMethod(command.toLowerCase(), CommandMessage.class);
+            Method method;
+            if (command.equals(Command.CUSTOM_COMMAND.name())) {
+                method = script.getClass().getMethod(commandMessage.getCustomCommand().toLowerCase(), CommandMessage.class);
+            } else {
+                method = script.getClass().getMethod(command.toLowerCase(), CommandMessage.class);
+            }
             log.info("method: {}", method);
             result = method.invoke(script, commandMessage);
         } catch (Exception e) {

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.JobState;
+import org.apache.bigtop.manager.server.model.dto.ScriptDTO;
+
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -42,7 +45,11 @@ public class Task extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Command command;
 
-    private String scriptId;
+    private String customCommand;
+
+    private String customCommands;
+
+    private String commandScript;
 
     private String hostname;
 

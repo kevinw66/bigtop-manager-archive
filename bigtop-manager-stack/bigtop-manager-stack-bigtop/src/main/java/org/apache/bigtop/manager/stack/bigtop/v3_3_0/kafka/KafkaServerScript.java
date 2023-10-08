@@ -153,4 +153,13 @@ public class KafkaServerScript implements Script {
         }
     }
 
+    public ShellResult test(CommandMessage commandMessage) {
+        try {
+            ShellResult shellResult = LinuxOSUtils.sudoExecCmd("date", commandMessage.getServiceUser());
+            return shellResult;
+        } catch (IOException e) {
+            throw new StackException(e);
+        }
+    }
+
 }
