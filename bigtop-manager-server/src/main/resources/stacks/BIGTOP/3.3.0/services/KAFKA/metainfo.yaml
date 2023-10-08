@@ -1,7 +1,7 @@
 name: KAFKA
 active: true
 displayName: Kafka
-desc: Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines, 
+desc: Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for high-performance data pipelines,
   streaming analytics, data integration, and mission-critical applications.
 version: 2.8.2
 user: kafka
@@ -15,6 +15,11 @@ components:
       scriptType: JAVA
       scriptId: org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaServerScript
       timeout: 60
+    customCommands:
+      test:
+        scriptType: JAVA
+        scriptId: org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaServerScript
+        timeout: 60
 osSpecifics:
   - os:
       - centos7

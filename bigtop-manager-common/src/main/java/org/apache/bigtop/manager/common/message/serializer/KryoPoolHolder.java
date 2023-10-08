@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 
 public class KryoPoolHolder {
 
@@ -41,6 +42,7 @@ public class KryoPoolHolder {
             kryo.register(HostCheckType[].class);
             kryo.register(MessageType.class);
             kryo.register(Command.class);
+            kryo.register(ScriptInfo.class);
 
             // java classes
             kryo.register(BigDecimal.class);
@@ -49,6 +51,7 @@ public class KryoPoolHolder {
             kryo.register(Integer.class);
             kryo.register(String.class);
             kryo.register(HashMap.class);
+            kryo.register(LinkedHashMap.class);
             kryo.register(HashSet.class);
 
             return kryo;
