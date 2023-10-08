@@ -30,5 +30,8 @@ export default {
   os: 'OS',
   arch: 'Arch',
   base_url: 'Base URL',
-  unknown_error: 'Unknown error'
+  host: 'Host',
+  progress: 'Progress',
+  unknown_error: 'Unknown error',
+  websocket_disconnected: 'WebSocket disconnected, please reload the page'
 }

@@ -26,6 +26,7 @@ import router from '@/router'
 import { useLocaleStore } from '@/store/locale'
 import { storeToRefs } from 'pinia'
 import i18n from '@/locales'
+import { API_EXPIRE_TIME } from '@/utils/constant.ts'
 
 const localeStore = useLocaleStore()
 const { locale } = storeToRefs(localeStore)
@@ -33,7 +34,7 @@ const { locale } = storeToRefs(localeStore)
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
   withCredentials: true,
-  timeout: 3000
+  timeout: API_EXPIRE_TIME
 })
 
 request.interceptors.request.use(

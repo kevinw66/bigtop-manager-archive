@@ -15,23 +15,25 @@
  * limitations under the License.
  */
 
-export default {
-  prev: '上一步',
-  next: '下一步',
-  done: '完成',
-  exit: '退出',
-  exit_confirm: '确定要退出吗？',
-  install: '安装',
-  finish: '完成',
-  select_tips: '请选择',
-  name: '名称',
-  version: '版本',
-  desc: '描述',
-  os: '系统',
-  arch: '架构',
-  base_url: '地址',
-  host: '主机',
-  progress: '进度',
-  unknown_error: '未知错误',
-  websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面'
+import { message } from 'ant-design-vue'
+import i18n from '@/locales'
+
+export const API_RETRY_TIME = 3
+export const API_EXPIRE_TIME = 3 * 1000
+
+export const WS_URL = 'ws://' + window.location.host + '/ws/default'
+
+export const WS_DEFAULT_OPTIONS = {
+  autoReconnect: {
+    retries: API_RETRY_TIME,
+    delay: API_EXPIRE_TIME,
+    async onFailed() {
+      message.error(i18n.global.t('common.websocket_disconnected'))
+    }
+  },
+  heartbeat: {
+    message: 'ping',
+    interval: API_EXPIRE_TIME,
+    pongTimeout: API_EXPIRE_TIME
+  }
 }

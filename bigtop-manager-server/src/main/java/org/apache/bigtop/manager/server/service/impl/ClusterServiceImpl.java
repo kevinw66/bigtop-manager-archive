@@ -67,7 +67,7 @@ public class ClusterServiceImpl implements ClusterService {
         ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
         StackDTO stackDTO = immutablePair.getLeft();
 
-        // save cluster
+        // Save cluster
         Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
         if (stack.getId() == null) {
             throw new ApiException(ApiExceptionEnum.STACK_NOT_FOUND);
@@ -82,7 +82,7 @@ public class ClusterServiceImpl implements ClusterService {
         cluster = clusterRepository.save(cluster);
         log.info("stack: {}, cluster: {}", stack, cluster);
 
-        //Update repos if isPresent
+        // Update repos if isPresent
         List<RepoDTO> repoDTOList = clusterDTO.getRepoInfoList();
         if (!CollectionUtils.isEmpty(repoDTOList)) {
             for (RepoDTO repoDTO : repoDTOList) {

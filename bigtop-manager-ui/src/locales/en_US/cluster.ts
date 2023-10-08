@@ -25,5 +25,8 @@ export default {
   set_cluster_name_valid: 'Cluster name is required',
   choose_stack: 'Choose Stack',
   set_repository: 'Set Repository',
-  set_hosts: 'Set Hosts'
+  set_hosts: 'Set Hosts',
+  set_hosts_placeholder: 'Enter a list of hosts, one per line.',
+  create_finish_title: 'Congratulations!',
+  create_finish_sub_title: 'Cluster created successfully, please enjoy it.'
 }

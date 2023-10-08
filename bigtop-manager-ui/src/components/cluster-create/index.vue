@@ -60,7 +60,8 @@
       stackName: '',
       stackVersion: '',
       fullStackName: '',
-      repoInfoList: []
+      repoInfoList: [],
+      hostnames: []
     }
   }
 

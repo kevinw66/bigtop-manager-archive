@@ -44,7 +44,7 @@
   ]
 
   onMounted(async () => {
-    if (clusterInfo.value.stackName && clusterInfo.value.stackVersion) {
+    if (clusterInfo.value.fullStackName) {
       selectedOption.value = [
         clusterInfo.value.stackName,
         clusterInfo.value.stackVersion

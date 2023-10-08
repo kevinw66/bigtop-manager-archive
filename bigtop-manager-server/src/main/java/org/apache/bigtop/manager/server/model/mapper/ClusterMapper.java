@@ -6,6 +6,7 @@ import org.apache.bigtop.manager.server.model.req.ClusterReq;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
+import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -24,5 +25,5 @@ public interface ClusterMapper {
     ClusterVO Entity2VO(Cluster cluster);
 
     @Mapping(target = "stack", expression = "java(stack)")
-    Cluster DTO2Entity(ClusterDTO clusterDTO, StackDTO stackDTO, Stack stack);
+    Cluster DTO2Entity(ClusterDTO clusterDTO, StackDTO stackDTO, @Context Stack stack);
 }

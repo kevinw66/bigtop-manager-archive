@@ -43,6 +43,7 @@
   const edit = (index: number) => {
     editableData[index] = _.cloneDeep(repositoryData[index])
   }
+
   const save = (index: number) => {
     Object.assign(repositoryData[index], editableData[index])
 

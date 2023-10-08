@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.config;
 
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.ws.DefaultWebSocketHandler;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,13 @@ import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MES
 public class WebSocketConfig implements WebSocketConfigurer {
 
     @Resource
+    private DefaultWebSocketHandler defaultWebSocketHandler;
+
+    @Resource
     private ServerWebSocketHandler serverWebSocketHandler;
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(defaultWebSocketHandler, "/ws/default");
         registry.addHandler(serverWebSocketHandler, "/ws/server");
     }
 

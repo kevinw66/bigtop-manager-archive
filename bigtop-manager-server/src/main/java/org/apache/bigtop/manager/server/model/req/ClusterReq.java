@@ -26,6 +26,9 @@ public class ClusterReq {
     @Schema(example = "3.3.0")
     private String stackVersion;
 
+    @NotEmpty
     private List<RepoReq> repoInfoList;
 
+    @NotEmpty
+    private List<String> hostnames;
 }

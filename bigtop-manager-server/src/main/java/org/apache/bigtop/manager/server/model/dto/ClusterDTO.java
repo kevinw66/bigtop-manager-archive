@@ -17,4 +17,6 @@ public class ClusterDTO {
 
     private List<RepoDTO> repoInfoList;
 
+    private List<String> hostnames;
+
 }
