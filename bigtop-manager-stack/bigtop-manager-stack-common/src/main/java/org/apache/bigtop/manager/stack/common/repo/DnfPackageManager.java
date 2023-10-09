@@ -15,14 +15,14 @@ import java.util.List;
 
 @Slf4j
 @AutoService(PackageManager.class)
-public class RpmPackageManager implements PackageManager {
+public class DnfPackageManager implements PackageManager {
 
-    private static final String YUM = "/usr/bin/yum";
+    private static final String DNF = "/usr/bin/dnf";
 
     @Override
     public ShellResult installPackage(Collection<String> packages) {
         List<String> builderParameters = new ArrayList<>();
-        builderParameters.add(YUM);
+        builderParameters.add(DNF);
 
         builderParameters.add("install");
 
@@ -34,7 +34,7 @@ public class RpmPackageManager implements PackageManager {
 
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[RpmPackageManager] [installPackage] output: {}", output);
+            log.info("[DnfPackageManager] [installPackage] output: {}", output);
             return output;
         } catch (IOException e) {
             throw new StackException(e);
@@ -44,7 +44,7 @@ public class RpmPackageManager implements PackageManager {
     @Override
     public ShellResult uninstallPackage(Collection<String> packages) {
         List<String> builderParameters = new ArrayList<>();
-        builderParameters.add(YUM);
+        builderParameters.add(DNF);
 
         builderParameters.add("remove");
 
@@ -56,7 +56,7 @@ public class RpmPackageManager implements PackageManager {
 
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[RpmPackageManager] [uninstallPackage] output: {}", output);
+            log.info("[DnfPackageManager] [uninstallPackage] output: {}", output);
             return output;
         } catch (IOException e) {
             throw new StackException(e);
@@ -66,7 +66,7 @@ public class RpmPackageManager implements PackageManager {
     @Override
     public String listPackages() {
         List<String> builderParameters = new ArrayList<>();
-        builderParameters.add(YUM);
+        builderParameters.add(DNF);
 
         builderParameters.add("list");
 
@@ -74,7 +74,7 @@ public class RpmPackageManager implements PackageManager {
 
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[RpmPackageManager] [listPackages] output: {}", output);
+            log.info("[DnfPackageManager] [listPackages] output: {}", output);
             return output.getOutput();
         } catch (IOException e) {
             throw new StackException(e);
@@ -83,6 +83,6 @@ public class RpmPackageManager implements PackageManager {
 
     @Override
     public String getName() {
-        return PackageManagerType.RPM.name();
+        return PackageManagerType.DNF.name();
     }
 }

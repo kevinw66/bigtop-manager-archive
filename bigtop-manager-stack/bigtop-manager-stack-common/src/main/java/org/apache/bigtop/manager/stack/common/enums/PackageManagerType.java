@@ -10,9 +10,11 @@ import static org.apache.bigtop.manager.common.enums.OSType.*;
 @Getter
 public enum PackageManagerType {
 
-    RPM(List.of(CENTOS7, ROCKY8, FEDORA36)),
+    YUM(List.of(CENTOS7)),
 
-    DEB(List.of(UBUNTU20, UBUNTU22, DEBIAN10, DEBIAN11)),
+    DNF(List.of(ROCKY8, FEDORA36)),
+
+    APT(List.of(UBUNTU20, UBUNTU22, DEBIAN10, DEBIAN11)),
 
     ;
 
