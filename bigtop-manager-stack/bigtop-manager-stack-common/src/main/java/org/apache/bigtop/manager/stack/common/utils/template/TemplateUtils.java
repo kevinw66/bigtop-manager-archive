@@ -44,11 +44,4 @@ public class TemplateUtils {
         }
     }
 
-    public static void main(String[] args) {
-        String fileName = "/opt/code/bigtop-manager/logs/test.properties";
-        Map<String, Object> configMap = StackConfigUtils.loadConfig("/opt/code/bigtop-manager/bigtop-manager-server/src/main/resources/stacks/BIGTOP/3.3.0/services/KAFKA/configuration/kafka-broker.yaml");
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("dir", "/a");
-        map2TemplateByParam(fileName, configMap, paramMap, ConfigType.PROPERTIES);
-    }
 }
