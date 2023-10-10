@@ -56,7 +56,7 @@ public class ZookeeperServerScript implements Script {
 
         log.info("modelMap: {}", modelMap);
         log.info("content: {}", zookeeperEnv.get("content"));
-        LinuxFileUtils.toFile(ConfigType.TEMPLATE, confDir + "/zookeeper-env.sh", zookeeperUser, zookeeperGroup, "rw-r--r--",
+        LinuxFileUtils.toFileByTemplate(confDir + "/zookeeper-env.sh", zookeeperUser, zookeeperGroup, "rw-r--r--",
                 modelMap, zookeeperEnv.get("content").toString());
 
 

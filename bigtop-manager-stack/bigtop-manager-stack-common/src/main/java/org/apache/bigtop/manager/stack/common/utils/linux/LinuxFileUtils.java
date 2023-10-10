@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.*;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,6 +39,22 @@ public class LinuxFileUtils {
      */
     public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
                               Map<String, Object> content) {
+        toFile(type, filename, owner, group, permissions, content, null);
+    }
+
+    /**
+     * Generate config file by ConfigType
+     *
+     * @param type        config file type
+     * @param filename    file path
+     * @param owner       owner
+     * @param group       group
+     * @param permissions permissions
+     * @param content     content map
+     * @param paramMap    paramMap
+     */
+    public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
+                              Map<String, Object> content, Map<String, Object> paramMap) {
         if (type == null || StringUtils.isBlank(filename) || CollectionUtils.isEmpty(content)) {
             log.error("type, filename, content must not be null");
             return;
@@ -45,16 +62,13 @@ public class LinuxFileUtils {
 
         switch (type) {
             case PROPERTIES, XML, ENV:
-                TemplateUtils.map2Template(filename, content, type);
+                TemplateUtils.map2Template(type, filename, content, paramMap);
                 break;
             case YAML:
                 YamlUtils.writeYaml(filename, content);
                 break;
             case JSON:
                 JsonUtils.writeToFile(filename, content);
-                break;
-            case TEMPLATE:
-                log.warn("must set template when type is TEMPLATE");
                 break;
             case UNKNOWN:
                 log.info("no need to write");
@@ -68,7 +82,6 @@ public class LinuxFileUtils {
     /**
      * Generate file by template
      *
-     * @param type        config file type
      * @param filename    file path
      * @param owner       owner
      * @param group       group
@@ -76,19 +89,13 @@ public class LinuxFileUtils {
      * @param modelMap    modelMap
      * @param template    template
      */
-    public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
-                              Map<String, Object> modelMap, String template) {
-        if (type == null || StringUtils.isBlank(filename) || CollectionUtils.isEmpty(modelMap) || StringUtils.isEmpty(template)) {
+    public static void toFileByTemplate(String filename, String owner, String group, String permissions,
+                                        Map<String, Object> modelMap, String template) {
+        if (StringUtils.isBlank(filename) || CollectionUtils.isEmpty(modelMap) || StringUtils.isEmpty(template)) {
             log.error("type, filename, content, template must not be null");
             return;
         }
-        switch (type) {
-            case TEMPLATE:
-                BaseTemplate.writeCustomTemplate(filename, modelMap, template);
-                break;
-            default:
-                log.warn("only support TEMPLATE type");
-        }
+        BaseTemplate.writeCustomTemplate(filename, modelMap, template);
 
         updateOwner(filename, owner, group, false);
         updatePermissions(filename, permissions, false);

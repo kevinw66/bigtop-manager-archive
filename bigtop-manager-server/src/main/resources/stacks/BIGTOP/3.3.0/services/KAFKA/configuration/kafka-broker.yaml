@@ -7,7 +7,7 @@
     Each new partition that is created will be placed in the directory which currently has the fewest partitions.
 -
   name: zookeeper.connect
-  value: localhost:2181
+  value: <#if zkHostList?? ><#list zkHostList as host>${host}:2181<#sep>,</#sep></#list><#else>localhost:2181</#if>
   description:
     Zookeeper also allows you to add a \"chroot\" path which will make all kafka data for this cluster appear under a particular path.
     This is a way to setup multiple Kafka clusters or other applications on the same zookeeper cluster. To do this give a connection
@@ -15,8 +15,12 @@
     path /chroot/path. Note that consumers must use the same connection string.
 -
   name: listeners
-  value: PLAINTEXT://localhost:9092
+  value: PLAINTEXT://<#if host?? >${host}:9092<#else>localhost:9092</#if>
   description: host and port where kafka broker will be accepting connections. localhost will be substituted with hostname. This property managed with Ambari and every user-defined listeners need to be placed to raw.listeners property.
+-
+  name: advertised.listeners
+  value: PLAINTEXT://<#if host?? >${host}:9092<#else>localhost:9092</#if>
+  description: Listeners to publish to ZooKeeper for clients to use, if different than the listeners config property.
 -
   name: raw.listeners
   value:

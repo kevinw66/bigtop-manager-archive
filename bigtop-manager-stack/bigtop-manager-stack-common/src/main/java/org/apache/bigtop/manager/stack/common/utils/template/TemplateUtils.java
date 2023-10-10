@@ -15,30 +15,18 @@ public class TemplateUtils {
      *
      * @param fileName  fileName
      * @param configMap configMap
-     */
-    public static void map2Template(String fileName, Map<String, Object> configMap, ConfigType configType) {
-        HashMap<Object, Object> modelMap = new HashMap<>();
-        modelMap.put("model", configMap);
-        try {
-            BaseTemplate.writeTemplate(fileName, modelMap, configType.name());
-        } catch (Exception e) {
-            log.error("writeProperties error,", e);
-        }
-    }
-
-    /**
-     * writeProperties to file
-     *
-     * @param fileName  fileName
-     * @param configMap configMap
      * @param paramMap paramMap parameters for template
      */
-    public static void map2TemplateByParam(String fileName, Map<String, Object> configMap, Map<String, Object> paramMap, ConfigType configType) {
+    public static void map2Template(ConfigType configType, String fileName, Map<String, Object> configMap, Map<String, Object> paramMap) {
         HashMap<Object, Object> modelMap = new HashMap<>();
         modelMap.put("model", configMap);
         try {
-            String properties = BaseTemplate.writeTemplateAsString(modelMap, configType.name());
-            BaseTemplate.writeCustomTemplate(fileName, paramMap, properties);
+            if (paramMap == null) {
+                BaseTemplate.writeTemplate(fileName, modelMap, configType.name());
+            } else {
+                String properties = BaseTemplate.writeTemplateAsString(modelMap, configType.name());
+                BaseTemplate.writeCustomTemplate(fileName, paramMap, properties);
+            }
         } catch (Exception e) {
             log.error("writeProperties error,", e);
         }

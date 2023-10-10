@@ -5,10 +5,12 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperParams;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
+import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxOSUtils;
@@ -57,12 +59,17 @@ public class KafkaServerScript implements Script {
 
 
         // server.properties
+        Set<String> zookeeperServerHosts = LocalSettings.hosts("ZOOKEEPER_SERVER");
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("zkHostList", zookeeperServerHosts);
+        paramMap.put("host", NetUtils.getHostname());
         LinuxFileUtils.toFile(ConfigType.PROPERTIES,
                 MessageFormat.format("{0}/server.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
                 "rw-r--r--",
-                kafkaBroker);
+                kafkaBroker,
+                paramMap);
 
         // env
         Map<String, Object> modelMap = new HashMap<>();
@@ -72,7 +79,7 @@ public class KafkaServerScript implements Script {
         modelMap.put("CONF_DIR", confDir);
         modelMap.put("securityEnabled", false);
 
-        LinuxFileUtils.toFile(ConfigType.TEMPLATE,
+        LinuxFileUtils.toFileByTemplate(
                 MessageFormat.format("{0}/kafka-env.sh", confDir),
                 kafkaUser,
                 kafkaGroup,
@@ -83,7 +90,7 @@ public class KafkaServerScript implements Script {
         // log4j
         Map<String, Object> log4jMap = Maps.newHashMap(kafkaLog4j);
         log4jMap.remove("content");
-        LinuxFileUtils.toFile(ConfigType.TEMPLATE,
+        LinuxFileUtils.toFileByTemplate(
                 MessageFormat.format("{0}/log4j.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
@@ -94,7 +101,7 @@ public class KafkaServerScript implements Script {
         //
         kafkaEnv.put("kafkaUser", kafkaUser);
         kafkaEnv.put("kafkaGroup", kafkaGroup);
-        LinuxFileUtils.toFile(ConfigType.TEMPLATE,
+        LinuxFileUtils.toFileByTemplate(
                 MessageFormat.format("{0}/kafka.conf", KafkaParams.limitsConfDir),
                 "root",
                 "root",
