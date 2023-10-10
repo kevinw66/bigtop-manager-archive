@@ -50,7 +50,7 @@
     
     log4j.appender.kafkaAppender=org.apache.log4j.DailyRollingFileAppender
     log4j.appender.kafkaAppender.DatePattern='.'yyyy-MM-dd-HH
-    log4j.appender.kafkaAppender.File=${r'${kafka.logs.dir}'}/server.log
+    <#noparse>log4j.appender.kafkaAppender.File=${kafka.logs.dir}/server.log</#noparse>
     log4j.appender.kafkaAppender.layout=org.apache.log4j.PatternLayout
     log4j.appender.kafkaAppender.layout.ConversionPattern=[%d{ISO8601}] %p %m (%c)%n
     log4j.appender.kafkaAppender.MaxFileSize = ${kafkaLogMaxFileSize}MB
@@ -58,25 +58,25 @@
     
     log4j.appender.stateChangeAppender=org.apache.log4j.DailyRollingFileAppender
     log4j.appender.stateChangeAppender.DatePattern='.'yyyy-MM-dd-HH
-    log4j.appender.stateChangeAppender.File=${r'${kafka.logs.dir}'}/state-change.log
+    <#noparse>log4j.appender.stateChangeAppender.File=${kafka.logs.dir}/state-change.log</#noparse>
     log4j.appender.stateChangeAppender.layout=org.apache.log4j.PatternLayout
     log4j.appender.stateChangeAppender.layout.ConversionPattern=[%d{ISO8601}] %p %m (%c)%n
     
     log4j.appender.requestAppender=org.apache.log4j.DailyRollingFileAppender
     log4j.appender.requestAppender.DatePattern='.'yyyy-MM-dd-HH
-    log4j.appender.requestAppender.File=${r'${kafka.logs.dir}'}/kafka-request.log
+    <#noparse>log4j.appender.requestAppender.File=${kafka.logs.dir}/kafka-request.log</#noparse>
     log4j.appender.requestAppender.layout=org.apache.log4j.PatternLayout
     log4j.appender.requestAppender.layout.ConversionPattern=[%d{ISO8601}] %p %m (%c)%n
     
     log4j.appender.cleanerAppender=org.apache.log4j.DailyRollingFileAppender
     log4j.appender.cleanerAppender.DatePattern='.'yyyy-MM-dd-HH
-    log4j.appender.cleanerAppender.File=${r'${kafka.logs.dir}'}/log-cleaner.log
+    <#noparse>log4j.appender.cleanerAppender.File=${kafka.logs.dir}/log-cleaner.log</#noparse>
     log4j.appender.cleanerAppender.layout=org.apache.log4j.PatternLayout
     log4j.appender.cleanerAppender.layout.ConversionPattern=[%d{ISO8601}] %p %m (%c)%n
     
     log4j.appender.controllerAppender=org.apache.log4j.DailyRollingFileAppender
     log4j.appender.controllerAppender.DatePattern='.'yyyy-MM-dd-HH
-    log4j.appender.controllerAppender.File=${r'${kafka.logs.dir}'}/controller.log
+    <#noparse>log4j.appender.controllerAppender.File=${kafka.logs.dir}/controller.log</#noparse>
     log4j.appender.controllerAppender.layout=org.apache.log4j.PatternLayout
     log4j.appender.controllerAppender.layout.ConversionPattern=[%d{ISO8601}] %p %m (%c)%n
     log4j.appender.controllerAppender.MaxFileSize = ${controllerLogMaxFileSize}MB
@@ -85,11 +85,11 @@
     #log4j.logger.kafka.producer.async.DefaultEventHandler=DEBUG, kafkaAppender
     #log4j.logger.kafka.client.ClientUtils=DEBUG, kafkaAppender
     #log4j.logger.kafka.perf=DEBUG, kafkaAppender
-    #log4j.logger.kafka.perf.ProducerPerformance${r'$'}ProducerThread=DEBUG, kafkaAppender
+    <#noparse>#log4j.logger.kafka.perf.ProducerPerformance$ProducerThread=DEBUG, kafkaAppender</#noparse>
     #log4j.logger.org.I0Itec.zkclient.ZkClient=DEBUG
     log4j.logger.kafka=INFO, kafkaAppender
-    log4j.logger.kafka.network.RequestChannel${r'$'}=WARN, requestAppender
-    log4j.additivity.kafka.network.RequestChannel${r'$'}=false
+    <#noparse>log4j.logger.kafka.network.RequestChannel$=WARN, requestAppender</#noparse>
+    <#noparse>log4j.additivity.kafka.network.RequestChannel$=false</#noparse>
     
     #log4j.logger.kafka.network.Processor=TRACE, requestAppender
     #log4j.logger.kafka.server.KafkaApis=TRACE, requestAppender

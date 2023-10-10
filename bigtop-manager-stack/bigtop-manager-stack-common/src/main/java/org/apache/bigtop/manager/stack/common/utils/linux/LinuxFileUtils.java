@@ -4,9 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
-import org.apache.bigtop.manager.stack.common.utils.PropertiesUtils;
-import org.apache.bigtop.manager.stack.common.utils.XmlUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
+import org.apache.bigtop.manager.stack.common.utils.template.TemplateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -45,20 +44,14 @@ public class LinuxFileUtils {
         }
 
         switch (type) {
-            case PROPERTIES:
-                PropertiesUtils.writeProperties(filename, content);
+            case PROPERTIES, XML, ENV:
+                TemplateUtils.map2Template(filename, content, type);
                 break;
             case YAML:
                 YamlUtils.writeYaml(filename, content);
                 break;
-            case XML:
-                XmlUtils.writeXml(filename, content);
-                break;
             case JSON:
                 JsonUtils.writeToFile(filename, content);
-                break;
-            case ENV:
-                BaseTemplate.writeTemplate(filename, content, "env");
                 break;
             case TEMPLATE:
                 log.warn("must set template when type is TEMPLATE");
@@ -91,7 +84,7 @@ public class LinuxFileUtils {
         }
         switch (type) {
             case TEMPLATE:
-                BaseTemplate.writeTemplateByContent(filename, modelMap, template);
+                BaseTemplate.writeCustomTemplate(filename, modelMap, template);
                 break;
             default:
                 log.warn("only support TEMPLATE type");
