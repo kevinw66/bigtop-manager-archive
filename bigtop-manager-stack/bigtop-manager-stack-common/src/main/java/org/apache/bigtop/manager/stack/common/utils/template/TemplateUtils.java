@@ -1,7 +1,6 @@
 package org.apache.bigtop.manager.stack.common.utils.template;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 
 import java.util.HashMap;
@@ -17,15 +16,31 @@ public class TemplateUtils {
      * @param configMap configMap
      * @param paramMap paramMap parameters for template
      */
-    public static void map2Template(ConfigType configType, String fileName, Map<String, Object> configMap, Map<String, Object> paramMap) {
-        HashMap<Object, Object> modelMap = new HashMap<>();
+    public static void map2Template(ConfigType configType, String fileName, Object configMap, Object paramMap) {
+        Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("model", configMap);
         try {
             if (paramMap == null) {
                 BaseTemplate.writeTemplate(fileName, modelMap, configType.name());
             } else {
-                String properties = BaseTemplate.writeTemplateAsString(modelMap, configType.name());
-                BaseTemplate.writeCustomTemplate(fileName, paramMap, properties);
+                String paramTemplate = BaseTemplate.writeTemplateAsString(modelMap, configType.name());
+                BaseTemplate.writeCustomTemplate(fileName, paramMap, paramTemplate);
+            }
+        } catch (Exception e) {
+            log.error("writeProperties error,", e);
+        }
+    }
+
+    /**
+     * write custom template
+     */
+    public static void map2CustomTemplate(String template, String fileName, Object configMap, Object paramMap) {
+        try {
+            if (paramMap == null) {
+                BaseTemplate.writeCustomTemplate(fileName, configMap, template);
+            } else {
+                String paramTemplate = BaseTemplate.writeCustomTemplateAsString(configMap, template);
+                BaseTemplate.writeCustomTemplate(fileName, paramMap, paramTemplate);
             }
         } catch (Exception e) {
             log.error("writeProperties error,", e);
