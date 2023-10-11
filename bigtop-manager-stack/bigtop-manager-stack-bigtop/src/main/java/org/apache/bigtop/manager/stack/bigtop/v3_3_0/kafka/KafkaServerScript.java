@@ -59,7 +59,7 @@ public class KafkaServerScript implements Script {
 
 
         // server.properties
-        Set<String> zookeeperServerHosts = LocalSettings.hosts("ZOOKEEPER_SERVER");
+        List<String> zookeeperServerHosts = LocalSettings.hosts("ZOOKEEPER_SERVER");
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("zkHostList", zookeeperServerHosts);
         paramMap.put("host", NetUtils.getHostname());
@@ -79,37 +79,32 @@ public class KafkaServerScript implements Script {
         modelMap.put("CONF_DIR", confDir);
         modelMap.put("securityEnabled", false);
 
-        LinuxFileUtils.toFileByTemplate(
+        LinuxFileUtils.toFileByTemplate(content,
                 MessageFormat.format("{0}/kafka-env.sh", confDir),
                 kafkaUser,
                 kafkaGroup,
                 "rw-r--r--",
-                modelMap,
-                content);
+                modelMap);
 
         // log4j
         Map<String, Object> log4jMap = Maps.newHashMap(kafkaLog4j);
         log4jMap.remove("content");
-        LinuxFileUtils.toFileByTemplate(
+        LinuxFileUtils.toFileByTemplate(log4jContent,
                 MessageFormat.format("{0}/log4j.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
                 "rw-r--r--",
-                log4jMap,
-                log4jContent);
+                log4jMap);
 
-        //
+        // kafka.limits
         kafkaEnv.put("kafkaUser", kafkaUser);
         kafkaEnv.put("kafkaGroup", kafkaGroup);
-        LinuxFileUtils.toFileByTemplate(
+        LinuxFileUtils.toFileByTemplate(kafkaLimitsContent,
                 MessageFormat.format("{0}/kafka.conf", KafkaParams.limitsConfDir),
                 "root",
                 "root",
                 "rw-r--r--",
-                kafkaEnv,
-                kafkaLimitsContent);
-
-        Set<String> kafkaHosts = KafkaParams.serviceHosts(commandMessage);
+                kafkaEnv);
 
         return new ShellResult(0, "configuration complete!!!", "");
     }
