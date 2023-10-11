@@ -95,26 +95,19 @@ public class TaskFlowHandler implements Callback {
         List<ComponentCommandWrapper> sortedList = new ArrayList<>();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
-        DAG<ComponentCommandWrapper, ComponentCommandWrapper, DagGraphEdge> mergedDependencyMap = DagHelper.getStackDagMap().get(fullStackName);
+        DAG<ComponentCommandWrapper, ComponentCommandWrapper, DagGraphEdge> dag = DagHelper.getStackDagMap().get(fullStackName);
+        try {
+            List<ComponentCommandWrapper> orderList = dag.topologicalSort();
 
-
-        for (ComponentCommandWrapper roleCommandPair : todoList) {
-            Map<ComponentCommandWrapper, Map<ComponentCommandWrapper, DagGraphEdge>> reverseEdgesMap = mergedDependencyMap.getReverseEdgesMap();
-
-            Map<ComponentCommandWrapper, DagGraphEdge> blockerMap = reverseEdgesMap.get(roleCommandPair);
-
-            // add dependencies
-            for (ComponentCommandWrapper commandPair : todoList) {
-
-                if (MapUtils.isNotEmpty(blockerMap) && blockerMap.containsKey(commandPair) && !sortedList.contains(commandPair)) {
-                    sortedList.add(commandPair);
+            for (ComponentCommandWrapper componentCommandWrapper : orderList) {
+                if (todoList.contains(componentCommandWrapper)) {
+                    sortedList.add(componentCommandWrapper);
                 }
             }
-            if (!sortedList.contains(roleCommandPair)) {
-                sortedList.add(roleCommandPair);
-            }
+        } catch (Exception e) {
+            throw new ServerException(e);
         }
-        log.info("sortedList: {}", sortedList);
+        log.info("todoList: {} ================ sortedList: {}", todoList, sortedList);
         return sortedList;
     }
 
