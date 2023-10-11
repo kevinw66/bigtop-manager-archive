@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -46,12 +45,15 @@ public class StackUtils {
 
     private static final String DEPENDENCY_FILE = "order.json";
 
-    private static final Map<String, Map<String, Set<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
+    private static final Map<String, Map<String, List<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
     private static final Map<String, Map<String, Set<String>>> STACK_CONFIG_MAP = new HashMap<>();
 
     private static final Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
+    public static Map<String, Map<String, List<String>>> getStackDependencyMap() {
+        return Collections.unmodifiableMap(STACK_DEPENDENCY_MAP);
+    }
 
     public static Map<String, Map<String, Set<String>>> getStackConfigMap() {
         return Collections.unmodifiableMap(STACK_CONFIG_MAP);
@@ -78,7 +80,6 @@ public class StackUtils {
      * @return service model {@link ServiceModel}
      */
     public static List<ServiceDTO> parseService(File versionFolder, String stackName, String stackVersion) {
-        Map<String, Set<String>> mergedDependencyMap = new HashMap<>();
         Map<String, Set<String>> mergedConfigMap = new HashMap<>();
 
         File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
@@ -96,10 +97,8 @@ public class StackUtils {
                 // order.json
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE);
                 if (dependencyFile.exists()) {
-                    Map<String, Set<String>> singleDependencyMap = JsonUtils.readFromFile(dependencyFile.getAbsolutePath(), new TypeReference<>() {});
-                    if (Objects.nonNull(singleDependencyMap)) {
-                        mergedDependencyMap.putAll(singleDependencyMap);
-                    }
+                    Map<String, List<String>> dependencyMap = JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {});
+                    STACK_DEPENDENCY_MAP.put(fullStackName(stackName, stackVersion), dependencyMap);
                 }
 
                 // configurations
@@ -114,11 +113,7 @@ public class StackUtils {
                 mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
             }
 
-            STACK_DEPENDENCY_MAP.put(fullStackName(stackName, stackVersion), mergedDependencyMap);
             STACK_CONFIG_MAP.put(fullStackName(stackName, stackVersion), mergedConfigMap);
-
-            log.info("stackConfigMap: {}", STACK_CONFIG_MAP);
-            log.info("stackDependencyMap: {}", STACK_DEPENDENCY_MAP);
         }
 
         return services;
@@ -150,7 +145,7 @@ public class StackUtils {
             }
         }
 
-        DagHelper.dagInitialized(STACK_DEPENDENCY_MAP);
+        DagHelper.initializeDag();
         return stackMap;
     }
 

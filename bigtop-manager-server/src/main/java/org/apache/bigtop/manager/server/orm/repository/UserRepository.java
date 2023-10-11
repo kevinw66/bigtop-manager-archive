@@ -1,11 +1,9 @@
 package org.apache.bigtop.manager.server.orm.repository;
 
 import org.apache.bigtop.manager.server.orm.entity.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+public interface UserRepository extends JpaRepository<User, Long> {
 
-public interface UserRepository extends CrudRepository<User, Long> {
-
-    Optional<User> findByUsername(String username);
+    User findByUsername(String username);
 }

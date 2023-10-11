@@ -7,7 +7,12 @@ import lombok.Data;
 @AllArgsConstructor
 public class DagGraphEdge {
 
-    private ComponentCommandWrapper startNode;
+    private String startNode;
 
-    private ComponentCommandWrapper endNode;
+    private String endNode;
+
+    @Override
+    public String toString() {
+        return startNode + " --(requires)--> " + endNode;
+    }
 }

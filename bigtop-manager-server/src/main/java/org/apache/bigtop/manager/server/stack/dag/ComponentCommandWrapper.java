@@ -12,4 +12,8 @@ public class ComponentCommandWrapper {
 
     private Command command;
 
+    @Override
+    public String toString() {
+        return componentName + "-" + command.name();
+    }
 }

@@ -1,13 +1,12 @@
 package org.apache.bigtop.manager.server.orm.repository;
 
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-
-public interface ServiceConfigRepository extends CrudRepository<ServiceConfig, Long> {
+public interface ServiceConfigRepository extends JpaRepository<ServiceConfig, Long> {
 
     List<ServiceConfig> findAllByClusterId(Long clusterId);
 

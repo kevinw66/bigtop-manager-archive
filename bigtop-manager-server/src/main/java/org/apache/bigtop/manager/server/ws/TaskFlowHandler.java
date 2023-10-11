@@ -20,21 +20,37 @@ import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
-import org.apache.bigtop.manager.server.model.dto.ScriptDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.orm.entity.CommandLog;
+import org.apache.bigtop.manager.server.orm.entity.Component;
+import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.apache.bigtop.manager.server.orm.entity.HostComponent;
+import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.entity.Stage;
+import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.server.orm.repository.CommandLogRepository;
+import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
+import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
+import org.apache.bigtop.manager.server.orm.repository.HostRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.orm.repository.StageRepository;
+import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.stack.dag.DagHelper;
 import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -91,30 +107,21 @@ public class TaskFlowHandler implements Callback {
      * @param stackVersion stack version
      */
     public List<ComponentCommandWrapper> generateProcessWrapper(List<ComponentCommandWrapper> todoList, String stackName, String stackVersion) {
-
         List<ComponentCommandWrapper> sortedList = new ArrayList<>();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
-        DAG<ComponentCommandWrapper, ComponentCommandWrapper, DagGraphEdge> mergedDependencyMap = DagHelper.getStackDagMap().get(fullStackName);
+        DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = DagHelper.getStackDagMap().get(fullStackName);
 
-
-        for (ComponentCommandWrapper roleCommandPair : todoList) {
-            Map<ComponentCommandWrapper, Map<ComponentCommandWrapper, DagGraphEdge>> reverseEdgesMap = mergedDependencyMap.getReverseEdgesMap();
-
-            Map<ComponentCommandWrapper, DagGraphEdge> blockerMap = reverseEdgesMap.get(roleCommandPair);
-
-            // add dependencies
-            for (ComponentCommandWrapper commandPair : todoList) {
-
-                if (MapUtils.isNotEmpty(blockerMap) && blockerMap.containsKey(commandPair) && !sortedList.contains(commandPair)) {
-                    sortedList.add(commandPair);
+        for (ComponentCommandWrapper commandWrapper : todoList) {
+            // Add dependencies
+            for (String subsequentNode : dag.getSubsequentNodes(commandWrapper.toString())) {
+                ComponentCommandWrapper subsequentNodeInfo = dag.getNode(subsequentNode);
+                if (todoList.contains(subsequentNodeInfo) && !sortedList.contains(subsequentNodeInfo)) {
+                    sortedList.add(subsequentNodeInfo);
                 }
             }
-            if (!sortedList.contains(roleCommandPair)) {
-                sortedList.add(roleCommandPair);
-            }
         }
-        log.info("sortedList: {}", sortedList);
+
         return sortedList;
     }
 
@@ -157,7 +164,7 @@ public class TaskFlowHandler implements Callback {
             default -> log.warn("Unknown commandType: {}", commandEvent);
         }
 
-        //Check
+        // Check
         for (Map.Entry<String, Set<String>> entry : componentHostMapping.entrySet()) {
             Set<String> hostSet = entry.getValue();
             List<Host> hostList = hostRepository.findAllByHostnameIn(hostSet);
@@ -214,7 +221,7 @@ public class TaskFlowHandler implements Callback {
                         List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
                         for (ComponentDTO componentDTO : componentDTOList) {
                             String componentName = componentDTO.getComponentName();
-                            //generate componentCommandWrapper
+                            // Generate componentCommandWrapper
                             ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, Command.INSTALL);
                             componentCommandWrappers.add(componentCommandWrapper);
                         }
@@ -250,14 +257,14 @@ public class TaskFlowHandler implements Callback {
             stage = stageRepository.save(stage);
 
             Set<String> hostSet = componentHostMapping.get(componentName);
-            //Query host_component table, obtain the host list for this role
+            // Query host component table, obtain the host list for this role
             Component component = componentRepository.findByClusterClusterNameAndComponentName(clusterName, componentName).orElse(new Component());
-            //generate task list
+            // Generate task list
             if (component.getId() != null) {
                 for (String hostname : hostSet) {
                     Task task = convertTask(component, hostname, command, job, stage, customCommand);
                     stage.getTasks().add(task);
-                    //Map of task flow for display frontend
+                    // Map of task flow for display frontend
                     displayTaskFlow.computeIfAbsent(hostname, key -> new ArrayList<>()).add(task);
                 }
             }
@@ -271,14 +278,16 @@ public class TaskFlowHandler implements Callback {
 
     private Task convertTask(Component component, String hostname, Command command, Job job, Stage stage, String customCommand) {
         Task task = new Task();
-        //Required fields
+
+        // Required fields
         task.setHostname(hostname);
         task.setCommand(command);
         task.setRoot(component.getCluster().getRoot());
         task.setServiceName(component.getService().getServiceName());
         task.setStackName(component.getCluster().getStack().getStackName());
         task.setStackVersion(component.getCluster().getStack().getStackVersion());
-        //Context fields
+
+        // Context fields
         task.setComponentName(component.getComponentName());
         task.setServiceUser(component.getService().getServiceUser());
         task.setServiceGroup(component.getService().getServiceGroup());
@@ -309,12 +318,8 @@ public class TaskFlowHandler implements Callback {
         commandMessage.setStackName(task.getStackName());
         commandMessage.setStackVersion(task.getStackVersion());
 
-        try {
-            List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {
-            });
-            commandMessage.setOsSpecifics(osSpecifics);
-        } catch (Exception ignored) {
-        }
+        List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {});
+        commandMessage.setOsSpecifics(osSpecifics);
 
         try {
             Map<String, ScriptInfo> customCommands = JsonUtils.readFromString(task.getCustomCommands(), new TypeReference<>() {
@@ -334,7 +339,6 @@ public class TaskFlowHandler implements Callback {
         commandMessage.setServiceGroup(task.getServiceGroup());
         commandMessage.setCustomCommand(task.getCustomCommand());
 
-        // requestId stageId taskId
         commandMessage.setJobId(task.getJob().getId());
         commandMessage.setStageId(task.getStage().getId());
         commandMessage.setTaskId(task.getId());
@@ -346,7 +350,7 @@ public class TaskFlowHandler implements Callback {
     public void submitTaskFlow(CommandEvent commandEvent) {
         this.taskFlowQueue = generateTaskFlow(commandEvent);
 
-        // job state is processing
+        // Job state is processing
         Long jobId = commandEvent.getJobId();
         Job job = jobRepository.findById(jobId).orElse(new Job());
         job.setState(JobState.PROCESSING);
@@ -358,7 +362,7 @@ public class TaskFlowHandler implements Callback {
             Stage stage = taskFlowQueue.poll();
             log.info("starting execute task flow");
 
-            // stage state is processing
+            // Stage state is processing
             stage.setState(JobState.PROCESSING);
             stageRepository.save(stage);
 
@@ -367,9 +371,10 @@ public class TaskFlowHandler implements Callback {
                 if (log.isDebugEnabled()) {
                     log.debug("commandMessage: {}", commandMessage);
                 }
+
                 serverWebSocketHandler.sendMessage(task.getHostname(), commandMessage, this);
 
-                // task state is processing
+                // Task state is processing
                 task.setMessageId(commandMessage.getMessageId());
                 task.setState(JobState.PROCESSING);
                 taskRepository.save(task);
@@ -459,8 +464,8 @@ public class TaskFlowHandler implements Callback {
 
             failedList.add(new ImmutablePair<>(job.getId(), stage.getId()));
 
-            //Updating the current task status to FAILED
-            //Pop up all subsequent tasks and assign CANCELED status
+            // Updating the current task status to FAILED
+            // Pop up all subsequent tasks and assign CANCELED status
             releaseRemainStages();
         }
 
@@ -477,7 +482,7 @@ public class TaskFlowHandler implements Callback {
             List<Stage> remainStages = new ArrayList<>(taskFlowQueue.size());
             taskFlowQueue.drainTo(remainStages);
             for (Stage s : remainStages) {
-                //Setting the status of the remaining stages to CANCELED
+                // Setting the status of the remaining stages to CANCELED
                 s.setState(JobState.CANCELED);
                 stageRepository.save(s);
 

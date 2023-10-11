@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,6 +16,7 @@
  */
 package org.apache.bigtop.manager.server.stack.dag;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.AbstractMap;
@@ -31,8 +31,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * analysis of DAG
@@ -60,10 +58,6 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
      */
     private final Map<Node, Map<Node, EdgeInfo>> reverseEdgesMap;
 
-    public Map<Node, Map<Node, EdgeInfo>> getReverseEdgesMap(){
-        return Collections.unmodifiableMap(reverseEdgesMap);
-    }
-
     public DAG() {
         nodesMap = new HashMap<>();
         edgesMap = new HashMap<>();
@@ -76,7 +70,7 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
      * @param node node
      * @param nodeInfo node information
      */
-    public void addNode(Node node, NodeInfo nodeInfo) {
+    private void addNode(Node node, NodeInfo nodeInfo) {
         lock.writeLock().lock();
 
         try {
@@ -148,7 +142,7 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
      * @param node node
      * @return true if contains
      */
-    public boolean containsNode(Node node) {
+    private boolean containsNode(Node node) {
         lock.readLock().lock();
 
         try {
@@ -352,7 +346,7 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
      * @param node node
      * @param nodeInfo node information
      */
-    private void addNodeIfAbsent(Node node, NodeInfo nodeInfo) {
+    public void addNodeIfAbsent(Node node, NodeInfo nodeInfo) {
         if (!containsNode(node)) {
             addNode(node, nodeInfo);
         }
@@ -511,6 +505,13 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
 
     @Override
     public String toString() {
-        return "DAG{" + "nodesMap=" + nodesMap + ", edgesMap=" + edgesMap + ", reverseEdgesMap=" + reverseEdgesMap + '}';
+        return "DAG{"
+                + "nodesMap="
+                + nodesMap
+                + ", edgesMap="
+                + edgesMap
+                + ", reverseEdgesMap="
+                + reverseEdgesMap
+                + '}';
     }
 }

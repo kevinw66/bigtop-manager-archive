@@ -20,9 +20,9 @@
 
 # delimiter ;
 
-# CREATE DATABASE `ambari` /*!40100 DEFAULT CHARACTER SET utf8 */;
+# CREATE DATABASE `bigtop_manager` /*!40100 DEFAULT CHARACTER SET utf8 */;
 #
-# CREATE USER 'ambari' IDENTIFIED BY 'bigdata';
+# CREATE USER 'bigtop_manager' IDENTIFIED BY 'bigdata';
 
 # USE @schema;
 
