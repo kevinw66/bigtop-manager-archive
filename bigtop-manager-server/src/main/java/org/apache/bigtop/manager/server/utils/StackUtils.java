@@ -194,7 +194,7 @@ public class StackUtils {
         }
 
         ComponentCommandWrapper commandWrapper = new ComponentCommandWrapper(role, Command.valueOf(command));
-        dag.addNodeIfAbsent(command, commandWrapper);
+        dag.addNodeIfAbsent(roleCommand, commandWrapper);
     }
 
     /**
