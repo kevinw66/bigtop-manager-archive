@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.server.exception.ApiException;
@@ -12,9 +13,12 @@ import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
-import org.apache.bigtop.manager.server.stack.dag.DagHelper;
+import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
+import org.apache.bigtop.manager.server.stack.dag.DAG;
+import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.stack.pojo.ServiceModel;
 import org.apache.bigtop.manager.server.stack.pojo.StackModel;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
@@ -32,6 +36,8 @@ import java.util.Set;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StackUtils {
+
+    private static final String ROLE_COMMAND_SPLIT = "-";
 
     private static final String BIGTOP_MANAGER_STACK_PATH = "bigtop.manager.stack.path";
 
@@ -51,6 +57,8 @@ public class StackUtils {
 
     private static final Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
+    private static final Map<String, DAG<String, ComponentCommandWrapper, DagGraphEdge>> STACK_DAG_MAP = new HashMap<>();
+
     public static Map<String, Map<String, List<String>>> getStackDependencyMap() {
         return Collections.unmodifiableMap(STACK_DEPENDENCY_MAP);
     }
@@ -61,6 +69,10 @@ public class StackUtils {
 
     public static Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> getStackKeyMap() {
         return Collections.unmodifiableMap(STACK_KEY_MAP);
+    }
+
+    public static Map<String, DAG<String, ComponentCommandWrapper, DagGraphEdge>> getStackDagMap() {
+        return Collections.unmodifiableMap(STACK_DAG_MAP);
     }
 
     /**
@@ -75,11 +87,10 @@ public class StackUtils {
 
     /**
      * Parse service file to generate service model
-     * @param stackName stack name
-     * @param stackVersion stack version
+     * @param fullStackName full stack name
      * @return service model {@link ServiceModel}
      */
-    public static List<ServiceDTO> parseService(File versionFolder, String stackName, String stackVersion) {
+    public static List<ServiceDTO> parseService(File versionFolder, String fullStackName) {
         Map<String, Set<String>> mergedConfigMap = new HashMap<>();
 
         File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
@@ -97,8 +108,8 @@ public class StackUtils {
                 // order.json
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE);
                 if (dependencyFile.exists()) {
-                    Map<String, List<String>> dependencyMap = JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {});
-                    STACK_DEPENDENCY_MAP.put(fullStackName(stackName, stackVersion), dependencyMap);
+                    Map<String, List<String>> dependencyMap = STACK_DEPENDENCY_MAP.computeIfAbsent(fullStackName, k -> new HashMap<>());
+                    dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {}));
                 }
 
                 // configurations
@@ -113,7 +124,7 @@ public class StackUtils {
                 mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
             }
 
-            STACK_CONFIG_MAP.put(fullStackName(stackName, stackVersion), mergedConfigMap);
+            STACK_CONFIG_MAP.put(fullStackName, mergedConfigMap);
         }
 
         return services;
@@ -133,20 +144,57 @@ public class StackUtils {
 
             for (File versionFolder : versionFolders) {
                 String stackVersion = versionFolder.getName();
-                log.info("Parsing stack: {} {}", stackName, stackVersion);
+                String fullStackName = fullStackName(stackName, stackVersion);
+                log.info("Parsing stack: {}", fullStackName);
 
                 checkStack(versionFolder);
                 StackDTO stackDTO = parseStack(versionFolder);
-                List<ServiceDTO> services = parseService(versionFolder, stackName, stackVersion);
+                List<ServiceDTO> services = parseService(versionFolder, fullStackName);
 
                 stackMap.put(stackDTO, services);
 
-                STACK_KEY_MAP.put(StackUtils.fullStackName(stackName, stackVersion), new ImmutablePair<>(stackDTO, services));
+                STACK_KEY_MAP.put(fullStackName, new ImmutablePair<>(stackDTO, services));
             }
         }
 
-        DagHelper.initializeDag();
+        initializeDag();
         return stackMap;
+    }
+
+    /**
+     * Initialize the DAG for each stack
+     */
+    public static void initializeDag() {
+        for (Map.Entry<String, Map<String, List<String>>> mapEntry : StackUtils.getStackDependencyMap().entrySet()) {
+            String fullStackName = mapEntry.getKey();
+            DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = new DAG<>();
+
+            for (Map.Entry<String, List<String>> entry : mapEntry.getValue().entrySet()) {
+                String blocked = entry.getKey();
+                List<String> blockers = entry.getValue();
+                addToDagNode(dag, blocked);
+
+                for (String blocker : blockers) {
+                    addToDagNode(dag, blocker);
+                    dag.addEdge(blocker, blocked, new DagGraphEdge(blocker, blocked), false);
+                }
+            }
+
+            STACK_DAG_MAP.put(fullStackName, dag);
+        }
+    }
+
+    private static void addToDagNode(DAG<String, ComponentCommandWrapper, DagGraphEdge> dag, String roleCommand) {
+        String[] split = roleCommand.split(ROLE_COMMAND_SPLIT);
+        String role = split[0];
+        String command = split[1];
+
+        if (!EnumUtils.isValidEnum(Command.class, command)) {
+            throw new ServerException("Unsupported command: " + command);
+        }
+
+        ComponentCommandWrapper commandWrapper = new ComponentCommandWrapper(role, Command.valueOf(command));
+        dag.addNodeIfAbsent(command, commandWrapper);
     }
 
     /**

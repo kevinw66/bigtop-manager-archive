@@ -16,6 +16,7 @@ import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 @Component
 public class ServerWebSocketHandler extends BinaryWebSocketHandler {
+
+    public static final Map<String, WebSocketSession> SESSIONS = new ConcurrentHashMap<>();
+
+    public static final Map<String, HeartbeatMessage> HEARTBEAT_MESSAGE_MAP = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<String, Callback> callbackMap = new ConcurrentHashMap<>();
 
@@ -34,7 +39,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     private MessageSerializer serializer;
 
     public void sendMessage(String hostname, BaseMessage message) {
-        WebSocketSession session = ServerWebSocketSessionManager.SESSIONS.get(hostname);
+        WebSocketSession session = SESSIONS.get(hostname);
         try {
             session.sendMessage(new BinaryMessage(serializer.serialize(message)));
         } catch (IOException e) {
@@ -43,7 +48,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     public void sendMessage(String hostname, BaseMessage message, Callback callback) {
-        WebSocketSession session = ServerWebSocketSessionManager.SESSIONS.get(hostname);
+        WebSocketSession session = SESSIONS.get(hostname);
         try {
             session.sendMessage(new BinaryMessage(serializer.serialize(message)));
             callbackMap.put(message.getMessageId(), callback);
@@ -80,15 +85,15 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
     private void handleHeartbeatMessage(WebSocketSession session, HeartbeatMessage heartbeatMessage) {
         HostInfo hostInfo = heartbeatMessage.getHostInfo();
-        ServerWebSocketSessionManager.SESSIONS.putIfAbsent(hostInfo.getHostname(), session);
-        ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.putIfAbsent(hostInfo.getHostname(), heartbeatMessage);
+        SESSIONS.putIfAbsent(hostInfo.getHostname(), session);
+        HEARTBEAT_MESSAGE_MAP.putIfAbsent(hostInfo.getHostname(), heartbeatMessage);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.error("session closed: {}, remove it!!!", session.getId());
-        ServerWebSocketSessionManager.SESSIONS.values().removeIf(value -> value.getId().equals(session.getId()));
-        ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.clear();
-        log.info("latest ServerWebSocketSessionManager.SESSIONS: {}", ServerWebSocketSessionManager.SESSIONS);
+        SESSIONS.values().removeIf(value -> value.getId().equals(session.getId()));
+        HEARTBEAT_MESSAGE_MAP.clear();
+        log.info("latest ServerWebSocketSessionManager.SESSIONS: {}", SESSIONS);
     }
 }

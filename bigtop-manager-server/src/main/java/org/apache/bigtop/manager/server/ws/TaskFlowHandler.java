@@ -40,7 +40,6 @@ import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
-import org.apache.bigtop.manager.server.stack.dag.DagHelper;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -110,8 +109,7 @@ public class TaskFlowHandler implements Callback {
         List<ComponentCommandWrapper> sortedList = new ArrayList<>();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
-        
-        DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = DagHelper.getStackDagMap().get(fullStackName);
+        DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = StackUtils.getStackDagMap().get(fullStackName);
 
         try {
             for (String node : dag.topologicalSort()) {

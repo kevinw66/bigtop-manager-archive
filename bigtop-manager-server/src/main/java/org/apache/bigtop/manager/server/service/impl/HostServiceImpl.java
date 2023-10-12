@@ -24,10 +24,18 @@ import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.server.orm.entity.Component;
+import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.apache.bigtop.manager.server.orm.entity.HostComponent;
+import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
+import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
+import org.apache.bigtop.manager.server.orm.repository.HostRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.ws.ServerWebSocketSessionManager;
+import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -80,12 +88,12 @@ public class HostServiceImpl implements HostService {
             int retry = 3;
             Host host = new Host();
             while (retry >= 0) {
-                WebSocketSession webSocketSession = ServerWebSocketSessionManager.SESSIONS.get(hostname);
+                WebSocketSession webSocketSession = ServerWebSocketHandler.SESSIONS.get(hostname);
                 boolean open = webSocketSession.isOpen();
                 System.out.println("open = " + open);
 
                 if (open) {
-                    HeartbeatMessage heartbeatMessage = ServerWebSocketSessionManager.HEARTBEAT_MESSAGE_MAP.get(hostname);
+                    HeartbeatMessage heartbeatMessage = ServerWebSocketHandler.HEARTBEAT_MESSAGE_MAP.get(hostname);
                     host = HostMapper.INSTANCE.Message2Entity(heartbeatMessage.getHostInfo());
                     Host savedHost = hostRepository.findByHostname(hostname).orElse(new Host());
                     if (savedHost.getId() != null) {
