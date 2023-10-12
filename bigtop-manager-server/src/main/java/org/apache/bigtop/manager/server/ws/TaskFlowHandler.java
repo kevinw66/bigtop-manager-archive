@@ -110,18 +110,20 @@ public class TaskFlowHandler implements Callback {
         List<ComponentCommandWrapper> sortedList = new ArrayList<>();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
+        
         DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = DagHelper.getStackDagMap().get(fullStackName);
 
-        for (ComponentCommandWrapper commandWrapper : todoList) {
-            // Add dependencies
-            for (String subsequentNode : dag.getSubsequentNodes(commandWrapper.toString())) {
-                ComponentCommandWrapper subsequentNodeInfo = dag.getNode(subsequentNode);
-                if (todoList.contains(subsequentNodeInfo) && !sortedList.contains(subsequentNodeInfo)) {
-                    sortedList.add(subsequentNodeInfo);
+        try {
+            for (String node : dag.topologicalSort()) {
+                ComponentCommandWrapper nodeInfo = dag.getNode(node);
+                if (todoList.contains(nodeInfo)) {
+                    sortedList.add(nodeInfo);
                 }
             }
+        } catch (Exception e) {
+            throw new ServerException(e);
         }
-
+        
         return sortedList;
     }
 

@@ -39,17 +39,17 @@ public class LocalSettings {
         return configDataMap;
     }
 
-    public static Set<String> hosts(String service) {
+    public static List<String> hosts(String service) {
         String cacheDir = Constants.STACK_CACHE_DIR;
 
-        Map<String, Set<String>> hostJson = new HashMap<>();
+        Map<String, List<String>> hostJson = new HashMap<>();
         try {
             hostJson = JsonUtils.readFromFile(cacheDir + HOSTS_INFO, new TypeReference<>() {
             });
         } catch (Exception e) {
             log.warn("{} parse error, ", HOSTS_INFO, e);
         }
-        return hostJson.getOrDefault(service, Set.of());
+        return hostJson.getOrDefault(service, List.of());
     }
 
     public static Map<String, Object> basicInfo() {

@@ -66,8 +66,4 @@ public abstract class BaseParams {
         return commandMessage.getServiceName();
     }
 
-    public static Set<String> serviceHosts(CommandMessage commandMessage) {
-        return LocalSettings.hosts(serviceName(commandMessage));
-    }
-
 }

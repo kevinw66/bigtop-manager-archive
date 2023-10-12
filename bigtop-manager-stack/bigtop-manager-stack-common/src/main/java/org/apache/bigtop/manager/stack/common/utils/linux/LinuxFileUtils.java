@@ -27,18 +27,8 @@ import java.util.Set;
 @Slf4j
 public class LinuxFileUtils {
 
-    /**
-     * Generate config file by ConfigType
-     *
-     * @param type        config file type
-     * @param filename    file path
-     * @param owner       owner
-     * @param group       group
-     * @param permissions permissions
-     * @param content     content map
-     */
     public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
-                              Map<String, Object> content) {
+                              Object content) {
         toFile(type, filename, owner, group, permissions, content, null);
     }
 
@@ -54,14 +44,14 @@ public class LinuxFileUtils {
      * @param paramMap    paramMap
      */
     public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
-                              Map<String, Object> content, Map<String, Object> paramMap) {
-        if (type == null || StringUtils.isBlank(filename) || CollectionUtils.isEmpty(content)) {
+                              Object content, Object paramMap) {
+        if (type == null || StringUtils.isBlank(filename) || content == null) {
             log.error("type, filename, content must not be null");
             return;
         }
 
         switch (type) {
-            case PROPERTIES, XML, ENV:
+            case PROPERTIES, XML, ENV, CONTENT:
                 TemplateUtils.map2Template(type, filename, content, paramMap);
                 break;
             case YAML:
@@ -79,6 +69,12 @@ public class LinuxFileUtils {
         updatePermissions(filename, permissions, false);
     }
 
+
+    public static void toFileByTemplate(String template, String filename, String owner, String group, String permissions,
+                                        Object modelMap) {
+        toFileByTemplate(template, filename, owner, group, permissions, modelMap, null);
+    }
+
     /**
      * Generate file by template
      *
@@ -88,14 +84,15 @@ public class LinuxFileUtils {
      * @param permissions permissions
      * @param modelMap    modelMap
      * @param template    template
+     * @param paramMap    paramMap
      */
-    public static void toFileByTemplate(String filename, String owner, String group, String permissions,
-                                        Map<String, Object> modelMap, String template) {
-        if (StringUtils.isBlank(filename) || CollectionUtils.isEmpty(modelMap) || StringUtils.isEmpty(template)) {
+    public static void toFileByTemplate(String template, String filename, String owner, String group, String permissions,
+                                        Object modelMap, Object paramMap) {
+        if (StringUtils.isBlank(filename) || modelMap == null || StringUtils.isEmpty(template)) {
             log.error("type, filename, content, template must not be null");
             return;
         }
-        BaseTemplate.writeCustomTemplate(filename, modelMap, template);
+        TemplateUtils.map2CustomTemplate(template, filename, modelMap, paramMap);
 
         updateOwner(filename, owner, group, false);
         updatePermissions(filename, permissions, false);
