@@ -13,6 +13,6 @@ public class DagGraphEdge {
 
     @Override
     public String toString() {
-        return startNode + " --(requires)--> " + endNode;
+        return startNode + " -> " + endNode;
     }
 }
