@@ -104,7 +104,6 @@ public class ServiceServiceImpl implements ServiceService {
         return JobMapper.INSTANCE.Entity2VO(job);
     }
 
-
     private void install(CommandDTO commandDTO) {
         log.info("Enter install method");
         List<String> serviceNameList = commandDTO.getServiceNames();

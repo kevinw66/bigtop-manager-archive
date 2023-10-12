@@ -19,8 +19,8 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public LoginVO login(LoginDTO loginDTO) {
-        User user = userRepository.findByUsername(loginDTO.getUsername()).orElse(new User());
-        if (!loginDTO.getPassword().equalsIgnoreCase(user.getPassword())) {
+        User user = userRepository.findByUsername(loginDTO.getUsername());
+        if (user == null || !loginDTO.getPassword().equalsIgnoreCase(user.getPassword())) {
             throw new ApiException(ApiExceptionEnum.INCORRECT_USERNAME_OR_PASSWORD);
         }
 

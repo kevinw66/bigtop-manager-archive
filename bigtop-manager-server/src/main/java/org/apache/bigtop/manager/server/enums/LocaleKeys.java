@@ -37,7 +37,6 @@ public enum LocaleKeys {
     HOST_NOT_FOUND("host.not.found"),
 
     STACK_NOT_FOUND("stack.not.found"),
-    STACK_CHECK_INVALID("stack.check.invalid"),
 
     SERVICE_NOT_FOUND("service.not.found"),
 
