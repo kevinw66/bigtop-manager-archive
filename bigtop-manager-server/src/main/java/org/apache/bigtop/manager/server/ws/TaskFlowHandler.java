@@ -318,8 +318,11 @@ public class TaskFlowHandler implements Callback {
         commandMessage.setStackName(task.getStackName());
         commandMessage.setStackVersion(task.getStackVersion());
 
-        List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {});
-        commandMessage.setOsSpecifics(osSpecifics);
+        try {
+            List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {});
+            commandMessage.setOsSpecifics(osSpecifics);
+        } catch (Exception ignored) {
+        }
 
         try {
             Map<String, ScriptInfo> customCommands = JsonUtils.readFromString(task.getCustomCommands(), new TypeReference<>() {
