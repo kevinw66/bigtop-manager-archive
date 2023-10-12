@@ -127,6 +127,8 @@ public class StackUtils {
             STACK_CONFIG_MAP.put(fullStackName, mergedConfigMap);
         }
 
+        log.info("Stack config map: {}", STACK_CONFIG_MAP);
+        log.info("Stack dependency map: {}", STACK_DEPENDENCY_MAP);
         return services;
     }
 

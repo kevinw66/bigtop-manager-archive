@@ -112,7 +112,10 @@ public class TaskFlowHandler implements Callback {
         DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = StackUtils.getStackDagMap().get(fullStackName);
 
         try {
-            for (String node : dag.topologicalSort()) {
+            List<String> orderedList = dag.topologicalSort();
+            log.info("DAG topological sort list: {}", orderedList);
+
+            for (String node : orderedList) {
                 ComponentCommandWrapper nodeInfo = dag.getNode(node);
                 if (todoList.contains(nodeInfo)) {
                     sortedList.add(nodeInfo);
@@ -121,7 +124,8 @@ public class TaskFlowHandler implements Callback {
         } catch (Exception e) {
             throw new ServerException(e);
         }
-        
+
+        log.info("Sorted list: {}", sortedList);
         return sortedList;
     }
 
