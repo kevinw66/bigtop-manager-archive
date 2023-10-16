@@ -22,6 +22,7 @@ import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.springframework.stereotype.Service;
 
@@ -43,9 +44,6 @@ public class ComponentServiceImpl implements ComponentService {
 
     @Resource
     private HostComponentRepository hostComponentRepository;
-
-    @Resource
-    private EventBus eventBus;
 
     @Override
     public List<ComponentVO> list() {
@@ -80,7 +78,7 @@ public class ComponentServiceImpl implements ComponentService {
         job = jobRepository.save(job);
 
         CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
-        eventBus.post(commandEvent);
+        EventPublisher.publish(commandEvent);
 
         return JobMapper.INSTANCE.Entity2VO(job);
     }

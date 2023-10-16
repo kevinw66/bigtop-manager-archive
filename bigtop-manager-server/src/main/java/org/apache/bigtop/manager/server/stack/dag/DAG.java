@@ -491,7 +491,7 @@ public class DAG<Node, NodeInfo, EdgeInfo> {
         }
 
         // if notZeroIndegreeNodeMap is empty,there is no ring!
-        return new AbstractMap.SimpleEntry<>(notZeroIndegreeNodeMap.size() == 0, topoResultList);
+        return new AbstractMap.SimpleEntry<>(notZeroIndegreeNodeMap.isEmpty(), topoResultList);
     }
 
     /**

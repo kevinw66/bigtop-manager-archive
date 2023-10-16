@@ -34,7 +34,7 @@ public class ClusterController {
 
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
-    public ResponseEntity<ClusterVO> create(@RequestBody @Validated ClusterReq clusterReq) {
+    public ResponseEntity<CommandVO> create(@RequestBody @Validated ClusterReq clusterReq) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.create(clusterDTO));
     }
@@ -50,12 +50,6 @@ public class ClusterController {
     public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody @Validated ClusterReq clusterReq) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
-    }
-
-    @Operation(summary = "delete", description = "Delete a cluster")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> delete(@PathVariable Long id) {
-        return ResponseEntity.success(clusterService.delete(id));
     }
 
     @Operation(summary = "cluster command", description = "Command for cluster, only support [START|STOP|RESTART]")

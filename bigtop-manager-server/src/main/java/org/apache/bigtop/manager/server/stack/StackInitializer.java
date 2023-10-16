@@ -38,8 +38,9 @@ public class StackInitializer implements ApplicationListener<ApplicationStartedE
             String stackName = stackDTO.getStackName();
             String stackVersion = stackDTO.getStackVersion();
 
-            Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion).orElse(new Stack());
-            if (stack.getId() == null) {
+            Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion);
+            if (stack == null) {
+                stack = new Stack();
                 stack.setStackName(stackName);
                 stack.setStackVersion(stackVersion);
 

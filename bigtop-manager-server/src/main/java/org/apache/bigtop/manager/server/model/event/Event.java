@@ -14,23 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.bigtop.manager.server.subscriber;
+package org.apache.bigtop.manager.server.model.event;
 
-import com.google.common.eventbus.AsyncEventBus;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+public abstract class Event {
 
-@Slf4j
-@Component
-public class ClusterEventSubscriber {
-
-    @Resource
-    private AsyncEventBus asyncEventBus;
-
-    @PostConstruct
-    public void init() {
-        asyncEventBus.register(this);
-    }
 }

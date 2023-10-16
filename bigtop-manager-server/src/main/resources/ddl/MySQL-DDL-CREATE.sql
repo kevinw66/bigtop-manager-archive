@@ -80,19 +80,44 @@ CREATE TABLE `hosts`
     `os_name`         VARCHAR(32) NOT NULL,
     `processor_count` INT         NOT NULL,
     `physical_memory` BIGINT      NOT NULL COMMENT 'Total Physical Memory(Bytes)',
+    `state`           VARCHAR(32) NOT NULL,
     `create_time`     DATETIME     DEFAULT NULL,
     `update_time`     DATETIME     DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_hostname` (`hostname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `stack`
+(
+    `id`            BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `stack_name`    VARCHAR(32) NOT NULL,
+    `stack_version` VARCHAR(32) NOT NULL,
+    `create_time`   DATETIME DEFAULT NULL,
+    `update_time`   DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_stack_name` (`stack_name`,`stack_version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
 CREATE TABLE `job`
 (
     `id`          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `cluster_id`  BIGINT(20) UNSIGNED NOT NULL,
-    `command`     VARCHAR(32) NOT NULL,
+    `cluster_id`  BIGINT(20) UNSIGNED DEFAULT NULL,
     `state`       VARCHAR(32) NOT NULL,
     `desc`        VARCHAR(32) NOT NULL,
+    `create_time` DATETIME DEFAULT NULL,
+    `update_time` DATETIME DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY           `idx_cluster_id` (`cluster_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `stage`
+(
+    `id`          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `cluster_id`  BIGINT(20) UNSIGNED DEFAULT NULL,
+    `job_id`      BIGINT(20) UNSIGNED NOT NULL,
+    `state`       VARCHAR(32) NOT NULL,
+    `desc`        VARCHAR(32) NOT NULL,
+    `depends_on`  BIGINT(20) UNSIGNED DEFAULT NULL,
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,
     PRIMARY KEY (`id`),

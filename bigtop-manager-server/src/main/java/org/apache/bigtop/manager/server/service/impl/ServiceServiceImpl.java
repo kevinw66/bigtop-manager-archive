@@ -1,27 +1,54 @@
 package org.apache.bigtop.manager.server.service.impl;
 
-import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
-import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
-import org.apache.bigtop.manager.server.model.dto.*;
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
-import org.apache.bigtop.manager.server.model.mapper.*;
+import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
+import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
+import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
+import org.apache.bigtop.manager.server.model.mapper.JobMapper;
+import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.server.orm.entity.Component;
+import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.apache.bigtop.manager.server.orm.entity.HostComponent;
+import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.entity.Service;
+import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
+import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
+import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
+import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
+import org.apache.bigtop.manager.server.orm.repository.HostRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceConfigMappingRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceConfigRecordRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceConfigRepository;
+import org.apache.bigtop.manager.server.orm.repository.ServiceRepository;
+import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -53,9 +80,6 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Resource
     private ServiceConfigMappingRepository serviceConfigMappingRepository;
-
-    @Resource
-    private EventBus eventBus;
 
     @Resource
     private HostService hostService;
@@ -99,7 +123,7 @@ public class ServiceServiceImpl implements ServiceService {
             hostService.cache(cluster.getId());
         }
         CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
-        eventBus.post(commandEvent);
+        EventPublisher.publish(commandEvent);
 
         return JobMapper.INSTANCE.Entity2VO(job);
     }

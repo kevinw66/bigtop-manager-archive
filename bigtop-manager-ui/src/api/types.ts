@@ -3,3 +3,8 @@ export interface ResponseEntity<T = any> {
   data?: T
   message: string
 }
+
+export type CommandVO = {
+  id: number
+  state: string
+}

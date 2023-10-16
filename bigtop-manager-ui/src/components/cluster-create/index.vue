@@ -57,6 +57,9 @@
   const initClusterInfo = () => {
     return {
       clusterName: '',
+      // 1-Physical Machine 2-Kubernetes
+      // Only support physical machine right now
+      clusterType: 1,
       stackName: '',
       stackVersion: '',
       fullStackName: '',

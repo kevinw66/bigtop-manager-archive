@@ -1,5 +1,8 @@
 package org.apache.bigtop.manager.server.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum StatusType {
     UNINSTALLED(0, "uninstalled"),
     INSTALLED(1, "installed"),
@@ -11,13 +14,5 @@ public enum StatusType {
     StatusType(int code, String name) {
         this.code = code;
         this.name = name;
-    }
-
-    public int getCode() {
-        return this.code;
-    }
-
-    public String getName() {
-        return this.name;
     }
 }
