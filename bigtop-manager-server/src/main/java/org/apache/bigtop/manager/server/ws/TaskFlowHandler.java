@@ -43,13 +43,7 @@ import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -124,6 +118,9 @@ public class TaskFlowHandler implements Callback {
         } catch (Exception e) {
             throw new ServerException(e);
         }
+
+        todoList.removeAll(sortedList);
+        sortedList.addAll(todoList);
 
         log.info("Sorted list: {}", sortedList);
         return sortedList;
