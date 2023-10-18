@@ -4,7 +4,7 @@ Bigtop-Manager is a platform for managing Bigtop components.
 
 ## Development
 
-Requires JDK 17
+Requires JDK 17 or 21
 
 ### API-DOCS
 [swagger-ui](http://localhost:8080/swagger-ui/index.html)
