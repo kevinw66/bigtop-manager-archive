@@ -111,7 +111,6 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
         executor.scheduleAtFixedRate(() -> {
             try {
                 HeartbeatMessage heartbeatMessage = new HeartbeatMessage();
-                heartbeatMessage.setTimestamp(new Timestamp(System.currentTimeMillis()));
                 heartbeatMessage.setHostInfo(hostInfo);
 
                 session.sendMessage(new BinaryMessage(serializer.serialize(heartbeatMessage)));
@@ -130,6 +129,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
         readHostInfo();
+        executor.scheduleAtFixedRate(this::readHostInfo, 3, 30, TimeUnit.SECONDS);
 
         log.info("Bootstrap successfully, connecting to server websocket endpoint...");
         connectToServer();
