@@ -3,6 +3,10 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['17', '21']
     services:
       db:
         image: mysql:8.0
@@ -16,5 +20,6 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
-      - run: ./mvnw clean install -B
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+      - run: ./mvnw clean install -B -Djava.version=${{ matrix.java }}
