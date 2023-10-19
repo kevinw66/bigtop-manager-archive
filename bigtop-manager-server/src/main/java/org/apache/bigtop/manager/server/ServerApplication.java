@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableAsync
-@EnableScheduling
 @EnableJpaAuditing
 @SpringBootApplication(scanBasePackages = "org.apache.bigtop.manager")
 public class ServerApplication {

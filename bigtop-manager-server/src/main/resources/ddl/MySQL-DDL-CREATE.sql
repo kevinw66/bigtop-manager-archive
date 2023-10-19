@@ -69,7 +69,7 @@ CREATE TABLE `cluster`
     UNIQUE KEY `uk_cluster_name` (`cluster_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `hosts`
+CREATE TABLE `host`
 (
     `id`              BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `cluster_id`      BIGINT(20) UNSIGNED NOT NULL,
@@ -85,6 +85,20 @@ CREATE TABLE `hosts`
     `update_time`     DATETIME     DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_hostname` (`hostname`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `repo` (
+    `id`          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `cluster_id`  BIGINT(20) UNSIGNED NOT NULL,
+    `os`          VARCHAR(32)  DEFAULT NULL,
+    `arch`        VARCHAR(32)  DEFAULT NULL,
+    `base_url`    VARCHAR(32)  DEFAULT NULL,
+    `repo_id`     VARCHAR(32)  DEFAULT NULL,
+    `repo_name`   VARCHAR(32)  DEFAULT NULL,
+    `create_time` DATETIME     DEFAULT NULL,
+    `update_time` DATETIME     DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `idx_cluster_id` (`cluster_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `stack`
@@ -103,7 +117,7 @@ CREATE TABLE `job`
     `id`          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `cluster_id`  BIGINT(20) UNSIGNED DEFAULT NULL,
     `state`       VARCHAR(32) NOT NULL,
-    `desc`        VARCHAR(32) NOT NULL,
+    `context`     VARCHAR(32) NOT NULL,
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,
     PRIMARY KEY (`id`),
@@ -113,10 +127,10 @@ CREATE TABLE `job`
 CREATE TABLE `stage`
 (
     `id`          BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `name`        VARCHAR(32) NOT NULL,
     `cluster_id`  BIGINT(20) UNSIGNED DEFAULT NULL,
     `job_id`      BIGINT(20) UNSIGNED NOT NULL,
     `state`       VARCHAR(32) NOT NULL,
-    `desc`        VARCHAR(32) NOT NULL,
     `depends_on`  BIGINT(20) UNSIGNED DEFAULT NULL,
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,

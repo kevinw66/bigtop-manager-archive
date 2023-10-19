@@ -22,19 +22,11 @@ import org.springframework.context.ApplicationEvent;
 
 @Getter
 @Setter
-public class JobCreateEvent extends ApplicationEvent {
+public class ClusterCreateEvent extends ApplicationEvent {
 
     private Long jobId;
 
-    private JobType jobType;
-
-    public JobCreateEvent(Object source) {
+    public ClusterCreateEvent(Object source) {
         super(source);
-    }
-
-    public enum JobType {
-        CLUSTER_CREATE,
-
-        COMMAND,
     }
 }

@@ -40,7 +40,7 @@ public class Job extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private JobState state;
 
-    private String desc;
+    private String context;
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

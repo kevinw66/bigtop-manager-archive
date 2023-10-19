@@ -7,8 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repo_id", columnNames = {"repoId", "os", "arch"})},
-        indexes = {@Index(name = "idx_stack_id", columnList = "stack_id")})
+@Table(indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "repo_generator", table = "sequence")
 public class Repo extends BaseEntity {
 
@@ -16,9 +15,9 @@ public class Repo extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "repo_generator")
     private Long id;
 
-    private String repoId;
-
-    private String repoName;
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Cluster cluster;
 
     private String baseUrl;
 
@@ -26,7 +25,7 @@ public class Repo extends BaseEntity {
 
     private String arch;
 
-    @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Stack stack;
+    private String repoId;
+
+    private String repoName;
 }

@@ -20,6 +20,8 @@ public class Stage extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "stage_generator")
     private Long id;
 
+    private String name;
+
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Job job;
@@ -32,9 +34,9 @@ public class Stage extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private JobState state;
 
-    private String desc;
-
-    private Long dependsOn;
+    @OneToOne
+    @JoinColumn(name = "depends_on", referencedColumnName = "id")
+    private Stage dependsOn;
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
