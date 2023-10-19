@@ -12,11 +12,17 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 public class AgentWsTools {
 
+    public WebSocketSession session = null;
+
     @Resource
     private MessageSerializer serializer;
 
-    public void sendMessage(WebSocketSession session, BaseMessage message) {
+    public void sendMessage(BaseMessage message) {
         log.info("send resultMessage to server: {}", message);
+        if (session == null) {
+            log.warn("session is null, can't send resultMessage to server");
+            return;
+        }
         try {
             session.sendMessage(new BinaryMessage(serializer.serialize(message)));
         } catch (Exception e) {

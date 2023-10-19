@@ -64,6 +64,9 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     @Resource
     private HostCheckService hostCheckService;
 
+    @Resource
+    private AgentWsTools agentWsTools;
+
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
     private HostInfo hostInfo;
@@ -108,6 +111,8 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        agentWsTools.session = session;
+
         executor.scheduleAtFixedRate(() -> {
             try {
                 HeartbeatMessage heartbeatMessage = new HeartbeatMessage();
@@ -123,6 +128,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("WebSocket connection closed unexpectedly, reconnecting...");
+        agentWsTools.session = null;
         connectToServer();
     }
 

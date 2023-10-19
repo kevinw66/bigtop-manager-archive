@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 
 import java.util.List;
@@ -30,5 +31,7 @@ public class HostCacheMessage extends BaseMessage {
     private Map<String, Set<String>> clusterHostInfo;
 
     private String hostname;
+
+    private Map<String, ComponentInfo> componentInfo;
 
 }

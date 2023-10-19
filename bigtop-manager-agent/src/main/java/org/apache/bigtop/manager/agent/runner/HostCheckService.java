@@ -103,7 +103,6 @@ public class HostCheckService {
      * @param context {@link HostCheckContext}
      */
     public void executeTask(HostCheckContext context) {
-        WebSocketSession session = context.getSession();
         HostCheckMessage hostCheckMessage = context.getHostCheckMessage();
 
         HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
@@ -120,7 +119,7 @@ public class HostCheckService {
                     resultMessage.setHostname(hostCheckMessage.getHostname());
                     resultMessage.setMessageType(MessageType.HOST_CHECK);
 
-                    agentWsTools.sendMessage(session, resultMessage);
+                    agentWsTools.sendMessage(resultMessage);
                 }
                 default -> log.warn("unknown hostCheckType");
 
