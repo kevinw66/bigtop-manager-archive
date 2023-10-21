@@ -9,24 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Host;
-import org.apache.bigtop.manager.server.orm.entity.HostComponent;
-import org.apache.bigtop.manager.server.orm.entity.Repo;
-import org.apache.bigtop.manager.server.orm.entity.Service;
-import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
-import org.apache.bigtop.manager.server.orm.entity.Setting;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostRepository;
-import org.apache.bigtop.manager.server.orm.repository.RepoRepository;
-import org.apache.bigtop.manager.server.orm.repository.ServiceConfigRepository;
-import org.apache.bigtop.manager.server.orm.repository.ServiceRepository;
-import org.apache.bigtop.manager.server.orm.repository.SettingRepository;
+import org.apache.bigtop.manager.server.orm.entity.*;
+import org.apache.bigtop.manager.server.orm.repository.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,6 +61,9 @@ public class HostCacheHandler implements Callback {
 
     @Resource
     private HostRepository hostRepository;
+
+    @Resource
+    private ComponentRepository componentRepository;
 
     @Resource
     private ServerWebSocketHandler serverWebSocketHandler;
@@ -165,6 +157,20 @@ public class HostCacheHandler implements Callback {
         });
 
 
+        Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
+        List<Component> componentList = componentRepository.findAll();
+        componentList.forEach(c -> {
+            ComponentInfo componentInfo = new ComponentInfo();
+            componentInfo.setComponentName(c.getComponentName());
+            componentInfo.setCommandScript(c.getCommandScript());
+            componentInfo.setDisplayName(c.getDisplayName());
+            componentInfo.setCategory(c.getCategory());
+            componentInfo.setCustomCommands(c.getCustomCommands());
+            componentInfo.setServiceName(c.getService().getServiceName());
+            componentInfoMap.put(c.getComponentName(), componentInfo);
+        });
+
+
         for (Host host : hostList) {
             String hostname = host.getHostname();
             //Wrapper HostCacheMessage for websocket
@@ -174,7 +180,8 @@ public class HostCacheHandler implements Callback {
                     serviceConfigMap,
                     hostMap,
                     repoList,
-                    userMap);
+                    userMap,
+                    componentInfoMap);
 
             log.info("hostCacheMessage: {}", hostCacheMessage);
             serverWebSocketHandler.sendMessage(hostname, hostCacheMessage, this);
@@ -198,7 +205,8 @@ public class HostCacheHandler implements Callback {
                                             Map<String, Map<String, Object>> serviceConfigMap,
                                             Map<String, Set<String>> hostMap,
                                             List<RepoInfo> repoList,
-                                            Map<String, Set<String>> userMap) {
+                                            Map<String, Set<String>> userMap,
+                                            Map<String, ComponentInfo> componentInfoList) {
         HostCacheMessage hostCacheMessage = new HostCacheMessage();
 
         hostCacheMessage.setClusterInfo(clusterInfo);
@@ -208,6 +216,7 @@ public class HostCacheHandler implements Callback {
         hostCacheMessage.setSettings(settingsMap);
         hostCacheMessage.setUserInfo(userMap);
         hostCacheMessage.setHostname(hostname);
+        hostCacheMessage.setComponentInfo(componentInfoList);
         return hostCacheMessage;
     }
 

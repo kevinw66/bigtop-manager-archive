@@ -32,6 +32,7 @@ public class KryoPoolHolder {
             kryo.register(ResultMessage.class);
             kryo.register(HostCacheMessage.class);
             kryo.register(HostCheckMessage.class);
+            kryo.register(ComponentHeartbeatMessage.class);
 
             // message pojo
             kryo.register(HostInfo.class);
@@ -43,6 +44,7 @@ public class KryoPoolHolder {
             kryo.register(MessageType.class);
             kryo.register(Command.class);
             kryo.register(ScriptInfo.class);
+            kryo.register(ComponentInfo.class);
 
             // java classes
             kryo.register(BigDecimal.class);

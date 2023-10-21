@@ -105,7 +105,6 @@ public class CommandService {
      * @param context {@link CommandContext}
      */
     public void executeTask(CommandContext context) {
-        WebSocketSession session = context.getSession();
         CommandMessage commandMessage = context.getCommandMessage();
         log.info("[agent executeTask] taskEvent is: {}", context);
         Object result = stackExecutor.execute(commandMessage);
@@ -122,7 +121,7 @@ public class CommandService {
             resultMessage.setStageId(commandMessage.getStageId());
             resultMessage.setTaskId(commandMessage.getTaskId());
 
-            agentWsTools.sendMessage(session, resultMessage);
+            agentWsTools.sendMessage(resultMessage);
         }
     }
 }

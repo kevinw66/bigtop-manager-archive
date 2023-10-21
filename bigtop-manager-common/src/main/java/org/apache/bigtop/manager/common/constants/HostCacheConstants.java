@@ -31,4 +31,9 @@ public class HostCacheConstants {
      * cluster users info
      */
     public static final String USERS_INFO = "/users.json";
+
+    /**
+     * components info
+     */
+    public static final String COMPONENTS_INFO = "/components.json";
 }

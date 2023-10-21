@@ -106,7 +106,6 @@ public class HostCacheService {
      * @param context {@link HostCacheContext}
      */
     public void executeTask(HostCacheContext context) {
-        WebSocketSession session = context.getSession();
         HostCacheMessage hostCacheMessage = context.getHostCacheMessage();
         log.info("[agent executeTask] taskEvent is: {}", context);
         String cacheDir = Constants.STACK_CACHE_DIR;
@@ -118,6 +117,7 @@ public class HostCacheService {
             JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
             JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
             JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
+            JsonUtils.writeToFile(cacheDir + COMPONENTS_INFO, hostCacheMessage.getComponentInfo());
         } catch (Exception e) {
             log.warn(" [{}|{}|{}|{}] cache error: ", SETTINGS_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
         }
@@ -131,6 +131,6 @@ public class HostCacheService {
         resultMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", hostCacheMessage.getHostname()));
         resultMessage.setMessageType(MessageType.HOST_CACHE);
 
-        agentWsTools.sendMessage(session, resultMessage);
+        agentWsTools.sendMessage(resultMessage);
     }
 }
