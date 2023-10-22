@@ -85,7 +85,7 @@ public class ClusterServiceImpl implements ClusterService {
         ClusterCreateEvent event = new ClusterCreateEvent(clusterDTO);
         event.setJobId(job.getId());
         SpringContextHolder.getApplicationContext().publishEvent(event);
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 
     private Job createJob(ClusterDTO clusterDTO) {
@@ -153,6 +153,6 @@ public class ClusterServiceImpl implements ClusterService {
         EventPublisher.publish(commandEvent);
 
 
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 }

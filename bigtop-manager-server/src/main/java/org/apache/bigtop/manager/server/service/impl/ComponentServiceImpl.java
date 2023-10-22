@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.server.service.impl;
 
-import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
@@ -80,6 +79,6 @@ public class ComponentServiceImpl implements ComponentService {
         CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
         EventPublisher.publish(commandEvent);
 
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 }

@@ -31,9 +31,9 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
     public static final Map<String, HeartbeatMessage> HEARTBEAT_MESSAGE_MAP = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<String, Callback> callbackMap = new ConcurrentHashMap<>();
-
     private final ConcurrentHashMap<String, ResultMessage> resMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<String, Callback> callbackMap = new ConcurrentHashMap<>();
 
     @Resource
     private MessageDeserializer deserializer;
@@ -41,26 +41,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     @Resource
     private MessageSerializer serializer;
 
-    public void sendMessage(String hostname, BaseMessage message) {
-        WebSocketSession session = SESSIONS.get(hostname);
-        try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
-        } catch (IOException e) {
-            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
-        }
-    }
-
-    public void sendMessage(String hostname, BaseMessage message, Callback callback) {
-        WebSocketSession session = SESSIONS.get(hostname);
-        try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
-            callbackMap.put(message.getMessageId(), callback);
-        } catch (IOException e) {
-            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
-        }
-    }
-
-    public ResultMessage sendMessageSync(String hostname, BaseMessage message) {
+    public ResultMessage sendMessage(String hostname, BaseMessage message) {
         WebSocketSession session = SESSIONS.get(hostname);
         if (session == null) {
             return null;
@@ -73,6 +54,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
                 if (result == null) {
                     Thread.sleep(1000);
                 } else {
+                    resMap.remove(message.getMessageId());
                     return result;
                 }
             }
@@ -83,8 +65,18 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
         return null;
     }
 
+    public void sendMessage(String hostname, BaseMessage message, Callback callback) {
+        WebSocketSession session = SESSIONS.get(hostname);
+        try {
+            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+            callbackMap.put(message.getMessageId(), callback);
+        } catch (IOException e) {
+            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
+        }
+    }
+
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+    protected void handleBinaryMessage(@Nonnull WebSocketSession session, BinaryMessage message) throws Exception {
         BaseMessage baseMessage = deserializer.deserialize(message.getPayload().array());
 
         handleMessage(session, baseMessage);
@@ -105,9 +97,13 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
     private void handleResultMessage(ResultMessage resultMessage) {
         String messageId = resultMessage.getMessageId();
-        resMap.put(messageId, resultMessage);
-        callbackMap.get(messageId).call(resultMessage);
-        callbackMap.remove(messageId);
+        Callback callback = callbackMap.get(messageId);
+        if (callback == null) {
+            resMap.put(messageId, resultMessage);
+        } else {
+            callback.call(resultMessage);
+            callbackMap.remove(messageId);
+        }
     }
 
     private void handleHeartbeatMessage(WebSocketSession session, HeartbeatMessage heartbeatMessage) {

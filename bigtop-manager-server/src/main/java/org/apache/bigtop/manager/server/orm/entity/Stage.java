@@ -28,7 +28,7 @@ public class Stage extends BaseEntity {
 
     @ToString.Exclude
     @OneToMany(mappedBy = "stage")
-    private List<Task> tasks = new ArrayList<>();
+    private List<Task> tasks;
 
     @Enumerated(EnumType.STRING)
     private JobState state;

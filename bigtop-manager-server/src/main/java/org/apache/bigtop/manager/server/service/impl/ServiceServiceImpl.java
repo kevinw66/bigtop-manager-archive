@@ -125,7 +125,7 @@ public class ServiceServiceImpl implements ServiceService {
         CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
         EventPublisher.publish(commandEvent);
 
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 
     private void install(CommandDTO commandDTO) {

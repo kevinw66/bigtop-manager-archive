@@ -2,8 +2,6 @@ package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
-import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
-import org.apache.bigtop.manager.server.model.event.HostCheckEvent;
 import org.apache.bigtop.manager.server.model.req.HostReq;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.orm.entity.Host;
@@ -30,8 +28,4 @@ public interface HostMapper {
     List<HostVO> Entity2VO(List<Host> hosts);
 
     HostDTO Entity2DTO(Host host);
-
-    HostCheckEvent DTO2CheckEvent(HostDTO hostDTO);
-
-    HostCacheEvent DTO2CacheEvent(HostDTO hostDTO);
 }

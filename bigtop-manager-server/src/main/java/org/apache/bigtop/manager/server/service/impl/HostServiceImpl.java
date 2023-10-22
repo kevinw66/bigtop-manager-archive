@@ -157,7 +157,7 @@ public class HostServiceImpl implements HostService {
         CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
         EventPublisher.publish(commandEvent);
 
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 
 }

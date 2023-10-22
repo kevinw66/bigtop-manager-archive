@@ -22,10 +22,8 @@ import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.ClusterCreateEvent;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
@@ -33,22 +31,16 @@ import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
-import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -95,7 +87,7 @@ public class ClusterEventListener {
 
     private Boolean checkHosts(Job job) {
         // TODO temp code, we need to handle job/stage/task globally
-        boolean failed = false;
+        AtomicBoolean failed = new AtomicBoolean(false);
         Stage stage = job.getStages().get(0);
 
         stage.setState(JobState.PROCESSING);
@@ -105,18 +97,24 @@ public class ClusterEventListener {
 
         List<Task> tasks = stage.getTasks();
         for (Task task : tasks) {
+            task.setState(JobState.PROCESSING);
+            taskRepository.save(task);
+
             String hostname = task.getHostname();
             HostCheckMessage hostCheckMessage = new HostCheckMessage();
             hostCheckMessage.setHostname(hostname);
             hostCheckMessage.setHostCheckTypes(HostCheckType.values());
-            ResultMessage res = SpringContextHolder.getServerWebSocket().sendMessageSync(hostname, hostCheckMessage);
+            ResultMessage res = SpringContextHolder.getServerWebSocket().sendMessage(hostname, hostCheckMessage);
             if (res == null || res.getCode() != 0) {
                 task.setState(JobState.FAILED);
-                taskRepository.save(task);
-                failed = true;
+                failed.set(true);
+            } else {
+                task.setState(JobState.SUCCESSFUL);
             }
 
-            if (failed) {
+            taskRepository.save(task);
+
+            if (failed.get()) {
                 stage.setState(JobState.FAILED);
                 job.setState(JobState.FAILED);
             } else {
@@ -128,7 +126,7 @@ public class ClusterEventListener {
         stageRepository.save(stage);
         jobRepository.save(job);
 
-        return failed;
+        return failed.get();
     }
 
     private void persist(ClusterDTO clusterDTO) {
