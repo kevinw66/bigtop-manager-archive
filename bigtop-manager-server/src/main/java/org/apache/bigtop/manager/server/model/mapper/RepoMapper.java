@@ -23,14 +23,8 @@ public interface RepoMapper {
     @Mapping(target = "cluster", expression = "java(cluster)")
     Repo DTO2Entity(RepoDTO repoDTO, @Context Cluster cluster);
 
-    default List<Repo> DTO2Entity(List<RepoDTO> repoDTOList, Cluster cluster) {
-        List<Repo> res = new ArrayList<>();
-        for (RepoDTO repoDTO : repoDTOList) {
-            res.add(DTO2Entity(repoDTO, cluster));
-        }
-
-        return res;
-    }
+    @Mapping(target = "cluster", expression = "java(cluster)")
+    List<Repo> DTO2Entity(List<RepoDTO> repoDTOList, @Context Cluster cluster);
 
     RepoInfo Entity2Message(Repo repo);
 

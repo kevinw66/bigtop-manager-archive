@@ -18,8 +18,12 @@ package org.apache.bigtop.manager.server.listener;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
+import org.apache.bigtop.manager.common.message.type.ResultMessage;
+import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
@@ -80,7 +84,51 @@ public class ClusterEventListener {
         Job job = jobRepository.getReferenceById(jobId);
 
         ClusterDTO clusterDTO = (ClusterDTO) event.getSource();
-        persist(clusterDTO);
+
+        // TODO temp code, just for test now
+        Boolean failed = checkHosts(job);
+
+        if (!failed) {
+            persist(clusterDTO);
+        }
+    }
+
+    private Boolean checkHosts(Job job) {
+        // TODO temp code, we need to handle job/stage/task globally
+        boolean failed = false;
+        Stage stage = job.getStages().get(0);
+
+        stage.setState(JobState.PROCESSING);
+        job.setState(JobState.PROCESSING);
+        stageRepository.save(stage);
+        jobRepository.save(job);
+
+        List<Task> tasks = stage.getTasks();
+        for (Task task : tasks) {
+            String hostname = task.getHostname();
+            HostCheckMessage hostCheckMessage = new HostCheckMessage();
+            hostCheckMessage.setHostname(hostname);
+            hostCheckMessage.setHostCheckTypes(HostCheckType.values());
+            ResultMessage res = SpringContextHolder.getServerWebSocket().sendMessageSync(hostname, hostCheckMessage);
+            if (res == null || res.getCode() != 0) {
+                task.setState(JobState.FAILED);
+                taskRepository.save(task);
+                failed = true;
+            }
+
+            if (failed) {
+                stage.setState(JobState.FAILED);
+                job.setState(JobState.FAILED);
+            } else {
+                stage.setState(JobState.SUCCESSFUL);
+                job.setState(JobState.SUCCESSFUL);
+            }
+        }
+
+        stageRepository.save(stage);
+        jobRepository.save(job);
+
+        return failed;
     }
 
     private void persist(ClusterDTO clusterDTO) {

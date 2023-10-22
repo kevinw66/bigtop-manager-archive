@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.ws;
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
@@ -32,6 +33,8 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
     private final ConcurrentHashMap<String, Callback> callbackMap = new ConcurrentHashMap<>();
 
+    private final ConcurrentHashMap<String, ResultMessage> resMap = new ConcurrentHashMap<>();
+
     @Resource
     private MessageDeserializer deserializer;
 
@@ -57,6 +60,29 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
         }
     }
 
+    public ResultMessage sendMessageSync(String hostname, BaseMessage message) {
+        WebSocketSession session = SESSIONS.get(hostname);
+        if (session == null) {
+            return null;
+        }
+
+        try {
+            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+            for (int i = 0; i <= 300; i++) {
+                ResultMessage result = resMap.get(message.getMessageId());
+                if (result == null) {
+                    Thread.sleep(1000);
+                } else {
+                    return result;
+                }
+            }
+        } catch (Exception e) {
+            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
+        }
+
+        return null;
+    }
+
     @Override
     protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
         BaseMessage baseMessage = deserializer.deserialize(message.getPayload().array());
@@ -79,6 +105,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
 
     private void handleResultMessage(ResultMessage resultMessage) {
         String messageId = resultMessage.getMessageId();
+        resMap.put(messageId, resultMessage);
         callbackMap.get(messageId).call(resultMessage);
         callbackMap.remove(messageId);
     }
@@ -90,7 +117,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(WebSocketSession session, @Nonnull CloseStatus status) throws Exception {
         log.error("session closed: {}, remove it!!!", session.getId());
         SESSIONS.values().removeIf(value -> value.getId().equals(session.getId()));
         HEARTBEAT_MESSAGE_MAP.clear();

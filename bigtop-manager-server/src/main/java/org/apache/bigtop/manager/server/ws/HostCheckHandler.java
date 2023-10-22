@@ -37,18 +37,19 @@ public class HostCheckHandler implements Callback {
         for (String hostname : hostnameList) {
             HostCheckMessage hostCheckMessage = convertMessage(hostname);
             log.info("Sending host check message: {}", hostCheckMessage);
-            serverWebSocketHandler.sendMessage(hostname, hostCheckMessage, this);
+//            serverWebSocketHandler.sendMessage(hostname, hostCheckMessage, this);
+            ResultMessage res = serverWebSocketHandler.sendMessageSync(hostname, hostCheckMessage);
         }
 
-        countDownLatch = new CountDownLatch(hostnameList.size() * HostCheckType.values().length);
-        try {
-            boolean timeoutFlag = countDownLatch.await(30, TimeUnit.SECONDS);
-            if (!timeoutFlag) {
-                log.error("execute task timeout");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        countDownLatch = new CountDownLatch(hostnameList.size() * HostCheckType.values().length);
+//        try {
+//            boolean timeoutFlag = countDownLatch.await(30, TimeUnit.SECONDS);
+//            if (!timeoutFlag) {
+//                log.error("execute task timeout");
+//            }
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     private HostCheckMessage convertMessage(String hostname) {

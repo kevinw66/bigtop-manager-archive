@@ -26,7 +26,6 @@ public class Stage extends BaseEntity {
     @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Job job;
 
-    @Transient
     @ToString.Exclude
     @OneToMany(mappedBy = "stage")
     private List<Task> tasks = new ArrayList<>();

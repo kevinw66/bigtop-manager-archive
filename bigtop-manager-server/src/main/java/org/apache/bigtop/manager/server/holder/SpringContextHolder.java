@@ -18,9 +18,11 @@ package org.apache.bigtop.manager.server.holder;
 
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
+import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.WebSocketHandler;
 
 @Component
 public class SpringContextHolder implements ApplicationContextAware {
@@ -31,5 +33,9 @@ public class SpringContextHolder implements ApplicationContextAware {
     @Override
     public void setApplicationContext(@Nonnull ApplicationContext applicationContext) {
         SpringContextHolder.applicationContext = applicationContext;
+    }
+
+    public static ServerWebSocketHandler getServerWebSocket() {
+        return applicationContext.getBean(ServerWebSocketHandler.class);
     }
 }
