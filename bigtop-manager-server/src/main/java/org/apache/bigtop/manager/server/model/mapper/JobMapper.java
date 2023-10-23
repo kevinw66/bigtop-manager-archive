@@ -12,6 +12,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
+
 @Mapper
 public interface JobMapper {
 
@@ -26,6 +28,8 @@ public interface JobMapper {
     Job DTO2Entity(HostDTO hostDTO, @Context Cluster cluster);
 
     JobVO Entity2VO(Job job);
+
+    List<JobVO> Entity2VO(List<Job> job);
 
     CommandVO Entity2CommandVO(Job job);
 

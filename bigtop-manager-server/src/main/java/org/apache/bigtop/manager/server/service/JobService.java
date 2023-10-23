@@ -1,12 +1,11 @@
 package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.vo.JobVO;
-
-import java.util.List;
+import org.apache.bigtop.manager.server.model.vo.PageVO;
 
 public interface JobService {
 
-    List<JobVO> list();
+    PageVO<JobVO> list();
 
     JobVO get(Long id);
 }

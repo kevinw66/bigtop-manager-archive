@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.model.dto.ScriptDTO;
 
 import java.util.Map;
 

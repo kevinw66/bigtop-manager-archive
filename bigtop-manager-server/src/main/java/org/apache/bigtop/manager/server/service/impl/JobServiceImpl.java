@@ -1,17 +1,18 @@
 package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
-import org.apache.bigtop.manager.server.model.vo.ClusterVO;
+import org.apache.bigtop.manager.server.model.query.PageQuery;
 import org.apache.bigtop.manager.server.model.vo.JobVO;
+import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.service.JobService;
+import org.apache.bigtop.manager.server.utils.PageUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -20,14 +21,16 @@ public class JobServiceImpl implements JobService {
     private JobRepository jobRepository;
 
     @Override
-    public List<JobVO> list() {
-        List<JobVO> jobVOList = new ArrayList<>();
-        jobRepository.findAll().forEach(job -> {
-            JobVO jobVO = JobMapper.INSTANCE.Entity2VO(job);
-            jobVOList.add(jobVO);
-        });
+    public PageVO<JobVO> list() {
+        PageQuery pageQuery = PageUtils.getPageQuery();
+        Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
+        Page<Job> page = jobRepository.findAll(pageable);
 
-        return jobVOList;
+        PageVO<JobVO> res = new PageVO<>();
+        res.setTotal(page.getTotalElements());
+        res.setContent(JobMapper.INSTANCE.Entity2VO(page.getContent()));
+
+        return res;
     }
 
     @Override
