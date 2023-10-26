@@ -27,6 +27,8 @@ export default {
   set_repository: 'Set Repository',
   set_hosts: 'Set Hosts',
   set_hosts_placeholder: 'Enter a list of hosts, one per line.',
-  create_finish_title: 'Congratulations!',
-  create_finish_sub_title: 'Cluster created successfully, please enjoy it.'
+  create_success_title: 'Congratulations!',
+  create_success_sub_title: 'Cluster created successfully, please enjoy it.',
+  create_fail_title: 'Oh no!',
+  create_fail_sub_title: 'Cluster created failed, please retry it.'
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { SmileOutlined } from '@ant-design/icons-vue'
+  import { RocketOutlined } from '@ant-design/icons-vue'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
@@ -27,7 +27,7 @@
       :sub-title="$t('cluster.set_cluster_name_sub_title')"
     >
       <template #icon>
-        <smile-outlined />
+        <rocket-outlined />
       </template>
       <template #extra>
         <a-form ref="formRef" :model="clusterInfo">

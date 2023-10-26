@@ -4,7 +4,7 @@ export interface ResponseEntity<T = any> {
   message: string
 }
 
-export type CommandVO = {
-  id: number
-  state: string
+export interface PageVO<T = any> {
+  total: number
+  content: T[]
 }

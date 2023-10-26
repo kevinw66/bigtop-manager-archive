@@ -1,16 +1,77 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
-  import { useWebSocket } from '@vueuse/core'
-  import { WS_DEFAULT_OPTIONS, WS_URL } from '@/utils/constant.ts'
+  import { get } from '@/api/job'
+  import { SCHEDULE_INTERVAL } from '@/utils/constant.ts'
+  import { useIntervalFn } from '@vueuse/core'
+  import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+  import { onUnmounted } from 'vue'
+
+  const clusterInfo = defineModel<any>('clusterInfo')
+  const disableButton = defineModel<boolean>('disableButton')
 
   const { t } = useI18n()
+  const installData = reactive([])
+  const loading = ref(true)
+  const jobState = ref('')
 
-  useWebSocket(WS_URL, WS_DEFAULT_OPTIONS)
+  const initData = async () => {
+    const res = await get(clusterInfo.value.jobId)
+    console.log(res)
+    jobState.value = res.state
+
+    if (jobState.value !== 'PENDING') {
+      disableButton.value = false
+      clusterInfo.value.success = jobState.value === 'SUCCESSFUL'
+    }
+
+    const arr: any[] = []
+    res.stages
+      .sort((a, b) => a.stageOrder - b.stageOrder)
+      .forEach((stage) => {
+        const data = {
+          key: stage.id,
+          stage: stage.name,
+          progress: 0,
+          status: '',
+          color: ''
+        }
+
+        if (stage.state === 'PENDING') {
+          data.progress = 0
+          data.status = 'normal'
+          data.color = '#1677ff'
+        } else if (stage.state === 'PROCESSING') {
+          data.progress = Math.round(
+            (stage.tasks.filter((task) => task.state === 'SUCCESSFUL').length /
+              stage.tasks.length) *
+              100
+          )
+          data.status = 'active'
+          data.color = '#1677ff'
+        } else if (stage.state === 'SUCCESSFUL') {
+          data.progress = 100
+          data.status = 'success'
+          data.color = '#52c41a'
+        } else if (stage.state === 'CANCELED') {
+          data.progress = 0
+          data.status = 'normal'
+          data.color = '#8c908b'
+        } else {
+          data.progress = 100
+          data.status = 'exception'
+          data.color = '#ff4d4f'
+        }
+
+        arr.push(data)
+      })
+
+    return arr
+  }
 
   const installColumns = [
     {
-      title: t('common.host'),
-      dataIndex: 'host',
+      title: t('common.stage'),
+      dataIndex: 'stage',
       align: 'center'
     },
     {
@@ -20,28 +81,24 @@
     }
   ]
 
-  const data1 = [
-    {
-      key: 'host-1',
-      host: 'bigtop-manager-server',
-      progress: 50
-    },
-    {
-      key: 'host-2',
-      host: 'bigtop-manager-agent-01',
-      progress: 70
-    },
-    {
-      key: 'host-3',
-      host: 'bigtop-manager-agent-02',
-      progress: 99
-    },
-    {
-      key: 'host-4',
-      host: 'bigtop-manager-agent-03',
-      progress: 100
-    }
-  ]
+  onBeforeMount(async () => {
+    disableButton.value = true
+    const { pause } = useIntervalFn(
+      async () => {
+        Object.assign(installData, await initData())
+        loading.value = false
+        if (jobState.value !== 'PENDING' && jobState.value !== 'PROCESSING') {
+          pause()
+        }
+      },
+      SCHEDULE_INTERVAL,
+      { immediate: true }
+    )
+  })
+
+  onBeforeUnmount(() => {
+    disableButton.value = false
+  })
 
   const onNextStep = async () => {
     return Promise.resolve(true)
@@ -59,16 +116,17 @@
       :pagination="false"
       :scroll="{ y: 400 }"
       :columns="installColumns"
-      :data-source="data1"
+      :data-source="installData"
+      :loading="loading"
     >
-      <template #bodyCell="{ text, column }">
-        <!--        <template v-if="column.dataIndex === 'progress'">-->
+      <template #bodyCell="{ record, column }">
         <a-progress
           v-if="column.dataIndex === 'progress'"
           class="progress"
-          :percent="text"
+          :percent="record.progress"
+          :status="record.status"
+          :stroke-color="record.color"
         />
-        <!--        </template>-->
       </template>
     </a-table>
   </div>

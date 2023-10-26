@@ -20,6 +20,7 @@ import i18n from '@/locales'
 
 export const API_RETRY_TIME = 3
 export const API_EXPIRE_TIME = 3 * 1000
+export const SCHEDULE_INTERVAL = 1000
 
 export const WS_URL = 'ws://' + window.location.host + '/ws/default'
 
