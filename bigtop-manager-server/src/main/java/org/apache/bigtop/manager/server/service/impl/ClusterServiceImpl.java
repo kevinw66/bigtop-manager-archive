@@ -100,6 +100,7 @@ public class ClusterServiceImpl implements ClusterService {
         hostCheckStage.setJob(job);
         hostCheckStage.setName("Check Hosts");
         hostCheckStage.setState(JobState.PENDING);
+        hostCheckStage.setStageOrder(1);
         stages.add(hostCheckStage);
 
         for (String hostname : clusterDTO.getHostnames()) {

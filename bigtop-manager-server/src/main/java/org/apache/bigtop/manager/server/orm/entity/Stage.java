@@ -28,9 +28,8 @@ public class Stage extends BaseEntity {
     @Column(name = "state")
     private JobState state;
 
-    @OneToOne
-    @JoinColumn(name = "depends_on", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Stage dependsOn;
+    @Column(name = "stage_order")
+    private Integer stageOrder;
 
     @ManyToOne
     @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

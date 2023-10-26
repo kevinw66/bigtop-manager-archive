@@ -14,4 +14,6 @@ public class StageVO {
     private List<TaskVO> tasks;
 
     private JobState state;
+
+    private Integer stageOrder;
 }

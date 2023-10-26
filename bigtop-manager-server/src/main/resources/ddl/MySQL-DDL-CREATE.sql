@@ -38,9 +38,9 @@ DEALLOCATE PREPARE statement;
 
 CREATE TABLE `sequence`
 (
-    `id`            BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `sequence_name` VARCHAR(100) NOT NULL,
-    `next_val`      BIGINT(20) DEFAULT NULL,
+    `id`        BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `seq_name`  VARCHAR(100) NOT NULL,
+    `seq_count` BIGINT(20) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_sequence_name` (`sequence_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -131,7 +131,7 @@ CREATE TABLE `stage`
     `cluster_id`  BIGINT(20) UNSIGNED DEFAULT NULL,
     `job_id`      BIGINT(20) UNSIGNED NOT NULL,
     `state`       VARCHAR(32) NOT NULL,
-    `depends_on`  BIGINT(20) UNSIGNED DEFAULT NULL,
+    `stage_order` INT UNSIGNED DEFAULT NULL,
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,
     PRIMARY KEY (`id`),
