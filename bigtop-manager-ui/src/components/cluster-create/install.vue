@@ -4,7 +4,6 @@
   import { SCHEDULE_INTERVAL } from '@/utils/constant.ts'
   import { useIntervalFn } from '@vueuse/core'
   import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
-  import { onUnmounted } from 'vue'
 
   const clusterInfo = defineModel<any>('clusterInfo')
   const disableButton = defineModel<boolean>('disableButton')
