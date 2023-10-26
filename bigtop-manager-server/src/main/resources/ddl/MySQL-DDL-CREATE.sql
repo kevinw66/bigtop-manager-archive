@@ -135,5 +135,6 @@ CREATE TABLE `stage`
     `create_time` DATETIME DEFAULT NULL,
     `update_time` DATETIME DEFAULT NULL,
     PRIMARY KEY (`id`),
-    KEY           `idx_cluster_id` (`cluster_id`)
+    KEY           `idx_cluster_id` (`cluster_id`),
+    KEY           `idx_job_id` (`job_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -1,66 +1,82 @@
 package org.apache.bigtop.manager.server.orm.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.JobState;
 
-import java.util.Map;
-
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
-@TableGenerator(name = "task_generator", table = "sequence")
+@Table(name = "task")
+@TableGenerator(name = "task_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Task extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "task_generator")
+    @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Job job;
-
-    @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Stage stage;
-
-    @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Cluster cluster;
-
+    @Column(name = "message_id")
     private String messageId;
 
+    @Column(name = "timeout")
     private Long timeout;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "state")
     private JobState state;
 
+    @Column(name = "service_name")
     private String serviceName;
 
+    @Column(name = "component_name")
     private String componentName;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "command")
     private Command command;
 
+    @Column(name = "custom_command")
     private String customCommand;
 
+    @Column(name = "custom_commands")
     private String customCommands;
 
+    @Column(name = "command_script")
     private String commandScript;
 
+    @Column(name = "hostname")
     private String hostname;
 
+    @Column(name = "root")
     private String root;
 
+    @Column(name = "stack_name")
     private String stackName;
 
+    @Column(name = "stack_version")
     private String stackVersion;
 
+    @Column(name = "service_user")
     private String serviceUser;
 
+    @Column(name = "service_group")
     private String serviceGroup;
 
+    @Column(name = "os_specifics")
     private String osSpecifics;
+
+    @ManyToOne
+    @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Job job;
+
+    @ManyToOne
+    @JoinColumn(name = "stage_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Stage stage;
+
+    @ManyToOne
+    @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Cluster cluster;
 }

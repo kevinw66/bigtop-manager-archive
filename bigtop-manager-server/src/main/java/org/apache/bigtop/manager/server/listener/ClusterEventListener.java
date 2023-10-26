@@ -69,7 +69,6 @@ public class ClusterEventListener {
 
     @Async
     @EventListener
-    @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleClusterCreate(ClusterCreateEvent event) {
         Long jobId = event.getJobId();

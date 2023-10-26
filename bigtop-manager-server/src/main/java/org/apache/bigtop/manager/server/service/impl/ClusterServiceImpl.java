@@ -31,8 +31,7 @@ import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -94,14 +93,14 @@ public class ClusterServiceImpl implements ClusterService {
         // Create job
         job.setContext("Create Cluster");
         job.setState(JobState.PENDING);
-        jobRepository.save(job);
 
         // Create stages
+        List<Stage> stages = new ArrayList<>();
         Stage hostCheckStage = new Stage();
         hostCheckStage.setJob(job);
         hostCheckStage.setName("Check Hosts");
         hostCheckStage.setState(JobState.PENDING);
-        stageRepository.save(hostCheckStage);
+        stages.add(hostCheckStage);
 
         for (String hostname : clusterDTO.getHostnames()) {
             Task task = new Task();
@@ -119,6 +118,9 @@ public class ClusterServiceImpl implements ClusterService {
             task.setState(JobState.PENDING);
             taskRepository.save(task);
         }
+
+        jobRepository.save(job);
+        stageRepository.saveAll(stages);
 
         return job;
     }

@@ -4,22 +4,23 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_type_name", columnNames = {"typeName"})})
-@TableGenerator(name = "settings_generator", table = "sequence")
+@Table(name = "setting")
+@TableGenerator(name = "settings_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Setting extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "settings_generator")
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "type_name")
     private String typeName;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(length = 16777216)
+    @Column(name = "config_data", length = 16777216)
     private String configData;
-
 }
