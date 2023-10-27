@@ -27,22 +27,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.error(e.getEx());
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ExceptionHandler({ MethodArgumentNotValidException.class })
     public ResponseEntity<Void> exceptionHandler(MethodArgumentNotValidException e) {
-
         FieldError fieldError = e.getBindingResult().getFieldError();
-        String code = fieldError.getCode();
-        String field = fieldError.getField();
-        String message = fieldError.getDefaultMessage();
-        boolean validEnum = EnumUtils.isValidEnum(LocaleKeys.class, code.toUpperCase());
-        if (validEnum) {
-            message = MessageSourceUtils.getMessage(LocaleKeys.valueOf(code.toUpperCase()), field);
+        if (fieldError == null || fieldError.getCode() == null) {
+            return ResponseEntity.error(ResponseStatus.PARAMETER_ERROR, e.getMessage());
+        } else {
+            String code = fieldError.getCode();
+            String field = fieldError.getField();
+            String message = fieldError.getDefaultMessage();
+            if (EnumUtils.isValidEnum(LocaleKeys.class, code.toUpperCase())) {
+                message = MessageSourceUtils.getMessage(LocaleKeys.valueOf(code.toUpperCase()), field);
+            }
+
+            return ResponseEntity.error(ResponseStatus.PARAMETER_ERROR, message);
         }
-        log.error("Request Body incorrect, message: {}", message, e);
-        return ResponseEntity.error(ResponseStatus.PARAMETER_ERROR, message);
     }
 
-    @ExceptionHandler({ConstraintViolationException.class})
+    @ExceptionHandler({ ConstraintViolationException.class })
     public ResponseEntity<Void> exceptionHandler(ConstraintViolationException e) {
         String message = e.getMessage();
         log.error("Method parameter exception, message: {}", message, e);

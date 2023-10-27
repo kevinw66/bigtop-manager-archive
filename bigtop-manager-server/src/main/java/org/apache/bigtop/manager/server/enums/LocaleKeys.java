@@ -35,6 +35,7 @@ public enum LocaleKeys {
     CLUSTER_NOT_FOUND("cluster.not.found"),
 
     HOST_NOT_FOUND("host.not.found"),
+    HOST_ASSIGNED("host.assigned"),
 
     STACK_NOT_FOUND("stack.not.found"),
 
