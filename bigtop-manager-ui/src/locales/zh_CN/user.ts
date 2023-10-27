@@ -18,5 +18,13 @@
 export default {
   profile: '个人中心',
   settings: '个人设置',
-  logout: '退出登录'
+  logout: '退出登录',
+  username: '用户名',
+  nickname: '昵称',
+  create_time: '创建时间',
+  update_time: '更新时间',
+  status: '状态',
+  edit: '编辑',
+  submit: '提交',
+  back: '返回'
 }
