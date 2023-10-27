@@ -57,28 +57,43 @@
   const initClusterInfo = () => {
     return {
       clusterName: '',
+      // 1-Physical Machine 2-Kubernetes
+      // Only support physical machine right now
+      clusterType: 1,
       stackName: '',
       stackVersion: '',
       fullStackName: '',
       repoInfoList: [],
-      hostnames: []
+      hostnames: [],
+      // Related job id
+      jobId: 0,
+      // Job Status
+      success: false
     }
   }
 
   const current = ref<number>(0)
   const items = reactive(initItems())
   const clusterInfo = reactive(initClusterInfo())
+  const disableButton = ref<boolean>(false)
   const currentItemRef = ref<any>(null)
+  const loadingNext = ref<boolean>(false)
   watch(locale, () => {
     Object.assign(items, initItems())
   })
 
   const next = async () => {
-    if (await currentItemRef.value?.onNextStep()) {
-      console.log('clusterInfo:', clusterInfo)
-      items[current.value].status = 'finish'
-      current.value++
-      items[current.value].status = 'process'
+    loadingNext.value = true
+    try {
+      const valid = await currentItemRef.value?.onNextStep()
+      if (valid) {
+        console.log('clusterInfo:', JSON.stringify(clusterInfo))
+        items[current.value].status = 'finish'
+        current.value++
+        items[current.value].status = 'process'
+      }
+    } finally {
+      loadingNext.value = false
     }
   }
 
@@ -130,6 +145,7 @@
         v-if="current > 0"
         class="footer-btn"
         type="primary"
+        :disabled="disableButton"
         @click="prev"
       >
         {{ $t('common.prev') }}
@@ -138,6 +154,8 @@
         v-if="current < items.length - 1"
         class="footer-btn"
         type="primary"
+        :loading="loadingNext"
+        :disabled="disableButton"
         @click="next"
       >
         {{ $t('common.next') }}
@@ -165,6 +183,7 @@
           :is="items[current].content"
           ref="currentItemRef"
           v-model:clusterInfo="clusterInfo"
+          v-model:disableButton="disableButton"
         />
       </div>
     </div>

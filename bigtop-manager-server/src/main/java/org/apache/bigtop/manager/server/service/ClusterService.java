@@ -21,7 +21,7 @@ public interface ClusterService {
      *
      * @return Cluster
      */
-    ClusterVO create(ClusterDTO clusterDTO);
+    CommandVO create(ClusterDTO clusterDTO);
 
     /**
      * Get a cluster
@@ -36,13 +36,6 @@ public interface ClusterService {
      * @return Cluster
      */
     ClusterVO update(Long id, ClusterDTO clusterDTO);
-
-    /**
-     * Delete a cluster
-     *
-     * @return Cluster
-     */
-    Boolean delete(Long id);
 
     /**
      * execute command for a cluster

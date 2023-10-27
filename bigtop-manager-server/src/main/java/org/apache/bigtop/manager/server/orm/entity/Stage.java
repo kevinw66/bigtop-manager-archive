@@ -9,29 +9,37 @@ import org.apache.bigtop.manager.server.enums.JobState;
 import java.util.ArrayList;
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
-@TableGenerator(name = "stage_generator", table = "sequence")
+@Table(name = "stage")
+@TableGenerator(name = "stage_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Stage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "stage_generator")
+    @Column(name = "id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
-    private Job job;
-
-    @ToString.Exclude
-    @Transient
-    private List<Task> tasks = new ArrayList<>();
+    @Column(name = "name")
+    private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "state")
     private JobState state;
 
+    @Column(name = "stage_order")
+    private Integer stageOrder;
+
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Job job;
+
+    @ManyToOne
+    @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "stage")
+    private List<Task> tasks;
 }

@@ -166,7 +166,7 @@ public class StackUtils {
     /**
      * Initialize the DAG for each stack
      */
-    public static void initializeDag() {
+    private static void initializeDag() {
         for (Map.Entry<String, Map<String, List<String>>> mapEntry : StackUtils.getStackDependencyMap().entrySet()) {
             String fullStackName = mapEntry.getKey();
             DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = new DAG<>();

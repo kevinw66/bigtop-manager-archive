@@ -1,12 +1,8 @@
 package org.apache.bigtop.manager.server.service.impl;
 
-import com.google.common.collect.Lists;
-import com.google.common.eventbus.EventBus;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.StatusType;
 import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
@@ -16,7 +12,6 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
-import org.apache.bigtop.manager.server.model.event.HostCheckEvent;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
@@ -34,10 +29,9 @@ import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,9 +56,6 @@ public class HostServiceImpl implements HostService {
     @Resource
     private JobRepository jobRepository;
 
-    @Resource
-    private EventBus eventBus;
-
     @Override
     public List<HostVO> list() {
         List<HostVO> hostVOList = new ArrayList<>();
@@ -78,54 +69,24 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public List<HostVO> create(HostDTO hostDTO) {
-        List<String> hostnameList = hostDTO.getHostnames();
+        List<String> hostnames = hostDTO.getHostnames();
 
-        Cluster cluster = clusterRepository.findById(hostDTO.getClusterId()).orElse(new Cluster());
-
-        List<Host> hostList = new ArrayList<>();
-        for (String hostname : hostnameList) {
-            //websocket
-            int retry = 3;
+        Cluster cluster = clusterRepository.getReferenceById(hostDTO.getClusterId());
+        List<Host> hosts = new ArrayList<>();
+        for (String hostname : hostnames) {
             Host host = new Host();
-            while (retry >= 0) {
-                WebSocketSession webSocketSession = ServerWebSocketHandler.SESSIONS.get(hostname);
-                boolean open = webSocketSession.isOpen();
-                System.out.println("open = " + open);
-
-                if (open) {
-                    HeartbeatMessage heartbeatMessage = ServerWebSocketHandler.HEARTBEAT_MESSAGE_MAP.get(hostname);
-                    host = HostMapper.INSTANCE.Message2Entity(heartbeatMessage.getHostInfo());
-                    Host savedHost = hostRepository.findByHostname(hostname).orElse(new Host());
-                    if (savedHost.getId() != null) {
-                        host.setId(savedHost.getId());
-                    }
-                    // todo 向前端发送进度消息
-
-                    break;
-                }
-                retry--;
-                try {
-                    Thread.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
-            //persist host to database
+            host.setHostname(hostname);
             host.setCluster(cluster);
-            host.setStatus(StatusType.INSTALLED.getCode());
-            host.setState(HostState.INSTALLED.name());
-            hostList.add(host);
+            host.setState(HostState.INITIALIZING.name());
+            hosts.add(host);
         }
-        hostList = Lists.newArrayList(hostRepository.saveAll(hostList));
 
-        // time server detection
-        HostCheckEvent hostCheckEvent = HostMapper.INSTANCE.DTO2CheckEvent(hostDTO);
-        eventBus.post(hostCheckEvent);
+        hostRepository.saveAll(hosts);
 
-        // cache
-        cache(cluster.getId());
+//        EventPublisher.publish(new HostAddedEvent(hostDTO.getClusterId(), hostDTO.getHostnames()));
+        // cache(cluster.getId());
 
-        return HostMapper.INSTANCE.Entity2VO(hostList);
+        return HostMapper.INSTANCE.Entity2VO(hosts);
     }
 
     @Override
@@ -158,7 +119,7 @@ public class HostServiceImpl implements HostService {
 
     @Override
     public Boolean cache(Long clusterId) {
-        eventBus.post(new HostCacheEvent(clusterId));
+        EventPublisher.publish(new HostCacheEvent(clusterId));
         return true;
     }
 
@@ -177,7 +138,7 @@ public class HostServiceImpl implements HostService {
         if (command == Command.INSTALL) {
             //Persist hostComponent to database
             List<Component> componentList = componentRepository.findAllByClusterClusterNameAndComponentNameIn(clusterName, componentNameList);
-            Host host = hostRepository.findByHostname(hostname).orElse(new Host());
+            Host host = hostRepository.findByHostname(hostname);
             for (Component component : componentList) {
                 HostComponent hostComponent = new HostComponent();
                 hostComponent.setHost(host);
@@ -194,9 +155,9 @@ public class HostServiceImpl implements HostService {
         }
 
         CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
-        eventBus.post(commandEvent);
+        EventPublisher.publish(commandEvent);
 
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 
 }

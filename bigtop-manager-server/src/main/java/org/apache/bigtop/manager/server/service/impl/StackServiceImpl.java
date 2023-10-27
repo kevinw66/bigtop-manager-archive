@@ -30,7 +30,7 @@ public class StackServiceImpl implements StackService {
             List<ServiceDTO> serviceDTOList = pair.right;
 
             StackVO stackVO = StackMapper.INSTANCE.DTO2VO(stackDTO);
-            stackVO.setServices(ServiceMapper.INSTANCE.DTOList2VOList(serviceDTOList));
+            stackVO.setServices(ServiceMapper.INSTANCE.DTO2VO(serviceDTOList));
             stackVOList.add(stackVO);
         }
 

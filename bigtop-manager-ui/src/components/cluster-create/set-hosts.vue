@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
+  import { create } from '@/api/cluster'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
@@ -15,6 +16,14 @@
     clusterInfo.value.hostnames = hosts.value
       .split('\n')
       .filter((item) => item !== '')
+
+    try {
+      const res = await create(clusterInfo.value)
+      clusterInfo.value.jobId = res.id
+    } catch (e) {
+      console.log(e)
+      return Promise.resolve(false)
+    }
 
     return Promise.resolve(true)
   }

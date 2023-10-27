@@ -3,3 +3,8 @@ export interface ResponseEntity<T = any> {
   data?: T
   message: string
 }
+
+export interface PageVO<T = any> {
+  total: number
+  content: T[]
+}

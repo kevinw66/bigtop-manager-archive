@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.model.event;
 
 import lombok.Data;
-import lombok.NonNull;
+import lombok.EqualsAndHashCode;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandType;
 
@@ -10,22 +10,19 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
-public class CommandEvent {
+@EqualsAndHashCode(callSuper = true)
+public class CommandEvent extends Event {
 
     private Long jobId;
 
-    @NonNull
     private Command command;
 
     private String customCommand;
 
-    @NonNull
     private String stackName;
 
-    @NonNull
     private String stackVersion;
 
-    @NonNull
     private String clusterName;
 
     private List<String> componentNames;

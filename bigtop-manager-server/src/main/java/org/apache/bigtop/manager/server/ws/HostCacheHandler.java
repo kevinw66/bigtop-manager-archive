@@ -82,7 +82,7 @@ public class HostCacheHandler implements Callback {
         List<Service> services = serviceRepository.findAllByClusterId(clusterId);
         List<ServiceConfig> serviceConfigs = serviceConfigRepository.findAllByClusterId(clusterId);
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterId(clusterId);
-        List<Repo> repos = repoRepository.findAllByStackId(stackId);
+        List<Repo> repos = repoRepository.findAllByCluster(cluster);
         Iterable<Setting> settings = settingRepository.findAll();
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 

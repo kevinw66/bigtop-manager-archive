@@ -4,35 +4,39 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_component_name", columnNames = {"componentName", "cluster_id"})},
-        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
-                @Index(name = "idx_service_id", columnList = "service_id")})
-@TableGenerator(name = "component_generator", table = "sequence")
+@Table(name = "component")
+@TableGenerator(name = "component_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Component extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "component_generator")
+    @Column(name = "id")
     private Long id;
 
+    @Column(name = "component_name")
     private String componentName;
 
+    @Column(name = "display_name")
     private String displayName;
 
+    @Column(name = "command_script")
     private String commandScript;
 
+    @Column(name = "custom_commands")
     private String customCommands;
 
+    @Column(name = "category")
     private String category;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "service_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Service service;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
 
 

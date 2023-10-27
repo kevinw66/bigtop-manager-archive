@@ -73,8 +73,7 @@ request.interceptors.response.use(
   },
   async (error: AxiosError) => {
     message.error(i18n.global.t('common.unknown_error'))
-    console.warn(error)
-    await router.push('/login')
+    console.log(error)
     return Promise.reject(error)
   }
 )

@@ -31,6 +31,7 @@ export default {
   arch: 'Arch',
   base_url: 'Base URL',
   host: 'Host',
+  stage: 'Stage',
   progress: 'Progress',
   unknown_error: 'Unknown error',
   websocket_disconnected: 'WebSocket disconnected, please reload the page'

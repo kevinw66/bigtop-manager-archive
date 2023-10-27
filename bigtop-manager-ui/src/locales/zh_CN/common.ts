@@ -31,6 +31,7 @@ export default {
   arch: '架构',
   base_url: '地址',
   host: '主机',
+  stage: '阶段',
   progress: '进度',
   unknown_error: '未知错误',
   websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面'

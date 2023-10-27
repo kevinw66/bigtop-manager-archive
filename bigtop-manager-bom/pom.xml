@@ -15,7 +15,7 @@
 
     <properties>
         <spring-boot.version>3.1.1</spring-boot.version>
-        <springdoc.version>2.1.0</springdoc.version>
+        <springdoc.version>2.2.0</springdoc.version>
         <freemarker.version>2.3.32</freemarker.version>
         <kryo.version>5.4.0</kryo.version>
         <common-lang3.version>3.12.0</common-lang3.version>
@@ -25,6 +25,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <jwt.version>4.4.0</jwt.version>
         <janino.version>3.0.16</janino.version>
+        <eclipse-link.version>4.0.2</eclipse-link.version>
     </properties>
 
     <dependencyManagement>
@@ -36,6 +37,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
@@ -46,6 +48,12 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.persistence</groupId>
+                <artifactId>org.eclipse.persistence.jpa</artifactId>
+                <version>${eclipse-link.version}</version>
             </dependency>
 
             <dependency>

@@ -25,6 +25,9 @@ public enum ApiExceptionEnum {
 
     // Component Exceptions -- 15000 ~ 15999
     COMPONENT_NOT_FOUND(15000, LocaleKeys.COMPONENT_NOT_FOUND),
+
+    // Job Exceptions -- 16000 ~ 16999
+    JOB_NOT_FOUND(16000, LocaleKeys.JOB_NOT_FOUND),
     ;
 
     private final Integer code;

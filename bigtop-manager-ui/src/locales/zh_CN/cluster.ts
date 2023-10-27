@@ -27,6 +27,8 @@ export default {
   set_repository: '设置源',
   set_hosts: '设置节点',
   set_hosts_placeholder: '请输入主机名，每行一个。',
-  create_finish_title: '创建成功',
-  create_finish_sub_title: '集群已创建成功，快点开始使用吧'
+  create_success_title: '创建成功',
+  create_success_sub_title: '集群已创建成功，快点开始使用吧',
+  create_fail_title: '创建失败',
+  create_fail_sub_title: '集群创建失败，请重试'
 }

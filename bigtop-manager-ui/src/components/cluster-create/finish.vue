@@ -1,12 +1,29 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import { SmileOutlined, FrownOutlined } from '@ant-design/icons-vue'
+
+  const clusterInfo = defineModel<any>('clusterInfo')
+</script>
 
 <template>
   <div class="container">
     <a-result
-      status="success"
-      :title="$t('cluster.create_finish_title')"
-      :sub-title="$t('cluster.create_finish_sub_title')"
-    />
+      v-if="clusterInfo.success"
+      :title="$t('cluster.create_success_title')"
+      :sub-title="$t('cluster.create_success_sub_title')"
+    >
+      <template #icon>
+        <smile-outlined />
+      </template>
+    </a-result>
+    <a-result
+      v-else
+      :title="$t('cluster.create_fail_title')"
+      :sub-title="$t('cluster.create_fail_sub_title')"
+    >
+      <template #icon>
+        <frown-outlined />
+      </template>
+    </a-result>
   </div>
 </template>
 
