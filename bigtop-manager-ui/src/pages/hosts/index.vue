@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {list} from '@/api/hosts/index.ts'
 import {HostVO} from "@/api/hosts/types.ts";
-import {onMounted, reactive, ref, computed} from "vue";
+import {onMounted, reactive, computed} from "vue";
 import {message} from 'ant-design-vue';
 
 const hostData = reactive([])
@@ -9,11 +9,7 @@ const hostData = reactive([])
 const getHostData = async () => {
   const hostVOList: HostVO[] = await list()
   console.log(hostVOList)
-  const arr: any[] = []
-  hostVOList.forEach(x => {
-    arr.push(x)
-  })
-  return arr
+  return hostVOList
 }
 
 const hostColumns = [
@@ -22,7 +18,7 @@ const hostColumns = [
     dataIndex: 'hostname',
     align: 'left',
     sorter: {
-      compare: (a, b) => a.hostname.length - b.hostname.length,
+      compare: (a: any, b: any) => a.hostname.length - b.hostname.length,
       multiple: 1,
     }
   },
@@ -51,7 +47,7 @@ const hostColumns = [
     dataIndex: 'availableProcessors',
     align: 'left',
     sorter: {
-      compare: (a, b) => a.cores - b.cores,
+      compare: (a: any, b: any) => a.availableProcessors - b.availableProcessors,
       multiple: 2,
     }
   },
@@ -115,7 +111,7 @@ const displayKeys = (selectedRowKeys: string[]) => {
               <a-menu-item @click="displayKeys(state.selectedRowKeys)">
                 1st menu item
               </a-menu-item>
-              <a-menu-item @click="displayKeys(' test ')">
+              <a-menu-item @click="displayKeys(state.selectedRowKeys)">
                 12st menu item
               </a-menu-item>
             </a-menu>
