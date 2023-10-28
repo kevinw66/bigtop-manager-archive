@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-export interface HostVO {
-  id: string
-  clusterName: string
-  hostname: string
-  ipv4: string
-  arch: string
-  os: string
-  availableProcessors: string
-  totalMemorySize: string
-  status:number
+export default {
+  action: '操作',
+  hosts: '主机',
+  hostname: '主机名称',
+  cluster_name: '集群名称',
+  os: '系统名称',
+  arch: '系统架构',
+  ipv4: 'ip地址',
+  cores: '主机核心',
+  ram: '内存',
+  disk: '磁盘',
+  status: '状态'
 }
-
-

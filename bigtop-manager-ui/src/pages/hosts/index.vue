@@ -3,7 +3,10 @@ import {list} from '@/api/hosts/index.ts'
 import {HostVO} from "@/api/hosts/types.ts";
 import {onMounted, reactive, computed} from "vue";
 import {message} from 'ant-design-vue';
+import {CloseCircleTwoTone, CheckCircleTwoTone, MinusCircleTwoTone} from '@ant-design/icons-vue';
+import {useI18n} from 'vue-i18n'
 
+const i18n = useI18n()
 const hostData = reactive([])
 
 const getHostData = async () => {
@@ -14,7 +17,7 @@ const getHostData = async () => {
 
 const hostColumns = [
   {
-    title: 'hostname',
+    title: 'hosts.hostname',
     dataIndex: 'hostname',
     align: 'left',
     sorter: {
@@ -23,27 +26,27 @@ const hostColumns = [
     }
   },
   {
-    title: 'clusterName',
+    title: 'hosts.cluster_name',
     dataIndex: 'clusterName',
     align: 'left'
   },
   {
-    title: 'os',
+    title: 'hosts.os',
     dataIndex: 'os',
     align: 'left'
   },
   {
-    title: 'arch',
+    title: 'hosts.arch',
     dataIndex: 'arch',
     align: 'left'
   },
   {
-    title: 'ipv4',
+    title: 'hosts.ipv4',
     dataIndex: 'ipv4',
     align: 'left'
   },
   {
-    title: 'cores',
+    title: 'hosts.cores',
     dataIndex: 'availableProcessors',
     align: 'left',
     sorter: {
@@ -52,13 +55,18 @@ const hostColumns = [
     }
   },
   {
-    title: 'ram',
+    title: 'hosts.ram',
     dataIndex: 'totalMemorySize',
     align: 'left'
   },
   {
-    title: 'disk',
+    title: 'hosts.disk',
     dataIndex: 'disk',
+    align: 'left'
+  },
+  {
+    title: 'hosts.status',
+    dataIndex: 'status',
     align: 'left'
   }
 ]
@@ -93,11 +101,8 @@ const displayKeys = (selectedRowKeys: string[]) => {
   <div>
     <a-page-header
         style="border: 1px solid rgb(235, 237, 240)"
-        title="Hosts"
+        :title="$t('hosts.hosts')"
     >
-      <template #tags>
-        <a-tag color="blue">BIGTOP-3.3.0</a-tag>
-      </template>
       <template #extra>
          <span style="margin-left: 8px">
         <template v-if="hasSelected">
@@ -117,7 +122,7 @@ const displayKeys = (selectedRowKeys: string[]) => {
             </a-menu>
           </template>
           <a-button type="primary" :disabled="!hasSelected" :loading="state.loading">
-            Actions
+            {{ $t('hosts.action') }}
           </a-button>
 
         </a-dropdown>
@@ -127,9 +132,21 @@ const displayKeys = (selectedRowKeys: string[]) => {
 
     <a-table rowKey="hostname" :columns="hostColumns" :data-source="hostData"
              :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange } ">
-      <template #bodyCell="{ column, text }">
+      <template #headerCell="{ column }">
+        <span>{{ $t(column.title) }}</span>
+      </template>
+      <template #bodyCell="{ column, text, record}">
+        <template v-if="column.dataIndex === 'status'">
+          <a>
+            <CheckCircleTwoTone v-if="record.status === '0'" two-tone-color="#52c41a"/>
+            <MinusCircleTwoTone v-else-if="record.status === '1'" two-tone-color="orange"/>
+            <CloseCircleTwoTone v-else two-tone-color="red"/>
+            <MinusCircleTwoTone two-tone-color="orange"/>
+            <CheckCircleTwoTone two-tone-color="#52c41a"/>
+          </a>
+        </template>
         <template v-if="column.dataIndex === 'hostname'">
-          <a href="dashboard">{{ text }}</a>
+          <a href="dashboard"> {{ text }}</a>
         </template>
       </template>
     </a-table>

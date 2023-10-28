@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-export interface HostVO {
-  id: string
-  clusterName: string
-  hostname: string
-  ipv4: string
-  arch: string
-  os: string
-  availableProcessors: string
-  totalMemorySize: string
-  status:number
+export default {
+  action: 'action',
+  hosts: 'hosts',
+  hostname: 'hostname',
+  cluster_name: 'clusterName',
+  os: 'os',
+  arch: 'arch',
+  ipv4: 'ipv4',
+  cores: 'cores',
+  ram: 'ram',
+  disk: 'disk',
+  status: 'status'
 }
-
-

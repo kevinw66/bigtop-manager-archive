@@ -19,10 +19,12 @@ import common from '@/locales/zh_CN/common.ts'
 import login from '@/locales/zh_CN/login'
 import user from '@/locales/zh_CN/user.ts'
 import cluster from '@/locales/zh_CN/cluster.ts'
+import hosts from '@/locales/zh_CN/hosts.ts'
 
 export default {
   common,
   login,
   user,
-  cluster
+  cluster,
+  hosts
 }
