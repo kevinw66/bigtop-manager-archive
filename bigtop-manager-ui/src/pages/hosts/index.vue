@@ -4,9 +4,7 @@ import {HostVO} from "@/api/hosts/types.ts";
 import {onMounted, reactive, computed} from "vue";
 import {message} from 'ant-design-vue';
 import {CloseCircleTwoTone, CheckCircleTwoTone, MinusCircleTwoTone} from '@ant-design/icons-vue';
-import {useI18n} from 'vue-i18n'
 
-const i18n = useI18n()
 const hostData = reactive([])
 
 const getHostData = async () => {
