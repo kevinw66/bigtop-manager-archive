@@ -3,7 +3,13 @@ import {list} from '@/api/hosts/index.ts'
 import {HostVO} from "@/api/hosts/types.ts";
 import {onMounted, reactive, computed} from "vue";
 import {message} from 'ant-design-vue';
-import {CloseCircleTwoTone, CheckCircleTwoTone, MinusCircleTwoTone} from '@ant-design/icons-vue';
+import {
+  CloseCircleTwoTone,
+  CheckCircleTwoTone,
+  MinusCircleTwoTone,
+  CaretRightFilled,
+  StopFilled
+} from '@ant-design/icons-vue';
 
 const hostData = reactive([])
 
@@ -104,18 +110,24 @@ const displayKeys = (selectedRowKeys: string[]) => {
       <template #extra>
          <span style="margin-left: 8px">
         <template v-if="hasSelected">
-          {{ `Selected ${state.selectedRowKeys.length} hosts` }}
+          {{ $t('hosts.host_selected', [state.selectedRowKeys.length]) }}
         </template>
       </span>
 
-        <a-dropdown>
+        <a-button type="primary" :loading="state.loading" @click="getHostData">
+          {{ $t('hosts.add') }}
+        </a-button>
+
+        <a-dropdown :trigger="['click']">
           <template #overlay>
             <a-menu>
               <a-menu-item @click="displayKeys(state.selectedRowKeys)">
-                1st menu item
+                <CaretRightFilled/>
+                {{ $t('hosts.host_restart') }}
               </a-menu-item>
               <a-menu-item @click="displayKeys(state.selectedRowKeys)">
-                12st menu item
+                <StopFilled/>
+                {{ $t('hosts.host_stop') }}
               </a-menu-item>
             </a-menu>
           </template>

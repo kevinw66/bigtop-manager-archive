@@ -16,8 +16,12 @@
  */
 
 export default {
-  action: 'action',
-  hosts: 'hosts',
+  host_selected: 'Selected {0} hosts',
+  host_restart: 'Restart Hosts',
+  host_stop: 'Stop Hosts',
+  add: 'Add Host',
+  action: 'Action',
+  hosts: 'Hosts',
   hostname: 'hostname',
   cluster_name: 'clusterName',
   os: 'os',

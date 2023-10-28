@@ -16,6 +16,10 @@
  */
 
 export default {
+  host_selected: '已选择 {0} 台主机',
+  host_restart: '重启主机',
+  host_stop: '停止主机',
+  add: '增加主机',
   action: '操作',
   hosts: '主机',
   hostname: '主机名称',
