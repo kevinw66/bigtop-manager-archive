@@ -19,25 +19,25 @@ BIN_DIR=$(dirname $0)
 cd $BIN_DIR
 echo $PWD
 
-echo -e "\033[32mStarting container bigtop-manager-build\033[0m"
-if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build") ]];then
-  docker run -it -d --name bigtop-manager-build --privileged=true -e "container=docker" \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v $PWD/../../../:/opt/bigtop-manager/ \
-    -w /opt/bigtop-manager \
+echo -e "\033[32mStarting container bigtop-manager-build-c7\033[0m"
+if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build-c7") ]];then
+  docker run -it -d --name bigtop-manager-build-c7 --privileged=true -e "container=docker" \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v $PWD/../../../:/opt/develop/bigtop-manager/ \
+    -w /opt/develop/bigtop-manager \
     bigtop-manager/develop:trunk-centos-7
 else
-  docker start bigtop-manager-build
+  docker start bigtop-manager-build-c7
 fi
 
 echo -e "\033[32mCompiling bigtop-manager\033[0m"
-docker exec bigtop-manager-build bash -c "mvn clean package -DskipTests"
-docker stop bigtop-manager-build
+docker exec bigtop-manager-build-c7 bash -c "mvn clean package -DskipTests"
+docker stop bigtop-manager-build-c7
 
 echo -e "\033[32mCreating network bigtop-manager\033[0m"
 docker network create --driver bridge bigtop-manager
 
 echo -e "\033[32mCreating container bigtop-manager-server\033[0m"
-docker run -d -p 3306:3306 -p 5005:5005 -p 8080:8080 --name bigtop-manager-server --hostname bigtop-manager-server --network bigtop-manager --privileged -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup:ro bigtop-manager/develop:trunk-centos-7 /usr/sbin/init
+docker run -d -p 13306:3306 -p 15005:5005 -p 18080:8080 --name bigtop-manager-server --hostname bigtop-manager-server --network bigtop-manager --privileged -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup:ro bigtop-manager/develop:trunk-centos-7 /usr/sbin/init
 docker cp ../../../bigtop-manager-server/target/bigtop-manager-server bigtop-manager-server:/opt/
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-server:/opt/
 SERVER_PUB_KEY=`docker exec bigtop-manager-server /bin/cat /root/.ssh/id_rsa.pub`
