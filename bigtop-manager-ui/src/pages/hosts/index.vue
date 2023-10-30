@@ -1,120 +1,121 @@
 <script setup lang="ts">
-import {list} from '@/api/hosts/index.ts'
-import {HostVO} from "@/api/hosts/types.ts";
-import {onMounted, reactive, computed} from "vue";
-import {message} from 'ant-design-vue';
-import {
-  CloseCircleTwoTone,
-  CheckCircleTwoTone,
-  MinusCircleTwoTone,
-  CaretRightFilled,
-  StopFilled
-} from '@ant-design/icons-vue';
+  import { list } from '@/api/hosts/index.ts'
+  import { HostVO } from '@/api/hosts/types.ts'
+  import { onMounted, reactive, computed } from 'vue'
+  import { message } from 'ant-design-vue'
+  import {
+    CloseCircleTwoTone,
+    CheckCircleTwoTone,
+    MinusCircleTwoTone,
+    CaretRightFilled,
+    StopFilled
+  } from '@ant-design/icons-vue'
 
-const hostData = reactive([])
+  const hostData = reactive([])
 
-const getHostData = async () => {
-  const hostVOList: HostVO[] = await list()
-  console.log(hostVOList)
-  return hostVOList
-}
-
-const hostColumns = [
-  {
-    title: 'hosts.hostname',
-    dataIndex: 'hostname',
-    align: 'left',
-    sorter: {
-      compare: (a: any, b: any) => a.hostname.length - b.hostname.length,
-      multiple: 1,
-    }
-  },
-  {
-    title: 'hosts.cluster_name',
-    dataIndex: 'clusterName',
-    align: 'left'
-  },
-  {
-    title: 'hosts.os',
-    dataIndex: 'os',
-    align: 'left'
-  },
-  {
-    title: 'hosts.arch',
-    dataIndex: 'arch',
-    align: 'left'
-  },
-  {
-    title: 'hosts.ipv4',
-    dataIndex: 'ipv4',
-    align: 'left'
-  },
-  {
-    title: 'hosts.cores',
-    dataIndex: 'availableProcessors',
-    align: 'left',
-    sorter: {
-      compare: (a: any, b: any) => a.availableProcessors - b.availableProcessors,
-      multiple: 2,
-    }
-  },
-  {
-    title: 'hosts.ram',
-    dataIndex: 'totalMemorySize',
-    align: 'left'
-  },
-  {
-    title: 'hosts.disk',
-    dataIndex: 'disk',
-    align: 'left'
-  },
-  {
-    title: 'hosts.status',
-    dataIndex: 'status',
-    align: 'left'
+  const getHostData = async () => {
+    const hostVOList: HostVO[] = await list()
+    console.log(hostVOList)
+    return hostVOList
   }
-]
 
-onMounted(async () => {
-  Object.assign(hostData, await getHostData())
-})
+  const hostColumns = [
+    {
+      title: 'hosts.hostname',
+      dataIndex: 'hostname',
+      align: 'left',
+      sorter: {
+        compare: (a: any, b: any) => a.hostname.length - b.hostname.length,
+        multiple: 1
+      }
+    },
+    {
+      title: 'hosts.cluster_name',
+      dataIndex: 'clusterName',
+      align: 'left'
+    },
+    {
+      title: 'common.os',
+      dataIndex: 'os',
+      align: 'left'
+    },
+    {
+      title: 'common.arch',
+      dataIndex: 'arch',
+      align: 'left'
+    },
+    {
+      title: 'hosts.ipv4',
+      dataIndex: 'ipv4',
+      align: 'left'
+    },
+    {
+      title: 'hosts.cores',
+      dataIndex: 'availableProcessors',
+      align: 'left',
+      sorter: {
+        compare: (a: any, b: any) =>
+          a.availableProcessors - b.availableProcessors,
+        multiple: 2
+      }
+    },
+    {
+      title: 'hosts.ram',
+      dataIndex: 'totalMemorySize',
+      align: 'left'
+    },
+    {
+      title: 'hosts.disk',
+      dataIndex: 'disk',
+      align: 'left'
+    },
+    {
+      title: 'hosts.status',
+      dataIndex: 'status',
+      align: 'left'
+    }
+  ]
 
-const state = reactive<{
-  selectedRowKeys: string[];
-  loading: boolean;
-}>({
-  selectedRowKeys: [], // Check here to configure the default column
-  loading: false,
-});
+  onMounted(async () => {
+    Object.assign(hostData, await getHostData())
+  })
 
-const hasSelected = computed(() => state.selectedRowKeys.length > 0);
+  const state = reactive<{
+    selectedRowKeys: string[]
+    loading: boolean
+  }>({
+    selectedRowKeys: [], // Check here to configure the default column
+    loading: false
+  })
 
-const onSelectChange = (selectedRowKeys: string[]) => {
-  console.log('selectedRowKeys changed: ', selectedRowKeys);
-  state.selectedRowKeys = selectedRowKeys;
-};
+  const hasSelected = computed(() => state.selectedRowKeys.length > 0)
 
-const displayKeys = (selectedRowKeys: string[]) => {
-  console.log('selectedRowKeys changed: ', selectedRowKeys);
-  message.info('This is a normal message' + selectedRowKeys);
-}
+  const onSelectChange = (selectedRowKeys: string[]) => {
+    console.log('selectedRowKeys changed: ', selectedRowKeys)
+    state.selectedRowKeys = selectedRowKeys
+  }
 
+  const displayKeys = (selectedRowKeys: string[]) => {
+    console.log('selectedRowKeys changed: ', selectedRowKeys)
+    message.info('This is a normal message' + selectedRowKeys)
+  }
 </script>
 
 <template>
   <div>
-    <a-page-header
-        style="border: 1px solid rgb(235, 237, 240)"
-        :title="$t('hosts.hosts')"
-    >
+    <a-page-header class="host-page-header" :title="$t('common.host')">
       <template #extra>
-         <span style="margin-left: 8px">
-        <template v-if="hasSelected">
-          {{ $t('hosts.host_selected', [state.selectedRowKeys.length]) }}
-        </template>
-      </span>
+        <span class="host-selected-span">
+          <template v-if="hasSelected">
+            {{ $t('hosts.host_selected', [state.selectedRowKeys.length]) }}
+          </template>
+        </span>
 
-        <a-button type="primary" :loading="state.loading" @click="getHostData">
+        <a-button
+          type="primary"
+          :loading="state.loading"
+          @click="displayKeys(state.selectedRowKeys)"
+        >
           {{ $t('hosts.add') }}
         </a-button>
 
@@ -122,37 +123,51 @@ const displayKeys = (selectedRowKeys: string[]) => {
           <template #overlay>
             <a-menu>
               <a-menu-item @click="displayKeys(state.selectedRowKeys)">
-                <CaretRightFilled/>
+                <CaretRightFilled />
                 {{ $t('hosts.host_restart') }}
               </a-menu-item>
               <a-menu-item @click="displayKeys(state.selectedRowKeys)">
-                <StopFilled/>
+                <StopFilled />
                 {{ $t('hosts.host_stop') }}
               </a-menu-item>
             </a-menu>
           </template>
-          <a-button type="primary" :disabled="!hasSelected" :loading="state.loading">
-            {{ $t('hosts.action') }}
+          <a-button
+            type="primary"
+            :disabled="!hasSelected"
+            :loading="state.loading"
+          >
+            {{ $t('common.action') }}
           </a-button>
-
         </a-dropdown>
       </template>
     </a-page-header>
-    <br/>
+    <br />
 
-    <a-table rowKey="hostname" :columns="hostColumns" :data-source="hostData"
-             :row-selection="{ selectedRowKeys: state.selectedRowKeys, onChange: onSelectChange } ">
+    <a-table
+      row-key="hostname"
+      :columns="hostColumns"
+      :data-source="hostData"
+      :row-selection="{
+        selectedRowKeys: state.selectedRowKeys,
+        onChange: onSelectChange
+      }"
+    >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
       </template>
-      <template #bodyCell="{ column, text, record}">
+      <template #bodyCell="{ column, text, record }">
         <template v-if="column.dataIndex === 'status'">
           <a>
-            <CheckCircleTwoTone v-if="record.status === '0'" two-tone-color="#52c41a"/>
-            <MinusCircleTwoTone v-else-if="record.status === '1'" two-tone-color="orange"/>
-            <CloseCircleTwoTone v-else two-tone-color="red"/>
-            <MinusCircleTwoTone two-tone-color="orange"/>
-            <CheckCircleTwoTone two-tone-color="#52c41a"/>
+            <CheckCircleTwoTone
+              v-if="record.status === '0'"
+              two-tone-color="#52c41a"
+            />
+            <MinusCircleTwoTone
+              v-else-if="record.status === '1'"
+              two-tone-color="orange"
+            />
+            <CloseCircleTwoTone v-else two-tone-color="red" />
           </a>
         </template>
         <template v-if="column.dataIndex === 'hostname'">
@@ -164,4 +179,11 @@ const displayKeys = (selectedRowKeys: string[]) => {
 </template>
 
 <style scoped lang="scss">
+  .host-page-header {
+    border: 1px solid rgb(235, 237, 240);
+
+    .host-selected-span {
+      margin-left: 8px;
+    }
+  }
 </style>

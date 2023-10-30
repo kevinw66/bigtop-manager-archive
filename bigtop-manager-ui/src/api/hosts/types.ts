@@ -16,7 +16,7 @@
  */
 
 export interface HostVO {
-  id: string
+  id: number
   clusterName: string
   hostname: string
   ipv4: string
@@ -24,7 +24,5 @@ export interface HostVO {
   os: string
   availableProcessors: string
   totalMemorySize: string
-  status:number
+  status: number
 }
-
-
