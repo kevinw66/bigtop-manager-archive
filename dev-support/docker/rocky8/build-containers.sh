@@ -19,25 +19,22 @@ BIN_DIR=$(dirname $0)
 cd $BIN_DIR
 echo $PWD
 
-echo -e "\033[32mStarting container bigtop-manager-build\033[0m"
-if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build") ]];then
-  docker run -it -d --name bigtop-manager-build --privileged=true -e "container=docker" \
-    -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v $PWD/../../../:/opt/bigtop-manager/ \
-    -w /opt/bigtop-manager \
-    bigtop-manager/develop:trunk-rocky-8
+echo -e "\033[32mStarting container bigtop-manager-build-r8\033[0m"
+if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build-r8") ]];then
+  docker run -it -d --name bigtop-manager-build-r8 -v $PWD/../../../:/opt/develop/bigtop-manager/ -w /opt/develop/bigtop-manager bigtop-manager/develop:trunk-rocky-8
 else
-  docker start bigtop-manager-build
+  docker start bigtop-manager-build-r8
 fi
 
 echo -e "\033[32mCompiling bigtop-manager\033[0m"
-docker exec bigtop-manager-build bash -c "mvn clean package -DskipTests"
-docker stop bigtop-manager-build
+docker exec bigtop-manager-build-r8 bash -c "mvn clean package -DskipTests"
+docker stop bigtop-manager-build-r8
 
 echo -e "\033[32mCreating network bigtop-manager\033[0m"
 docker network create --driver bridge bigtop-manager
 
 echo -e "\033[32mCreating container bigtop-manager-server\033[0m"
-docker run -d -p 3306:3306 -p 5005:5005 -p 8080:8080 --name bigtop-manager-server --hostname bigtop-manager-server --network bigtop-manager --privileged -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup:ro bigtop-manager/develop:trunk-rocky-8 /usr/sbin/init
+docker run -it -d -p 13306:3306 -p 15005:5005 -p 18080:8080 --name bigtop-manager-server --hostname bigtop-manager-server --network bigtop-manager --cap-add=SYS_TIME bigtop-manager/develop:trunk-rocky-8
 docker cp ../../../bigtop-manager-server/target/bigtop-manager-server bigtop-manager-server:/opt/
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-server:/opt/
 SERVER_PUB_KEY=`docker exec bigtop-manager-server /bin/cat /root/.ssh/id_rsa.pub`
@@ -50,21 +47,19 @@ docker exec bigtop-manager-server /bin/systemctl enable mariadb
 docker exec bigtop-manager-server /bin/systemctl start mariadb
 docker exec bigtop-manager-server bash -c "mysql -e \"UPDATE mysql.user SET Password = PASSWORD('root') WHERE User = 'root'\""
 docker exec bigtop-manager-server bash -c "mysql -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION\""
-docker exec bigtop-manager-server bash -c "mysql -e \"DROP USER ''@'localhost'\""
-docker exec bigtop-manager-server bash -c "mysql -e \"DROP DATABASE test\""
 docker exec bigtop-manager-server bash -c "mysql -e \"CREATE DATABASE bigtop_manager\""
 
 docker exec bigtop-manager-server bash -c "mysql -e \"FLUSH PRIVILEGES\""
 
 echo -e "\033[32mCreating container bigtop-manager-agent-01\033[0m"
-docker run -d --name bigtop-manager-agent-01 --hostname bigtop-manager-agent-01 --network bigtop-manager --privileged -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup:ro bigtop-manager/develop:trunk-rocky-8 /usr/sbin/init
+docker run -it -d --name bigtop-manager-agent-01 --hostname bigtop-manager-agent-01 --network bigtop-manager --cap-add=SYS_TIME bigtop-manager/develop:trunk-rocky-8
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-agent-01:/opt/
 docker exec bigtop-manager-agent-01 bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh/authorized_keys"
 docker exec bigtop-manager-agent-01 /bin/systemctl enable sshd
 docker exec bigtop-manager-agent-01 /bin/systemctl start sshd
 
 echo -e "\033[32mCreating container bigtop-manager-agent-02\033[0m"
-docker run -d --name bigtop-manager-agent-02 --hostname bigtop-manager-agent-02 --network bigtop-manager --privileged -e "container=docker" -v /sys/fs/cgroup:/sys/fs/cgroup:ro bigtop-manager/develop:trunk-rocky-8 /usr/sbin/init
+docker run -it -d --name bigtop-manager-agent-02 --hostname bigtop-manager-agent-02 --network bigtop-manager --cap-add=SYS_TIME bigtop-manager/develop:trunk-rocky-8
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-agent-02:/opt/
 docker exec bigtop-manager-agent-02 bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh/authorized_keys"
 docker exec bigtop-manager-agent-02 /bin/systemctl enable sshd
