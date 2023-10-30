@@ -148,6 +148,7 @@ public class ClusterEventListener {
         Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
         StackDTO stackDTO = StackMapper.INSTANCE.Entity2DTO(stack);
         Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
+        cluster.setSelected(clusterRepository.count() == 0);
         clusterRepository.save(cluster);
 
         // Save hosts

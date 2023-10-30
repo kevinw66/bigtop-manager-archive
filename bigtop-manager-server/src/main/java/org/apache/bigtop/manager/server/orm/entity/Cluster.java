@@ -41,6 +41,9 @@ public class Cluster extends BaseEntity {
     @Column(name = "status")
     private Integer status;
 
+    @Column(name = "selected")
+    private Boolean selected;
+
     @ManyToOne
     @JoinColumn(name = "stack_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Stack stack;
