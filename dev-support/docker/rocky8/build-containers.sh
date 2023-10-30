@@ -39,6 +39,9 @@ docker cp ../../../bigtop-manager-server/target/bigtop-manager-server bigtop-man
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-server:/opt/
 SERVER_PUB_KEY=`docker exec bigtop-manager-server /bin/cat /root/.ssh/id_rsa.pub`
 docker exec bigtop-manager-server bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh/authorized_keys"
+docker exec bigtop-manager-server ssh-keygen -N '' -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
+docker exec bigtop-manager-server ssh-keygen -N '' -t ecdsa -b 256 -f /etc/ssh/ssh_host_ecdsa_key
+docker exec bigtop-manager-server ssh-keygen -N '' -t ed25519 -b 256 -f /etc/ssh/ssh_host_ed25519_key
 docker exec bigtop-manager-server /bin/systemctl enable sshd
 docker exec bigtop-manager-server /bin/systemctl start sshd
 
@@ -48,13 +51,15 @@ docker exec bigtop-manager-server /bin/systemctl start mariadb
 docker exec bigtop-manager-server bash -c "mysql -e \"UPDATE mysql.user SET Password = PASSWORD('root') WHERE User = 'root'\""
 docker exec bigtop-manager-server bash -c "mysql -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION\""
 docker exec bigtop-manager-server bash -c "mysql -e \"CREATE DATABASE bigtop_manager\""
-
 docker exec bigtop-manager-server bash -c "mysql -e \"FLUSH PRIVILEGES\""
 
 echo -e "\033[32mCreating container bigtop-manager-agent-01\033[0m"
 docker run -it -d --name bigtop-manager-agent-01 --hostname bigtop-manager-agent-01 --network bigtop-manager --cap-add=SYS_TIME bigtop-manager/develop:trunk-rocky-8
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-agent-01:/opt/
 docker exec bigtop-manager-agent-01 bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh/authorized_keys"
+docker exec bigtop-manager-agent-01 ssh-keygen -N '' -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
+docker exec bigtop-manager-agent-01 ssh-keygen -N '' -t ecdsa -b 256 -f /etc/ssh/ssh_host_ecdsa_key
+docker exec bigtop-manager-agent-01 ssh-keygen -N '' -t ed25519 -b 256 -f /etc/ssh/ssh_host_ed25519_key
 docker exec bigtop-manager-agent-01 /bin/systemctl enable sshd
 docker exec bigtop-manager-agent-01 /bin/systemctl start sshd
 
@@ -62,6 +67,9 @@ echo -e "\033[32mCreating container bigtop-manager-agent-02\033[0m"
 docker run -it -d --name bigtop-manager-agent-02 --hostname bigtop-manager-agent-02 --network bigtop-manager --cap-add=SYS_TIME bigtop-manager/develop:trunk-rocky-8
 docker cp ../../../bigtop-manager-agent/target/bigtop-manager-agent bigtop-manager-agent-02:/opt/
 docker exec bigtop-manager-agent-02 bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh/authorized_keys"
+docker exec bigtop-manager-agent-02 ssh-keygen -N '' -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
+docker exec bigtop-manager-agent-02 ssh-keygen -N '' -t ecdsa -b 256 -f /etc/ssh/ssh_host_ecdsa_key
+docker exec bigtop-manager-agent-02 ssh-keygen -N '' -t ed25519 -b 256 -f /etc/ssh/ssh_host_ed25519_key
 docker exec bigtop-manager-agent-02 /bin/systemctl enable sshd
 docker exec bigtop-manager-agent-02 /bin/systemctl start sshd
 
