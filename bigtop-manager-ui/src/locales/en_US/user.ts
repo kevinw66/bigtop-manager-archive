@@ -23,6 +23,7 @@ export default {
   nickname: 'nickname',
   create_time: 'create time',
   update_time: 'update time',
+  email: 'email',
   status: 'status',
   edit: 'Edit',
   submit: 'Submit',

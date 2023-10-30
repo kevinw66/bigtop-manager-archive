@@ -1,9 +1,5 @@
-<script setup lang="ts">
+<script setup lang="ts"></script>
 
-</script>
-
-<template>
-  setting page
-</template>
+<template>setting page</template>
 
 <style scoped lang="scss"></style>

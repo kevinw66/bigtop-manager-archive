@@ -23,6 +23,7 @@ export default {
   nickname: '昵称',
   create_time: '创建时间',
   update_time: '更新时间',
+  email: '邮箱',
   status: '状态',
   edit: '编辑',
   submit: '提交',
