@@ -1,8 +1,7 @@
 <script setup lang="ts">
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
-  import { ref, reactive, UnwrapRef } from 'vue'
-  import _ from 'lodash'
+  import { ref, reactive } from 'vue'
 
   const loading = ref<boolean>(false)
   const open = ref<boolean>(false)
@@ -28,22 +27,13 @@
 
   interface FormState {
     username: string
-    password: string
-    remember: boolean
+    email: string
   }
 
   const formState = reactive<FormState>({
     username: '',
-    password: '',
-    remember: true
+    email: ''
   })
-  const onFinish = (values: any) => {
-    console.log('Success:', values)
-  }
-
-  const onFinishFailed = (errorInfo: any) => {
-    console.log('Failed:', errorInfo)
-  }
 </script>
 
 <template>
@@ -89,13 +79,7 @@
         </a-button>
       </template>
 
-      <a-form
-        :model="string"
-        name="basic"
-        autocomplete="off"
-        @finish="onFinish"
-        @finishFailed="onFinishFailed"
-      >
+      <a-form name="basic" autocomplete="off">
         <a-form-item
           :label="$t('user.nickname')"
           name="nickname"
