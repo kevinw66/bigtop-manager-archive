@@ -20,7 +20,10 @@ import { RouteRecordRaw } from 'vue-router'
 import {
   AppstoreOutlined,
   DesktopOutlined,
-  PieChartOutlined
+  PieChartOutlined,
+  SettingOutlined,
+  UserOutlined,
+  ProfileOutlined
 } from '@ant-design/icons-vue'
 import CircleFilled from '@/components/icons/circle-filled.vue'
 
@@ -46,7 +49,7 @@ export const layoutPages: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/services',
+    path: '/services/',
     component: () => import('@/pages/hosts/index.vue'),
     meta: {
       title: 'Services',
@@ -54,7 +57,7 @@ export const layoutPages: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: '/zookeeper',
+        path: 'zookeeper',
         component: () => import('@/pages/hosts/index.vue'),
         children: [],
         meta: {
@@ -62,6 +65,31 @@ export const layoutPages: RouteRecordRaw[] = [
           icon: h(CircleFilled, {
             style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
           })
+        }
+      }
+    ]
+  },
+  {
+    path: '/user/',
+    meta: {
+      title: 'user',
+      icon: h(UserOutlined)
+    },
+    children: [
+      {
+        path: 'profile',
+        component: () => import('@/pages/user/profile/index.vue'),
+        meta: {
+          title: 'Profile',
+          icon: h(ProfileOutlined)
+        }
+      },
+      {
+        path: 'settings',
+        component: () => import('@/pages/user/settings/index.vue'),
+        meta: {
+          title: 'Settings',
+          icon: h(SettingOutlined)
         }
       }
     ]

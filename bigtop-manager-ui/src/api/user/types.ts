@@ -19,4 +19,7 @@ export interface UserVO {
   id: number
   username: string
   nickname: string
+  createTime: string
+  updateTime: string
+  status: number
 }
