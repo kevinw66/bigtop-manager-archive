@@ -13,4 +13,9 @@ public class ApiException extends RuntimeException {
     public ApiException(ApiExceptionEnum ex) {
         this.ex = ex;
     }
+
+    public ApiException(ApiExceptionEnum ex, String... args) {
+        this.ex = ex;
+        this.ex.setArgs(args);
+    }
 }

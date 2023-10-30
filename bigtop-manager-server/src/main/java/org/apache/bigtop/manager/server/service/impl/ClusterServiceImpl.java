@@ -16,19 +16,12 @@ import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
-import org.apache.bigtop.manager.server.orm.entity.Stage;
-import org.apache.bigtop.manager.server.orm.entity.Task;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.orm.repository.RepoRepository;
-import org.apache.bigtop.manager.server.orm.repository.StackRepository;
-import org.apache.bigtop.manager.server.orm.repository.StageRepository;
-import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.ClusterService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -39,6 +32,9 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Resource
     private ClusterRepository clusterRepository;
+
+    @Resource
+    private HostRepository hostRepository;
 
     @Resource
     private StackRepository stackRepository;
@@ -76,6 +72,14 @@ public class ClusterServiceImpl implements ClusterService {
         Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion);
         if (stack == null) {
             throw new ApiException(ApiExceptionEnum.STACK_NOT_FOUND);
+        }
+
+        // Check hosts
+        List<String> hostnames = clusterDTO.getHostnames();
+        List<Host> hosts = hostRepository.findAllByHostnameIn(hostnames);
+        if (CollectionUtils.isNotEmpty(hosts)) {
+            List<String> existsHostnames = hosts.stream().map(Host::getHostname).toList();
+            throw new ApiException(ApiExceptionEnum.HOST_ASSIGNED, String.join(",", existsHostnames));
         }
 
         // Create job

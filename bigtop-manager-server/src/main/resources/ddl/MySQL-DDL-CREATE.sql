@@ -42,7 +42,7 @@ CREATE TABLE `sequence`
     `seq_name`  VARCHAR(100) NOT NULL,
     `seq_count` BIGINT(20) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_sequence_name` (`sequence_name`)
+    UNIQUE KEY `uk_seq_name` (`seq_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `user`
@@ -62,7 +62,9 @@ CREATE TABLE `cluster`
 (
     `id`           BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `cluster_name` VARCHAR(255) DEFAULT NULL COMMENT 'Cluster Name',
+    `cluster_desc` VARCHAR(255) DEFAULT NULL COMMENT 'Cluster Name',
     `cluster_type` SMALLINT UNSIGNED DEFAULT 1 COMMENT '1-Physical Machine, 2-Kubernetes',
+    `selected`     BIT(1)      DEFAULT 1 COMMENT '0-Disable, 1-Enable',
     `create_time`  DATETIME     DEFAULT NULL,
     `update_time`  DATETIME     DEFAULT NULL,
     PRIMARY KEY (`id`),

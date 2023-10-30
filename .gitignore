@@ -47,4 +47,5 @@ node
 node_modules
 dist
 dist-ssr
+.pnpm-store
 *.local

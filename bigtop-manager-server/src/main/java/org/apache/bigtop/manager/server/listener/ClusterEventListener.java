@@ -34,7 +34,6 @@ import org.apache.bigtop.manager.server.orm.repository.*;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -80,7 +79,8 @@ public class ClusterEventListener {
         Boolean failed = checkHosts(job);
 
         if (!failed) {
-            persist(clusterDTO);
+            Cluster cluster = saveCluster(clusterDTO);
+            updateJob(cluster, job);
         }
     }
 
@@ -128,11 +128,27 @@ public class ClusterEventListener {
         return failed.get();
     }
 
-    private void persist(ClusterDTO clusterDTO) {
+    private void updateJob(Cluster cluster, Job job) {
+        job.setCluster(cluster);
+        for (Stage stage : job.getStages()) {
+            stage.setCluster(cluster);
+            for (Task task : stage.getTasks()) {
+                task.setCluster(cluster);
+            }
+
+            taskRepository.saveAll(stage.getTasks());
+        }
+
+        stageRepository.saveAll(job.getStages());
+        jobRepository.save(job);
+    }
+
+    private Cluster saveCluster(ClusterDTO clusterDTO) {
         // Save cluster
         Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
         StackDTO stackDTO = StackMapper.INSTANCE.Entity2DTO(stack);
         Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
+        cluster.setSelected(clusterRepository.count() == 0);
         clusterRepository.save(cluster);
 
         // Save hosts
@@ -149,5 +165,7 @@ public class ClusterEventListener {
         // Save repo
         List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(clusterDTO.getRepoInfoList(), cluster);
         repoRepository.saveAll(repos);
+
+        return cluster;
     }
 }

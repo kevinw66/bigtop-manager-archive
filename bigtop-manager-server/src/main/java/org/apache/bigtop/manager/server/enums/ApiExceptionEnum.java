@@ -16,6 +16,7 @@ public enum ApiExceptionEnum {
 
     // Host Exceptions -- 12000 ~ 12999
     HOST_NOT_FOUND(12000, LocaleKeys.HOST_NOT_FOUND),
+    HOST_ASSIGNED(12001, LocaleKeys.HOST_ASSIGNED),
 
     // Stack Exceptions -- 13000 ~ 13999
     STACK_NOT_FOUND(13000, LocaleKeys.STACK_NOT_FOUND),
@@ -34,12 +35,22 @@ public enum ApiExceptionEnum {
 
     private final LocaleKeys key;
 
+    private String[] args;
+
     ApiExceptionEnum(Integer code, LocaleKeys key) {
         this.code = code;
         this.key = key;
     }
 
+    public void setArgs(String[] args) {
+        this.args = args;
+    }
+
     public String getMessage() {
-        return MessageSourceUtils.getMessage(key);
+        if (args == null || args.length == 0) {
+            return MessageSourceUtils.getMessage(key);
+        } else {
+            return MessageSourceUtils.getMessage(key, args);
+        }
     }
 }
