@@ -18,14 +18,14 @@
 import request from '@/api/request.ts'
 import { StackServiceVO, StackVO } from '@/api/stack/types.ts'
 
-export const list = (): Promise<StackVO[]> => {
+export const getStacks = (): Promise<StackVO[]> => {
   return request({
     method: 'get',
     url: '/stacks'
   })
 }
 
-export const services = (id: number): Promise<StackServiceVO[]> => {
+export const getServices = (id: number): Promise<StackServiceVO[]> => {
   return request({
     method: 'get',
     url: '/stacks/' + id + '/services'

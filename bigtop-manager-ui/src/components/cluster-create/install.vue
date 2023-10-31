@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
-  import { get } from '@/api/job'
+  import { getJob } from '@/api/job'
   import { SCHEDULE_INTERVAL } from '@/utils/constant.ts'
   import { useIntervalFn } from '@vueuse/core'
   import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
@@ -14,7 +14,7 @@
   const jobState = ref('')
 
   const initData = async () => {
-    const res = await get(clusterInfo.value.jobId)
+    const res = await getJob(clusterInfo.value.jobId)
     console.log(res)
     jobState.value = res.state
 

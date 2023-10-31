@@ -1,22 +1,39 @@
 <script setup lang="ts">
-  import { onBeforeMount } from 'vue'
-  import { test } from '@/api/login'
+  import { useClusterStore } from '@/store/cluster'
+  import { storeToRefs } from 'pinia'
+  import { ref } from 'vue'
+  import ClusterCreate from '@/components/cluster-create/index.vue'
 
-  onBeforeMount(() => {
-    // const a = '1'
-  })
+  const clusterStore = useClusterStore()
+  const { selectedCluster } = storeToRefs(clusterStore)
 
-  const clickButtom = async () => {
-    try {
-      await test()
-    } catch (e) {
-      // console.log(e)
-    }
-  }
+  const open = ref(false)
 </script>
 
 <template>
-  <a-button type="primary" @click="clickButtom">Click Me</a-button>
+  <a-button v-if="selectedCluster" type="primary">Click Me</a-button>
+  <div v-else class="tour">
+    <a-result
+      :title="$t('cluster.not_exist_title')"
+      :sub-title="$t('cluster.not_exist_sub_title')"
+    >
+      <template #extra>
+        <a-button type="primary" size="large" @click="() => (open = true)">
+          {{ $t('cluster.create') }}
+        </a-button>
+        <cluster-create v-model:open="open" />
+      </template>
+    </a-result>
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+  .tour {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    min-height: 540px;
+  }
+</style>

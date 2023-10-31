@@ -24,6 +24,15 @@ export interface ClusterReq {
   hostnames: string[]
 }
 
+export interface ClusterVO {
+  id: number
+  clusterName: string
+  clusterType: number
+  stackName: string
+  stackVersion: string
+  selected: boolean
+}
+
 export interface RepoReq {
   repoId: string
   repoName: string

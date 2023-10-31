@@ -18,7 +18,7 @@
 import request from '@/api/request.ts'
 import { HostVO } from '@/api/hosts/types.ts'
 
-export const list = (): Promise<HostVO[]> => {
+export const getHosts = (): Promise<HostVO[]> => {
   return request({
     method: 'get',
     url: '/hosts'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { list } from '@/api/hosts/index.ts'
+  import { getHosts } from '@/api/hosts/index.ts'
   import { HostVO } from '@/api/hosts/types.ts'
   import { onMounted, reactive, computed } from 'vue'
   import { message } from 'ant-design-vue'
@@ -14,7 +14,7 @@
   const hostData = reactive([])
 
   const getHostData = async () => {
-    const hostVOList: HostVO[] = await list()
+    const hostVOList: HostVO[] = await getHosts()
     return hostVOList
   }
 

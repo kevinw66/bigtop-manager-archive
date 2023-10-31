@@ -16,8 +16,8 @@
  */
 
 import { defineStore } from 'pinia'
-import { list } from '@/api/stack'
-import { shallowReactive } from 'vue'
+import { getStacks } from '@/api/stack'
+import { shallowReactive, shallowRef } from 'vue'
 import { StackOptionProps } from '@/store/stack/types.ts'
 import { StackRepoVO, StackServiceVO, StackVO } from '@/api/stack/types.ts'
 
@@ -27,40 +27,40 @@ export const useStackStore = defineStore(
     const stackOptions = shallowReactive<StackOptionProps[]>([])
     const stackServices = shallowReactive<Record<string, StackServiceVO[]>>({})
     const stackRepos = shallowReactive<Record<string, StackRepoVO[]>>({})
+    const initialized = shallowRef(false)
 
     const initStacks = async () => {
-      const stackVOList: StackVO[] = await list()
-      const stacks: StackOptionProps[] = []
-      stackVOList.forEach((stackVO) => {
-        const fullStackName = stackVO.stackName + '-' + stackVO.stackVersion
-        stackServices[fullStackName] = stackVO.services
-        stackRepos[fullStackName] = stackVO.repos
+      if (!initialized.value) {
+        const stackVOList: StackVO[] = await getStacks()
+        const stacks: StackOptionProps[] = []
+        stackVOList.forEach((stackVO) => {
+          const fullStackName = stackVO.stackName + '-' + stackVO.stackVersion
+          stackServices[fullStackName] = stackVO.services
+          stackRepos[fullStackName] = stackVO.repos
 
-        const props: StackOptionProps = {
-          label: stackVO.stackVersion,
-          value: stackVO.stackVersion
-        }
+          const props: StackOptionProps = {
+            label: stackVO.stackVersion,
+            value: stackVO.stackVersion
+          }
 
-        const existStackVO = stacks.find(
-          (stack) => stack.label === stackVO.stackName
-        )
+          const existStackVO = stacks.find(
+            (stack) => stack.label === stackVO.stackName
+          )
 
-        if (!existStackVO) {
-          stacks.unshift({
-            label: stackVO.stackName,
-            value: stackVO.stackName,
-            children: [props]
-          })
-        } else {
-          existStackVO.children?.unshift(props)
-        }
-      })
+          if (!existStackVO) {
+            stacks.unshift({
+              label: stackVO.stackName,
+              value: stackVO.stackName,
+              children: [props]
+            })
+          } else {
+            existStackVO.children?.unshift(props)
+          }
+        })
 
-      return Promise.resolve(stacks)
-    }
-
-    const getStacks = async () => {
-      Object.assign(stackOptions, await initStacks())
+        Object.assign(stackOptions, stacks)
+        initialized.value = true
+      }
 
       return Promise.resolve()
     }
@@ -69,7 +69,7 @@ export const useStackStore = defineStore(
       stackOptions,
       stackServices,
       stackRepos,
-      getStacks
+      initStacks
     }
   },
   { persist: false }

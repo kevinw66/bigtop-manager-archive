@@ -126,7 +126,7 @@
   }
 
   onMounted(async () => {
-    await stackStore.getStacks()
+    await stackStore.initStacks()
   })
 </script>
 

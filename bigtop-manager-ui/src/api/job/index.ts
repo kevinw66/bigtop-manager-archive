@@ -18,7 +18,7 @@
 import request from '@/api/request.ts'
 import { JobVO } from '@/api/job/types.ts'
 
-export const get = (id: number): Promise<JobVO> => {
+export const getJob = (id: number): Promise<JobVO> => {
   return request({
     method: 'get',
     url: '/jobs/' + id

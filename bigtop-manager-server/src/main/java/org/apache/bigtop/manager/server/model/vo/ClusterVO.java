@@ -14,4 +14,6 @@ public class ClusterVO {
     private String stackName;
 
     private String stackVersion;
+
+    private Boolean selected;
 }
