@@ -68,7 +68,7 @@
       align: 'center'
     },
     {
-      title: 'hosts.status',
+      title: 'common.status',
       dataIndex: 'status',
       align: 'center'
     }

@@ -25,6 +25,5 @@ export default {
   ipv4: 'IPv4',
   cores: 'CPU Cores',
   ram: 'RAM',
-  disk: 'Disk',
-  status: 'Status'
+  disk: 'Disk'
 }

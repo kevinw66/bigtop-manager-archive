@@ -25,6 +25,5 @@ export default {
   ipv4: 'IP 地址',
   cores: 'CPU 核数',
   ram: '内存',
-  disk: '磁盘',
-  status: '状态'
+  disk: '磁盘'
 }
