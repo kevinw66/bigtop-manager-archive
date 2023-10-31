@@ -15,7 +15,6 @@
 
   const getHostData = async () => {
     const hostVOList: HostVO[] = await list()
-    console.log(hostVOList)
     return hostVOList
   }
 
@@ -23,56 +22,47 @@
     {
       title: 'hosts.hostname',
       dataIndex: 'hostname',
-      align: 'left',
-      sorter: {
-        compare: (a: any, b: any) => a.hostname.length - b.hostname.length,
-        multiple: 1
-      }
+      align: 'center'
     },
     {
       title: 'hosts.cluster_name',
       dataIndex: 'clusterName',
-      align: 'left'
+      align: 'center'
     },
     {
       title: 'common.os',
       dataIndex: 'os',
-      align: 'left'
+      align: 'center'
     },
     {
       title: 'common.arch',
       dataIndex: 'arch',
-      align: 'left'
+      align: 'center'
     },
     {
       title: 'hosts.ipv4',
       dataIndex: 'ipv4',
-      align: 'left'
+      align: 'center'
     },
     {
       title: 'hosts.cores',
       dataIndex: 'availableProcessors',
-      align: 'left',
-      sorter: {
-        compare: (a: any, b: any) =>
-          a.availableProcessors - b.availableProcessors,
-        multiple: 2
-      }
+      align: 'center'
     },
     {
       title: 'hosts.ram',
       dataIndex: 'totalMemorySize',
-      align: 'left'
+      align: 'center'
     },
     {
       title: 'hosts.disk',
       dataIndex: 'disk',
-      align: 'left'
+      align: 'center'
     },
     {
       title: 'hosts.status',
       dataIndex: 'status',
-      align: 'left'
+      align: 'center'
     }
   ]
 
@@ -171,7 +161,7 @@
           </a>
         </template>
         <template v-if="column.dataIndex === 'hostname'">
-          <a href="dashboard"> {{ text }}</a>
+          <router-link to="/dashboard"> {{ text }} </router-link>
         </template>
       </template>
     </a-table>

@@ -20,11 +20,11 @@ export default {
   host_restart: 'Restart Hosts',
   host_stop: 'Stop Hosts',
   add: 'Add Host',
-  hostname: 'hostname',
-  cluster_name: 'clusterName',
-  ipv4: 'ipv4',
-  cores: 'cores',
-  ram: 'ram',
-  disk: 'disk',
-  status: 'status'
+  hostname: 'Hostname',
+  cluster_name: 'Cluster Name',
+  ipv4: 'IPv4',
+  cores: 'CPU Cores',
+  ram: 'RAM',
+  disk: 'Disk',
+  status: 'Status'
 }

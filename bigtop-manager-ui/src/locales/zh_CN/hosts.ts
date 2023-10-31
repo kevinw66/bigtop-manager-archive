@@ -22,8 +22,8 @@ export default {
   add: '增加主机',
   hostname: '主机名称',
   cluster_name: '集群名称',
-  ipv4: 'ip地址',
-  cores: '主机核心',
+  ipv4: 'IP 地址',
+  cores: 'CPU 核数',
   ram: '内存',
   disk: '磁盘',
   status: '状态'
