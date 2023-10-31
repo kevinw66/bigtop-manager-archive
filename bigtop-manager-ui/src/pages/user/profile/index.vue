@@ -2,6 +2,8 @@
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
   import { ref } from 'vue'
+  import { UserVO } from '@/api/user/types.ts'
+  import {message} from "ant-design-vue";
 
   const loading = ref<boolean>(false)
   const open = ref<boolean>(false)
@@ -15,6 +17,7 @@
     setTimeout(() => {
       loading.value = false
       open.value = false
+      message.info(`submit ${editUser.nickname}`)
     }, 2000)
   }
 
@@ -24,6 +27,7 @@
 
   const userStore = useUserStore()
   const { userVO } = storeToRefs(userStore)
+  const editUser: UserVO = <UserVO>{}
 </script>
 
 <template>
@@ -66,13 +70,13 @@
         </a-button>
       </template>
 
-      <a-form name="basic" autocomplete="off" :model="userVO" layout="vertical">
+      <a-form name="basic" autocomplete="off" :model="editUser" layout="vertical">
         <a-form-item
           :label="$t('user.nickname')"
           name="nickname"
-          :rules="[{ required: true, message: 'Please input your nickname!' }]"
         >
-          <a-input v-model:value="userVO.nickname" />
+          <a-input v-model:value="editUser.nickname" v-if="userVO !== undefined" :placeholder="userVO.nickname" />
+          <a-input v-model:value="editUser.nickname" v-else />
         </a-form-item>
       </a-form>
     </a-modal>
