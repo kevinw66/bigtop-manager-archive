@@ -15,16 +15,12 @@
  * limitations under the License.
  */
 
-import common from '@/locales/zh_CN/common.ts'
-import login from '@/locales/zh_CN/login'
-import user from '@/locales/zh_CN/user.ts'
-import cluster from '@/locales/zh_CN/cluster.ts'
-import hosts from '@/locales/zh_CN/hosts.ts'
+import request from '@/api/request.ts'
+import { HostVO } from '@/api/hosts/types.ts'
 
-export default {
-  common,
-  login,
-  user,
-  cluster,
-  hosts
+export const list = (): Promise<HostVO[]> => {
+  return request({
+    method: 'get',
+    url: '/hosts'
+  })
 }

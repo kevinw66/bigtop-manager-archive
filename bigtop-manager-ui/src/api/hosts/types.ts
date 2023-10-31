@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-import common from '@/locales/zh_CN/common.ts'
-import login from '@/locales/zh_CN/login'
-import user from '@/locales/zh_CN/user.ts'
-import cluster from '@/locales/zh_CN/cluster.ts'
-import hosts from '@/locales/zh_CN/hosts.ts'
-
-export default {
-  common,
-  login,
-  user,
-  cluster,
-  hosts
+export interface HostVO {
+  id: number
+  clusterName: string
+  hostname: string
+  ipv4: string
+  arch: string
+  os: string
+  availableProcessors: string
+  totalMemorySize: string
+  status: number
 }

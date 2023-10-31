@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-import common from '@/locales/zh_CN/common.ts'
-import login from '@/locales/zh_CN/login'
-import user from '@/locales/zh_CN/user.ts'
-import cluster from '@/locales/zh_CN/cluster.ts'
-import hosts from '@/locales/zh_CN/hosts.ts'
-
 export default {
-  common,
-  login,
-  user,
-  cluster,
-  hosts
+  host_selected: '已选择 {0} 台主机',
+  host_restart: '重启主机',
+  host_stop: '停止主机',
+  add: '增加主机',
+  hostname: '主机名称',
+  cluster_name: '集群名称',
+  ipv4: 'IP 地址',
+  cores: 'CPU 核数',
+  ram: '内存',
+  disk: '磁盘',
+  status: '状态'
 }

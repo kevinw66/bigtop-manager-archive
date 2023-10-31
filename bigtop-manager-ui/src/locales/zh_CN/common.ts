@@ -20,6 +20,7 @@ export default {
   next: '下一步',
   done: '完成',
   exit: '退出',
+  action: '操作',
   exit_confirm: '确定要退出吗？',
   install: '安装',
   finish: '完成',

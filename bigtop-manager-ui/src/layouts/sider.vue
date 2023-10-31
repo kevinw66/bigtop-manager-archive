@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, watch } from 'vue'
   import { useUIStore } from '@/store/ui'
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
@@ -12,9 +12,13 @@
   const { siderCollapsed } = storeToRefs(uiStore)
   const { menuItems } = storeToRefs(userStore)
 
-  const splitPath = router.currentRoute.value.path.split('/')
-  const selectedKey = splitPath[splitPath.length - 1]
-  const selectedKeys = ref<string[]>([selectedKey])
+  const selectedKeys = ref<string[]>([])
+
+  watch(router.currentRoute, (value) => {
+    const splitPath = value.path.split('/')
+    const selectedKey = splitPath[splitPath.length - 1]
+    selectedKeys.value = [selectedKey]
+  })
 </script>
 
 <template>

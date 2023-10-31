@@ -20,6 +20,7 @@ export default {
   next: 'Next',
   done: 'Done',
   exit: 'Exit',
+  action: 'Action',
   exit_confirm: 'Are you sure you want to exit?',
   install: 'Install',
   finish: 'Finish',

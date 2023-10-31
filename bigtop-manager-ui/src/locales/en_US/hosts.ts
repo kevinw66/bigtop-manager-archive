@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-import common from '@/locales/zh_CN/common.ts'
-import login from '@/locales/zh_CN/login'
-import user from '@/locales/zh_CN/user.ts'
-import cluster from '@/locales/zh_CN/cluster.ts'
-import hosts from '@/locales/zh_CN/hosts.ts'
-
 export default {
-  common,
-  login,
-  user,
-  cluster,
-  hosts
+  host_selected: 'Selected {0} hosts',
+  host_restart: 'Restart Hosts',
+  host_stop: 'Stop Hosts',
+  add: 'Add Host',
+  hostname: 'Hostname',
+  cluster_name: 'Cluster Name',
+  ipv4: 'IPv4',
+  cores: 'CPU Cores',
+  ram: 'RAM',
+  disk: 'Disk',
+  status: 'Status'
 }
