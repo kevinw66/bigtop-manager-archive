@@ -16,11 +16,19 @@
  */
 
 import request from '@/api/request.ts'
-import { UserVO } from '@/api/user/types.ts'
+import { UserReq, UserVO } from '@/api/user/types.ts'
 
 export const getCurrentUser = (): Promise<UserVO> => {
   return request({
     method: 'get',
     url: '/users/current'
+  })
+}
+
+export const updateUser = (id: number, data: UserReq): Promise<UserVO> => {
+  return request({
+    method: 'put',
+    url: `/users/${id}`,
+    data
   })
 }

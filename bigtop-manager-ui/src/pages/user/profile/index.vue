@@ -2,46 +2,44 @@
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
   import { ref } from 'vue'
-  import { UserVO } from '@/api/user/types.ts'
-  import {message} from "ant-design-vue";
+  import { UserReq } from '@/api/user/types.ts'
+  import { FormInstance } from 'ant-design-vue'
+
+  const userStore = useUserStore()
+  const { userVO } = storeToRefs(userStore)
+  const editUser = {} as UserReq
+  const formRef = ref<FormInstance>()
 
   const loading = ref<boolean>(false)
   const open = ref<boolean>(false)
 
-  const showModal = () => {
-    open.value = true
-  }
-
-  const handleOk = () => {
-    loading.value = true
-    setTimeout(() => {
+  const updateCurrentUser = async (userId: any, editUser: UserReq) => {
+    if (typeof userId === 'number') {
+      loading.value = true
+      await userStore.updateUserInfo(userId, editUser)
       loading.value = false
       open.value = false
-      message.info(`submit ${editUser.nickname}`)
-    }, 2000)
+    }
+    resetForm()
   }
 
-  const handleCancel = () => {
-    open.value = false
+  const resetForm = () => {
+    formRef.value?.resetFields()
   }
-
-  const userStore = useUserStore()
-  const { userVO } = storeToRefs(userStore)
-  const editUser: UserVO = <UserVO>{}
 </script>
 
 <template>
   <a-descriptions :title="$t('user.profile')" bordered>
     <template #extra>
-      <a-button type="primary" @click="showModal">
+      <a-button type="primary" @click="open = true">
         {{ $t('common.edit') }}
       </a-button>
     </template>
-    <a-descriptions-item :label="$t('user.nickname')" :span="3">
-      {{ userVO?.nickname }}
-    </a-descriptions-item>
     <a-descriptions-item :label="$t('user.username')" :span="3">
       {{ userVO?.username }}
+    </a-descriptions-item>
+    <a-descriptions-item :label="$t('user.nickname')" :span="3">
+      {{ userVO?.nickname }}
     </a-descriptions-item>
     <a-descriptions-item :label="$t('user.create_time')" :span="3">
       {{ userVO?.createTime }}
@@ -54,9 +52,32 @@
     </a-descriptions-item>
   </a-descriptions>
   <div>
-    <a-modal v-model:open="open" :title="$t('common.edit')" @ok="handleOk">
+    <a-modal
+      v-model:open="open"
+      :title="$t('common.edit') + $t('user.profile')"
+      @cancel="resetForm()"
+    >
+      <br />
+      <a-form
+        ref="formRef"
+        name="profileForm"
+        :model="editUser"
+        layout="vertical"
+      >
+        <a-form-item :label="$t('user.nickname')" name="nickname">
+          <a-input v-model:value="editUser.nickname" allow-clear />
+        </a-form-item>
+      </a-form>
       <template #footer>
-        <a-button key="back" @click="handleCancel">
+        <a-button
+          key="back"
+          @click="
+            () => {
+              resetForm()
+              open = false
+            }
+          "
+        >
           {{ $t('common.back') }}
         </a-button>
         <a-button
@@ -64,21 +85,13 @@
           type="primary"
           :loading="loading"
           html-type="submit"
-          @click="handleOk"
+          @click="updateCurrentUser(userVO?.id, editUser)"
         >
           {{ $t('common.submit') }}
         </a-button>
       </template>
 
-      <a-form name="basic" autocomplete="off" :model="editUser" layout="vertical">
-        <a-form-item
-          :label="$t('user.nickname')"
-          name="nickname"
-        >
-          <a-input v-model:value="editUser.nickname" v-if="userVO !== undefined" :placeholder="userVO.nickname" />
-          <a-input v-model:value="editUser.nickname" v-else />
-        </a-form-item>
-      </a-form>
+      <br />
     </a-modal>
   </div>
 </template>

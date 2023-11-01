@@ -19,8 +19,8 @@ export default {
   profile: 'Profile',
   settings: 'Settings',
   logout: 'Log Out',
-  username: 'username',
-  nickname: 'nickname',
-  create_time: 'create time',
-  update_time: 'update time'
+  username: 'Username',
+  nickname: 'Nickname',
+  create_time: 'Create Time',
+  update_time: 'Update Time'
 }

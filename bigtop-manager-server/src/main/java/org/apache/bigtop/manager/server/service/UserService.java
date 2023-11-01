@@ -16,6 +16,8 @@
  */
 package org.apache.bigtop.manager.server.service;
 
+import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.UserDTO;
 import org.apache.bigtop.manager.server.model.vo.UserVO;
 
 public interface UserService {
@@ -26,4 +28,11 @@ public interface UserService {
      * @return User
      */
     UserVO current();
+
+    /**
+     * Update a user
+     *
+     * @return user
+     */
+    UserVO update(Long id, UserDTO userDTO);
 }

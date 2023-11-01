@@ -16,9 +16,9 @@
  */
 
 import { defineStore, storeToRefs } from 'pinia'
-import { getCurrentUser } from '@/api/user'
+import { getCurrentUser, updateUser } from '@/api/user'
 import { ref, shallowRef, watch } from 'vue'
-import { UserVO } from '@/api/user/types.ts'
+import { UserReq, UserVO } from '@/api/user/types.ts'
 import { MenuItem } from '@/store/user/types.ts'
 import { initialPages, layoutPages } from '@/router/routes.ts'
 import { useClusterStore } from '@/store/cluster'
@@ -86,12 +86,18 @@ export const useUserStore = defineStore(
       return Promise.resolve()
     }
 
+    const updateUserInfo = async (userId: number, editUser: UserReq) => {
+      await updateUser(userId, editUser)
+      await getUserInfo()
+    }
+
     return {
       userVO,
       menuItems,
       getUserInfo,
       generateMenu,
-      logout
+      logout,
+      updateUserInfo
     }
   },
   {
