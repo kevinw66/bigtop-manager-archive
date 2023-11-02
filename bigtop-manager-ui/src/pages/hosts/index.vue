@@ -13,14 +13,12 @@
     StopFilled
   } from '@ant-design/icons-vue'
   import { useIntervalFn } from '@vueuse/core'
-  import { SCHEDULE_INTERVAL } from '@/utils/constant.ts'
+  import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
   const clusterStore = useClusterStore()
   const { clusterId } = storeToRefs(clusterStore)
   watch(clusterId, async () => {
-    const res = await getHosts(clusterId.value)
-    totalRecord.value = res.total
-    hostData.value = res.content
+    await refreshHosts()
   })
 
   const totalRecord = ref<number>(0)
@@ -80,18 +78,22 @@
     message.info('This is a normal message' + selectedRowKeys)
   }
 
+  const refreshHosts = async () => {
+    if (clusterId.value !== 0) {
+      const res = await getHosts(clusterId.value)
+      totalRecord.value = res.total
+      hostData.value = res.content
+      loading.value = false
+    }
+  }
+
   onMounted(async () => {
     useIntervalFn(
       async () => {
-        if (clusterId.value !== 0) {
-          const res = await getHosts(clusterId.value)
-          totalRecord.value = res.total
-          hostData.value = res.content
-          loading.value = false
-        }
+        await refreshHosts()
       },
-      SCHEDULE_INTERVAL,
-      { immediate: true }
+      MONITOR_SCHEDULE_INTERVAL,
+      { immediateCallback: true }
     )
   })
 </script>
