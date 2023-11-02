@@ -166,6 +166,10 @@
                     <excludes>
                         <exclude>*.yaml</exclude>
                         <exclude>*.xml</exclude>
+                        <exclude>assembly/</exclude>
+                        <exclude>bin/</exclude>
+                        <exclude>ddl/</exclude>
+                        <exclude>stacks/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
