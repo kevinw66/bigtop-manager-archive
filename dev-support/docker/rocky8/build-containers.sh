@@ -42,12 +42,10 @@ docker exec bigtop-manager-server bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh/a
 docker exec bigtop-manager-server ssh-keygen -N '' -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
 docker exec bigtop-manager-server ssh-keygen -N '' -t ecdsa -b 256 -f /etc/ssh/ssh_host_ecdsa_key
 docker exec bigtop-manager-server ssh-keygen -N '' -t ed25519 -b 256 -f /etc/ssh/ssh_host_ed25519_key
-docker exec bigtop-manager-server /bin/systemctl enable sshd
 docker exec bigtop-manager-server /bin/systemctl start sshd
 
 echo -e "\033[32mSetting up mariadb-server\033[0m"
-docker exec bigtop-manager-server /bin/systemctl enable mariadb
-docker exec bigtop-manager-server /bin/systemctl start mariadb
+docker exec bigtop-manager-server bash -c "systemctl start mariadb"
 docker exec bigtop-manager-server bash -c "mysql -e \"UPDATE mysql.user SET Password = PASSWORD('root') WHERE User = 'root'\""
 docker exec bigtop-manager-server bash -c "mysql -e \"GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION\""
 docker exec bigtop-manager-server bash -c "mysql -e \"CREATE DATABASE bigtop_manager\""
@@ -60,7 +58,6 @@ docker exec bigtop-manager-agent-01 bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh
 docker exec bigtop-manager-agent-01 ssh-keygen -N '' -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
 docker exec bigtop-manager-agent-01 ssh-keygen -N '' -t ecdsa -b 256 -f /etc/ssh/ssh_host_ecdsa_key
 docker exec bigtop-manager-agent-01 ssh-keygen -N '' -t ed25519 -b 256 -f /etc/ssh/ssh_host_ed25519_key
-docker exec bigtop-manager-agent-01 /bin/systemctl enable sshd
 docker exec bigtop-manager-agent-01 /bin/systemctl start sshd
 
 echo -e "\033[32mCreating container bigtop-manager-agent-02\033[0m"
@@ -70,7 +67,6 @@ docker exec bigtop-manager-agent-02 bash -c "echo '$SERVER_PUB_KEY' > /root/.ssh
 docker exec bigtop-manager-agent-02 ssh-keygen -N '' -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key
 docker exec bigtop-manager-agent-02 ssh-keygen -N '' -t ecdsa -b 256 -f /etc/ssh/ssh_host_ecdsa_key
 docker exec bigtop-manager-agent-02 ssh-keygen -N '' -t ed25519 -b 256 -f /etc/ssh/ssh_host_ed25519_key
-docker exec bigtop-manager-agent-02 /bin/systemctl enable sshd
 docker exec bigtop-manager-agent-02 /bin/systemctl start sshd
 
 echo -e "\033[32mConfiguring hosts file\033[0m"
@@ -85,9 +81,12 @@ docker exec bigtop-manager-agent-02 bash -c "echo '$BIGTOP_MANAGER_SERVER_IP    
 docker exec bigtop-manager-agent-02 bash -c "echo '$BIGTOP_MANAGER_AGENT_01_IP      bigtop-manager-agent-01' >> /etc/hosts"
 
 echo -e "\033[32mSynchronize Chrony\033[0m"
-docker exec bigtop-manager-server bash -c "systemctl enable chronyd; systemctl start chronyd; chronyc tracking"
-docker exec bigtop-manager-agent-01 bash -c "systemctl enable chronyd; systemctl start chronyd; chronyc tracking"
-docker exec bigtop-manager-agent-02 bash -c "systemctl enable chronyd; systemctl start chronyd; chronyc tracking"
+docker exec bigtop-manager-server bash -c "systemctl start chronyd"
+docker exec bigtop-manager-server bash -c "chronyc tracking"
+docker exec bigtop-manager-agent-01 bash -c "systemctl start chronyd"
+docker exec bigtop-manager-agent-01 bash -c "chronyc tracking"
+docker exec bigtop-manager-agent-02 bash -c "systemctl start chronyd"
+docker exec bigtop-manager-agent-02 bash -c "chronyc tracking"
 
 echo -e "\033[32mServer Ip Setting\033[0m"
 docker exec bigtop-manager-server bash -c "sed -i 's/bigtop.manager.server.host=localhost/bigtop.manager.server.host=$BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.properties"

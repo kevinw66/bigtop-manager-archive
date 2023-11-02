@@ -7,9 +7,12 @@
   import UserAvatar from '@/components/user-avatar/index.vue'
   import { useUIStore } from '@/store/ui'
   import { storeToRefs } from 'pinia'
+  import { useClusterStore } from '@/store/cluster'
 
   const uiStore = useUIStore()
+  const clusterStore = useClusterStore()
   const { siderCollapsed } = storeToRefs(uiStore)
+  const { clusters } = storeToRefs(clusterStore)
 </script>
 
 <template>
@@ -22,9 +25,11 @@
       <menu-fold-outlined v-else @click="uiStore.changeCollapsed" />
     </div>
     <div class="header-right">
-      <cluster-info />
-      <job-info />
-      <alert-info />
+      <template v-if="clusters.length > 0">
+        <cluster-info />
+        <job-info />
+        <alert-info />
+      </template>
       <select-lang />
       <user-avatar />
     </div>

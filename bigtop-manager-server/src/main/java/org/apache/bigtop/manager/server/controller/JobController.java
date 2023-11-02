@@ -16,11 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Tag(name = "Job Controller")
 @RestController
-@RequestMapping("/jobs")
+@RequestMapping("/clusters/{clusterId}/jobs")
 public class JobController {
 
     @Resource
@@ -31,16 +29,16 @@ public class JobController {
             @Parameter(in = ParameterIn.QUERY, name = "pageNum", schema = @Schema(type = "integer", defaultValue = "1")),
             @Parameter(in = ParameterIn.QUERY, name = "pageSize", schema = @Schema(type = "integer", defaultValue = "10")),
             @Parameter(in = ParameterIn.QUERY, name = "orderBy", schema = @Schema(type = "string", defaultValue = "id")),
-            @Parameter(in = ParameterIn.QUERY, name = "sort", description = "asc/desc", schema = @Schema(type = "string", defaultValue = "desc"))
+            @Parameter(in = ParameterIn.QUERY, name = "sort", description = "asc/desc", schema = @Schema(type = "string", defaultValue = "asc"))
     })
     @GetMapping
-    public ResponseEntity<PageVO<JobVO>> list() {
-        return ResponseEntity.success(jobService.list());
+    public ResponseEntity<PageVO<JobVO>> list(@PathVariable Long clusterId) {
+        return ResponseEntity.success(jobService.list(clusterId));
     }
 
     @Operation(summary = "get", description = "Get a job")
     @GetMapping("/{id}")
-    public ResponseEntity<JobVO> get(@PathVariable Long id) {
+    public ResponseEntity<JobVO> get(@PathVariable Long id, @PathVariable Long clusterId) {
         return ResponseEntity.success(jobService.get(id));
     }
 }

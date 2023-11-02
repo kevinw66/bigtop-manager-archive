@@ -17,10 +17,11 @@
 
 import request from '@/api/request.ts'
 import { HostVO } from '@/api/hosts/types.ts'
+import { PageVO } from '@/api/types.ts'
 
-export const list = (): Promise<HostVO[]> => {
+export const getHosts = (clusterId: number): Promise<PageVO<HostVO>> => {
   return request({
     method: 'get',
-    url: '/hosts'
+    url: '/clusters/' + clusterId + '/hosts'
   })
 }

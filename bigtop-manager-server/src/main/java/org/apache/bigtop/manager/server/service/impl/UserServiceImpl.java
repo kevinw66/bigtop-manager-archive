@@ -17,6 +17,8 @@
 package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SessionUserHolder;
 import org.apache.bigtop.manager.server.model.mapper.UserMapper;
 import org.apache.bigtop.manager.server.model.vo.UserVO;
@@ -34,7 +36,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserVO current() {
         Long id = SessionUserHolder.getUserId();
-        User user = userRepository.findById(id).orElse(new User());
+        User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.NEED_LOGIN));
         return UserMapper.INSTANCE.Entity2VO(user);
     }
 }

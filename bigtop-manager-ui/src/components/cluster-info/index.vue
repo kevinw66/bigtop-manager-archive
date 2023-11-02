@@ -1,25 +1,27 @@
 <script setup lang="ts">
   import { ref } from 'vue'
   import ClusterCreate from '@/components/cluster-create/index.vue'
+  import { useClusterStore } from '@/store/cluster'
+  import { storeToRefs } from 'pinia'
+
+  const clusterStore = useClusterStore()
+  const { selectedCluster } = storeToRefs(clusterStore)
 
   const createWindowOpened = ref(false)
-
-  const openClusterCreateWindows = () => {
-    createWindowOpened.value = true
-  }
+  console.log('dsadasdasdasdsa')
 </script>
 
 <template>
   <a-dropdown placement="bottom">
     <div class="icon">
-      <div class="name">Cluster A</div>
+      <div class="name">{{ selectedCluster?.clusterName }}</div>
     </div>
     <template #overlay>
       <a-menu>
         <a-menu-item key="switch">
           {{ $t('cluster.switch') }}
         </a-menu-item>
-        <a-menu-item key="create" @click="openClusterCreateWindows">
+        <a-menu-item key="create" @click="() => (createWindowOpened = true)">
           {{ $t('cluster.create') }}
         </a-menu-item>
       </a-menu>

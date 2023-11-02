@@ -1,15 +1,20 @@
 <script setup lang="ts">
+  import { onMounted } from 'vue'
   import LayoutFooter from '@/layouts/footer.vue'
   import LayoutContent from '@/layouts/content.vue'
   import LayoutHeader from '@/layouts/header.vue'
   import LayoutSider from '@/layouts/sider.vue'
   import { useUserStore } from '@/store/user'
-  import { onMounted } from 'vue'
+  import { useClusterStore } from '@/store/cluster'
+
+  const userStore = useUserStore()
+  const clusterStore = useClusterStore()
 
   onMounted(async () => {
-    const userStore = useUserStore()
     await userStore.getUserInfo()
     await userStore.generateMenu()
+
+    await clusterStore.loadClusters()
   })
 </script>
 

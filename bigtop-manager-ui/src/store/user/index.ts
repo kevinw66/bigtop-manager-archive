@@ -15,26 +15,34 @@
  * limitations under the License.
  */
 
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { getCurrentUser } from '@/api/user'
-import { reactive, shallowRef } from 'vue'
+import { ref, shallowRef, watch } from 'vue'
 import { UserVO } from '@/api/user/types.ts'
 import { MenuItem } from '@/store/user/types.ts'
-import { menuPages } from '@/router/routes.ts'
+import { initialPages, layoutPages } from '@/router/routes.ts'
+import { useClusterStore } from '@/store/cluster'
+import { RouteRecordRaw } from 'vue-router'
 
 export const useUserStore = defineStore(
   'user',
   () => {
     const userVO = shallowRef<UserVO>()
-    const menuItems = reactive<MenuItem[]>([])
+    const menuItems = ref<MenuItem[]>([])
+
+    const clusterStore = useClusterStore()
+    const { selectedCluster } = storeToRefs(clusterStore)
+    watch(selectedCluster, async () => {
+      await generateMenu()
+    })
 
     const getUserInfo = async () => {
       userVO.value = await getCurrentUser()
     }
 
-    const initMenu = async () => {
+    const initMenu = async (pages: RouteRecordRaw[]) => {
       const items: MenuItem[] = []
-      menuPages.forEach((route) => {
+      pages.forEach((route) => {
         const menuItem: MenuItem = {
           key: route.meta?.title?.toLowerCase(),
           to: route.path,
@@ -61,7 +69,12 @@ export const useUserStore = defineStore(
     }
 
     const generateMenu = async () => {
-      Object.assign(menuItems, await initMenu())
+      if (selectedCluster.value) {
+        menuItems.value = await initMenu(layoutPages)
+      } else {
+        menuItems.value = await initMenu(initialPages)
+      }
+
       return Promise.resolve()
     }
 

@@ -4,6 +4,7 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
+import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface HostService {
      *
      * @return Hosts
      */
-    List<HostVO> list();
+    PageVO<HostVO> list(Long clusterId);
 
     /**
      * Create a host

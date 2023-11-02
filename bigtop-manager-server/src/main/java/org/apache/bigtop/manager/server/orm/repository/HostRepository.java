@@ -1,6 +1,8 @@
 package org.apache.bigtop.manager.server.orm.repository;
 
 import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
@@ -13,6 +15,8 @@ public interface HostRepository extends JpaRepository<Host, Long> {
     List<Host> findAllByHostnameIn(Collection<String> hostnames);
 
     List<Host> findAllByClusterId(Long clusterId);
+
+    Page<Host> findAllByClusterId(Long clusterId, Pageable pageable);
 
     List<Host> findAllByClusterClusterName(String clusterName);
 

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = Exception.class)
+    @ExceptionHandler(value = { ServerException.class, Exception.class })
     public ResponseEntity<Void> exceptionHandler(Exception e) {
         log.error("Internal Server Error: ", e);
         return ResponseEntity.error(ResponseStatus.INTERNAL_SERVER_ERROR);

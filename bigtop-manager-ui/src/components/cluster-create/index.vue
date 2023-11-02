@@ -10,10 +10,12 @@
   import SetHosts from './set-hosts.vue'
   import Install from './install.vue'
   import Finish from './finish.vue'
+  import { useClusterStore } from '@/store/cluster'
 
   const open = defineModel<boolean>('open')
   const { t, locale } = useI18n()
   const stackStore = useStackStore()
+  const clusterStore = useClusterStore()
 
   const initItems = () => [
     {
@@ -104,14 +106,14 @@
   }
 
   const clear = () => {
+    // Reload clusters
+    clusterStore.loadClusters()
+
+    // Clear status
     current.value = 0
     open.value = false
     Object.assign(items, initItems())
     Object.assign(clusterInfo, initClusterInfo())
-  }
-
-  const done = () => {
-    clear()
   }
 
   const cancel = () => {
@@ -126,7 +128,7 @@
   }
 
   onMounted(async () => {
-    await stackStore.getStacks()
+    await stackStore.initStacks()
   })
 </script>
 
@@ -164,7 +166,7 @@
         v-if="current === items.length - 1"
         class="footer-btn"
         type="primary"
-        @click="done"
+        @click="() => clear()"
       >
         {{ $t('common.done') }}
       </a-button>

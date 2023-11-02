@@ -21,7 +21,9 @@ public class PageUtils {
 
     private static final String DEFAULT_ORDER_BY = "id";
 
-    private static final String DEFAULT_SORT = "desc";
+    private static final String SORT_ASC = "asc";
+
+    private static final String SORT_DESC = "desc";
 
     public static PageQuery getPageQuery() {
         PageQuery query = new PageQuery();
@@ -29,8 +31,8 @@ public class PageUtils {
         query.setPageSize(NumberUtils.toInt(ServletUtils.getParameter(PAGE_SIZE), DEFAULT_PAGE_SIZE));
 
         String orderBy = StringUtils.defaultIfBlank(ServletUtils.getParameter(ORDER_BY), DEFAULT_ORDER_BY);
-        String sort = StringUtils.defaultIfBlank(ServletUtils.getParameter(SORT), DEFAULT_SORT);
-        if (DEFAULT_SORT.equals(sort)) {
+        String sort = StringUtils.defaultIfBlank(ServletUtils.getParameter(SORT), SORT_ASC);
+        if (SORT_DESC.equals(sort)) {
             query.setSort(Sort.by(orderBy).descending());
         } else {
             query.setSort(Sort.by(orderBy).ascending());
