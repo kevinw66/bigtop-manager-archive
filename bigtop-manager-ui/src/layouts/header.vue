@@ -25,9 +25,11 @@
       <menu-fold-outlined v-else @click="uiStore.changeCollapsed" />
     </div>
     <div class="header-right">
-      <cluster-info v-if="clusters.length > 0" />
-      <job-info />
-      <alert-info />
+      <template v-if="clusters.length > 0">
+        <cluster-info />
+        <job-info />
+        <alert-info />
+      </template>
       <select-lang />
       <user-avatar />
     </div>

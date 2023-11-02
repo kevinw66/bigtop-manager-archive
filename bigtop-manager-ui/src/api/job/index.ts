@@ -18,9 +18,9 @@
 import request from '@/api/request.ts'
 import { JobVO } from '@/api/job/types.ts'
 
-export const getJob = (id: number): Promise<JobVO> => {
+export const getJob = (id: number, clusterId: number): Promise<JobVO> => {
   return request({
     method: 'get',
-    url: '/jobs/' + id
+    url: '/clusters/' + clusterId + '/jobs/' + id
   })
 }

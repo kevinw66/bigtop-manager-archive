@@ -25,20 +25,23 @@ export const useClusterStore = defineStore(
   () => {
     const clusters = ref<ClusterVO[]>([])
     const selectedCluster = ref<ClusterVO | undefined>()
+    const clusterId = ref<number>(0)
 
-    const initClusters = async () => {
+    const loadClusters = async () => {
       clusters.value = await getClusters()
-      selectedCluster.value =
-        clusters.value.length > 0
-          ? clusters.value.filter((cluster) => cluster.selected)[0]
-          : undefined
+      if (clusters.value.length > 0) {
+        selectedCluster.value = clusters.value.filter(
+          (cluster) => cluster.selected
+        )[0]
+        clusterId.value = selectedCluster.value?.id
+      }
 
       console.log('clusters.value: ', clusters.value)
       console.log('selectedCluster.value: ', selectedCluster.value)
-      console.log(clusters.value.length === 0)
+      console.log('clusterId.value: ', clusterId.value)
     }
 
-    return { initClusters, clusters, selectedCluster }
+    return { loadClusters, clusters, selectedCluster, clusterId }
   },
   { persist: false }
 )

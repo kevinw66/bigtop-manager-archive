@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ref, watch } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
   import { useUIStore } from '@/store/ui'
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
@@ -14,10 +14,18 @@
 
   const selectedKeys = ref<string[]>([])
 
-  watch(router.currentRoute, (value) => {
-    const splitPath = value.path.split('/')
+  const updateSideBar = () => {
+    const splitPath = router.currentRoute.value.path.split('/')
     const selectedKey = splitPath[splitPath.length - 1]
     selectedKeys.value = [selectedKey]
+  }
+
+  watch(router.currentRoute, () => {
+    updateSideBar()
+  })
+
+  onMounted(async () => {
+    updateSideBar()
   })
 </script>
 

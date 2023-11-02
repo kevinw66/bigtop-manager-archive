@@ -4,9 +4,14 @@
   import { SCHEDULE_INTERVAL } from '@/utils/constant.ts'
   import { useIntervalFn } from '@vueuse/core'
   import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
+  import { useClusterStore } from "@/store/cluster";
+  import { storeToRefs } from 'pinia'
 
   const clusterInfo = defineModel<any>('clusterInfo')
   const disableButton = defineModel<boolean>('disableButton')
+
+  const clusterStore = useClusterStore()
+  const { clusterId } = storeToRefs(clusterStore)
 
   const { t } = useI18n()
   const installData = reactive([])
@@ -14,7 +19,7 @@
   const jobState = ref('')
 
   const initData = async () => {
-    const res = await getJob(clusterInfo.value.jobId)
+    const res = await getJob(clusterInfo.value.jobId, clusterId.value)
     console.log(res)
     jobState.value = res.state
 

@@ -16,8 +16,10 @@ import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
+import org.apache.bigtop.manager.server.model.query.PageQuery;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
+import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Component;
@@ -31,6 +33,11 @@ import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.HostService;
+import org.apache.bigtop.manager.server.utils.PageUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -57,14 +64,15 @@ public class HostServiceImpl implements HostService {
     private JobRepository jobRepository;
 
     @Override
-    public List<HostVO> list() {
-        List<HostVO> hostVOList = new ArrayList<>();
-        hostRepository.findAll().forEach(host -> {
-            HostVO hostVO = HostMapper.INSTANCE.Entity2VO(host);
-            hostVOList.add(hostVO);
-        });
+    public PageVO<HostVO> list(Long clusterId) {
+        PageQuery pageQuery = PageUtils.getPageQuery();
+        Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
+        Page<Host> page = hostRepository.findAllByClusterId(clusterId, pageable);
+        if (CollectionUtils.isEmpty(page.getContent())) {
+            throw new ApiException(ApiExceptionEnum.HOST_NOT_FOUND);
+        }
 
-        return hostVOList;
+        return PageVO.of(page);
     }
 
     @Override

@@ -8,6 +8,7 @@
   const { selectedCluster } = storeToRefs(clusterStore)
 
   const createWindowOpened = ref(false)
+  console.log('dsadasdasdasdsa')
 </script>
 
 <template>

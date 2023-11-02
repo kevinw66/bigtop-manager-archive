@@ -1,22 +1,32 @@
 <script setup lang="ts">
+  import { onMounted, ref, watch } from 'vue'
+  import { message } from 'ant-design-vue'
+  import { useClusterStore } from '@/store/cluster'
+  import { storeToRefs } from 'pinia'
   import { getHosts } from '@/api/hosts/index.ts'
   import { HostVO } from '@/api/hosts/types.ts'
-  import { onMounted, reactive, computed } from 'vue'
-  import { message } from 'ant-design-vue'
   import {
-    CloseCircleTwoTone,
-    CheckCircleTwoTone,
-    MinusCircleTwoTone,
     CaretRightFilled,
+    CheckCircleTwoTone,
+    CloseCircleTwoTone,
+    MinusCircleTwoTone,
     StopFilled
   } from '@ant-design/icons-vue'
+  import { useIntervalFn } from '@vueuse/core'
+  import { SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
-  const hostData = reactive([])
+  const clusterStore = useClusterStore()
+  const { clusterId } = storeToRefs(clusterStore)
+  watch(clusterId, async () => {
+    const res = await getHosts(clusterId.value)
+    totalRecord.value = res.total
+    hostData.value = res.content
+  })
 
-  const getHostData = async () => {
-    const hostVOList: HostVO[] = await getHosts()
-    return hostVOList
-  }
+  const totalRecord = ref<number>(0)
+  const hostData = ref<HostVO[]>([])
+  const selectedRowKeys = ref<string[]>([])
+  const loading = ref<boolean>(true)
 
   const hostColumns = [
     {
@@ -66,29 +76,24 @@
     }
   ]
 
-  onMounted(async () => {
-    Object.assign(hostData, await getHostData())
-  })
-
-  const state = reactive<{
-    selectedRowKeys: string[]
-    loading: boolean
-  }>({
-    selectedRowKeys: [], // Check here to configure the default column
-    loading: false
-  })
-
-  const hasSelected = computed(() => state.selectedRowKeys.length > 0)
-
-  const onSelectChange = (selectedRowKeys: string[]) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys)
-    state.selectedRowKeys = selectedRowKeys
-  }
-
   const displayKeys = (selectedRowKeys: string[]) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys)
     message.info('This is a normal message' + selectedRowKeys)
   }
+
+  onMounted(async () => {
+    useIntervalFn(
+      async () => {
+        if (clusterId.value !== 0) {
+          const res = await getHosts(clusterId.value)
+          totalRecord.value = res.total
+          hostData.value = res.content
+          loading.value = false
+        }
+      },
+      SCHEDULE_INTERVAL,
+      { immediate: true }
+    )
+  })
 </script>
 
 <template>
@@ -96,37 +101,29 @@
     <a-page-header class="host-page-header" :title="$t('common.host')">
       <template #extra>
         <span class="host-selected-span">
-          <template v-if="hasSelected">
-            {{ $t('hosts.host_selected', [state.selectedRowKeys.length]) }}
+          <template v-if="selectedRowKeys.length > 0">
+            {{ $t('hosts.host_selected', [selectedRowKeys.length]) }}
           </template>
         </span>
 
-        <a-button
-          type="primary"
-          :loading="state.loading"
-          @click="displayKeys(state.selectedRowKeys)"
-        >
+        <a-button type="primary" @click="displayKeys(selectedRowKeys)">
           {{ $t('hosts.add') }}
         </a-button>
 
         <a-dropdown :trigger="['click']">
           <template #overlay>
             <a-menu>
-              <a-menu-item @click="displayKeys(state.selectedRowKeys)">
+              <a-menu-item @click="displayKeys(selectedRowKeys)">
                 <CaretRightFilled />
                 {{ $t('hosts.host_restart') }}
               </a-menu-item>
-              <a-menu-item @click="displayKeys(state.selectedRowKeys)">
+              <a-menu-item @click="displayKeys(selectedRowKeys)">
                 <StopFilled />
                 {{ $t('hosts.host_stop') }}
               </a-menu-item>
             </a-menu>
           </template>
-          <a-button
-            type="primary"
-            :disabled="!hasSelected"
-            :loading="state.loading"
-          >
+          <a-button type="primary" :disabled="selectedRowKeys.length === 0">
             {{ $t('common.action') }}
           </a-button>
         </a-dropdown>
@@ -138,9 +135,10 @@
       row-key="hostname"
       :columns="hostColumns"
       :data-source="hostData"
+      :loading="loading"
       :row-selection="{
-        selectedRowKeys: state.selectedRowKeys,
-        onChange: onSelectChange
+        selectedRowKeys,
+        onChange: (value: string[]) => (selectedRowKeys = value)
       }"
     >
       <template #headerCell="{ column }">
@@ -148,17 +146,15 @@
       </template>
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.dataIndex === 'status'">
-          <a>
-            <CheckCircleTwoTone
-              v-if="record.status === '0'"
-              two-tone-color="#52c41a"
-            />
-            <MinusCircleTwoTone
-              v-else-if="record.status === '1'"
-              two-tone-color="orange"
-            />
-            <CloseCircleTwoTone v-else two-tone-color="red" />
-          </a>
+          <CheckCircleTwoTone
+            v-if="record.status === '0'"
+            two-tone-color="#52c41a"
+          />
+          <MinusCircleTwoTone
+            v-else-if="record.status === '1'"
+            two-tone-color="orange"
+          />
+          <CloseCircleTwoTone v-else two-tone-color="red" />
         </template>
         <template v-if="column.dataIndex === 'hostname'">
           <router-link to="/dashboard"> {{ text }} </router-link>

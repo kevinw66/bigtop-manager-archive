@@ -14,7 +14,7 @@
     await userStore.getUserInfo()
     await userStore.generateMenu()
 
-    await clusterStore.initClusters()
+    await clusterStore.loadClusters()
   })
 </script>
 
