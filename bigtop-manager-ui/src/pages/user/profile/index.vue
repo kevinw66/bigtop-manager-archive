@@ -28,6 +28,11 @@
     open.value = true
   }
 
+  const cancelProfile = () => {
+    resetForm()
+    open.value = false
+  }
+
   const resetForm = () => {
     editUser = reactive({
       nickname: userVO.value?.nickname
@@ -76,15 +81,7 @@
         </a-form-item>
       </a-form>
       <template #footer>
-        <a-button
-          key="cancel"
-          @click="
-            () => {
-              resetForm()
-              open = false
-            }
-          "
-        >
+        <a-button key="cancel" @click="cancelProfile()">
           {{ $t('common.cancel') }}
         </a-button>
         <a-button
