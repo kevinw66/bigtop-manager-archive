@@ -88,6 +88,8 @@
                     <excludes>
                         <exclude>*.yaml</exclude>
                         <exclude>*.xml</exclude>
+                        <exclude>assembly/</exclude>
+                        <exclude>bin/</exclude>
                     </excludes>
                 </configuration>
             </plugin>
