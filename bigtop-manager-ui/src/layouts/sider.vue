@@ -38,22 +38,26 @@
     <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
       <template v-for="item in menuItems">
         <template v-if="item.children !== undefined">
-          <a-sub-menu :key="item.key">
-            <template #title>
-              <span>
-                <component :is="() => item.icon" />
+          <template v-if="item.key !== 'user'">
+            <a-sub-menu :key="item.key">
+              <template #title>
                 <span>
-                  {{ item.title }}
+                  <component :is="() => item.icon" />
+                  <span>
+                    {{ item.title }}
+                  </span>
                 </span>
-              </span>
-            </template>
-            <a-menu-item v-for="subItem in item.children" :key="subItem.key">
-              <component :is="() => subItem.icon" />
-              <span>
-                <router-link :to="subItem.to">{{ subItem.title }}</router-link>
-              </span>
-            </a-menu-item>
-          </a-sub-menu>
+              </template>
+              <a-menu-item v-for="subItem in item.children" :key="subItem.key">
+                <component :is="() => subItem.icon" />
+                <span>
+                  <router-link :to="subItem.to">{{
+                    subItem.title
+                  }}</router-link>
+                </span>
+              </a-menu-item>
+            </a-sub-menu>
+          </template>
         </template>
         <template v-else>
           <a-menu-item :key="item.key">

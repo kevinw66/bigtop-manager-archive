@@ -86,8 +86,8 @@ export const useUserStore = defineStore(
       return Promise.resolve()
     }
 
-    const updateUserInfo = async (userId: number, editUser: UserReq) => {
-      await updateUser(userId, editUser)
+    const updateUserInfo = async (editUser: UserReq) => {
+      await updateUser(editUser)
       await getUserInfo()
     }
 

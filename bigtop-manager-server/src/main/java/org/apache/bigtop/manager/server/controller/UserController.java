@@ -43,9 +43,9 @@ public class UserController {
     }
 
     @Operation(summary = "update", description = "Update a user")
-    @PutMapping("/{id}")
-    public ResponseEntity<UserVO> update(@PathVariable Long id, @RequestBody @Validated UserReq userReq) {
+    @PutMapping()
+    public ResponseEntity<UserVO> update(@RequestBody @Validated UserReq userReq) {
         UserDTO userDTO = UserMapper.INSTANCE.Req2DTO(userReq);
-        return ResponseEntity.success(userService.update(id, userDTO));
+        return ResponseEntity.success(userService.update(userDTO));
     }
 }

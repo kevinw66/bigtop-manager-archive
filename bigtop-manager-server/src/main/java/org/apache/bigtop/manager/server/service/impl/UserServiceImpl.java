@@ -42,25 +42,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserVO update(Long id, UserDTO userDTO) {
-        User user = UserMapper.INSTANCE.DTO2Entity(userDTO);
-        user.setId(id);
-
-        User storedUser = userRepository.getReferenceById(id);
-
-        if (user.getPassword() == null) {
-            user.setPassword(storedUser.getPassword());
-        }
-        if (user.getStatus() == null) {
-            user.setStatus(storedUser.getStatus());
-        }
-        if (user.getNickname() == null) {
-            user.setNickname(storedUser.getNickname());
-        }
-        user.setUsername(storedUser.getUsername());
-
+    public UserVO update(UserDTO userDTO) {
+        Long id = SessionUserHolder.getUserId();
+        User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.NEED_LOGIN));
+        user.setNickname(userDTO.getNickname());
         userRepository.save(user);
-
         return UserMapper.INSTANCE.Entity2VO(user);
     }
 }

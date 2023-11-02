@@ -24,7 +24,7 @@ export default {
   status: 'Status',
   edit: 'Edit',
   submit: 'Submit',
-  back: 'Return',
+  cancel: 'Cancel',
   exit_confirm: 'Are you sure you want to exit?',
   install: 'Install',
   finish: 'Finish',

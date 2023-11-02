@@ -34,5 +34,5 @@ public interface UserService {
      *
      * @return user
      */
-    UserVO update(Long id, UserDTO userDTO);
+    UserVO update(UserDTO userDTO);
 }

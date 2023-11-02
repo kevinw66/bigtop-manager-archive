@@ -25,10 +25,10 @@ export const getCurrentUser = (): Promise<UserVO> => {
   })
 }
 
-export const updateUser = (id: number, data: UserReq): Promise<UserVO> => {
+export const updateUser = (data: UserReq): Promise<UserVO> => {
   return request({
     method: 'put',
-    url: `/users/${id}`,
+    url: '/users',
     data
   })
 }

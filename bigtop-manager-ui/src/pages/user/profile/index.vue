@@ -1,37 +1,44 @@
 <script setup lang="ts">
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
-  import { ref } from 'vue'
-  import { UserReq } from '@/api/user/types.ts'
+  import { ref, reactive } from 'vue'
   import { FormInstance } from 'ant-design-vue'
 
   const userStore = useUserStore()
   const { userVO } = storeToRefs(userStore)
-  const editUser = {} as UserReq
   const formRef = ref<FormInstance>()
-
+  let editUser = reactive({
+    nickname: userVO.value?.nickname
+  })
   const loading = ref<boolean>(false)
   const open = ref<boolean>(false)
 
-  const updateCurrentUser = async (userId: any, editUser: UserReq) => {
-    if (typeof userId === 'number') {
+  const updateCurrentUser = async (editUser: any) => {
+    if (typeof editUser === 'object') {
       loading.value = true
-      await userStore.updateUserInfo(userId, editUser)
+      await userStore.updateUserInfo(editUser)
       loading.value = false
       open.value = false
     }
     resetForm()
   }
 
+  const editProfile = () => {
+    resetForm()
+    open.value = true
+  }
+
   const resetForm = () => {
-    formRef.value?.resetFields()
+    editUser = reactive({
+      nickname: userVO.value?.nickname
+    })
   }
 </script>
 
 <template>
   <a-descriptions :title="$t('user.profile')" bordered>
     <template #extra>
-      <a-button type="primary" @click="open = true">
+      <a-button type="primary" @click="editProfile()">
         {{ $t('common.edit') }}
       </a-button>
     </template>
@@ -54,7 +61,7 @@
   <div>
     <a-modal
       v-model:open="open"
-      :title="$t('common.edit') + $t('user.profile')"
+      :title="$t('common.edit')"
       @cancel="resetForm()"
     >
       <br />
@@ -70,7 +77,7 @@
       </a-form>
       <template #footer>
         <a-button
-          key="back"
+          key="cancel"
           @click="
             () => {
               resetForm()
@@ -78,14 +85,14 @@
             }
           "
         >
-          {{ $t('common.back') }}
+          {{ $t('common.cancel') }}
         </a-button>
         <a-button
           key="submit"
           type="primary"
           :loading="loading"
           html-type="submit"
-          @click="updateCurrentUser(userVO?.id, editUser)"
+          @click="updateCurrentUser(editUser)"
         >
           {{ $t('common.submit') }}
         </a-button>

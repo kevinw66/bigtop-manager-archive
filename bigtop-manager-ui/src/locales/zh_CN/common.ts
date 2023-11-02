@@ -24,7 +24,7 @@ export default {
   status: '状态',
   edit: '编辑',
   submit: '提交',
-  back: '返回',
+  cancel: '取消',
   exit_confirm: '确定要退出吗？',
   install: '安装',
   finish: '完成',
