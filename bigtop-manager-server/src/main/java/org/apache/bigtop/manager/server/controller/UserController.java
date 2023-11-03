@@ -19,12 +19,14 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.model.dto.UserDTO;
+import org.apache.bigtop.manager.server.model.mapper.UserMapper;
+import org.apache.bigtop.manager.server.model.req.UserReq;
 import org.apache.bigtop.manager.server.model.vo.UserVO;
 import org.apache.bigtop.manager.server.service.UserService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User Controller")
 @RestController
@@ -38,5 +40,12 @@ public class UserController {
     @GetMapping("/current")
     public ResponseEntity<UserVO> current() {
         return ResponseEntity.success(userService.current());
+    }
+
+    @Operation(summary = "update", description = "Update a user")
+    @PutMapping
+    public ResponseEntity<UserVO> update(@RequestBody @Validated UserReq userReq) {
+        UserDTO userDTO = UserMapper.INSTANCE.Req2DTO(userReq);
+        return ResponseEntity.success(userService.update(userDTO));
     }
 }

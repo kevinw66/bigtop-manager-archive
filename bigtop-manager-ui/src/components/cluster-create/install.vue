@@ -23,7 +23,7 @@
     console.log(res)
     jobState.value = res.state
 
-    if (jobState.value !== 'PENDING') {
+    if (jobState.value !== 'PENDING' && jobState.value !== 'PROCESSING') {
       disableButton.value = false
       clusterInfo.value.success = jobState.value === 'SUCCESSFUL'
     }

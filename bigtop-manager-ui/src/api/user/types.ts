@@ -19,4 +19,13 @@ export interface UserVO {
   id: number
   username: string
   nickname: string
+  createTime: string
+  updateTime: string
+  status: boolean
+}
+
+export interface UserReq {
+  id: number
+  username: string
+  nickname: string
 }

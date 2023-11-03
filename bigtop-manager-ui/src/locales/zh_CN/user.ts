@@ -18,5 +18,10 @@
 export default {
   profile: '个人中心',
   settings: '个人设置',
-  logout: '退出登录'
+  logout: '退出登录',
+  username: '用户名',
+  nickname: '昵称',
+  set_nickname_valid: '昵称不能为空',
+  create_time: '创建时间',
+  update_time: '更新时间'
 }

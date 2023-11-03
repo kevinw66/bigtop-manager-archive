@@ -21,6 +21,10 @@ export default {
   done: '完成',
   exit: '退出',
   action: '操作',
+  status: '状态',
+  edit: '编辑',
+  submit: '提交',
+  cancel: '取消',
   exit_confirm: '确定要退出吗？',
   install: '安装',
   finish: '完成',
@@ -34,6 +38,8 @@ export default {
   host: '主机',
   stage: '阶段',
   progress: '进度',
+  update_success: '更新成功',
+  update_fail: '更新失败',
   unknown_error: '未知错误',
   websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面'
 }

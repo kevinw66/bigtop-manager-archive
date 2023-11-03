@@ -41,13 +41,17 @@
           <template #icon>
             <user-outlined />
           </template>
-          {{ $t('user.profile') }}
+          <router-link to="/user/profile">
+            {{ $t('user.profile') }}
+          </router-link>
         </a-menu-item>
         <a-menu-item key="settings">
           <template #icon>
             <profile-outlined />
           </template>
-          {{ $t('user.settings') }}
+          <router-link to="/user/settings">
+            {{ $t('user.settings') }}
+          </router-link>
         </a-menu-item>
         <a-menu-divider />
         <a-menu-item key="logout" @click="logout">

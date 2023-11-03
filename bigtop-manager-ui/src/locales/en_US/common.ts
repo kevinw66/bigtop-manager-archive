@@ -21,6 +21,10 @@ export default {
   done: 'Done',
   exit: 'Exit',
   action: 'Action',
+  status: 'Status',
+  edit: 'Edit',
+  submit: 'Submit',
+  cancel: 'Cancel',
   exit_confirm: 'Are you sure you want to exit?',
   install: 'Install',
   finish: 'Finish',
@@ -34,6 +38,8 @@ export default {
   host: 'Host',
   stage: 'Stage',
   progress: 'Progress',
+  update_success: 'Update success',
+  update_fail: 'Update fail',
   unknown_error: 'Unknown error',
   websocket_disconnected: 'WebSocket disconnected, please reload the page'
 }

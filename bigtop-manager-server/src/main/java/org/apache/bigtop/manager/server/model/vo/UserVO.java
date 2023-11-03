@@ -25,4 +25,10 @@ public class UserVO {
     private String username;
 
     private String nickname;
+
+    private String createTime;
+
+    private String updateTime;
+
+    private Boolean status;
 }

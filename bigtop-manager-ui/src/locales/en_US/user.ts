@@ -18,5 +18,10 @@
 export default {
   profile: 'Profile',
   settings: 'Settings',
-  logout: 'Log Out'
+  logout: 'Log Out',
+  username: 'Username',
+  nickname: 'Nickname',
+  set_nickname_valid: 'Nickname should not be empty',
+  create_time: 'Create Time',
+  update_time: 'Update Time'
 }

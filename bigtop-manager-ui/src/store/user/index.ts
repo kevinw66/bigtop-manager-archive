@@ -16,11 +16,11 @@
  */
 
 import { defineStore, storeToRefs } from 'pinia'
-import { getCurrentUser } from '@/api/user'
+import { getCurrentUser, updateUser } from '@/api/user'
 import { ref, shallowRef, watch } from 'vue'
-import { UserVO } from '@/api/user/types.ts'
+import { UserReq, UserVO } from '@/api/user/types.ts'
 import { MenuItem } from '@/store/user/types.ts'
-import { initialPages, layoutPages } from '@/router/routes.ts'
+import { initialRoutes, layoutRoutes } from '@/router/routes.ts'
 import { useClusterStore } from '@/store/cluster'
 import { RouteRecordRaw } from 'vue-router'
 
@@ -38,6 +38,11 @@ export const useUserStore = defineStore(
 
     const getUserInfo = async () => {
       userVO.value = await getCurrentUser()
+    }
+
+    const updateUserInfo = async (editUser: UserReq) => {
+      await updateUser(editUser)
+      await getUserInfo()
     }
 
     const initMenu = async (pages: RouteRecordRaw[]) => {
@@ -70,9 +75,9 @@ export const useUserStore = defineStore(
 
     const generateMenu = async () => {
       if (selectedCluster.value) {
-        menuItems.value = await initMenu(layoutPages)
+        menuItems.value = await initMenu(layoutRoutes)
       } else {
-        menuItems.value = await initMenu(initialPages)
+        menuItems.value = await initMenu(initialRoutes)
       }
 
       return Promise.resolve()
@@ -90,6 +95,7 @@ export const useUserStore = defineStore(
       userVO,
       menuItems,
       getUserInfo,
+      updateUserInfo,
       generateMenu,
       logout
     }
