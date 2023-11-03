@@ -27,7 +27,7 @@ import {
 } from '@ant-design/icons-vue'
 import CircleFilled from '@/components/icons/circle-filled.vue'
 
-export const initialPages: RouteRecordRaw[] = [
+const initialRoutes: RouteRecordRaw[] = [
   {
     path: '/dashboard',
     component: () => import('@/pages/dashboard/index.vue'),
@@ -38,8 +38,8 @@ export const initialPages: RouteRecordRaw[] = [
   }
 ]
 
-export const layoutPages: RouteRecordRaw[] = [
-  ...initialPages,
+const layoutRoutes: RouteRecordRaw[] = [
+  ...initialRoutes,
   {
     path: '/hosts',
     component: () => import('@/pages/hosts/index.vue'),
@@ -68,7 +68,10 @@ export const layoutPages: RouteRecordRaw[] = [
         }
       }
     ]
-  },
+  }
+]
+
+const notDisplayedRoutes = [
   {
     path: '/user/',
     meta: {
@@ -102,8 +105,9 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     redirect: '/dashboard',
     component: () => import('@/layouts/index.vue'),
-    children: layoutPages
+    children: [...layoutRoutes, ...notDisplayedRoutes]
   }
 ]
 
+export { initialRoutes, layoutRoutes }
 export default routes

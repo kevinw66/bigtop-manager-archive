@@ -1,65 +1,76 @@
 <script setup lang="ts">
-  import { useUserStore } from '@/store/user'
+  import { ref, reactive, watch, onMounted } from 'vue'
+  import { FormInstance, message } from 'ant-design-vue'
   import { storeToRefs } from 'pinia'
-  import { ref, reactive } from 'vue'
-  import { FormInstance } from 'ant-design-vue'
+  import { useI18n } from 'vue-i18n'
+  import { useUserStore } from '@/store/user'
+  import { UserReq } from '@/api/user/types.ts'
 
+  const i18n = useI18n()
   const userStore = useUserStore()
   const { userVO } = storeToRefs(userStore)
-  const formRef = ref<FormInstance>()
-  let editUser = reactive({
-    nickname: userVO.value?.nickname
+  const editUser = reactive<UserReq>({} as UserReq)
+  watch(userVO, () => {
+    resetEditUser()
   })
+
+  const formRef = ref<FormInstance>()
   const loading = ref<boolean>(false)
   const open = ref<boolean>(false)
 
-  const updateCurrentUser = async (editUser: any) => {
-    if (typeof editUser === 'object') {
-      loading.value = true
-      await userStore.updateUserInfo(editUser)
-      loading.value = false
-      open.value = false
-    }
-    resetForm()
+  const resetEditUser = async () => {
+    formRef.value?.clearValidate()
+    editUser.nickname = userVO.value?.nickname as string
   }
 
-  const editProfile = () => {
-    resetForm()
+  const updateCurrentUser = async (editUser: UserReq) => {
+    try {
+      loading.value = true
+      await formRef.value?.validate()
+      await userStore.updateUserInfo(editUser)
+      open.value = false
+      message.success(i18n.t('common.update_success'))
+    } catch (e) {
+      message.error(i18n.t('common.update_fail'))
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const editProfile = async () => {
     open.value = true
   }
 
-  const cancelProfile = () => {
-    resetForm()
+  const cancelEdit = async () => {
     open.value = false
+    await resetEditUser()
   }
 
-  const resetForm = () => {
-    editUser = reactive({
-      nickname: userVO.value?.nickname
-    })
-  }
+  onMounted(async () => {
+    await resetEditUser()
+  })
 </script>
 
 <template>
   <a-descriptions :title="$t('user.profile')" bordered>
     <template #extra>
-      <a-button type="primary" @click="editProfile()">
+      <a-button type="primary" @click="editProfile">
         {{ $t('common.edit') }}
       </a-button>
     </template>
-    <a-descriptions-item :label="$t('user.username')" :span="3">
+    <a-descriptions-item :label="$t('user.username')" span="3">
       {{ userVO?.username }}
     </a-descriptions-item>
-    <a-descriptions-item :label="$t('user.nickname')" :span="3">
+    <a-descriptions-item :label="$t('user.nickname')" span="3">
       {{ userVO?.nickname }}
     </a-descriptions-item>
-    <a-descriptions-item :label="$t('user.create_time')" :span="3">
+    <a-descriptions-item :label="$t('user.create_time')" span="3">
       {{ userVO?.createTime }}
     </a-descriptions-item>
-    <a-descriptions-item :label="$t('user.update_time')" :span="3">
+    <a-descriptions-item :label="$t('user.update_time')" span="3">
       {{ userVO?.updateTime }}
     </a-descriptions-item>
-    <a-descriptions-item :label="$t('common.status')" :span="3">
+    <a-descriptions-item :label="$t('common.status')" span="3">
       {{ userVO?.status }}
     </a-descriptions-item>
   </a-descriptions>
@@ -67,7 +78,9 @@
     <a-modal
       v-model:open="open"
       :title="$t('common.edit')"
-      @cancel="resetForm()"
+      :mask-closable="false"
+      :closable="false"
+      @cancel="cancelEdit"
     >
       <br />
       <a-form
@@ -76,12 +89,21 @@
         :model="editUser"
         layout="vertical"
       >
-        <a-form-item :label="$t('user.nickname')" name="nickname">
+        <a-form-item
+          :label="$t('user.nickname')"
+          name="nickname"
+          :rules="[
+            {
+              required: true,
+              message: $t('user.set_nickname_valid')
+            }
+          ]"
+        >
           <a-input v-model:value="editUser.nickname" allow-clear />
         </a-form-item>
       </a-form>
       <template #footer>
-        <a-button key="cancel" @click="cancelProfile()">
+        <a-button key="cancel" @click="cancelEdit">
           {{ $t('common.cancel') }}
         </a-button>
         <a-button

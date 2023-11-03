@@ -38,6 +38,8 @@ export default {
   host: 'Host',
   stage: 'Stage',
   progress: 'Progress',
+  update_success: 'Update success',
+  update_fail: 'Update fail',
   unknown_error: 'Unknown error',
   websocket_disconnected: 'WebSocket disconnected, please reload the page'
 }
