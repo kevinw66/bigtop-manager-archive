@@ -112,7 +112,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
     private void handleHeartbeatMessage(WebSocketSession session, HeartbeatMessage heartbeatMessage) {
         HostInfo hostInfo = heartbeatMessage.getHostInfo();
         SESSIONS.putIfAbsent(hostInfo.getHostname(), session);
-        HEARTBEAT_MESSAGE_MAP.putIfAbsent(hostInfo.getHostname(), heartbeatMessage);
+        HEARTBEAT_MESSAGE_MAP.put(hostInfo.getHostname(), heartbeatMessage);
     }
 
     private void handleComponentHeartbeatMessage(ComponentHeartbeatMessage heartbeatMessage) {

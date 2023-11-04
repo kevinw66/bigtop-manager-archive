@@ -16,25 +16,27 @@
  */
 package org.apache.bigtop.manager.server.listener;
 
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.Subscribe;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
+import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.server.enums.JobState;
+import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
-import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.event.ClusterCreateEvent;
-import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
+import org.apache.bigtop.manager.server.model.event.HostAddEvent;
 import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
-import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.springframework.scheduling.annotation.Async;
+import org.apache.bigtop.manager.server.orm.repository.HostRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.orm.repository.StageRepository;
+import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +44,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
-public class ClusterEventListener {
+public class HostAddEventListener {
+
+    @Resource
+    private AsyncEventBus asyncEventBus;
+
+    @PostConstruct
+    public void init() {
+        asyncEventBus.register(this);
+    }
 
     @Resource
     private JobRepository jobRepository;
@@ -54,32 +64,19 @@ public class ClusterEventListener {
     private TaskRepository taskRepository;
 
     @Resource
-    private ClusterRepository clusterRepository;
-
-    @Resource
     private HostRepository hostRepository;
 
-    @Resource
-    private RepoRepository repoRepository;
-
-    @Resource
-    private StackRepository stackRepository;
-
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleClusterCreate(ClusterCreateEvent event) {
-        log.info("listen ClusterCreateEvent: {}", event);
+    @Subscribe
+    public void handleHostAdd(HostAddEvent event) {
+        log.info("listen HostAddEvent: {}", event);
         Long jobId = event.getJobId();
         Job job = jobRepository.getReferenceById(jobId);
-
-        ClusterDTO clusterDTO = (ClusterDTO) event.getSource();
 
         // TODO temp code, just for test now
         Boolean failed = checkHosts(job);
 
         if (!failed) {
-            Cluster cluster = saveCluster(clusterDTO);
-            updateJob(cluster, job);
+            saveHost(event.getHostnames(), job.getCluster());
         }
     }
 
@@ -112,6 +109,7 @@ public class ClusterEventListener {
 
             taskRepository.save(task);
 
+
             if (failed.get()) {
                 stage.setState(JobState.FAILED);
                 job.setState(JobState.FAILED);
@@ -127,44 +125,18 @@ public class ClusterEventListener {
         return failed.get();
     }
 
-    private void updateJob(Cluster cluster, Job job) {
-        job.setCluster(cluster);
-        for (Stage stage : job.getStages()) {
-            stage.setCluster(cluster);
-            for (Task task : stage.getTasks()) {
-                task.setCluster(cluster);
-            }
-
-            taskRepository.saveAll(stage.getTasks());
-        }
-
-        stageRepository.saveAll(job.getStages());
-        jobRepository.save(job);
-    }
-
-    private Cluster saveCluster(ClusterDTO clusterDTO) {
-        // Save cluster
-        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
-        StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
-        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
-        cluster.setSelected(clusterRepository.count() == 0);
-        clusterRepository.save(cluster);
-
-        // Save hosts
+    private void saveHost(List<String> hostnames, Cluster cluster) {
         List<Host> hosts = new ArrayList<>();
-        for (String hostname : clusterDTO.getHostnames()) {
+        for (String hostname : hostnames) {
             Host host = new Host();
-            host.setCluster(cluster);
             host.setHostname(hostname);
+            host.setCluster(cluster);
+            host.setState(HostState.INITIALIZING.name());
+
             hosts.add(host);
         }
 
         hostRepository.saveAll(hosts);
-
-        // Save repo
-        List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(clusterDTO.getRepoInfoList(), cluster);
-        repoRepository.saveAll(repos);
-
-        return cluster;
     }
+
 }

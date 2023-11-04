@@ -8,17 +8,13 @@ import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.event.ClusterCreateEvent;
-import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
-import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,9 +34,6 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Resource
     private StackRepository stackRepository;
-
-    @Resource
-    private RepoRepository repoRepository;
 
     @Resource
     private JobRepository jobRepository;
@@ -146,20 +139,4 @@ public class ClusterServiceImpl implements ClusterService {
         return ClusterMapper.INSTANCE.Entity2VO(cluster);
     }
 
-    @Override
-    public CommandVO command(CommandDTO commandDTO) {
-        String clusterName = commandDTO.getClusterName();
-
-        //persist request to database
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
-        Job job = JobMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
-        job = jobRepository.save(job);
-
-        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
-        commandEvent.setJobId(job.getId());
-        EventPublisher.publish(commandEvent);
-
-
-        return JobMapper.INSTANCE.Entity2CommandVO(job);
-    }
 }

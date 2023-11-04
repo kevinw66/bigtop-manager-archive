@@ -5,7 +5,6 @@ import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.Subscribe;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.enums.Command;
@@ -23,20 +22,8 @@ import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
-import org.apache.bigtop.manager.server.orm.entity.CommandLog;
-import org.apache.bigtop.manager.server.orm.entity.Component;
-import org.apache.bigtop.manager.server.orm.entity.Host;
-import org.apache.bigtop.manager.server.orm.entity.HostComponent;
-import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.entity.Stage;
-import org.apache.bigtop.manager.server.orm.entity.Task;
-import org.apache.bigtop.manager.server.orm.repository.CommandLogRepository;
-import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.orm.repository.StageRepository;
-import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.orm.entity.*;
+import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
@@ -63,9 +50,6 @@ public class TaskFlowHandler implements Callback {
     public void init() {
         asyncEventBus.register(this);
     }
-
-    @Getter
-    private final Map<String, List<Task>> displayTaskFlow = new TreeMap<>();
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -99,7 +83,7 @@ public class TaskFlowHandler implements Callback {
      * @param stackName stack name
      * @param stackVersion stack version
      */
-    public List<ComponentCommandWrapper> generateProcessWrapper(List<ComponentCommandWrapper> todoList, String stackName, String stackVersion) {
+    private List<ComponentCommandWrapper> generateProcessWrapper(List<ComponentCommandWrapper> todoList, String stackName, String stackVersion) {
         List<ComponentCommandWrapper> sortedList = new ArrayList<>();
 
         String fullStackName = StackUtils.fullStackName(stackName, stackVersion);
@@ -133,8 +117,8 @@ public class TaskFlowHandler implements Callback {
      * @param commandEvent command event
      * @return componentHostMapping key: component name, value: host list. e.g. {ZOOKEEPER_SERVER=[node1], KAFKA_SERVER=[node1, node2]}
      */
-    public Map<String, Set<String>> getComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList,
-                                                            CommandEvent commandEvent) throws ApiException {
+    private Map<String, Set<String>> getComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList,
+                                                             CommandEvent commandEvent) throws ApiException {
         Map<String, Set<String>> componentHostMapping = new HashMap<>();
 
         String clusterName = commandEvent.getClusterName();
@@ -148,7 +132,7 @@ public class TaskFlowHandler implements Callback {
                     componentHostMapping.put(componentCommandWrapper.getComponentName(), hostSet);
                 }
             }
-            case INSTALL_SERVICE -> componentHostMapping = commandEvent.getComponentHosts();
+            case HOST_INSTALL, SERVICE_INSTALL -> componentHostMapping = commandEvent.getComponentHosts();
             case CLUSTER, SERVICE, COMPONENT -> {
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                     String componentName = componentCommandWrapper.getComponentName();
@@ -178,18 +162,11 @@ public class TaskFlowHandler implements Callback {
         return componentHostMapping;
     }
 
-    /**
-     * componentHostMapping key: component name, value: host list
-     * @param commandEvent command event
-     * @return task flow queue
-     */
-    public BlockingQueue<Stage> generateTaskFlow(CommandEvent commandEvent) {
+    private List<ComponentCommandWrapper> getCommandWrappers(CommandEvent commandEvent) {
         String clusterName = commandEvent.getClusterName();
+        Command command = commandEvent.getCommand();
         String stackName = commandEvent.getStackName();
         String stackVersion = commandEvent.getStackVersion();
-        Command command = commandEvent.getCommand();
-        String customCommand = commandEvent.getCustomCommand();
-        Long jobId = commandEvent.getJobId();
 
         List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
         switch (commandEvent.getCommandType()) {
@@ -201,13 +178,13 @@ public class TaskFlowHandler implements Callback {
                     componentCommandWrappers.add(componentCommandWrapper);
                 }
             }
-            case COMPONENT, HOST -> {
+            case COMPONENT, HOST, HOST_INSTALL -> {
                 for (String componentName : commandEvent.getComponentNames()) {
                     ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command);
                     componentCommandWrappers.add(componentCommandWrapper);
                 }
             }
-            case INSTALL_SERVICE -> {
+            case SERVICE_INSTALL -> {
                 List<String> serviceNameList = commandEvent.getServiceNames();
                 Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
@@ -223,7 +200,7 @@ public class TaskFlowHandler implements Callback {
                         for (ComponentDTO componentDTO : componentDTOList) {
                             String componentName = componentDTO.getComponentName();
                             // Generate componentCommandWrapper
-                            ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, Command.INSTALL);
+                            ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command);
                             componentCommandWrappers.add(componentCommandWrapper);
                         }
                     }
@@ -238,13 +215,28 @@ public class TaskFlowHandler implements Callback {
             }
             default -> log.warn("Unknown commandType: {}", commandEvent);
         }
+        return componentCommandWrappers;
+    }
 
+    /**
+     * componentHostMapping key: component name, value: host list
+     * @param commandEvent command event
+     * @return task flow queue
+     */
+    private BlockingQueue<Stage> generateTaskFlow(CommandEvent commandEvent) {
+        String clusterName = commandEvent.getClusterName();
+        String stackName = commandEvent.getStackName();
+        String stackVersion = commandEvent.getStackVersion();
+        Command command = commandEvent.getCommand();
+        String customCommand = commandEvent.getCustomCommand();
+        Long jobId = commandEvent.getJobId();
+
+        List<ComponentCommandWrapper> componentCommandWrappers = getCommandWrappers(commandEvent);
 
         List<ComponentCommandWrapper> sortedRcpList = generateProcessWrapper(componentCommandWrappers, stackName, stackVersion);
         Map<String, Set<String>> componentHostMapping = getComponentHostMapping(sortedRcpList, commandEvent);
 
         BlockingQueue<Stage> taskFlowQueue = new LinkedBlockingQueue<>();
-        displayTaskFlow.clear();
 
         Job job = jobRepository.findById(jobId).orElse(new Job());
 
@@ -265,8 +257,6 @@ public class TaskFlowHandler implements Callback {
                 for (String hostname : hostSet) {
                     Task task = convertTask(component, hostname, command, job, stage, customCommand);
                     stage.getTasks().add(task);
-                    // Map of task flow for display frontend
-                    displayTaskFlow.computeIfAbsent(hostname, key -> new ArrayList<>()).add(task);
                 }
             }
 
@@ -320,7 +310,8 @@ public class TaskFlowHandler implements Callback {
         commandMessage.setStackVersion(task.getStackVersion());
 
         try {
-            List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {});
+            List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(task.getOsSpecifics(), new TypeReference<>() {
+            });
             commandMessage.setOsSpecifics(osSpecifics);
         } catch (Exception ignored) {
         }
@@ -350,7 +341,7 @@ public class TaskFlowHandler implements Callback {
         return commandMessage;
     }
 
-    @Subscribe
+//    @Subscribe
     public void submitTaskFlow(CommandEvent commandEvent) {
         this.taskFlowQueue = generateTaskFlow(commandEvent);
 
@@ -473,9 +464,6 @@ public class TaskFlowHandler implements Callback {
             releaseRemainStages();
         }
 
-        ImmutablePair<Float, Float> progress = getProgress(task);
-        log.info("job progress: {}, job-host progress: {}-{}", progress.getLeft(), task.getHostname(), progress.getRight());
-
     }
 
     /**
@@ -494,27 +482,6 @@ public class TaskFlowHandler implements Callback {
                 taskRepository.saveAll(s.getTasks());
             }
         }
-    }
-
-    /**
-     * Calculate execution progress
-     */
-    private ImmutablePair<Float, Float> getProgress(Task task) {
-        List<Task> totalTaskList = taskRepository.findAllByJobId(task.getJob().getId());
-        int totalTaskSize = totalTaskList.size();
-
-        List<Task> completedTaskList = taskRepository.findAllByJobIdAndState(task.getJob().getId(), JobState.SUCCESSFUL);
-
-        log.info("completedTaskList.size(), i: {}, {}", completedTaskList.size(), totalTaskSize);
-        Float jobProgress = (float) completedTaskList.size() / (float) totalTaskSize;
-
-        String hostname = task.getHostname();
-        List<Task> hostTaskList = displayTaskFlow.get(hostname);
-        List<Task> hostCompletedTaskList = taskRepository.findAllByJobIdAndHostnameAndState(task.getJob().getId(), hostname, JobState.SUCCESSFUL);
-        log.info("hostCompletedTaskList.size(), hostTaskList.size(): {}, {}", hostCompletedTaskList.size(), hostTaskList.size());
-        Float jobHostProgress = (float) hostCompletedTaskList.size() / (float) hostTaskList.size();
-
-        return new ImmutablePair<>(jobProgress, jobHostProgress);
     }
 
 }

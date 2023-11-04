@@ -12,7 +12,6 @@ public enum JobState {
 
     TIMEOUT,
 
-    CANCELED,
-    ;
+    CANCELED
 
 }

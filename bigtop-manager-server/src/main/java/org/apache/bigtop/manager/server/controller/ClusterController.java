@@ -4,11 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.req.ClusterReq;
-import org.apache.bigtop.manager.server.model.req.command.ClusterCommandReq;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
@@ -50,14 +47,6 @@ public class ClusterController {
     public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody @Validated ClusterReq clusterReq) {
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
-    }
-
-    @Operation(summary = "cluster command", description = "Command for cluster, only support [START|STOP|RESTART]")
-    @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody @Validated ClusterCommandReq commandReq) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
-        CommandVO commandVO = clusterService.command(commandDTO);
-        return ResponseEntity.success(commandVO);
     }
 
 }

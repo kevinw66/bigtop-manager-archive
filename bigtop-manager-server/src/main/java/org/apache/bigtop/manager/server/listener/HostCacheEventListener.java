@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.ws;
+package org.apache.bigtop.manager.server.listener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.eventbus.AsyncEventBus;
@@ -16,13 +16,10 @@ import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.ws.Callback;
+import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -31,7 +28,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostCacheHandler implements Callback {
+public class HostCacheEventListener implements Callback {
 
     @Resource
     private AsyncEventBus asyncEventBus;
@@ -68,9 +65,10 @@ public class HostCacheHandler implements Callback {
     @Resource
     private ServerWebSocketHandler serverWebSocketHandler;
 
-//    @Subscribe
-    public void cache(HostCacheEvent hostCacheEvent) {
-        Long clusterId = hostCacheEvent.getClusterId();
+    @Subscribe
+    public void handleHostCache(HostCacheEvent event) {
+        log.info("listen HostCacheEvent: {}", event);
+        Long clusterId = event.getClusterId();
 
         Cluster cluster = clusterRepository.findById(clusterId).orElse(new Cluster());
 

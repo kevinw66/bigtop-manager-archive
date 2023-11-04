@@ -1,16 +1,17 @@
 package org.apache.bigtop.manager.server.model.event;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandType;
+import org.springframework.context.ApplicationEvent;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
 public class CommandEvent extends Event {
 
     private Long jobId;
@@ -36,4 +37,5 @@ public class CommandEvent extends Event {
     private Map<String, Set<String>> componentHosts;
 
     private CommandType commandType;
+
 }
