@@ -16,126 +16,58 @@
  */
 package org.apache.bigtop.manager.server.listener;
 
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.Subscribe;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
-import org.apache.bigtop.manager.common.message.type.ResultMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
-import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
-import org.apache.bigtop.manager.server.holder.SpringContextHolder;
+import org.apache.bigtop.manager.server.enums.JobStrategyType;
+import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.server.listener.strategy.SyncJobStrategy;
 import org.apache.bigtop.manager.server.model.event.HostAddEvent;
-import org.apache.bigtop.manager.server.orm.entity.*;
+import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.orm.repository.StageRepository;
-import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
-import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
 public class HostAddEventListener {
 
     @Resource
-    private AsyncEventBus asyncEventBus;
-
-    @PostConstruct
-    public void init() {
-        asyncEventBus.register(this);
-    }
-
-    @Resource
     private JobRepository jobRepository;
-
-    @Resource
-    private StageRepository stageRepository;
-
-    @Resource
-    private TaskRepository taskRepository;
 
     @Resource
     private HostRepository hostRepository;
 
-    @Subscribe
+    @Resource
+    private SyncJobStrategy<HostCheckMessage> syncJobStrategy;
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleHostAdd(HostAddEvent event) {
         log.info("listen HostAddEvent: {}", event);
         Long jobId = event.getJobId();
         Job job = jobRepository.getReferenceById(jobId);
 
+        List<String> hostnames = event.getHostnames();
         // TODO temp code, just for test now
-        Boolean failed = checkHosts(job);
+        Boolean failed = syncJobStrategy.handle(job, HostCheckMessage.class, JobStrategyType.CONTINUE_ON_FAIL);
 
         if (!failed) {
-            saveHost(event.getHostnames(), job.getCluster());
+            saveHost(hostnames, job.getCluster().getId());
         }
     }
 
-    private Boolean checkHosts(Job job) {
-        // TODO temp code, we need to handle job/stage/task globally
-        AtomicBoolean failed = new AtomicBoolean(false);
-        Stage stage = job.getStages().get(0);
-
-        stage.setState(JobState.PROCESSING);
-        job.setState(JobState.PROCESSING);
-        stageRepository.save(stage);
-        jobRepository.save(job);
-
-        List<Task> tasks = stage.getTasks();
-        for (Task task : tasks) {
-            task.setState(JobState.PROCESSING);
-            taskRepository.save(task);
-
-            String hostname = task.getHostname();
-            HostCheckMessage hostCheckMessage = new HostCheckMessage();
-            hostCheckMessage.setHostname(hostname);
-            hostCheckMessage.setHostCheckTypes(HostCheckType.values());
-            ResultMessage res = SpringContextHolder.getServerWebSocket().sendMessage(hostname, hostCheckMessage);
-            if (res == null || res.getCode() != 0) {
-                task.setState(JobState.FAILED);
-                failed.set(true);
-            } else {
-                task.setState(JobState.SUCCESSFUL);
-            }
-
-            taskRepository.save(task);
-
-
-            if (failed.get()) {
-                stage.setState(JobState.FAILED);
-                job.setState(JobState.FAILED);
-            } else {
-                stage.setState(JobState.SUCCESSFUL);
-                job.setState(JobState.SUCCESSFUL);
-            }
+    private void saveHost(List<String> hostnames, Long clusterId) {
+        List<Host> hosts = hostRepository.findAllByClusterIdAndHostnameIn(clusterId, hostnames);
+        for (Host host : hosts) {
+            host.setState(MaintainState.INSTALLED);
         }
-
-        stageRepository.save(stage);
-        jobRepository.save(job);
-
-        return failed.get();
-    }
-
-    private void saveHost(List<String> hostnames, Cluster cluster) {
-        List<Host> hosts = new ArrayList<>();
-        for (String hostname : hostnames) {
-            Host host = new Host();
-            host.setHostname(hostname);
-            host.setCluster(cluster);
-            host.setState(HostState.INITIALIZING.name());
-
-            hosts.add(host);
-        }
-
         hostRepository.saveAll(hosts);
     }
 

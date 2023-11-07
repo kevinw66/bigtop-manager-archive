@@ -1,9 +1,16 @@
-package org.apache.bigtop.manager.server.listener.operator;
+package org.apache.bigtop.manager.server.listener.factory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
+import io.swagger.v3.core.util.Json;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
+import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.enums.CommandType;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
@@ -11,6 +18,7 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.mapper.TaskMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
@@ -24,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class CommandJobFactory {
+public class CommandJobFactory implements JobFactory {
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -47,6 +55,8 @@ public class CommandJobFactory {
     @Resource
     private TaskRepository taskRepository;
 
+    @Resource
+    private HostCacheJobFactory hostCacheJobFactory;
 
     /**
      * create job and persist it to database
@@ -68,14 +78,11 @@ public class CommandJobFactory {
         job.setCluster(cluster);
         job = jobRepository.save(job);
         log.info("CommandOperator-job: {}", job);
-        Job referenceById = jobRepository.getReferenceById(job.getId());
-        log.info("CommandOperator-referenceById: {}", referenceById);
 
         List<ComponentCommandWrapper> componentCommandWrappers = createCommandWrapper(commandDTO);
         List<ComponentCommandWrapper> sortedRcpList = stageSort(componentCommandWrappers, stackName, stackVersion);
         Map<String, Set<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
 
-        ArrayList<Stage> stages = new ArrayList<>();
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < sortedRcpList.size(); i++) {
             ComponentCommandWrapper componentCommandWrapper = sortedRcpList.get(i);
@@ -87,7 +94,6 @@ public class CommandJobFactory {
             stage.setState(JobState.PENDING);
             stage.setName(componentCommandWrapper.toString());
             stage.setStageOrder(i + 1);
-            stages.add(stage);
             stage = stageRepository.save(stage);
             log.info("stage: {}", stage);
 
@@ -261,7 +267,6 @@ public class CommandJobFactory {
         // Required fields
         task.setHostname(hostname);
         task.setCommand(command);
-        task.setRoot(component.getCluster().getRoot());
         task.setServiceName(component.getService().getServiceName());
         task.setStackName(component.getCluster().getStack().getStackName());
         task.setStackVersion(component.getCluster().getStack().getStackVersion());
@@ -270,7 +275,6 @@ public class CommandJobFactory {
         task.setComponentName(component.getComponentName());
         task.setServiceUser(component.getService().getServiceUser());
         task.setServiceGroup(component.getService().getServiceGroup());
-        task.setOsSpecifics(component.getService().getOsSpecifics());
         task.setCluster(component.getCluster());
         task.setCustomCommands(component.getCustomCommands());
         task.setCustomCommand(customCommand);
@@ -282,7 +286,51 @@ public class CommandJobFactory {
         task.setStage(stage);
         task.setState(JobState.PENDING);
 
+        CommandMessage commandMessage = getTaskContent(component, hostname, command, customCommand);
+        commandMessage.setHostname(hostname);
+        task.setContent(JsonUtils.writeAsString(commandMessage));
+
+        task.setMessageId(commandMessage.getMessageId());
+
         return task;
+    }
+
+
+    private CommandMessage getTaskContent(Component component, String hostname, Command command, String customCommand) {
+        CommandMessage commandMessage = new CommandMessage();
+        commandMessage.setServiceName(component.getService().getServiceName());
+        commandMessage.setCommand(command);
+        commandMessage.setCustomCommand(customCommand);
+        commandMessage.setServiceUser(component.getService().getServiceUser());
+        commandMessage.setServiceGroup(component.getService().getServiceGroup());
+        commandMessage.setStackName(component.getCluster().getStack().getStackName());
+        commandMessage.setStackVersion(component.getCluster().getStack().getStackVersion());
+        commandMessage.setRoot(component.getService().getCluster().getRoot());
+        commandMessage.setComponentName(component.getComponentName());
+        commandMessage.setHostname(hostname);
+
+        try {
+            Map<String, ScriptInfo> customCommands = JsonUtils.readFromString(component.getCustomCommands(), new TypeReference<>() {
+            });
+            commandMessage.setCustomCommands(customCommands);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(component.getService().getOsSpecifics(), new TypeReference<>() {
+            });
+            commandMessage.setOsSpecifics(osSpecifics);
+        } catch (Exception ignored) {
+        }
+
+        try {
+            ScriptInfo commandScript = JsonUtils.readFromString(component.getCommandScript(), new TypeReference<>() {
+            });
+            commandMessage.setCommandScript(commandScript);
+        } catch (Exception ignored) {
+        }
+
+        return commandMessage;
     }
 
 }

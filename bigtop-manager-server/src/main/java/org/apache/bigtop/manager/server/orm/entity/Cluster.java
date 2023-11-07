@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.orm.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -19,9 +20,6 @@ public class Cluster extends BaseEntity {
     @Column(name = "cluster_name")
     private String clusterName;
 
-    @Column(name = "cluster_desc")
-    private String clusterDesc;
-
     @Column(name = "cluster_type")
     private Integer clusterType;
 
@@ -37,9 +35,9 @@ public class Cluster extends BaseEntity {
     @Column(name = "repo_template")
     private String repoTemplate;
 
-    // 0: not installed, 1: installed, 2: maintained
-    @Column(name = "status")
-    private Integer status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state")
+    private MaintainState state;
 
     @Column(name = "selected")
     private Boolean selected;

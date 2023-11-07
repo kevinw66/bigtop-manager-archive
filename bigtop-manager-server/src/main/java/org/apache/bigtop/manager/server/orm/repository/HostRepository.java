@@ -14,6 +14,8 @@ public interface HostRepository extends JpaRepository<Host, Long> {
 
     List<Host> findAllByHostnameIn(Collection<String> hostnames);
 
+    List<Host> findAllByClusterIdAndHostnameIn(Long clusterId, Collection<String> hostnames);
+
     List<Host> findAllByClusterId(Long clusterId);
 
     Page<Host> findAllByClusterId(Long clusterId, Pageable pageable);

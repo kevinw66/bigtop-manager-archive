@@ -7,8 +7,10 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
+import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.req.HostReq;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
@@ -43,7 +45,7 @@ public class HostController {
 
     @Operation(summary = "create", description = "Create a host")
     @PostMapping
-    public ResponseEntity<CommandVO> create(@PathVariable Long clusterId, @RequestBody @Validated List<String> hostnames) {
+    public ResponseEntity<CommandVO> create(@PathVariable Long clusterId, @RequestBody List<String> hostnames) {
         return ResponseEntity.success(hostService.create(clusterId, hostnames));
     }
 

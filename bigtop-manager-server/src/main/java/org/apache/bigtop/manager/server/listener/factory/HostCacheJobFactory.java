@@ -1,45 +1,27 @@
-package org.apache.bigtop.manager.server.ws;
+package org.apache.bigtop.manager.server.listener.factory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.Subscribe;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
-import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
+import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostCacheHandler implements Callback {
-
-    @Resource
-    private AsyncEventBus asyncEventBus;
-
-    @PostConstruct
-    public void init() {
-        asyncEventBus.register(this);
-    }
+public class HostCacheJobFactory implements JobFactory {
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -66,16 +48,95 @@ public class HostCacheHandler implements Callback {
     private ComponentRepository componentRepository;
 
     @Resource
-    private ServerWebSocketHandler serverWebSocketHandler;
+    private JobRepository jobRepository;
 
-//    @Subscribe
-    public void cache(HostCacheEvent hostCacheEvent) {
-        Long clusterId = hostCacheEvent.getClusterId();
+    @Resource
+    private StageRepository stageRepository;
 
-        Cluster cluster = clusterRepository.findById(clusterId).orElse(new Cluster());
+    @Resource
+    private TaskRepository taskRepository;
+
+    public Job createJob(Long clusterId) {
+        Job job = new Job();
+
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+
+        createCache(cluster);
+
+        // Create job
+        job.setContext("Cache Hosts");
+        job.setState(JobState.PENDING);
+        job.setCluster(cluster);
+        job = jobRepository.save(job);
+
+        // Create stages
+        createStage(job, cluster);
+
+        return job;
+    }
+
+    public void createStage(Job job, Cluster cluster) {
+        List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
+        List<String> hostnames = hostList.stream().map(Host::getHostname).toList();
+
+        Stage hostCheckStage = new Stage();
+        hostCheckStage.setJob(job);
+        hostCheckStage.setName("Cache Host");
+        hostCheckStage.setState(JobState.PENDING);
+        hostCheckStage.setStageOrder(1);
+        hostCheckStage.setCluster(cluster);
+        hostCheckStage = stageRepository.save(hostCheckStage);
+
+        for (String hostname : hostnames) {
+            Task task = new Task();
+            task.setJob(job);
+            task.setStage(hostCheckStage);
+            task.setCluster(cluster);
+            task.setStackName(cluster.getStack().getStackName());
+            task.setStackVersion(cluster.getStack().getStackVersion());
+            task.setHostname(hostname);
+            task.setServiceName("cluster");
+            task.setServiceUser("root");
+            task.setServiceGroup("root");
+            task.setComponentName("bigtop-manager-agent");
+            task.setCommand(Command.CUSTOM_COMMAND);
+            task.setCustomCommand("cache_host");
+            task.setState(JobState.PENDING);
+
+            HostCacheMessage hostCacheMessage = getTaskContent(
+                    hostname,
+                    settingsMap,
+                    clusterInfo,
+                    serviceConfigMap,
+                    hostMap,
+                    repoList,
+                    userMap,
+                    componentInfoMap);
+            task.setContent(JsonUtils.writeAsString(hostCacheMessage));
+
+            task.setMessageId(hostCacheMessage.getMessageId());
+            taskRepository.save(task);
+        }
+    }
+
+    private final ClusterInfo clusterInfo = new ClusterInfo();
+
+    private final Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
+
+    private final Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
+
+    private final Map<String, Set<String>> hostMap = new HashMap<>();
+
+    private final List<RepoInfo> repoList = new ArrayList<>();
+
+    private final Map<String, Set<String>> userMap = new HashMap<>();
+
+    private final Map<String, Object> settingsMap = new HashMap<>();
+
+    private void createCache(Cluster cluster) {
+        Long clusterId = cluster.getId();
 
         String clusterName = cluster.getClusterName();
-        Long stackId = cluster.getStack().getId();
         String stackName = cluster.getStack().getStackName();
         String stackVersion = cluster.getStack().getStackVersion();
 
@@ -87,7 +148,6 @@ public class HostCacheHandler implements Callback {
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 
         //Wrapper clusterInfo for HostCacheMessage
-        ClusterInfo clusterInfo = new ClusterInfo();
         clusterInfo.setClusterName(clusterName);
         clusterInfo.setStackName(stackName);
         clusterInfo.setStackVersion(stackVersion);
@@ -104,7 +164,6 @@ public class HostCacheHandler implements Callback {
         }
 
         //Wrapper serviceConfigMap for HostCacheMessage
-        Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
         serviceConfigs.forEach(x -> {
             if (serviceConfigMap.containsKey(x.getService().getServiceName())) {
                 serviceConfigMap.get(x.getService().getServiceName()).put(x.getTypeName(), x.getConfigData());
@@ -116,7 +175,6 @@ public class HostCacheHandler implements Callback {
         });
 
         //Wrapper hostMap for HostCacheMessage
-        Map<String, Set<String>> hostMap = new HashMap<>();
         hostComponents.forEach(x -> {
             if (hostMap.containsKey(x.getComponent().getComponentName())) {
                 hostMap.get(x.getComponent().getComponentName()).add(x.getHost().getHostname());
@@ -132,14 +190,12 @@ public class HostCacheHandler implements Callback {
         hostMap.put(ALL_HOST_KEY, hostNameSet);
 
         //Wrapper repoList for HostCacheMessage
-        List<RepoInfo> repoList = new ArrayList<>();
         repos.forEach(repo -> {
             RepoInfo repoInfo = RepoMapper.INSTANCE.Entity2Message(repo);
             repoList.add(repoInfo);
         });
 
         //Wrapper userMap for HostCacheMessage
-        Map<String, Set<String>> userMap = new HashMap<>();
         services.forEach(x -> {
             if (userMap.containsKey(x.getServiceUser())) {
                 userMap.get(x.getServiceUser()).add(x.getServiceGroup());
@@ -151,13 +207,9 @@ public class HostCacheHandler implements Callback {
         });
 
         //Wrapper settings for HostCacheMessage
-        Map<String, Object> settingsMap = new HashMap<>();
-        settings.forEach(x -> {
-            settingsMap.put(x.getTypeName(), x.getConfigData());
-        });
+        settings.forEach(x -> settingsMap.put(x.getTypeName(), x.getConfigData()));
 
-
-        Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
+        //Wrapper componentInfoList for HostCacheMessage
         List<Component> componentList = componentRepository.findAll();
         componentList.forEach(c -> {
             ComponentInfo componentInfo = new ComponentInfo();
@@ -169,45 +221,19 @@ public class HostCacheHandler implements Callback {
             componentInfo.setServiceName(c.getService().getServiceName());
             componentInfoMap.put(c.getComponentName(), componentInfo);
         });
-
-
-        for (Host host : hostList) {
-            String hostname = host.getHostname();
-            //Wrapper HostCacheMessage for websocket
-            HostCacheMessage hostCacheMessage = convertMessage(hostname,
-                    settingsMap,
-                    clusterInfo,
-                    serviceConfigMap,
-                    hostMap,
-                    repoList,
-                    userMap,
-                    componentInfoMap);
-
-            log.info("hostCacheMessage: {}", hostCacheMessage);
-            serverWebSocketHandler.sendMessage(hostname, hostCacheMessage, this);
-        }
-
-        countDownLatch = new CountDownLatch(hostList.size());
-        try {
-            boolean timeoutFlag = countDownLatch.await(30, TimeUnit.SECONDS);
-            if (!timeoutFlag) {
-                log.error("execute task timeout");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
-    private HostCacheMessage convertMessage(String hostname,
-                                            Map<String, Object> settingsMap,
-                                            ClusterInfo clusterInfo,
-                                            Map<String, Map<String, Object>> serviceConfigMap,
-                                            Map<String, Set<String>> hostMap,
-                                            List<RepoInfo> repoList,
-                                            Map<String, Set<String>> userMap,
-                                            Map<String, ComponentInfo> componentInfoList) {
+    private HostCacheMessage getTaskContent(
+            String hostname,
+            Map<String, Object> settingsMap,
+            ClusterInfo clusterInfo,
+            Map<String, Map<String, Object>> serviceConfigMap,
+            Map<String, Set<String>> hostMap,
+            List<RepoInfo> repoList,
+            Map<String, Set<String>> userMap,
+            Map<String, ComponentInfo> componentInfoList) {
         HostCacheMessage hostCacheMessage = new HostCacheMessage();
+        hostCacheMessage.setHostname(hostname);
 
         hostCacheMessage.setClusterInfo(clusterInfo);
         hostCacheMessage.setConfigurations(serviceConfigMap);
@@ -215,20 +241,8 @@ public class HostCacheHandler implements Callback {
         hostCacheMessage.setRepoInfo(repoList);
         hostCacheMessage.setSettings(settingsMap);
         hostCacheMessage.setUserInfo(userMap);
-        hostCacheMessage.setHostname(hostname);
         hostCacheMessage.setComponentInfo(componentInfoList);
         return hostCacheMessage;
     }
 
-    private CountDownLatch countDownLatch;
-
-    @Override
-    public void call(ResultMessage resultMessage) {
-        countDownLatch.countDown();
-        if (resultMessage.getCode() == 0) {
-            log.info("Host cache success, {}", resultMessage);
-        } else {
-            log.error("Host cache failed, {}", resultMessage);
-        }
-    }
 }

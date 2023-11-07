@@ -1,22 +1,19 @@
 package org.apache.bigtop.manager.server.model.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.context.ApplicationEvent;
 
 import java.util.List;
 
-@Data
-@EqualsAndHashCode(callSuper = true)
-@AllArgsConstructor
-@NoArgsConstructor
-public class HostAddEvent extends Event {
+@Getter
+@Setter
+public class HostAddEvent extends ApplicationEvent {
 
     Long jobId;
 
-    Long clusterId;
-
     List<String> hostnames;
 
+    public HostAddEvent(Object source) {
+        super(source);
+    }
 }

@@ -16,7 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class HostCacheMessage extends BaseMessage {
+public class HostCacheMessage extends BaseCommandMessage {
 
     private Map<String, Object> settings;
 

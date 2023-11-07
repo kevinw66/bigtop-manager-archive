@@ -4,7 +4,9 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.listener.operator.HostAddJobFactory;
+import org.apache.bigtop.manager.server.holder.SpringContextHolder;
+import org.apache.bigtop.manager.server.listener.factory.HostAddJobFactory;
+import org.apache.bigtop.manager.server.listener.factory.HostCacheJobFactory;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.event.HostAddEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
@@ -16,22 +18,20 @@ import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.HostComponent;
 import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.PageUtils;
+import org.apache.bigtop.manager.server.validate.HostAddValidator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -46,13 +46,13 @@ public class HostServiceImpl implements HostService {
     private HostComponentRepository hostComponentRepository;
 
     @Resource
-    private ClusterRepository clusterRepository;
-
-    @Resource
-    private JobRepository jobRepository;
-
-    @Resource
     private HostAddJobFactory hostAddJobFactory;
+
+    @Resource
+    private HostCacheJobFactory hostCacheJobFactory;
+
+    @Resource
+    private HostAddValidator hostAddValidator;
 
     @Override
     public PageVO<HostVO> list(Long clusterId) {
@@ -67,19 +67,18 @@ public class HostServiceImpl implements HostService {
     }
 
     @Override
+    @Transactional
     public CommandVO create(Long clusterId, List<String> hostnames) {
-        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+        // Check hosts
+        hostAddValidator.validate(hostnames);
 
         Job job = hostAddJobFactory.createJob(clusterId, hostnames);
-        jobRepository.save(job);
 
-        HostAddEvent hostAddEvent = new HostAddEvent();
-        hostAddEvent.setHostnames(hostnames);
-        hostAddEvent.setClusterId(cluster.getId());
+        HostAddEvent hostAddEvent = new HostAddEvent(hostnames);
         hostAddEvent.setJobId(job.getId());
-        EventPublisher.publish(hostAddEvent);
+        hostAddEvent.setHostnames(hostnames);
 
-        cache(cluster.getId());
+        SpringContextHolder.getApplicationContext().publishEvent(hostAddEvent);
 
         return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
@@ -113,8 +112,13 @@ public class HostServiceImpl implements HostService {
     }
 
     @Override
+    @Transactional
     public Boolean cache(Long clusterId) {
-        EventPublisher.publish(new HostCacheEvent(clusterId));
+        Job job = hostCacheJobFactory.createJob(clusterId);
+
+        HostCacheEvent hostCacheEvent = new HostCacheEvent(clusterId);
+        hostCacheEvent.setJobId(job.getId());
+        SpringContextHolder.getApplicationContext().publishEvent(hostCacheEvent);
         return true;
     }
 

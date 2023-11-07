@@ -50,9 +50,6 @@ public class Task extends BaseEntity {
     @Column(name = "hostname")
     private String hostname;
 
-    @Column(name = "root")
-    private String root;
-
     @Column(name = "stack_name")
     private String stackName;
 
@@ -65,8 +62,10 @@ public class Task extends BaseEntity {
     @Column(name = "service_group")
     private String serviceGroup;
 
-    @Column(name = "os_specifics")
-    private String osSpecifics;
+    @Lob
+    @Basic(fetch= FetchType.LAZY)
+    @Column(name = "content", length = 16777216)
+    private String content;
 
     @ManyToOne
     @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
@@ -47,7 +48,7 @@ public class HostHeartbeatScheduled {
                     host.setIpv6(hostInfo.getIpv6());
                     host.setOs(hostInfo.getOs());
                     host.setTotalMemorySize(hostInfo.getTotalMemorySize());
-                    host.setState(HostState.HEALTHY.name());
+                    //                host.setState(HostState.HEALTHY);
                 }
                 hostRepository.save(host);
                 hostMap.remove(hostname);
@@ -57,7 +58,7 @@ public class HostHeartbeatScheduled {
         if (!hostMap.isEmpty()) {
             for (Map.Entry<String, Host> entry : hostMap.entrySet()) {
                 Host host = entry.getValue();
-                host.setState(HostState.LOST.name());
+//                host.setState(HostState.LOST);
                 hostRepository.save(host);
             }
         }

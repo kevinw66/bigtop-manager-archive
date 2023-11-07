@@ -10,7 +10,7 @@ import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class HostCheckMessage extends BaseMessage {
+public class HostCheckMessage extends BaseCommandMessage {
 
     private String hostname;
 

@@ -131,6 +131,10 @@ public class HostCacheService {
         resultMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", hostCacheMessage.getHostname()));
         resultMessage.setMessageType(MessageType.HOST_CACHE);
 
+        resultMessage.setTaskId(hostCacheMessage.getTaskId());
+        resultMessage.setStageId(hostCacheMessage.getStageId());
+        resultMessage.setJobId(hostCacheMessage.getJobId());
+
         agentWsTools.sendMessage(resultMessage);
     }
 }

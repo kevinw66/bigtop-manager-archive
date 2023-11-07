@@ -5,26 +5,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
 import org.apache.bigtop.manager.server.enums.CommandType;
-import org.apache.bigtop.manager.server.enums.StatusType;
-import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
+import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.server.holder.SpringContextHolder;
+import org.apache.bigtop.manager.server.listener.factory.CommandJobFactory;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
-import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
-import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.CommandService;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.listener.operator.CommandJobFactory;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -66,14 +65,13 @@ public class CommandServiceImpl implements CommandService {
     private CommandJobFactory commandJobFactory;
 
     @Override
-//    @Transactional
+    @Transactional
     public CommandVO command(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
         CommandType commandType = commandDTO.getCommandType();
 
         //persist request to database
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
-
 
         // service install
         if (commandType == CommandType.SERVICE_INSTALL) {
@@ -93,8 +91,7 @@ public class CommandServiceImpl implements CommandService {
                 HostComponent hostComponent = new HostComponent();
                 hostComponent.setHost(host);
                 hostComponent.setComponent(component);
-                hostComponent.setStatus(StatusType.UNINSTALLED.getCode());
-                hostComponent.setState(CommandState.UNINSTALLED);
+                hostComponent.setState(MaintainState.UNINSTALLED);
 
                 Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
                 hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
@@ -106,12 +103,9 @@ public class CommandServiceImpl implements CommandService {
 
         Job job = commandJobFactory.createJob(commandDTO);
 
-        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
-//        CommandEvent commandEvent1 = new CommandEvent(commandDTO);
-//        commandEvent1.setJobId(job.getId());
-//        SpringContextHolder.getApplicationContext().publishEvent(commandEvent1);
-
-        EventPublisher.publish(commandEvent);
+        CommandEvent commandEvent1 = new CommandEvent(commandDTO);
+        commandEvent1.setJobId(job.getId());
+        SpringContextHolder.getApplicationContext().publishEvent(commandEvent1);
 
         return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
@@ -166,8 +160,7 @@ public class CommandServiceImpl implements CommandService {
                         HostComponent hostComponent = new HostComponent();
                         hostComponent.setHost(host);
                         hostComponent.setComponent(component);
-                        hostComponent.setStatus(StatusType.UNINSTALLED.getCode());
-                        hostComponent.setState(CommandState.UNINSTALLED);
+                        hostComponent.setState(MaintainState.UNINSTALLED);
 
                         Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(componentName, host.getHostname());
                         hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
