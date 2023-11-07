@@ -2,11 +2,12 @@ package org.apache.bigtop.manager.server.listener.factory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
-import io.swagger.v3.core.util.Json;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.enums.MessageType;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -18,7 +19,6 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.mapper.TaskMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
@@ -83,6 +83,13 @@ public class CommandJobFactory implements JobFactory {
         List<ComponentCommandWrapper> sortedRcpList = stageSort(componentCommandWrappers, stackName, stackVersion);
         Map<String, Set<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
 
+
+        int startOrder = 0;
+        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
+            startOrder = 1;
+            hostCacheJobFactory.createStage(job, cluster, startOrder);
+        }
+
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < sortedRcpList.size(); i++) {
             ComponentCommandWrapper componentCommandWrapper = sortedRcpList.get(i);
@@ -93,7 +100,7 @@ public class CommandJobFactory implements JobFactory {
             stage.setCluster(job.getCluster());
             stage.setState(JobState.PENDING);
             stage.setName(componentCommandWrapper.toString());
-            stage.setStageOrder(i + 1);
+            stage.setStageOrder(i + 1 + startOrder);
             stage = stageRepository.save(stage);
             log.info("stage: {}", stage);
 
@@ -286,18 +293,27 @@ public class CommandJobFactory implements JobFactory {
         task.setStage(stage);
         task.setState(JobState.PENDING);
 
-        CommandMessage commandMessage = getTaskContent(component, hostname, command, customCommand);
-        commandMessage.setHostname(hostname);
-        task.setContent(JsonUtils.writeAsString(commandMessage));
+        RequestMessage requestMessage = getMessage(component, hostname, command, customCommand);
+        task.setContent(JsonUtils.writeAsString(requestMessage));
 
-        task.setMessageId(commandMessage.getMessageId());
+        task.setMessageId(requestMessage.getMessageId());
 
         return task;
     }
 
+    private RequestMessage getMessage(Component component, String hostname, Command command, String customCommand) {
+        CommandPayload commandPayload = getMessagePayload(component, hostname, command, customCommand);
 
-    private CommandMessage getTaskContent(Component component, String hostname, Command command, String customCommand) {
-        CommandMessage commandMessage = new CommandMessage();
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setMessageType(MessageType.COMMAND);
+        requestMessage.setHostname(hostname);
+
+        requestMessage.setMessagePayload(JsonUtils.writeAsString(commandPayload));
+        return requestMessage;
+    }
+
+    private CommandPayload getMessagePayload(Component component, String hostname, Command command, String customCommand) {
+        CommandPayload commandMessage = new CommandPayload();
         commandMessage.setServiceName(component.getService().getServiceName());
         commandMessage.setCommand(command);
         commandMessage.setCustomCommand(customCommand);

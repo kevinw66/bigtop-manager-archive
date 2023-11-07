@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.type.BaseCommandMessage;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
-public class SyncJobStrategy<T extends BaseCommandMessage> implements JobStrategy<T> {
+public class SyncJobStrategy implements JobStrategy {
 
     @Resource
     private JobRepository jobRepository;
@@ -34,7 +35,7 @@ public class SyncJobStrategy<T extends BaseCommandMessage> implements JobStrateg
     private TaskRepository taskRepository;
 
     @Override
-    public Boolean handle(Job job, Class<T> clazz, JobStrategyType strategyType) {
+    public Boolean handle(Job job, JobStrategyType strategyType) {
         AtomicBoolean failed = new AtomicBoolean(false);
         List<Stage> stages = job.getStages();
 
@@ -49,7 +50,7 @@ public class SyncJobStrategy<T extends BaseCommandMessage> implements JobStrateg
                 task.setState(JobState.PROCESSING);
                 taskRepository.save(task);
 
-                BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), clazz);
+                BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), RequestMessage.class);
                 log.info("[SyncJobStrategy] [BaseCommandMessage]: {}", message);
                 String hostname = task.getHostname();
                 ResultMessage res = SpringContextHolder.getServerWebSocket().sendMessage(hostname, message);

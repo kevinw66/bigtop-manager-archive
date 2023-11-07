@@ -3,7 +3,10 @@ package org.apache.bigtop.manager.server.listener.factory;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
+import org.apache.bigtop.manager.common.enums.MessageType;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
+import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
@@ -13,6 +16,8 @@ import org.apache.bigtop.manager.server.orm.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -33,6 +38,9 @@ public class HostAddJobFactory implements JobFactory {
     @Resource
     private TaskRepository taskRepository;
 
+    @Resource
+    private HostCacheJobFactory hostCacheJobFactory;
+
     public Job createJob(Long clusterId, List<String> hostnames) {
         Job job = new Job();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
@@ -46,18 +54,20 @@ public class HostAddJobFactory implements JobFactory {
         job = jobRepository.save(job);
 
         // Create stages
-        createHostCheckStage(job, cluster, hostnames);
+        createHostCheckStage(job, cluster, hostnames, 1);
+
+        hostCacheJobFactory.createStage(job, cluster, 2);
 
         return job;
     }
 
-    public void createHostCheckStage(Job job, Cluster cluster, List<String> hostnames) {
+    public void createHostCheckStage(Job job, Cluster cluster, List<String> hostnames, int stageOrder) {
         // Create stages
         Stage hostCheckStage = new Stage();
         hostCheckStage.setJob(job);
         hostCheckStage.setName("Check Hosts");
         hostCheckStage.setState(JobState.PENDING);
-        hostCheckStage.setStageOrder(1);
+        hostCheckStage.setStageOrder(stageOrder);
         hostCheckStage.setCluster(cluster);
         hostCheckStage = stageRepository.save(hostCheckStage);
 
@@ -77,28 +87,47 @@ public class HostAddJobFactory implements JobFactory {
             task.setCustomCommand("check_host");
             task.setState(JobState.PENDING);
 
-            HostCheckMessage hostCheckMessage = getTaskContent(hostname);
-            task.setContent(JsonUtils.writeAsString(hostCheckMessage));
+            RequestMessage requestMessage = getMessage(hostname);
+            task.setContent(JsonUtils.writeAsString(requestMessage));
 
-            task.setMessageId(hostCheckMessage.getMessageId());
+            task.setMessageId(requestMessage.getMessageId());
             taskRepository.save(task);
         }
     }
 
-    private HostCheckMessage getTaskContent(String hostname) {
-        HostCheckMessage hostCheckMessage = new HostCheckMessage();
+    private RequestMessage getMessage(String hostname) {
+        HostCheckPayload hostCheckPayload = getMessagePayload(hostname);
+        RequestMessage requestMessage = new RequestMessage();
+
+        requestMessage.setMessageType(MessageType.HOST_CHECK);
+        requestMessage.setHostname(hostname);
+
+        requestMessage.setMessagePayload(JsonUtils.writeAsString(hostCheckPayload));
+        return requestMessage;
+    }
+
+    private HostCheckPayload getMessagePayload(String hostname) {
+        HostCheckPayload hostCheckMessage = new HostCheckPayload();
         hostCheckMessage.setHostCheckTypes(HostCheckType.values());
         hostCheckMessage.setHostname(hostname);
         return hostCheckMessage;
     }
 
     public void saveHost(Cluster cluster, List<String> hostnames) {
+        List<Host> hostnameIn = hostRepository.findAllByHostnameIn(hostnames);
         List<Host> hosts = new ArrayList<>();
+
+        Map<String, Host> hostInMap = hostnameIn.stream().collect(Collectors.toMap(Host::getHostname, host -> host));
+
         for (String hostname : hostnames) {
             Host host = new Host();
             host.setHostname(hostname);
             host.setCluster(cluster);
             host.setState(MaintainState.UNINSTALLED);
+
+            if (hostInMap.containsKey(hostname)) {
+                host.setId(hostInMap.get(hostname).getId());
+            }
 
             hosts.add(host);
         }

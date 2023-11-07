@@ -18,7 +18,6 @@ package org.apache.bigtop.manager.server.listener;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.listener.strategy.SyncJobStrategy;
@@ -51,7 +50,7 @@ public class ClusterEventListener {
     private HostRepository hostRepository;
 
     @Resource
-    private SyncJobStrategy<HostCheckMessage> syncJobStrategy;
+    private SyncJobStrategy syncJobStrategy;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -63,7 +62,7 @@ public class ClusterEventListener {
         ClusterDTO clusterDTO = (ClusterDTO) event.getSource();
 
         // TODO temp code, just for test now
-        Boolean failed = syncJobStrategy.handle(job, HostCheckMessage.class, JobStrategyType.CONTINUE_ON_FAIL);
+        Boolean failed = syncJobStrategy.handle(job, JobStrategyType.CONTINUE_ON_FAIL);
 
         if (!failed) {
             updateCluster(clusterDTO);

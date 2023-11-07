@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.ComponentHeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
@@ -68,7 +68,7 @@ public class ComponentHeartbeatScheduled {
             List<String> hostnameList = entry.getValue();
 
             if (!componentName.equals(Constants.ALL_HOST_KEY) && hostnameList.contains(hostname)) {
-                CommandMessage commandMessage = new CommandMessage();
+                CommandPayload commandMessage = new CommandPayload();
                 commandMessage.setCommand(Command.STATUS);
                 commandMessage.setHostname(hostname);
                 commandMessage.setStackName(clusterInfo.getStackName());
@@ -90,7 +90,6 @@ public class ComponentHeartbeatScheduled {
                     ComponentHeartbeatMessage resultMessage = new ComponentHeartbeatMessage();
                     resultMessage.setCode(shellResult.getExitCode());
                     resultMessage.setResult(shellResult.getResult());
-                    resultMessage.setMessageId(commandMessage.getMessageId());
                     resultMessage.setHostname(commandMessage.getHostname());
 
                     agentWsTools.sendMessage(resultMessage);

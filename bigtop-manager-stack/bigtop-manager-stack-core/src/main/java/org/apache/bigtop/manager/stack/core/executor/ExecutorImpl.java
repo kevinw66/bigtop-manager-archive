@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.stack.core.executor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
@@ -10,7 +10,6 @@ import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
 import org.apache.bigtop.manager.stack.spi.Hook;
 import org.apache.bigtop.manager.stack.spi.SPIFactory;
 import org.apache.bigtop.manager.stack.spi.Script;
-import org.apache.commons.lang3.EnumUtils;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -29,16 +28,16 @@ public class ExecutorImpl implements Executor {
         hookMap = hookSPIFactory.getSPIMap();
     }
 
-    private Script getScript(CommandMessage commandMessage) {
+    private Script getScript(CommandPayload commandMessage) {
         return scriptMap.get(commandMessage.getCommandScript().getScriptId());
     }
 
-    private Hook getHook(CommandMessage commandMessage) {
+    private Hook getHook(CommandPayload commandMessage) {
         return hookMap.get(commandMessage.getCommand().name());
     }
 
     @Override
-    public Object execute(CommandMessage commandMessage) {
+    public Object execute(CommandPayload commandMessage) {
         Script script = getScript(commandMessage);
         if (script == null) {
             throw new StackException("Cannot find Class {0}", commandMessage.getCommandScript().getScriptId());
@@ -53,9 +52,9 @@ public class ExecutorImpl implements Executor {
         try {
             Method method;
             if (command.equals(Command.CUSTOM_COMMAND.name())) {
-                method = script.getClass().getMethod(commandMessage.getCustomCommand().toLowerCase(), CommandMessage.class);
+                method = script.getClass().getMethod(commandMessage.getCustomCommand().toLowerCase(), CommandPayload.class);
             } else {
-                method = script.getClass().getMethod(command.toLowerCase(), CommandMessage.class);
+                method = script.getClass().getMethod(command.toLowerCase(), CommandPayload.class);
             }
             log.info("method: {}", method);
             result = method.invoke(script, commandMessage);

@@ -77,7 +77,7 @@ public class CommandServiceImpl implements CommandService {
         if (commandType == CommandType.SERVICE_INSTALL) {
             install(commandDTO);
             // cache
-            hostService.cache(cluster.getId());
+//            hostService.cache(cluster.getId());
         }
 
         // host install
@@ -98,7 +98,7 @@ public class CommandServiceImpl implements CommandService {
                 hostComponentRepository.save(hostComponent);
             }
             // cache
-            hostService.cache(cluster.getId());
+//            hostService.cache(cluster.getId());
         }
 
         Job job = commandJobFactory.createJob(commandDTO);

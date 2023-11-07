@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
@@ -23,7 +23,7 @@ import java.util.*;
 public class ZookeeperServerScript implements Script {
 
     @Override
-    public ShellResult install(CommandMessage commandMessage) {
+    public ShellResult install(CommandPayload commandMessage) {
         log.info("ZookeeperServerScript install");
         List<String> packageList = ZookeeperParams.getPackageList(commandMessage);
 
@@ -31,7 +31,7 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult configuration(CommandMessage commandMessage) {
+    public ShellResult configuration(CommandPayload commandMessage) {
         log.info("ZookeeperServerScript configuration");
 
         String confDir = ZookeeperParams.confDir(commandMessage);
@@ -88,7 +88,7 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult start(CommandMessage commandMessage) {
+    public ShellResult start(CommandPayload commandMessage) {
         configuration(commandMessage);
         log.info("ZookeeperServerScript start");
 
@@ -104,7 +104,7 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult stop(CommandMessage commandMessage) {
+    public ShellResult stop(CommandPayload commandMessage) {
         log.info("ZookeeperServerScript stop");
         String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh stop", ZookeeperParams.serviceHome(commandMessage));
         try {
@@ -118,7 +118,7 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult status(CommandMessage commandMessage) {
+    public ShellResult status(CommandPayload commandMessage) {
         log.info("ZookeeperServerScript status");
 
         String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh status", ZookeeperParams.serviceHome(commandMessage));

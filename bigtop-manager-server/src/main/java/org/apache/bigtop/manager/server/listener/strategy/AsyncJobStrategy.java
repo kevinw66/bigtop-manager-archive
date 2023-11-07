@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.type.BaseCommandMessage;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
@@ -30,7 +31,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.COMMAND_MESSA
 
 @Slf4j
 @Component
-public class AsyncJobStrategy<T extends BaseCommandMessage> implements JobStrategy<T> {
+public class AsyncJobStrategy implements JobStrategy {
 
     @Resource
     private JobRepository jobRepository;
@@ -49,7 +50,7 @@ public class AsyncJobStrategy<T extends BaseCommandMessage> implements JobStrate
     private AtomicBoolean failed;
 
     @Override
-    public Boolean handle(Job job, Class<T> clazz, JobStrategyType strategyType) {
+    public Boolean handle(Job job, JobStrategyType strategyType) {
         failed = new AtomicBoolean(false);
         List<Stage> stageCompletedList = new ArrayList<>();
 
@@ -71,7 +72,7 @@ public class AsyncJobStrategy<T extends BaseCommandMessage> implements JobStrate
                 task.setState(JobState.PROCESSING);
                 taskRepository.save(task);
 
-                BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), clazz);
+                BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), RequestMessage.class);
                 message.setTaskId(task.getId());
                 message.setStageId(stage.getId());
                 message.setJobId(job.getId());
@@ -92,7 +93,9 @@ public class AsyncJobStrategy<T extends BaseCommandMessage> implements JobStrate
             } else {
                 log.error("stage failed or timeout, cancel remain stages, [timeoutFlag: {}], [failed: {}]", timeoutFlag, failed);
                 stage.setState(JobState.FAILED);
-                releaseRemainStages(pipeLineQueue);
+                if (strategyType == JobStrategyType.OVER_ON_FAIL) {
+                    releaseRemainStages(pipeLineQueue);
+                }
             }
             stageCompletedList.add(stage);
             stageRepository.save(stage);

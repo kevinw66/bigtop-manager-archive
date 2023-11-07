@@ -7,14 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
-import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
+import org.apache.bigtop.manager.common.message.type.HostCachePayload;
+import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class HostCacheService {
     /**
      * attemptQueue
      */
-    private final BlockingQueue<HostCacheContext> eventQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<RequestMessage> eventQueue = new LinkedBlockingQueue<>();
 
     /**
      * task event worker
@@ -51,9 +51,9 @@ public class HostCacheService {
         try {
             this.taskEventThread.interrupt();
             if (!eventQueue.isEmpty()) {
-                List<HostCacheContext> remainEvents = new ArrayList<>(eventQueue.size());
+                List<RequestMessage> remainEvents = new ArrayList<>(eventQueue.size());
                 eventQueue.drainTo(remainEvents);
-                for (HostCacheContext context : remainEvents) {
+                for (RequestMessage context : remainEvents) {
                     executeTask(context);
                 }
             }
@@ -68,7 +68,7 @@ public class HostCacheService {
      *
      * @param context hostCacheEvent
      */
-    public void addEvent(HostCacheContext context) {
+    public void addEvent(RequestMessage context) {
         eventQueue.add(context);
     }
 
@@ -89,7 +89,7 @@ public class HostCacheService {
             while (true) {
                 try {
                     // if not task event, blocking here
-                    HostCacheContext hostCacheContext = eventQueue.take();
+                    RequestMessage hostCacheContext = eventQueue.take();
                     executeTask(hostCacheContext);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -103,37 +103,38 @@ public class HostCacheService {
 
     /**
      * execute task
-     * @param context {@link HostCacheContext}
+     *
+     * @param requestMessage {@link RequestMessage}
      */
-    public void executeTask(HostCacheContext context) {
-        HostCacheMessage hostCacheMessage = context.getHostCacheMessage();
-        log.info("[agent executeTask] taskEvent is: {}", context);
+    public void executeTask(RequestMessage requestMessage) {
+        HostCachePayload hostCachePayload = JsonUtils.readFromString(requestMessage.getMessagePayload(), HostCachePayload.class);
+        log.info("[agent executeTask] taskEvent is: {}", requestMessage);
         String cacheDir = Constants.STACK_CACHE_DIR;
 
         LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
 
         try {
-            JsonUtils.writeToFile(cacheDir + SETTINGS_INFO, hostCacheMessage.getSettings());
-            JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCacheMessage.getConfigurations());
-            JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCacheMessage.getClusterHostInfo());
-            JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCacheMessage.getUserInfo());
-            JsonUtils.writeToFile(cacheDir + COMPONENTS_INFO, hostCacheMessage.getComponentInfo());
+            JsonUtils.writeToFile(cacheDir + SETTINGS_INFO, hostCachePayload.getSettings());
+            JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCachePayload.getConfigurations());
+            JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCachePayload.getClusterHostInfo());
+            JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCachePayload.getUserInfo());
+            JsonUtils.writeToFile(cacheDir + COMPONENTS_INFO, hostCachePayload.getComponentInfo());
         } catch (Exception e) {
             log.warn(" [{}|{}|{}|{}] cache error: ", SETTINGS_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
         }
-        JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCacheMessage.getRepoInfo());
-        JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCacheMessage.getClusterInfo());
+        JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCachePayload.getRepoInfo());
+        JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCachePayload.getClusterInfo());
 
         ResultMessage resultMessage = new ResultMessage();
-        resultMessage.setMessageId(hostCacheMessage.getMessageId());
-        resultMessage.setHostname(hostCacheMessage.getHostname());
         resultMessage.setCode(MessageConstants.SUCCESS_CODE);
-        resultMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", hostCacheMessage.getHostname()));
-        resultMessage.setMessageType(MessageType.HOST_CACHE);
+        resultMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", requestMessage.getHostname()));
 
-        resultMessage.setTaskId(hostCacheMessage.getTaskId());
-        resultMessage.setStageId(hostCacheMessage.getStageId());
-        resultMessage.setJobId(hostCacheMessage.getJobId());
+        resultMessage.setMessageType(requestMessage.getMessageType());
+        resultMessage.setMessageId(requestMessage.getMessageId());
+        resultMessage.setHostname(requestMessage.getHostname());
+        resultMessage.setTaskId(requestMessage.getTaskId());
+        resultMessage.setStageId(requestMessage.getStageId());
+        resultMessage.setJobId(requestMessage.getJobId());
 
         agentWsTools.sendMessage(resultMessage);
     }

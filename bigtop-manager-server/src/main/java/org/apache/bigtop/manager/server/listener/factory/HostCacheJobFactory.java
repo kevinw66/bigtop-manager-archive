@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
+import org.apache.bigtop.manager.common.enums.MessageType;
+import org.apache.bigtop.manager.common.message.type.HostCachePayload;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
@@ -61,8 +63,6 @@ public class HostCacheJobFactory implements JobFactory {
 
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
-        createCache(cluster);
-
         // Create job
         job.setContext("Cache Hosts");
         job.setState(JobState.PENDING);
@@ -70,27 +70,29 @@ public class HostCacheJobFactory implements JobFactory {
         job = jobRepository.save(job);
 
         // Create stages
-        createStage(job, cluster);
+        createStage(job, cluster, 1);
 
         return job;
     }
 
-    public void createStage(Job job, Cluster cluster) {
+    public void createStage(Job job, Cluster cluster, int stageOrder) {
+        createCache(cluster);
+
         List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
         List<String> hostnames = hostList.stream().map(Host::getHostname).toList();
 
-        Stage hostCheckStage = new Stage();
-        hostCheckStage.setJob(job);
-        hostCheckStage.setName("Cache Host");
-        hostCheckStage.setState(JobState.PENDING);
-        hostCheckStage.setStageOrder(1);
-        hostCheckStage.setCluster(cluster);
-        hostCheckStage = stageRepository.save(hostCheckStage);
+        Stage hostCacheStage = new Stage();
+        hostCacheStage.setJob(job);
+        hostCacheStage.setName("Cache Host");
+        hostCacheStage.setState(JobState.PENDING);
+        hostCacheStage.setStageOrder(stageOrder);
+        hostCacheStage.setCluster(cluster);
+        hostCacheStage = stageRepository.save(hostCacheStage);
 
         for (String hostname : hostnames) {
             Task task = new Task();
             task.setJob(job);
-            task.setStage(hostCheckStage);
+            task.setStage(hostCacheStage);
             task.setCluster(cluster);
             task.setStackName(cluster.getStack().getStackName());
             task.setStackVersion(cluster.getStack().getStackVersion());
@@ -103,7 +105,7 @@ public class HostCacheJobFactory implements JobFactory {
             task.setCustomCommand("cache_host");
             task.setState(JobState.PENDING);
 
-            HostCacheMessage hostCacheMessage = getTaskContent(
+            RequestMessage requestMessage = getMessage(
                     hostname,
                     settingsMap,
                     clusterInfo,
@@ -112,26 +114,27 @@ public class HostCacheJobFactory implements JobFactory {
                     repoList,
                     userMap,
                     componentInfoMap);
-            task.setContent(JsonUtils.writeAsString(hostCacheMessage));
+            log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
+            task.setContent(JsonUtils.writeAsString(requestMessage));
 
-            task.setMessageId(hostCacheMessage.getMessageId());
+            task.setMessageId(requestMessage.getMessageId());
             taskRepository.save(task);
         }
     }
 
-    private final ClusterInfo clusterInfo = new ClusterInfo();
+    private ClusterInfo clusterInfo;
 
-    private final Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
+    private Map<String, ComponentInfo> componentInfoMap;
 
-    private final Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
+    private Map<String, Map<String, Object>> serviceConfigMap;
 
-    private final Map<String, Set<String>> hostMap = new HashMap<>();
+    private Map<String, Set<String>> hostMap;
 
-    private final List<RepoInfo> repoList = new ArrayList<>();
+    private List<RepoInfo> repoList;
 
-    private final Map<String, Set<String>> userMap = new HashMap<>();
+    private Map<String, Set<String>> userMap;
 
-    private final Map<String, Object> settingsMap = new HashMap<>();
+    private Map<String, Object> settingsMap;
 
     private void createCache(Cluster cluster) {
         Long clusterId = cluster.getId();
@@ -148,6 +151,7 @@ public class HostCacheJobFactory implements JobFactory {
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 
         //Wrapper clusterInfo for HostCacheMessage
+        clusterInfo = new ClusterInfo();
         clusterInfo.setClusterName(clusterName);
         clusterInfo.setStackName(stackName);
         clusterInfo.setStackVersion(stackVersion);
@@ -164,6 +168,7 @@ public class HostCacheJobFactory implements JobFactory {
         }
 
         //Wrapper serviceConfigMap for HostCacheMessage
+        serviceConfigMap = new HashMap<>();
         serviceConfigs.forEach(x -> {
             if (serviceConfigMap.containsKey(x.getService().getServiceName())) {
                 serviceConfigMap.get(x.getService().getServiceName()).put(x.getTypeName(), x.getConfigData());
@@ -175,6 +180,7 @@ public class HostCacheJobFactory implements JobFactory {
         });
 
         //Wrapper hostMap for HostCacheMessage
+        hostMap = new HashMap<>();
         hostComponents.forEach(x -> {
             if (hostMap.containsKey(x.getComponent().getComponentName())) {
                 hostMap.get(x.getComponent().getComponentName()).add(x.getHost().getHostname());
@@ -190,12 +196,14 @@ public class HostCacheJobFactory implements JobFactory {
         hostMap.put(ALL_HOST_KEY, hostNameSet);
 
         //Wrapper repoList for HostCacheMessage
+        repoList = new ArrayList<>();
         repos.forEach(repo -> {
             RepoInfo repoInfo = RepoMapper.INSTANCE.Entity2Message(repo);
             repoList.add(repoInfo);
         });
 
         //Wrapper userMap for HostCacheMessage
+        userMap = new HashMap<>();
         services.forEach(x -> {
             if (userMap.containsKey(x.getServiceUser())) {
                 userMap.get(x.getServiceUser()).add(x.getServiceGroup());
@@ -207,9 +215,11 @@ public class HostCacheJobFactory implements JobFactory {
         });
 
         //Wrapper settings for HostCacheMessage
+        settingsMap = new HashMap<>();
         settings.forEach(x -> settingsMap.put(x.getTypeName(), x.getConfigData()));
 
         //Wrapper componentInfoList for HostCacheMessage
+        componentInfoMap = new HashMap<>();
         List<Component> componentList = componentRepository.findAll();
         componentList.forEach(c -> {
             ComponentInfo componentInfo = new ComponentInfo();
@@ -223,7 +233,34 @@ public class HostCacheJobFactory implements JobFactory {
         });
     }
 
-    private HostCacheMessage getTaskContent(
+    private RequestMessage getMessage(String hostname,
+                                      Map<String, Object> settingsMap,
+                                      ClusterInfo clusterInfo,
+                                      Map<String, Map<String, Object>> serviceConfigMap,
+                                      Map<String, Set<String>> hostMap,
+                                      List<RepoInfo> repoList,
+                                      Map<String, Set<String>> userMap,
+                                      Map<String, ComponentInfo> componentInfoMap) {
+        HostCachePayload hostCachePayload = getMessagePayload(
+                hostname,
+                settingsMap,
+                clusterInfo,
+                serviceConfigMap,
+                hostMap,
+                repoList,
+                userMap,
+                componentInfoMap);
+        RequestMessage requestMessage = new RequestMessage();
+
+        requestMessage.setMessageType(MessageType.HOST_CACHE);
+        requestMessage.setHostname(hostname);
+
+        requestMessage.setMessagePayload(JsonUtils.writeAsString(hostCachePayload));
+        return requestMessage;
+
+    }
+
+    private HostCachePayload getMessagePayload(
             String hostname,
             Map<String, Object> settingsMap,
             ClusterInfo clusterInfo,
@@ -231,8 +268,8 @@ public class HostCacheJobFactory implements JobFactory {
             Map<String, Set<String>> hostMap,
             List<RepoInfo> repoList,
             Map<String, Set<String>> userMap,
-            Map<String, ComponentInfo> componentInfoList) {
-        HostCacheMessage hostCacheMessage = new HostCacheMessage();
+            Map<String, ComponentInfo> componentInfoMap) {
+        HostCachePayload hostCacheMessage = new HostCachePayload();
         hostCacheMessage.setHostname(hostname);
 
         hostCacheMessage.setClusterInfo(clusterInfo);
@@ -241,7 +278,7 @@ public class HostCacheJobFactory implements JobFactory {
         hostCacheMessage.setRepoInfo(repoList);
         hostCacheMessage.setSettings(settingsMap);
         hostCacheMessage.setUserInfo(userMap);
-        hostCacheMessage.setComponentInfo(componentInfoList);
+        hostCacheMessage.setComponentInfo(componentInfoMap);
         return hostCacheMessage;
     }
 

@@ -39,6 +39,9 @@ public class ClusterCreateJobFactory implements JobFactory {
     @Resource
     private HostAddJobFactory hostAddJobFactory;
 
+    @Resource
+    private HostCacheJobFactory hostCacheJobFactory;
+
     public Job createJob(ClusterDTO clusterDTO) {
 
         Cluster cluster = saveCluster(clusterDTO);
@@ -49,7 +52,9 @@ public class ClusterCreateJobFactory implements JobFactory {
         job.setCluster(cluster);
         job = jobRepository.save(job);
 
-        hostAddJobFactory.createHostCheckStage(job, cluster, clusterDTO.getHostnames());
+        hostAddJobFactory.createHostCheckStage(job, cluster, clusterDTO.getHostnames(), 1);
+
+        hostCacheJobFactory.createStage(job, cluster, 2);
 
         return job;
     }
@@ -61,12 +66,27 @@ public class ClusterCreateJobFactory implements JobFactory {
         Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
         cluster.setSelected(clusterRepository.count() == 0);
         cluster.setState(MaintainState.UNINSTALLED);
+
+        Cluster oldCluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
+        if (oldCluster.getId() != null) {
+            cluster.setId(oldCluster.getId());
+        }
         clusterRepository.save(cluster);
 
         hostAddJobFactory.saveHost(cluster, clusterDTO.getHostnames());
 
         // Save repo
         List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(clusterDTO.getRepoInfoList(), cluster);
+        List<Repo> oldRepos = repoRepository.findAllByCluster(cluster);
+
+        for (Repo repo : repos) {
+            for (Repo oldRepo : oldRepos) {
+                if (oldRepo.getArch().equals(repo.getArch()) && oldRepo.getOs().equals(repo.getOs())) {
+                    repo.setId(oldRepo.getId());
+                }
+            }
+        }
+
         repoRepository.saveAll(repos);
         return cluster;
     }

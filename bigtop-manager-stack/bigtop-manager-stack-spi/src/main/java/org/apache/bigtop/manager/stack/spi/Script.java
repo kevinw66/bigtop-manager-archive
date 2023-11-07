@@ -1,24 +1,24 @@
 package org.apache.bigtop.manager.stack.spi;
 
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.commons.lang3.StringUtils;
 
 public interface Script extends SPIIdentify {
 
-    ShellResult install(CommandMessage commandMessage);
+    ShellResult install(CommandPayload commandMessage);
 
-    ShellResult configuration(CommandMessage commandMessage);
+    ShellResult configuration(CommandPayload commandMessage);
 
-    default ShellResult start(CommandMessage commandMessage) {
+    default ShellResult start(CommandPayload commandMessage) {
         return null;
     }
 
-    default ShellResult stop(CommandMessage commandMessage) {
+    default ShellResult stop(CommandPayload commandMessage) {
         return null;
     }
 
-    default ShellResult restart(CommandMessage commandMessage) {
+    default ShellResult restart(CommandPayload commandMessage) {
         ShellResult shellResult = stop(commandMessage);
         if (shellResult.getExitCode() != 0) {
             return shellResult;
@@ -33,5 +33,5 @@ public interface Script extends SPIIdentify {
                 StringUtils.join(shellResult.getErrMsg(), shellResult1.getErrMsg()));
     }
 
-    ShellResult status(CommandMessage commandMessage);
+    ShellResult status(CommandPayload commandMessage);
 }

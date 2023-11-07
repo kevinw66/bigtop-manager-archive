@@ -2,7 +2,6 @@ package org.apache.bigtop.manager.server.listener;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
 import org.apache.bigtop.manager.server.listener.strategy.AsyncJobStrategy;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
@@ -20,7 +19,7 @@ public class HostCacheEventListener {
     private JobRepository jobRepository;
 
     @Resource
-    private AsyncJobStrategy<HostCacheMessage> asyncJobStrategy;
+    private AsyncJobStrategy asyncJobStrategy;
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -28,7 +27,7 @@ public class HostCacheEventListener {
         log.info("listen HostCacheEvent: {}", event);
         Job job = jobRepository.getReferenceById(event.getJobId());
 
-        Boolean failed = asyncJobStrategy.handle(job, HostCacheMessage.class, JobStrategyType.OVER_ON_FAIL);
+        Boolean failed = asyncJobStrategy.handle(job, JobStrategyType.OVER_ON_FAIL);
         log.info("[HostCacheEventListener] failed: {}", failed);
     }
 
