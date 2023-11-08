@@ -4,17 +4,16 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.agent.ws.AgentWebSocketHandler;
 import org.apache.bigtop.manager.agent.ws.AgentWsTools;
-import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
+import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
+import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class HostCheckService {
     /**
      * attemptQueue
      */
-    private final BlockingQueue<HostCheckContext> eventQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<RequestMessage> eventQueue = new LinkedBlockingQueue<>();
 
     /**
      * task event worker
@@ -48,9 +47,9 @@ public class HostCheckService {
         try {
             this.taskEventThread.interrupt();
             if (!eventQueue.isEmpty()) {
-                List<HostCheckContext> remainEvents = new ArrayList<>(eventQueue.size());
+                List<RequestMessage> remainEvents = new ArrayList<>(eventQueue.size());
                 eventQueue.drainTo(remainEvents);
-                for (HostCheckContext context : remainEvents) {
+                for (RequestMessage context : remainEvents) {
                     executeTask(context);
                 }
             }
@@ -63,10 +62,10 @@ public class HostCheckService {
     /**
      * add event
      *
-     * @param context hostCheckContext
+     * @param requestMessage hostCheckContext
      */
-    public void addEvent(HostCheckContext context) {
-        eventQueue.add(context);
+    public void addEvent(RequestMessage requestMessage) {
+        eventQueue.add(requestMessage);
     }
 
     @Resource
@@ -86,7 +85,7 @@ public class HostCheckService {
             while (true) {
                 try {
                     // if not task event, blocking here
-                    HostCheckContext context = eventQueue.take();
+                    RequestMessage context = eventQueue.take();
                     executeTask(context);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -100,10 +99,11 @@ public class HostCheckService {
 
     /**
      * execute task
-     * @param context {@link HostCheckContext}
+     *
+     * @param requestMessage {@link RequestMessage}
      */
-    public void executeTask(HostCheckContext context) {
-        HostCheckMessage hostCheckMessage = context.getHostCheckMessage();
+    public void executeTask(RequestMessage requestMessage) {
+        HostCheckPayload hostCheckMessage = JsonUtils.readFromString(requestMessage.getMessagePayload(), HostCheckPayload.class);
 
         HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
 
@@ -115,9 +115,12 @@ public class HostCheckService {
 
                     resultMessage.setCode(shellResult.getExitCode());
                     resultMessage.setResult(shellResult.getResult());
-                    resultMessage.setMessageId(hostCheckMessage.getMessageId());
-                    resultMessage.setHostname(hostCheckMessage.getHostname());
-                    resultMessage.setMessageType(MessageType.HOST_CHECK);
+                    resultMessage.setMessageId(requestMessage.getMessageId());
+                    resultMessage.setHostname(requestMessage.getHostname());
+                    resultMessage.setMessageType(requestMessage.getMessageType());
+                    resultMessage.setJobId(requestMessage.getJobId());
+                    resultMessage.setStageId(requestMessage.getStageId());
+                    resultMessage.setTaskId(requestMessage.getTaskId());
 
                     agentWsTools.sendMessage(resultMessage);
                 }

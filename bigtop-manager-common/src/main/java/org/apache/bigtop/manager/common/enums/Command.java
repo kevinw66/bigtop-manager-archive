@@ -16,7 +16,7 @@ public enum Command {
 
     CONFIGURATION,
 
-    SERVICE_CHECK,
+    CHECK,
 
     CUSTOM_COMMAND,
 }

@@ -1,8 +1,6 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import org.apache.bigtop.manager.server.model.vo.StageVO;
 import org.apache.bigtop.manager.server.model.vo.TaskVO;
-import org.apache.bigtop.manager.server.orm.entity.Stage;
 import org.apache.bigtop.manager.server.orm.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

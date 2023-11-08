@@ -12,7 +12,7 @@ public class ValidatorConfig {
     public jakarta.validation.Validator validator() {
         ValidatorFactory validatorFactory = Validation.byProvider(HibernateValidator.class)
                 .configure()
-                // failed fast
+                // fail fast
                 .failFast(true)
                 .buildValidatorFactory();
         return validatorFactory.getValidator();

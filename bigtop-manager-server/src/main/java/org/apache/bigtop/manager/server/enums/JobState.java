@@ -10,9 +10,6 @@ public enum JobState {
 
     FAILED,
 
-    TIMEOUT,
-
-    CANCELED,
-    ;
+    CANCELED
 
 }

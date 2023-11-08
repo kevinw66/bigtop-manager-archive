@@ -4,16 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
-import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
-import org.apache.bigtop.manager.server.model.req.command.ComponentCommandReq;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -42,14 +40,6 @@ public class ComponentController {
     @GetMapping("/host-components/{id}")
     public ResponseEntity<List<HostComponentVO>> hostComponent(@PathVariable Long id) {
         return ResponseEntity.success(componentService.hostComponent(id));
-    }
-
-    @Operation(summary = "component command", description = "command for component, only support [START|STOP|RESTART]")
-    @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@RequestBody @Validated ComponentCommandReq commandReq) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
-        CommandVO commandVO = componentService.command(commandDTO);
-        return ResponseEntity.success(commandVO);
     }
 
 }

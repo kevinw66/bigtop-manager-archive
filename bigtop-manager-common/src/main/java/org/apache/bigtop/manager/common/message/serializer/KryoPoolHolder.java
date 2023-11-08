@@ -28,11 +28,9 @@ public class KryoPoolHolder {
             kryo.register(BaseMessage.class);
             kryo.register(BaseCommandMessage.class);
             kryo.register(HeartbeatMessage.class);
-            kryo.register(CommandMessage.class);
-            kryo.register(ResultMessage.class);
-            kryo.register(HostCacheMessage.class);
-            kryo.register(HostCheckMessage.class);
             kryo.register(ComponentHeartbeatMessage.class);
+            kryo.register(ResultMessage.class);
+            kryo.register(RequestMessage.class);
 
             // message pojo
             kryo.register(HostInfo.class);

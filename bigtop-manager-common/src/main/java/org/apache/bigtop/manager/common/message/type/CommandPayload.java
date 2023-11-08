@@ -9,10 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class CommandMessage extends BaseCommandMessage {
+public class CommandPayload {
 
     private String serviceName;
 

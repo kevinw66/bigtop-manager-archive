@@ -24,7 +24,9 @@ public class Job extends BaseEntity {
     @Column(name = "state")
     private JobState state;
 
-    @Column(name = "context")
+    @Lob
+    @Basic(fetch= FetchType.LAZY)
+    @Column(name = "context", length = 16777216)
     private String context;
 
     @ManyToOne
