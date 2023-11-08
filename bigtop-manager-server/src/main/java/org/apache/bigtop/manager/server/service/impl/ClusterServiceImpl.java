@@ -18,6 +18,7 @@ import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
+import org.apache.bigtop.manager.server.validate.ClusterCreateValidator;
 import org.apache.bigtop.manager.server.validate.HostAddValidator;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,9 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Resource
     private HostAddValidator hostAddValidator;
+
+    @Resource
+    private ClusterCreateValidator clusterCreateValidator;
 
     @Resource
     private StackRepository stackRepository;
@@ -63,6 +67,8 @@ public class ClusterServiceImpl implements ClusterService {
             throw new ApiException(ApiExceptionEnum.STACK_NOT_FOUND);
         }
 
+        clusterCreateValidator.validate(clusterDTO.getClusterName());
+
         // Check hosts
         List<String> hostnames = clusterDTO.getHostnames();
         hostAddValidator.validate(hostnames);
@@ -75,7 +81,6 @@ public class ClusterServiceImpl implements ClusterService {
         SpringContextHolder.getApplicationContext().publishEvent(event);
         return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
-
 
 
     @Override
