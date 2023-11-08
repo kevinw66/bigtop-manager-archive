@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @EnableAsync
 @EnableJpaAuditing
 @SpringBootApplication(scanBasePackages = "org.apache.bigtop.manager")

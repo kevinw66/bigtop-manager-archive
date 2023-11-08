@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationEvent;
 @Setter
 public class HostCacheEvent extends ApplicationEvent {
 
-    Long jobId;
+    private Long jobId;
 
     public HostCacheEvent(Object source) {
         super(source);

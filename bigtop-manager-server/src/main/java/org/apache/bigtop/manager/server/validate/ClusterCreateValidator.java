@@ -8,6 +8,8 @@ import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ClusterCreateValidator {
 
@@ -15,7 +17,7 @@ public class ClusterCreateValidator {
     private ClusterRepository clusterRepository;
 
     public void validate(String clusterName) {
-        Cluster cluster = clusterRepository.findByClusterNameAndState(clusterName, MaintainState.INSTALLED);
+        Cluster cluster = clusterRepository.findByClusterNameAndStateIn(clusterName, List.of(MaintainState.INSTALLED, MaintainState.MAINTAINED));
 
         // Check hosts
         if (cluster != null) {

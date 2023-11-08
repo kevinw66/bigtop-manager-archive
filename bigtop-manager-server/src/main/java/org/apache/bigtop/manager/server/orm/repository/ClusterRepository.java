@@ -4,10 +4,11 @@ import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ClusterRepository extends JpaRepository<Cluster, Long> {
     Optional<Cluster> findByClusterName(String clusterName);
 
-    Cluster findByClusterNameAndState(String clusterName, MaintainState state);
+    Cluster findByClusterNameAndStateIn(String clusterName, List<MaintainState> states);
 }

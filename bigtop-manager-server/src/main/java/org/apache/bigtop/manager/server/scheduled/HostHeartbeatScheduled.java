@@ -4,14 +4,10 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
-import org.apache.bigtop.manager.server.enums.MaintainState;
-import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +17,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@EnableScheduling
-@EnableAsync
 public class HostHeartbeatScheduled {
 
     @Resource

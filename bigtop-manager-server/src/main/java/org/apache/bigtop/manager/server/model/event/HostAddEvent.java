@@ -9,9 +9,9 @@ import java.util.List;
 @Setter
 public class HostAddEvent extends ApplicationEvent {
 
-    Long jobId;
+    private Long jobId;
 
-    List<String> hostnames;
+    private List<String> hostnames;
 
     public HostAddEvent(Object source) {
         super(source);

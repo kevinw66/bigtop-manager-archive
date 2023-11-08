@@ -21,7 +21,7 @@ public class CommandController {
     @Resource
     private CommandService commandService;
 
-    @Operation(summary = "command", description = "Command, only support [START|STOP|RESTART]")
+    @Operation(summary = "command", description = "Command for component by [host,component,service,cluster]")
     @PostMapping
     public ResponseEntity<CommandVO> command(@RequestBody @Validated CommandReq commandReq) {
         CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
