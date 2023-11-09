@@ -57,7 +57,7 @@ const layoutRoutes: RouteRecordRaw[] = [
     },
     children: [
       {
-        path: 'zookeeper',
+        path: 'ZOOKEEPER',
         component: () => import('@/pages/hosts/index.vue'),
         children: [],
         meta: {
@@ -65,6 +65,42 @@ const layoutRoutes: RouteRecordRaw[] = [
           icon: h(CircleFilled, {
             style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
           })
+        }
+      },
+      {
+        path: 'KAFKA',
+        component: () => import('@/pages/hosts/index.vue'),
+        children: [],
+        meta: {
+          title: 'Kafka',
+          icon: h(CircleFilled, {
+            style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
+          })
+        }
+      }
+    ]
+  },
+  {
+    path: '/cluster/',
+    meta: {
+      title: 'Cluster Admin',
+      icon: h(SettingOutlined)
+    },
+    children: [
+      {
+        path: 'stack',
+        component: () => import('@/pages/cluster/stack/index.vue'),
+        meta: {
+          title: 'Stack Information',
+          icon: h(ProfileOutlined)
+        }
+      },
+      {
+        path: 'account',
+        component: () => import('@/pages/cluster/account/index.vue'),
+        meta: {
+          title: 'Account Information',
+          icon: h(UserOutlined)
         }
       }
     ]

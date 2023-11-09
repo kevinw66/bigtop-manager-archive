@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Host Controller")
+@Tag(name = "Cluster Host Controller")
 @RestController
 @RequestMapping("/clusters/{clusterId}/hosts")
 public class HostController {

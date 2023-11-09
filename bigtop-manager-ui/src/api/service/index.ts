@@ -15,18 +15,12 @@
  * limitations under the License.
  */
 
-import common from '@/locales/en_US/common.ts'
-import login from '@/locales/en_US/login'
-import user from '@/locales/en_US/user.ts'
-import cluster from '@/locales/en_US/cluster.ts'
-import hosts from '@/locales/en_US/hosts.ts'
-import service from '@/locales/en_US/service.ts'
+import request from '@/api/request.ts'
+import { ServiceVO } from '@/api/service/types.ts'
 
-export default {
-  common,
-  login,
-  user,
-  cluster,
-  hosts,
-  service
+export const getService = (clusterId: number): Promise<ServiceVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/services'
+  })
 }

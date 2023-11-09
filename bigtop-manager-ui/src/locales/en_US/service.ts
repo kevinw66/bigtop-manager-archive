@@ -15,18 +15,8 @@
  * limitations under the License.
  */
 
-import common from '@/locales/en_US/common.ts'
-import login from '@/locales/en_US/login'
-import user from '@/locales/en_US/user.ts'
-import cluster from '@/locales/en_US/cluster.ts'
-import hosts from '@/locales/en_US/hosts.ts'
-import service from '@/locales/en_US/service.ts'
-
 export default {
-  common,
-  login,
-  user,
-  cluster,
-  hosts,
-  service
+  service_name: 'Service Name',
+  add_service: 'Add service',
+  service_selected: 'Selected {0} Services',
 }

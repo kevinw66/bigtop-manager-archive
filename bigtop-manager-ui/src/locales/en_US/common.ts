@@ -36,6 +36,7 @@ export default {
   arch: 'Arch',
   base_url: 'Base URL',
   host: 'Host',
+  service: 'Service',
   stage: 'Stage',
   progress: 'Progress',
   update_success: 'Update success',

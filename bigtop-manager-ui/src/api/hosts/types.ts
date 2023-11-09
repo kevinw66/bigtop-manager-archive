@@ -24,5 +24,5 @@ export interface HostVO {
   os: string
   availableProcessors: string
   totalMemorySize: string
-  status: number
+  state: string
 }

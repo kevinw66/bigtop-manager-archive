@@ -12,7 +12,7 @@ public interface ComponentService {
      *
      * @return components
      */
-    List<ComponentVO> list();
+    List<ComponentVO> list(Long clusterId);
 
     /**
      * Get a component by id.

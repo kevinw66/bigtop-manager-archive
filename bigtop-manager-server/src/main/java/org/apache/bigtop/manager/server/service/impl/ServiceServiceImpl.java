@@ -12,7 +12,6 @@ import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.ServiceRepository;
 import org.apache.bigtop.manager.server.service.ServiceService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -26,14 +25,10 @@ public class ServiceServiceImpl implements ServiceService {
     private HostComponentRepository hostComponentRepository;
 
     @Override
-    public List<ServiceVO> list() {
-        List<ServiceVO> serviceVOList = new ArrayList<>();
-        serviceRepository.findAll().forEach(stack -> {
-            ServiceVO serviceVO = ServiceMapper.INSTANCE.Entity2VO(stack);
-            serviceVOList.add(serviceVO);
-        });
+    public List<ServiceVO> list(Long clusterId) {
+        List<Service> serviceList = serviceRepository.findAllByClusterId(clusterId);
 
-        return serviceVOList;
+        return ServiceMapper.INSTANCE.Entity2VO(serviceList);
     }
 
     @Override

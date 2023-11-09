@@ -69,7 +69,7 @@
     },
     {
       title: 'common.status',
-      dataIndex: 'status',
+      dataIndex: 'state',
       align: 'center'
     }
   ]
@@ -134,7 +134,7 @@
     <br />
 
     <a-table
-      row-key="hostname"
+      :row-key="hostColumns[0].dataIndex"
       :columns="hostColumns"
       :data-source="hostData"
       :loading="loading"
@@ -146,14 +146,14 @@
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
       </template>
-      <template #bodyCell="{ column, text, record }">
-        <template v-if="column.dataIndex === 'status'">
+      <template #bodyCell="{ column, text }">
+        <template v-if="column.dataIndex === 'state'">
           <CheckCircleTwoTone
-            v-if="record.status === '0'"
+            v-if="text === 'INSTALLED'"
             two-tone-color="#52c41a"
           />
           <MinusCircleTwoTone
-            v-else-if="record.status === '1'"
+            v-else-if="text === 'MAINTAINED'"
             two-tone-color="orange"
           />
           <CloseCircleTwoTone v-else two-tone-color="red" />

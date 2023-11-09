@@ -29,9 +29,9 @@ public class ComponentServiceImpl implements ComponentService {
     private HostComponentRepository hostComponentRepository;
 
     @Override
-    public List<ComponentVO> list() {
+    public List<ComponentVO> list(Long clusterId) {
         List<ComponentVO> componentVOList = new ArrayList<>();
-        componentRepository.findAll().forEach(stack -> {
+        componentRepository.findAllByClusterId(clusterId).forEach(stack -> {
             ComponentVO componentVO = ComponentMapper.INSTANCE.Entity2VO(stack);
             componentVOList.add(componentVO);
         });

@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Slf4j
-@Tag(name = "Service Controller")
+@Tag(name = "Cluster Service Controller")
 @RestController
-@RequestMapping("/services")
+@RequestMapping("/clusters/{clusterId}/services")
 public class ServiceController {
 
     @Resource
@@ -26,8 +26,8 @@ public class ServiceController {
 
     @Operation(summary = "list", description = "List services")
     @GetMapping
-    public ResponseEntity<List<ServiceVO>> list() {
-        return ResponseEntity.success(serviceService.list());
+    public ResponseEntity<List<ServiceVO>> list(@PathVariable Long clusterId) {
+        return ResponseEntity.success(serviceService.list(clusterId));
     }
 
     @Operation(summary = "get", description = "Get a service")
