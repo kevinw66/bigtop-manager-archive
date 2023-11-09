@@ -8,6 +8,8 @@
   import { getService } from '@/api/service'
   import { ServiceVO } from '@/api/service/types.ts'
   import { StackServiceVO } from '@/api/stack/types.ts'
+  import { useIntervalFn } from '@vueuse/core/index'
+  import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
   const stackStore = useStackStore()
   const { stackServices } = storeToRefs(stackStore)
@@ -48,20 +50,22 @@
 
   const refreshService = async () => {
     if (clusterId.value !== 0) {
-      try {
-        const res = await getService(clusterId.value)
-        res.forEach((serviceVO) => {
-          nameServiceVOs[serviceVO.serviceName] = serviceVO
-        })
-      } catch (e) {
-        console.log(e)
-      }
+      const res = await getService(clusterId.value)
+      res.forEach((serviceVO) => {
+        nameServiceVOs[serviceVO.serviceName] = serviceVO
+      })
       loading.value = false
     }
   }
 
   onMounted(async () => {
-    await refreshService()
+    useIntervalFn(
+      async () => {
+        await refreshService()
+      },
+      MONITOR_SCHEDULE_INTERVAL,
+      { immediateCallback: true }
+    )
   })
 </script>
 
