@@ -37,6 +37,7 @@ export default {
   base_url: 'Base URL',
   host: 'Host',
   service: 'Service',
+  stack: 'Stack',
   stage: 'Stage',
   progress: 'Progress',
   update_success: 'Update success',

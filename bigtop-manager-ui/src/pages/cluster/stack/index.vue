@@ -7,7 +7,6 @@
   import ClusterCreate from '@/components/cluster-create/index.vue'
   import { getService } from '@/api/service'
   import { ServiceVO } from '@/api/service/types.ts'
-  import { StackServiceVO } from '@/api/stack/types.ts'
   import { useIntervalFn } from '@vueuse/core/index'
   import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
@@ -24,7 +23,6 @@
       '-' +
       selectedCluster.value?.stackVersion
   )
-  const selectedRowKeys = ref<string[]>([])
   const loading = ref<boolean>(true)
   const nameServiceVOs = reactive<Record<string, ServiceVO>>({})
 
@@ -76,19 +74,9 @@
 
 <template>
   <div>
-    <a-page-header class="host-page-header" :title="$t('common.service')">
+    <a-page-header class="host-page-header" :title="$t('common.stack')">
       <template #extra>
-        <span class="host-selected-span">
-          <template v-if="selectedRowKeys.length > 0">
-            {{ $t('service.service_selected', [selectedRowKeys.length]) }}
-          </template>
-        </span>
-
-        <a-button
-          type="primary"
-          :disabled="selectedRowKeys.length === 0"
-          @click="createWindowOpened = true"
-        >
+        <a-button type="primary" @click="createWindowOpened = true">
           {{ $t('service.add_service') }}
         </a-button>
       </template>
@@ -100,13 +88,6 @@
       :columns="serviceColumns"
       :loading="loading"
       :data-source="stackServices[fullStackName]"
-      :row-selection="{
-        selectedRowKeys,
-        onChange: (value: string[]) => (selectedRowKeys = value),
-        getCheckboxProps: (record: StackServiceVO) => ({
-          disabled: nameServiceVOs[record.serviceName] !== undefined
-        })
-      }"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
@@ -114,7 +95,7 @@
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.dataIndex === 'state'">
           <CheckCircleTwoTone
-            v-if="nameServiceVOs[record.serviceName] !== undefined"
+            v-if="nameServiceVOs[record.serviceName]"
             two-tone-color="#52c41a"
           />
           <CloseCircleTwoTone v-else two-tone-color="red" />
@@ -122,7 +103,7 @@
         <template
           v-if="
             column.dataIndex === 'displayName' &&
-            nameServiceVOs[record.serviceName] !== undefined
+            nameServiceVOs[record.serviceName]
           "
         >
           <router-link :to="'/services/' + record.serviceName.toLowerCase()">

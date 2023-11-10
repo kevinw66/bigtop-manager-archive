@@ -23,7 +23,8 @@ import {
   PieChartOutlined,
   SettingOutlined,
   UserOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  BarsOutlined
 } from '@ant-design/icons-vue'
 import CircleFilled from '@/components/icons/circle-filled.vue'
 
@@ -92,7 +93,7 @@ const layoutRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/cluster/stack/index.vue'),
         meta: {
           title: 'Stack',
-          icon: h(ProfileOutlined)
+          icon: h(BarsOutlined)
         }
       },
       {

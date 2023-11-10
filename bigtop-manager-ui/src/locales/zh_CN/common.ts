@@ -37,6 +37,7 @@ export default {
   base_url: '地址',
   host: '主机',
   service: '服务',
+  stack: '组件栈',
   stage: '阶段',
   progress: '进度',
   update_success: '更新成功',
