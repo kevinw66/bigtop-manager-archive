@@ -28,7 +28,7 @@
   const serviceColumns = [
     {
       title: 'common.name',
-      dataIndex: 'serviceName',
+      dataIndex: 'displayName',
       align: 'center'
     },
     {
@@ -119,11 +119,11 @@
         </template>
         <template
           v-if="
-            column.dataIndex === 'serviceName' &&
+            column.dataIndex === 'displayName' &&
             nameServiceVOs[record.serviceName] !== undefined
           "
         >
-          <router-link :to="'/services/' + record.serviceName">
+          <router-link :to="'/services/' + record.serviceName.toLowerCase()">
             {{ text }}
           </router-link>
         </template>

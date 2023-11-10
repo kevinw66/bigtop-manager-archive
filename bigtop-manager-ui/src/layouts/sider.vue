@@ -13,11 +13,17 @@
   const { menuItems } = storeToRefs(userStore)
 
   const selectedKeys = ref<string[]>([])
+  const openKeys = ref<string[]>([])
 
   const updateSideBar = () => {
     const splitPath = router.currentRoute.value.path.split('/')
     const selectedKey = splitPath[splitPath.length - 1]
     selectedKeys.value = [selectedKey]
+    if (splitPath.length > 2) {
+      openKeys.value = [splitPath[1]]
+    } else {
+      openKeys.value = []
+    }
   }
 
   watch(router.currentRoute, () => {
@@ -35,7 +41,12 @@
       <img class="header-logo" src="@/assets/logo.svg" alt="logo" />
       <div v-if="!siderCollapsed" class="header-title">Bigtop Manager</div>
     </div>
-    <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline">
+    <a-menu
+      v-model:selectedKeys="selectedKeys"
+      v-model:open-keys="openKeys"
+      theme="dark"
+      mode="inline"
+    >
       <template v-for="item in menuItems">
         <template v-if="item.children !== undefined">
           <a-sub-menu :key="item.key">
