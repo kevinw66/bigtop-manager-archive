@@ -12,19 +12,19 @@ public interface ConfigurationService {
      *
      * @return configurations
      */
-    List<ConfigurationVO> list(String clusterName);
+    List<ConfigurationVO> list(Long clusterId);
 
     /**
      * Get all latest configurations.
      *
      * @return configurations
      */
-    List<ConfigurationVO> latest(String clusterName);
+    List<ConfigurationVO> latest(Long clusterId);
 
     /**
      * Update configurations.
      *
      * @return configurations
      */
-    List<ConfigurationVO> update(String clusterName, List<ConfigurationDTO> configurationDTOList);
+    List<ConfigurationVO> update(Long clusterId, List<ConfigurationDTO> configurationDTOList);
 }

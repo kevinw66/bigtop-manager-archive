@@ -44,21 +44,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private ServiceConfigRepository serviceConfigRepository;
 
     @Override
-    public List<ConfigurationVO> list(String clusterName) {
-        List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllByServiceConfigRecordClusterClusterName(clusterName);
+    public List<ConfigurationVO> list(Long clusterId) {
+        List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllByServiceConfigRecordClusterId(clusterId);
         return ConfigurationMapper.INSTANCE.Entity2VO(serviceConfigMappingList);
     }
 
     @Override
-    public List<ConfigurationVO> latest(String clusterName) {
-        List<ServiceConfigMapping> resultList = serviceConfigMappingRepository.findAllGroupLastest(clusterName);
+    public List<ConfigurationVO> latest(Long clusterId) {
+        List<ServiceConfigMapping> resultList = serviceConfigMappingRepository.findAllGroupLastest(clusterId);
         return ConfigurationMapper.INSTANCE.Entity2VO(resultList);
     }
 
     @Override
-    public List<ConfigurationVO> update(String clusterName, List<ConfigurationDTO> configurationDTOList) {
+    public List<ConfigurationVO> update(Long clusterId, List<ConfigurationDTO> configurationDTOList) {
         List<ServiceConfigMapping> serviceConfigMappingList = new ArrayList<>();
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         for (ConfigurationDTO configurationDTO : configurationDTOList) {
             updateConfig(cluster, configurationDTO, serviceConfigMappingList);

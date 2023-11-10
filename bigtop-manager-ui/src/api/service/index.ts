@@ -15,33 +15,12 @@
  * limitations under the License.
  */
 
-export default {
-  prev: '上一步',
-  next: '下一步',
-  done: '完成',
-  exit: '退出',
-  action: '操作',
-  status: '状态',
-  edit: '编辑',
-  submit: '提交',
-  cancel: '取消',
-  exit_confirm: '确定要退出吗？',
-  install: '安装',
-  finish: '完成',
-  select_tips: '请选择',
-  name: '名称',
-  version: '版本',
-  desc: '描述',
-  os: '系统',
-  arch: '架构',
-  base_url: '地址',
-  host: '主机',
-  service: '服务',
-  stack: '组件栈',
-  stage: '阶段',
-  progress: '进度',
-  update_success: '更新成功',
-  update_fail: '更新失败',
-  unknown_error: '未知错误',
-  websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面'
+import request from '@/api/request.ts'
+import { ServiceVO } from '@/api/service/types.ts'
+
+export const getService = (clusterId: number): Promise<ServiceVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/services'
+  })
 }

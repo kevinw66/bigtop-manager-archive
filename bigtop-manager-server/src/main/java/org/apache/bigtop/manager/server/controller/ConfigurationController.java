@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Slf4j
-@Tag(name = "Configuration Controller")
+@Tag(name = "Cluster Configuration Controller")
 @Validated
 @RestController
-@RequestMapping("/configurations")
+@RequestMapping("/clusters/{clusterId}/configurations")
 public class ConfigurationController {
 
     @Resource
     private ConfigurationService configurationService;
 
     @Operation(summary = "list", description = "list all version configurations")
-    @GetMapping("/{clusterName}")
-    public ResponseEntity<List<ConfigurationVO>> list(@PathVariable String clusterName) {
-        List<ConfigurationVO> configurationVOList = configurationService.list(clusterName);
+    @GetMapping
+    public ResponseEntity<List<ConfigurationVO>> list(@PathVariable Long clusterId) {
+        List<ConfigurationVO> configurationVOList = configurationService.list(clusterId);
         return ResponseEntity.success(configurationVOList);
     }
 
     @Operation(summary = "list", description = "list all latest configurations")
-    @GetMapping("/{clusterName}/latest")
-    public ResponseEntity<List<ConfigurationVO>> latest(@PathVariable String clusterName) {
-        List<ConfigurationVO> configurationVOList = configurationService.latest(clusterName);
+    @GetMapping("/latest")
+    public ResponseEntity<List<ConfigurationVO>> latest(@PathVariable Long clusterId) {
+        List<ConfigurationVO> configurationVOList = configurationService.latest(clusterId);
         return ResponseEntity.success(configurationVOList);
     }
 
     @Operation(summary = "update", description = "update|create|roll-back configurations")
-    @PutMapping("/{clusterName}")
-    public ResponseEntity<List<ConfigurationVO>> update(@PathVariable String clusterName,
+    @PutMapping
+    public ResponseEntity<List<ConfigurationVO>> update(@PathVariable Long clusterId,
                                                         @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
         List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.Request2DTO(configurationReqs);
         log.info("configurationDTOList: {}", configurationDTOList);
-        List<ConfigurationVO> configurationVOList = configurationService.update(clusterName, configurationDTOList);
+        List<ConfigurationVO> configurationVOList = configurationService.update(clusterId, configurationDTOList);
         return ResponseEntity.success(configurationVOList);
     }
 

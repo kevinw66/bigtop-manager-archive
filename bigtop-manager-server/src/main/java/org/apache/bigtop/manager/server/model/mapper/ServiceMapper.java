@@ -38,6 +38,8 @@ public interface ServiceMapper {
     @Mapping(target = "clusterName", source = "cluster.clusterName")
     ServiceVO Entity2VO(Service service);
 
+    List<ServiceVO> Entity2VO(List<Service> services);
+
     default String osSpecificDTO2str(List<OSSpecificDTO> osSpecifics) {
         return JsonUtils.writeAsString(osSpecifics);
     }

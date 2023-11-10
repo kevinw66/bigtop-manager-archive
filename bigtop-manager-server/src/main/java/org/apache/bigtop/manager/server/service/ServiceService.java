@@ -12,7 +12,7 @@ public interface ServiceService {
      *
      * @return Stacks
      */
-    List<ServiceVO> list();
+    List<ServiceVO> list(Long clusterId);
 
     /**
      * Get a service.

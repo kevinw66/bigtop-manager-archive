@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Slf4j
-@Tag(name = "Component Controller")
+@Tag(name = "Cluster Component Controller")
 @RestController
-@RequestMapping("/components")
+@RequestMapping("/clusters/{clusterId}/components")
 public class ComponentController {
 
     @Resource
@@ -26,8 +26,8 @@ public class ComponentController {
 
     @Operation(summary = "list", description = "List components")
     @GetMapping
-    public ResponseEntity<List<ComponentVO>> list() {
-        return ResponseEntity.success(componentService.list());
+    public ResponseEntity<List<ComponentVO>> list(@PathVariable Long clusterId) {
+        return ResponseEntity.success(componentService.list(clusterId));
     }
 
     @Operation(summary = "get", description = "Get a component")
