@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onMounted, reactive, ref, watch } from 'vue'
+  import { computed, onMounted, reactive, ref, watch } from 'vue'
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
   import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons-vue'
@@ -18,7 +18,12 @@
   watch(clusterId, async () => {
     await refreshService()
   })
-
+  const fullStackName = computed(
+    () =>
+      selectedCluster.value?.stackName +
+      '-' +
+      selectedCluster.value?.stackVersion
+  )
   const selectedRowKeys = ref<string[]>([])
   const loading = ref<boolean>(true)
   const nameServiceVOs = reactive<Record<string, ServiceVO>>({})
@@ -94,11 +99,7 @@
       :row-key="serviceColumns[0].dataIndex"
       :columns="serviceColumns"
       :loading="loading"
-      :data-source="
-        stackServices[
-          selectedCluster?.stackName + '-' + selectedCluster?.stackVersion
-        ]
-      "
+      :data-source="stackServices[fullStackName]"
       :row-selection="{
         selectedRowKeys,
         onChange: (value: string[]) => (selectedRowKeys = value),

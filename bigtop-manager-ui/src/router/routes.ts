@@ -61,7 +61,7 @@ const layoutRoutes: RouteRecordRaw[] = [
         component: () => import('@/pages/hosts/index.vue'),
         children: [],
         meta: {
-          title: 'Zookeeper',
+          title: 'ZooKeeper',
           icon: h(CircleFilled, {
             style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
           })
