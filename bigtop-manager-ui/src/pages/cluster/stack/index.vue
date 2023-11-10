@@ -84,7 +84,6 @@
     <br />
 
     <a-table
-      :row-key="serviceColumns[0].dataIndex"
       :columns="serviceColumns"
       :loading="loading"
       :data-source="stackServices[fullStackName]"
