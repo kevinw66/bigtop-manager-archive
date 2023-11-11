@@ -17,4 +17,8 @@ public class ServiceVO {
 
     private String clusterName;
 
+    private String serviceUser;
+
+    private String serviceGroup;
+
 }

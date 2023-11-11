@@ -19,4 +19,7 @@ export default {
   service_name: 'Service Name',
   add_service: 'Add service',
   service_selected: 'Selected {0} Services',
+  service_account: 'Service Account',
+  service_user: 'Service User',
+  service_group: 'Service Group'
 }
