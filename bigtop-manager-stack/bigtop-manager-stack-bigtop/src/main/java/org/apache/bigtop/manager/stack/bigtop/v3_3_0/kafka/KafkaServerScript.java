@@ -4,7 +4,7 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
+import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperParams;
@@ -21,21 +21,20 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @AutoService(Script.class)
 public class KafkaServerScript implements Script {
 
     @Override
-    public ShellResult install(CommandMessage commandMessage) {
+    public ShellResult install(CommandPayload commandMessage) {
         log.info("KafkaServerScript install");
         List<String> packageList = KafkaParams.getPackageList(commandMessage);
         return PackageUtils.install(packageList);
     }
 
     @Override
-    public ShellResult configuration(CommandMessage commandMessage) {
+    public ShellResult configuration(CommandPayload commandMessage) {
         log.info("KafkaServerScript configuration");
 
         String confDir = KafkaParams.confDir(commandMessage);
@@ -110,7 +109,7 @@ public class KafkaServerScript implements Script {
     }
 
     @Override
-    public ShellResult start(CommandMessage commandMessage) {
+    public ShellResult start(CommandPayload commandMessage) {
         configuration(commandMessage);
         log.info("KafkaServerScript start");
 
@@ -127,7 +126,7 @@ public class KafkaServerScript implements Script {
     }
 
     @Override
-    public ShellResult stop(CommandMessage commandMessage) {
+    public ShellResult stop(CommandPayload commandMessage) {
         log.info("KafkaServerScript stop");
         String cmd = MessageFormat.format("sh {0}/bin/kafka-server-stop.sh", KafkaParams.serviceHome(commandMessage));
         try {
@@ -141,7 +140,7 @@ public class KafkaServerScript implements Script {
     }
 
     @Override
-    public ShellResult status(CommandMessage commandMessage) {
+    public ShellResult status(CommandPayload commandMessage) {
         log.info("KafkaServerScript status");
 
         String cmd = MessageFormat.format("cd {0}; netstat -nalpt | grep 9092", ZookeeperParams.serviceHome(commandMessage));
@@ -155,7 +154,7 @@ public class KafkaServerScript implements Script {
         }
     }
 
-    public ShellResult test(CommandMessage commandMessage) {
+    public ShellResult test(CommandPayload commandMessage) {
         try {
             ShellResult shellResult = LinuxOSUtils.sudoExecCmd("date", commandMessage.getServiceUser());
             return shellResult;

@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.orm.repository;
 
+import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +14,10 @@ public interface HostRepository extends JpaRepository<Host, Long> {
     Host findByHostname(String hostname);
 
     List<Host> findAllByHostnameIn(Collection<String> hostnames);
+
+    List<Host> findAllByHostnameInAndStateIn(Collection<String> hostnames, List<MaintainState> states);
+
+    List<Host> findAllByClusterIdAndHostnameIn(Long clusterId, Collection<String> hostnames);
 
     List<Host> findAllByClusterId(Long clusterId);
 

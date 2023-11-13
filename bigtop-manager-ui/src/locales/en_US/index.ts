@@ -20,11 +20,13 @@ import login from '@/locales/en_US/login'
 import user from '@/locales/en_US/user.ts'
 import cluster from '@/locales/en_US/cluster.ts'
 import hosts from '@/locales/en_US/hosts.ts'
+import service from '@/locales/en_US/service.ts'
 
 export default {
   common,
   login,
   user,
   cluster,
-  hosts
+  hosts,
+  service
 }

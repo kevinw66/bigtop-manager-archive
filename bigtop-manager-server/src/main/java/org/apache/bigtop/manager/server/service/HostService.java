@@ -1,11 +1,11 @@
 package org.apache.bigtop.manager.server.service;
 
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public interface HostService {
      *
      * @return Host
      */
-    List<HostVO> create(HostDTO hostDTO);
+    CommandVO create(Long clusterId, List<String> hostnames);
 
     /**
      * Get a host
@@ -55,15 +55,10 @@ public interface HostService {
 
     /**
      * Cache a host
+     *
      * @param clusterId cluster id
      * @return boolean
      */
     Boolean cache(Long clusterId);
 
-    /**
-     * execute command for a host
-     * @param commandDTO {@link CommandDTO}
-     * @return {@link CommandVO}
-     */
-    CommandVO command(CommandDTO commandDTO);
 }

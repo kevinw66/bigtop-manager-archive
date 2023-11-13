@@ -14,5 +14,7 @@ public interface ComponentRepository extends JpaRepository<Component, Long> {
 
     List<Component> findAllByClusterClusterName(String clusterName);
 
+    List<Component> findAllByClusterId(Long clusterId);
+
     List<Component> findAllByClusterClusterNameAndServiceServiceNameIn(String clusterName, Iterable<String> serviceNames);
 }

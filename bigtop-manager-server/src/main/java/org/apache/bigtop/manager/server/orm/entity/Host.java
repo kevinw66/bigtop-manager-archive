@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.orm.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -37,8 +38,9 @@ public class Host extends BaseEntity {
     @Column(name = "total_memory_size")
     private Long totalMemorySize;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "state")
-    private String state;
+    private MaintainState state;
 
     @ManyToOne
     @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

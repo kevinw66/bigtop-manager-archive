@@ -23,7 +23,8 @@ import {
   PieChartOutlined,
   SettingOutlined,
   UserOutlined,
-  ProfileOutlined
+  ProfileOutlined,
+  BarsOutlined
 } from '@ant-design/icons-vue'
 import CircleFilled from '@/components/icons/circle-filled.vue'
 
@@ -65,6 +66,42 @@ const layoutRoutes: RouteRecordRaw[] = [
           icon: h(CircleFilled, {
             style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
           })
+        }
+      },
+      {
+        path: 'kafka',
+        component: () => import('@/pages/hosts/index.vue'),
+        children: [],
+        meta: {
+          title: 'Kafka',
+          icon: h(CircleFilled, {
+            style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
+          })
+        }
+      }
+    ]
+  },
+  {
+    path: '/cluster/',
+    meta: {
+      title: 'Cluster',
+      icon: h(SettingOutlined)
+    },
+    children: [
+      {
+        path: 'stack',
+        component: () => import('@/pages/cluster/stack/index.vue'),
+        meta: {
+          title: 'Stack',
+          icon: h(BarsOutlined)
+        }
+      },
+      {
+        path: 'account',
+        component: () => import('@/pages/cluster/account/index.vue'),
+        meta: {
+          title: 'Account',
+          icon: h(UserOutlined)
         }
       }
     ]

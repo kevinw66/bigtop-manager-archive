@@ -17,5 +17,4 @@ public class ServiceVO {
 
     private String clusterName;
 
-    private Integer status;
 }

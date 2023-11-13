@@ -82,7 +82,7 @@ public class LocalSettings {
 
     public static Set<String> packages() {
         ClusterInfo cluster = cluster();
-        return Optional.of(cluster.getPackages()).orElse(Set.of());
+        return Optional.ofNullable(cluster.getPackages()).orElse(Set.of());
     }
 
     public static List<RepoInfo> repos() {

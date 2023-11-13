@@ -1,7 +1,6 @@
 package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
 
@@ -37,10 +36,4 @@ public interface ClusterService {
      */
     ClusterVO update(Long id, ClusterDTO clusterDTO);
 
-    /**
-     * execute command for a cluster
-     * @param commandDTO {@link CommandDTO}
-     * @return {@link CommandVO}
-     */
-    CommandVO command(CommandDTO commandDTO);
 }

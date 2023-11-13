@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,15 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.bigtop.manager.server.publisher;
 
-import com.google.common.eventbus.EventBus;
-import org.apache.bigtop.manager.server.holder.SpringContextHolder;
-import org.apache.bigtop.manager.server.model.event.Event;
+import request from '@/api/request.ts'
+import { ServiceVO } from '@/api/service/types.ts'
 
-public class EventPublisher {
-
-    public static void publish(Event event) {
-        SpringContextHolder.getApplicationContext().getBean(EventBus.class).post(event);
-    }
+export const getService = (clusterId: number): Promise<ServiceVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/services'
+  })
 }

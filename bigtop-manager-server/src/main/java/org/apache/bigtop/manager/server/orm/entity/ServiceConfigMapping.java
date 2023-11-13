@@ -21,7 +21,7 @@ public class ServiceConfigMapping extends BaseEntity {
     private ServiceConfig serviceConfig;
 
     @ManyToOne
-    @JoinColumn(name = "service_config_record", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @JoinColumn(name = "service_config_record_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private ServiceConfigRecord serviceConfigRecord;
 
 }

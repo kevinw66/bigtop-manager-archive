@@ -3,21 +3,15 @@ package org.apache.bigtop.manager.agent.ws;
 import com.sun.management.OperatingSystemMXBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.agent.runner.CommandContext;
 import org.apache.bigtop.manager.agent.runner.CommandService;
-import org.apache.bigtop.manager.agent.runner.HostCacheContext;
 import org.apache.bigtop.manager.agent.runner.HostCacheService;
-import org.apache.bigtop.manager.agent.runner.HostCheckContext;
 import org.apache.bigtop.manager.agent.runner.HostCheckService;
 import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
 import org.apache.bigtop.manager.common.constants.Constants;
+import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
-import org.apache.bigtop.manager.common.message.type.CommandMessage;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.HostCacheMessage;
-import org.apache.bigtop.manager.common.message.type.HostCheckMessage;
+import org.apache.bigtop.manager.common.message.type.*;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -34,7 +28,6 @@ import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -83,30 +76,17 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
         log.info("Received message type: {}, session: {}", baseMessage.getClass().getSimpleName(), session);
 
-        if (baseMessage instanceof CommandMessage commandMessage) {
-            handleCommandMessage(session, commandMessage);
-        } else if (baseMessage instanceof HostCacheMessage hostCacheMessage) {
-            handleHostCacheMessage(session, hostCacheMessage);
-        } else if (baseMessage instanceof HostCheckMessage hostCheckMessage) {
-            handleHostCheckMessage(session, hostCheckMessage);
+        if (baseMessage instanceof RequestMessage requestMessage) {
+            MessageType messageType = requestMessage.getMessageType();
+            switch (messageType) {
+                case COMMAND -> commandService.addEvent(requestMessage);
+                case HOST_CHECK -> hostCheckService.addEvent(requestMessage);
+                case HOST_CACHE -> hostCacheService.addEvent(requestMessage);
+            }
+
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
         }
-    }
-
-    private void handleHostCheckMessage(WebSocketSession session, HostCheckMessage hostCheckMessage) {
-        HostCheckContext context = new HostCheckContext(session, hostCheckMessage);
-        hostCheckService.addEvent(context);
-    }
-
-    private void handleHostCacheMessage(WebSocketSession session, HostCacheMessage hostCacheMessage) {
-        HostCacheContext context = new HostCacheContext(session, hostCacheMessage);
-        hostCacheService.addEvent(context);
-    }
-
-    private void handleCommandMessage(WebSocketSession session, CommandMessage commandMessage) {
-        CommandContext context = new CommandContext(session, commandMessage);
-        commandService.addEvent(context);
     }
 
     @Override

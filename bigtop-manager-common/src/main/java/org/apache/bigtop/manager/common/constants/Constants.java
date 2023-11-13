@@ -26,5 +26,13 @@ public final class Constants {
      */
     public static final int KRYO_BUFFER_SIZE = 65536;
 
+    /**
+     * websocket binary message size limit
+     */
     public static final int WS_BINARY_MESSAGE_SIZE_LIMIT = 65536;
+
+    /**
+     * timeout for command message to wait for response
+     */
+    public static final long COMMAND_MESSAGE_RESPONSE_TIMEOUT = 15 * 60 * 1000L;
 }

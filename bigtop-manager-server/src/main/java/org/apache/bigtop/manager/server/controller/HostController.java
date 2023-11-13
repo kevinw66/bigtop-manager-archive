@@ -7,12 +7,11 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import jakarta.validation.Valid;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
-import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
+import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.req.HostReq;
-import org.apache.bigtop.manager.server.model.req.command.HostCommandReq;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "Host Controller")
+@Tag(name = "Cluster Host Controller")
 @RestController
 @RequestMapping("/clusters/{clusterId}/hosts")
 public class HostController {
@@ -45,10 +44,9 @@ public class HostController {
     }
 
     @Operation(summary = "create", description = "Create a host")
-//    @PostMapping
-    public ResponseEntity<List<HostVO>> create(@RequestBody @Validated HostReq hostReq) {
-        HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
-        return ResponseEntity.success(hostService.create(hostDTO));
+    @PostMapping
+    public ResponseEntity<CommandVO> create(@PathVariable Long clusterId, @RequestBody List<String> hostnames) {
+        return ResponseEntity.success(hostService.create(clusterId, hostnames));
     }
 
     @Operation(summary = "get", description = "Get a host")
@@ -80,14 +78,6 @@ public class HostController {
     @GetMapping("/cache")
     public Boolean cache(@PathVariable Long clusterId) {
         return hostService.cache(clusterId);
-    }
-
-    @Operation(summary = "host-component command", description = "Command for host, only support [START|STOP|RESTART|INSTALL]")
-    @PostMapping("/command")
-    public ResponseEntity<CommandVO> command(@PathVariable Long clusterId, @RequestBody @Validated HostCommandReq commandReq) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
-        CommandVO commandVO = hostService.command(commandDTO);
-        return ResponseEntity.success(commandVO);
     }
 
 }

@@ -2,17 +2,14 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
-import org.apache.bigtop.manager.server.enums.StatusType;
-import org.apache.bigtop.manager.server.enums.heartbeat.CommandState;
-import org.apache.bigtop.manager.server.enums.heartbeat.HostState;
 import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.holder.SpringContextHolder;
+import org.apache.bigtop.manager.server.listener.factory.HostAddJobFactory;
+import org.apache.bigtop.manager.server.listener.factory.HostCacheJobFactory;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
-import org.apache.bigtop.manager.server.model.event.CommandEvent;
+import org.apache.bigtop.manager.server.model.event.HostAddEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
-import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
@@ -21,28 +18,22 @@ import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Component;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.HostComponent;
 import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
-import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.publisher.EventPublisher;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.PageUtils;
+import org.apache.bigtop.manager.server.validate.HostAddValidator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -52,16 +43,16 @@ public class HostServiceImpl implements HostService {
     private HostRepository hostRepository;
 
     @Resource
-    private ComponentRepository componentRepository;
-
-    @Resource
     private HostComponentRepository hostComponentRepository;
 
     @Resource
-    private ClusterRepository clusterRepository;
+    private HostAddJobFactory hostAddJobFactory;
 
     @Resource
-    private JobRepository jobRepository;
+    private HostCacheJobFactory hostCacheJobFactory;
+
+    @Resource
+    private HostAddValidator hostAddValidator;
 
     @Override
     public PageVO<HostVO> list(Long clusterId) {
@@ -76,25 +67,20 @@ public class HostServiceImpl implements HostService {
     }
 
     @Override
-    public List<HostVO> create(HostDTO hostDTO) {
-        List<String> hostnames = hostDTO.getHostnames();
+    @Transactional
+    public CommandVO create(Long clusterId, List<String> hostnames) {
+        // Check hosts
+        hostAddValidator.validate(hostnames);
 
-        Cluster cluster = clusterRepository.getReferenceById(hostDTO.getClusterId());
-        List<Host> hosts = new ArrayList<>();
-        for (String hostname : hostnames) {
-            Host host = new Host();
-            host.setHostname(hostname);
-            host.setCluster(cluster);
-            host.setState(HostState.INITIALIZING.name());
-            hosts.add(host);
-        }
+        Job job = hostAddJobFactory.createJob(clusterId, hostnames);
 
-        hostRepository.saveAll(hosts);
+        HostAddEvent hostAddEvent = new HostAddEvent(hostnames);
+        hostAddEvent.setJobId(job.getId());
+        hostAddEvent.setHostnames(hostnames);
 
-//        EventPublisher.publish(new HostAddedEvent(hostDTO.getClusterId(), hostDTO.getHostnames()));
-        // cache(cluster.getId());
+        SpringContextHolder.getApplicationContext().publishEvent(hostAddEvent);
 
-        return HostMapper.INSTANCE.Entity2VO(hosts);
+        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 
     @Override
@@ -126,46 +112,14 @@ public class HostServiceImpl implements HostService {
     }
 
     @Override
+    @Transactional
     public Boolean cache(Long clusterId) {
-        EventPublisher.publish(new HostCacheEvent(clusterId));
+        Job job = hostCacheJobFactory.createJob(clusterId);
+
+        HostCacheEvent hostCacheEvent = new HostCacheEvent(clusterId);
+        hostCacheEvent.setJobId(job.getId());
+        SpringContextHolder.getApplicationContext().publishEvent(hostCacheEvent);
         return true;
-    }
-
-    @Override
-    public CommandVO command(CommandDTO commandDTO) {
-        Command command = commandDTO.getCommand();
-        List<String> componentNameList = commandDTO.getComponentNames();
-        String hostname = commandDTO.getHostname();
-        String clusterName = commandDTO.getClusterName();
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
-
-        //persist request to database
-        Job job = JobMapper.INSTANCE.DTO2Entity(commandDTO, cluster);
-        job = jobRepository.save(job);
-
-        if (command == Command.INSTALL) {
-            //Persist hostComponent to database
-            List<Component> componentList = componentRepository.findAllByClusterClusterNameAndComponentNameIn(clusterName, componentNameList);
-            Host host = hostRepository.findByHostname(hostname);
-            for (Component component : componentList) {
-                HostComponent hostComponent = new HostComponent();
-                hostComponent.setHost(host);
-                hostComponent.setComponent(component);
-                hostComponent.setStatus(StatusType.UNINSTALLED.getCode());
-                hostComponent.setState(CommandState.UNINSTALLED);
-
-                Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
-                hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
-                hostComponentRepository.save(hostComponent);
-            }
-            // cache
-            cache(cluster.getId());
-        }
-
-        CommandEvent commandEvent = CommandMapper.INSTANCE.DTO2Event(commandDTO, job);
-        EventPublisher.publish(commandEvent);
-
-        return JobMapper.INSTANCE.Entity2CommandVO(job);
     }
 
 }
