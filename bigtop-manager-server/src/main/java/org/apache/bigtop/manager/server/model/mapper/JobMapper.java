@@ -4,7 +4,7 @@ import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.vo.JobVO;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.mapstruct.Context;

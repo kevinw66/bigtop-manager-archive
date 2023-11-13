@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
+import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
@@ -53,7 +55,7 @@ public class StackUtils {
 
     private static final Map<String, Map<String, List<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
-    private static final Map<String, Map<String, Set<String>>> STACK_CONFIG_MAP = new HashMap<>();
+    private static final Map<String, Map<String, Set<ConfigDataDTO>>> STACK_CONFIG_MAP = new HashMap<>();
 
     private static final Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
@@ -63,7 +65,7 @@ public class StackUtils {
         return Collections.unmodifiableMap(STACK_DEPENDENCY_MAP);
     }
 
-    public static Map<String, Map<String, Set<String>>> getStackConfigMap() {
+    public static Map<String, Map<String, Set<ConfigDataDTO>>> getStackConfigMap() {
         return Collections.unmodifiableMap(STACK_CONFIG_MAP);
     }
 
@@ -77,6 +79,7 @@ public class StackUtils {
 
     /**
      * Parse stack file to generate stack model
+     *
      * @return stack model {@link StackModel}
      */
     public static StackDTO parseStack(File versionFolder) {
@@ -87,11 +90,12 @@ public class StackUtils {
 
     /**
      * Parse service file to generate service model
+     *
      * @param fullStackName full stack name
      * @return service model {@link ServiceModel}
      */
     public static List<ServiceDTO> parseService(File versionFolder, String fullStackName) {
-        Map<String, Set<String>> mergedConfigMap = new HashMap<>();
+        Map<String, Set<ConfigDataDTO>> mergedConfigMap = new HashMap<>();
 
         File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
 
@@ -109,15 +113,24 @@ public class StackUtils {
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE);
                 if (dependencyFile.exists()) {
                     Map<String, List<String>> dependencyMap = STACK_DEPENDENCY_MAP.computeIfAbsent(fullStackName, k -> new HashMap<>());
-                    dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {}));
+                    dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {
+                    }));
                 }
 
                 // configurations
-                Set<String> serviceConfigSet = new HashSet<>();
+                Set<ConfigDataDTO> serviceConfigSet = new HashSet<>();
                 File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER_NAME);
                 if (configFolder.exists()) {
                     for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
-                        serviceConfigSet.add(configFile.getAbsolutePath());
+                        String configPath = configFile.getAbsolutePath();
+                        String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
+                        Map<String, Object> configData = StackConfigUtils.loadConfig(configPath);
+                        ConfigDataDTO configDataDTO = new ConfigDataDTO();
+                        configDataDTO.setTypeName(typeName);
+                        configDataDTO.setConfigData(configData);
+                        //todo need define configAttributes
+                        configDataDTO.setConfigAttributes(null);
+                        serviceConfigSet.add(configDataDTO);
                     }
                 }
 
@@ -226,6 +239,7 @@ public class StackUtils {
 
     /**
      * Check stack file
+     *
      * @param versionFolder stack version folder
      */
     private static void checkStack(File versionFolder) {
@@ -237,7 +251,8 @@ public class StackUtils {
 
     /**
      * Generate full stack name
-     * @param stackName BIGTOP
+     *
+     * @param stackName    BIGTOP
      * @param stackVersion 3.3.0
      * @return {stackName}-{stackVersion} eg. BIGTOP-3.3.0
      */

@@ -6,7 +6,7 @@ import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.req.CommandReq;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.service.CommandService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

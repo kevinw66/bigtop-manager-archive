@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.model.mapper;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
@@ -12,10 +13,7 @@ import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mapper
 public interface ConfigurationMapper {
@@ -25,6 +23,8 @@ public interface ConfigurationMapper {
     ConfigurationDTO Request2DTO(ConfigurationReq configurationReq);
 
     List<ConfigurationDTO> Request2DTO(List<ConfigurationReq> configurationReqs);
+
+    ConfigDataVO DTO2VO(ConfigDataDTO configDataDTO);
 
     default List<ConfigurationVO> Entity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
         Map<ServiceConfigRecord, ConfigurationVO> map = new HashMap<>();

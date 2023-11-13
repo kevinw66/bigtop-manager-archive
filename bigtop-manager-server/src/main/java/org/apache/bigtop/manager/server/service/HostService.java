@@ -1,11 +1,9 @@
 package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
-import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 
 import java.util.List;
 
@@ -45,13 +43,6 @@ public interface HostService {
      * @return Host
      */
     Boolean delete(Long id);
-
-    /**
-     * Get a component by id.
-     *
-     * @return component
-     */
-    List<HostComponentVO> hostComponent(Long id);
 
     /**
      * Cache a host

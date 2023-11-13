@@ -35,7 +35,7 @@ public class HostCacheJobFactory implements JobFactory {
     private ServiceRepository serviceRepository;
 
     @Resource
-    private ServiceConfigRepository serviceConfigRepository;
+    private ServiceConfigMappingRepository serviceConfigMappingRepository;
 
     @Resource
     private RepoRepository repoRepository;
@@ -144,7 +144,7 @@ public class HostCacheJobFactory implements JobFactory {
         String stackVersion = cluster.getStack().getStackVersion();
 
         List<Service> services = serviceRepository.findAllByClusterId(clusterId);
-        List<ServiceConfig> serviceConfigs = serviceConfigRepository.findAllByClusterId(clusterId);
+        List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllGroupLastest(clusterId);
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterId(clusterId);
         List<Repo> repos = repoRepository.findAllByCluster(cluster);
         Iterable<Setting> settings = settingRepository.findAll();
@@ -169,13 +169,14 @@ public class HostCacheJobFactory implements JobFactory {
 
         //Wrapper serviceConfigMap for HostCacheMessage
         serviceConfigMap = new HashMap<>();
-        serviceConfigs.forEach(x -> {
-            if (serviceConfigMap.containsKey(x.getService().getServiceName())) {
-                serviceConfigMap.get(x.getService().getServiceName()).put(x.getTypeName(), x.getConfigData());
+        serviceConfigMappingList.forEach(scm -> {
+            ServiceConfig sc = scm.getServiceConfig();
+            if (serviceConfigMap.containsKey(sc.getService().getServiceName())) {
+                serviceConfigMap.get(sc.getService().getServiceName()).put(sc.getTypeName(), sc.getConfigData());
             } else {
                 Map<String, Object> hashMap = new HashMap<>();
-                hashMap.put(x.getTypeName(), x.getConfigData());
-                serviceConfigMap.put(x.getService().getServiceName(), hashMap);
+                hashMap.put(sc.getTypeName(), sc.getConfigData());
+                serviceConfigMap.put(sc.getService().getServiceName(), hashMap);
             }
         });
 

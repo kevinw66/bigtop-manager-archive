@@ -30,6 +30,9 @@ public enum ApiExceptionEnum {
 
     // Job Exceptions -- 16000 ~ 16999
     JOB_NOT_FOUND(16000, LocaleKeys.JOB_NOT_FOUND),
+
+    // Configuration Exceptions -- 17000 ~ 17999
+    CONFIGURATION_NOT_FOUND(17000, LocaleKeys.CONFIGURATION_NOT_FOUND),
     ;
 
     private final Integer code;
