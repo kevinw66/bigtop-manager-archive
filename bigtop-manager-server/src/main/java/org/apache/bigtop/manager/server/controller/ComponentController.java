@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
-import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,12 +33,6 @@ public class ComponentController {
     @GetMapping("/{id}")
     public ResponseEntity<ComponentVO> get(@PathVariable Long id) {
         return ResponseEntity.success(componentService.get(id));
-    }
-
-    @Operation(summary = "get", description = "Get host-component list by component id")
-    @GetMapping("/host-components/{id}")
-    public ResponseEntity<List<HostComponentVO>> hostComponent(@PathVariable Long id) {
-        return ResponseEntity.success(componentService.hostComponent(id));
     }
 
 }

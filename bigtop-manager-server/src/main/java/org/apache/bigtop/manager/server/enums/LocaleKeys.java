@@ -45,6 +45,8 @@ public enum LocaleKeys {
     COMPONENT_NOT_FOUND("component.not.found"),
 
     JOB_NOT_FOUND("job.not.found"),
+
+    CONFIGURATION_NOT_FOUND("configuration.not.found"),
     ;
 
     private final String key;

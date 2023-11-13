@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.model.vo.command;
+package org.apache.bigtop.manager.server.model.vo;
 
 import lombok.Data;
 
