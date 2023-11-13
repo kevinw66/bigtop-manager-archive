@@ -30,7 +30,7 @@
 
   const serviceColumns = [
     {
-      title: 'common.name',
+      title: 'service.service_name',
       dataIndex: 'displayName',
       align: 'center'
     },

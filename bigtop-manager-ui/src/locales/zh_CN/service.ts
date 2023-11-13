@@ -19,4 +19,7 @@ export default {
   service_name: '服务名称',
   add_service: '增加服务',
   service_selected: '已选择 {0} 个服务',
+  service_account: '服务账号',
+  service_user: '服务所属用户',
+  service_group: '服务所属用户组'
 }
