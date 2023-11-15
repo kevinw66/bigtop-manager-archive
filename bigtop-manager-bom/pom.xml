@@ -26,6 +26,7 @@
         <jwt.version>4.4.0</jwt.version>
         <janino.version>3.0.16</janino.version>
         <eclipse-link.version>4.0.2</eclipse-link.version>
+        <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
     </properties>
 
     <dependencyManagement>
@@ -120,6 +121,12 @@
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>janino</artifactId>
                 <version>${janino.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

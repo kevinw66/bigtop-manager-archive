@@ -1,6 +1,7 @@
-package org.apache.bigtop.manager.common.utils.stack;
+package org.apache.bigtop.manager.server.utils;
 
-import org.apache.bigtop.manager.common.utils.YamlUtils;
+import org.apache.bigtop.manager.server.stack.pojo.PropertyModel;
+import org.apache.bigtop.manager.server.stack.xml.ConfigurationXml;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +17,8 @@ public class StackConfigUtils {
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> loadConfig(String fileName) {
-        List<Map<String, Object>> list = YamlUtils.readYaml(fileName, List.class);
-        return extractConfigMap(list);
+        ConfigurationXml configurationXml = JaxbUtils.readFromPath(fileName, ConfigurationXml.class);
+        return extractConfigMap(configurationXml.getPropertyModels());
     }
 
     /**
@@ -26,15 +27,15 @@ public class StackConfigUtils {
      * @param list List<Map<String, Object>>
      * @return
      */
-    public static Map<String, Object> extractConfigMap(List<Map<String, Object>> list) {
+    public static Map<String, Object> extractConfigMap(List<PropertyModel> list) {
         if (list == null) {
             return null;
         }
 
         Map<String, Object> hashMap = new HashMap<>();
-        for (Map<String, Object> map : list) {
-            String key = String.valueOf(map.get("name"));
-            Object value = map.get("value");
+        for (PropertyModel propertyModel : list) {
+            String key = propertyModel.getName();
+            Object value = propertyModel.getValue();
             hashMap.put(key, value);
         }
         return hashMap;

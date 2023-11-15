@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Sets;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
@@ -160,8 +160,7 @@ public class HostCacheJobFactory implements JobFactory {
         clusterInfo.setRoot(cluster.getRoot());
 
         try {
-            Set<String> packages = JsonUtils.readFromString(cluster.getPackages(), new TypeReference<>() {
-            });
+            Set<String> packages = Sets.newHashSet(cluster.getPackages().split(","));
             clusterInfo.setPackages(packages);
         } catch (Exception e) {
             log.warn("no packages");

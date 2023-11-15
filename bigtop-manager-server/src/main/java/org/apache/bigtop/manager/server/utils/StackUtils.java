@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.common.utils.YamlUtils;
-import org.apache.bigtop.manager.common.utils.stack.StackConfigUtils;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
@@ -20,20 +18,15 @@ import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.stack.pojo.ServiceModel;
 import org.apache.bigtop.manager.server.stack.pojo.StackModel;
+import org.apache.bigtop.manager.server.stack.xml.ServiceMetainfoXml;
+import org.apache.bigtop.manager.server.stack.xml.StackMetainfoXml;
 import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -43,15 +36,17 @@ public class StackUtils {
 
     private static final String BIGTOP_MANAGER_STACK_PATH = "bigtop.manager.stack.path";
 
-    private static final String META_FILE = "metainfo.yaml";
+    private static final String META_FILE = "metainfo.xml";
 
     private static final String STACKS_FOLDER_NAME = "stacks";
 
     private static final String SERVICES_FOLDER_NAME = "services";
 
-    private static final String CONFIGURATION_FOLDER_NAME = "configuration";
+    private static final String DEFAULT_CONFIGURATION_FOLDER_NAME = "configuration";
 
-    private static final String DEPENDENCY_FILE = "order.json";
+    private static final String CONFIGURATION_FILE_EXTENSION = "xml";
+
+    private static final String DEPENDENCY_FILE_NAME = "order.json";
 
     private static final Map<String, Map<String, List<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
@@ -83,9 +78,10 @@ public class StackUtils {
      * @return stack model {@link StackModel}
      */
     public static StackDTO parseStack(File versionFolder) {
-        return StackMapper.INSTANCE.Model2DTO(YamlUtils.readYaml(
+        StackMetainfoXml stackMetainfoXml = JaxbUtils.readFromPath(
                 versionFolder.getAbsolutePath() + File.separator + META_FILE,
-                StackModel.class));
+                StackMetainfoXml.class);
+        return StackMapper.INSTANCE.Model2DTO(stackMetainfoXml.getStack());
     }
 
     /**
@@ -104,37 +100,46 @@ public class StackUtils {
             for (File file : files) {
                 log.info("service dir: {}", file);
 
-                // metainfo.yaml
-                ServiceModel serviceModel = YamlUtils.readYaml(file.getAbsolutePath() + "/" + META_FILE, ServiceModel.class);
-                ServiceDTO serviceDTO = ServiceMapper.INSTANCE.Model2DTO(serviceModel);
-                services.add(serviceDTO);
+                // metainfo.xml
+                ServiceMetainfoXml serviceMetainfoXml = JaxbUtils.readFromPath(file.getAbsolutePath() + "/" + META_FILE, ServiceMetainfoXml.class);
+                for (ServiceModel serviceModel : serviceMetainfoXml.getServices()) {
+                    ServiceDTO serviceDTO = ServiceMapper.INSTANCE.Model2DTO(serviceModel);
+                    services.add(serviceDTO);
+
+                    // configurations
+                    String configFolderName = DEFAULT_CONFIGURATION_FOLDER_NAME;
+                    if (StringUtils.isNotEmpty(serviceModel.getConfigurationDir())) {
+                        configFolderName = serviceModel.getConfigurationDir();
+                    }
+                    Set<ConfigDataDTO> serviceConfigSet = new HashSet<>();
+                    File configFolder = new File(file.getAbsolutePath(), configFolderName);
+                    if (configFolder.exists()) {
+                        for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
+                            String configPath = configFile.getAbsolutePath();
+                            String fileExtension = configPath.substring(configPath.lastIndexOf(".") + 1);
+                            if (fileExtension.equals(CONFIGURATION_FILE_EXTENSION)) {
+                                String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
+                                Map<String, Object> configData = StackConfigUtils.loadConfig(configPath);
+                                ConfigDataDTO configDataDTO = new ConfigDataDTO();
+                                configDataDTO.setTypeName(typeName);
+                                configDataDTO.setConfigData(configData);
+                                //todo need define configAttributes
+                                configDataDTO.setConfigAttributes(null);
+                                serviceConfigSet.add(configDataDTO);
+                            }
+                        }
+                    }
+
+                    mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
+                }
 
                 // order.json
-                File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE);
+                File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE_NAME);
                 if (dependencyFile.exists()) {
                     Map<String, List<String>> dependencyMap = STACK_DEPENDENCY_MAP.computeIfAbsent(fullStackName, k -> new HashMap<>());
                     dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {
                     }));
                 }
-
-                // configurations
-                Set<ConfigDataDTO> serviceConfigSet = new HashSet<>();
-                File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER_NAME);
-                if (configFolder.exists()) {
-                    for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
-                        String configPath = configFile.getAbsolutePath();
-                        String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
-                        Map<String, Object> configData = StackConfigUtils.loadConfig(configPath);
-                        ConfigDataDTO configDataDTO = new ConfigDataDTO();
-                        configDataDTO.setTypeName(typeName);
-                        configDataDTO.setConfigData(configData);
-                        //todo need define configAttributes
-                        configDataDTO.setConfigAttributes(null);
-                        serviceConfigSet.add(configDataDTO);
-                    }
-                }
-
-                mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
             }
 
             STACK_CONFIG_MAP.put(fullStackName, mergedConfigMap);
@@ -245,7 +250,7 @@ public class StackUtils {
     private static void checkStack(File versionFolder) {
         String[] list = versionFolder.list();
         if (list == null || !Arrays.asList(list).contains(META_FILE)) {
-            throw new ServerException("Missing metainfo.yaml in stack version folder: " + versionFolder.getAbsolutePath());
+            throw new ServerException("Missing metainfo.xml in stack version folder: " + versionFolder.getAbsolutePath());
         }
     }
 

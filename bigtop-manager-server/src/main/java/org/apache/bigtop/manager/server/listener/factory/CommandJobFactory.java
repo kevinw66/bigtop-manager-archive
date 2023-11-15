@@ -8,6 +8,7 @@ import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
+import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -117,6 +118,10 @@ public class CommandJobFactory implements JobFactory {
             }
         }
         taskRepository.saveAll(tasks);
+
+        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
+            hostCacheJobFactory.createStage(job, cluster, startOrder + sortedRcpList.size() + 1);
+        }
         return job;
     }
 
@@ -326,7 +331,7 @@ public class CommandJobFactory implements JobFactory {
         commandMessage.setHostname(hostname);
 
         try {
-            Map<String, ScriptInfo> customCommands = JsonUtils.readFromString(component.getCustomCommands(), new TypeReference<>() {
+            List<CustomCommandInfo> customCommands = JsonUtils.readFromString(component.getCustomCommands(), new TypeReference<>() {
             });
             commandMessage.setCustomCommands(customCommands);
         } catch (Exception ignored) {

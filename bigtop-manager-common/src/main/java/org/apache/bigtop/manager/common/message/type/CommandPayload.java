@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.common.message.type;
 
 import lombok.*;
 import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
 
@@ -19,7 +20,7 @@ public class CommandPayload {
 
     private String customCommand;
 
-    private Map<String, ScriptInfo> customCommands;
+    private List<CustomCommandInfo> customCommands;
 
     private ScriptInfo commandScript;
 
