@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
+import org.apache.bigtop.manager.server.model.dto.CustomCommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ScriptDTO;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
@@ -13,6 +14,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.List;
 import java.util.Map;
 
 @Mapper
@@ -37,7 +39,8 @@ public interface ComponentMapper {
     default String commandScript2str(ScriptDTO commandScript) {
         return JsonUtils.writeAsString(commandScript);
     }
-    default String customCommands2str(Map<String, ScriptDTO> customCommands) {
+
+    default String customCommands2str(List<CustomCommandDTO> customCommands) {
         return JsonUtils.writeAsString(customCommands);
     }
 

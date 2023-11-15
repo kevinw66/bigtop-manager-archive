@@ -2,8 +2,10 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.CommandType;
 import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.CommandJobFactory;
 import org.apache.bigtop.manager.server.model.dto.*;
@@ -142,6 +144,9 @@ public class CommandServiceImpl implements CommandService {
 
                     // 4. Persist hostComponent
                     Set<String> hostSet = componentHostMapping.get(componentName);
+                    if (hostSet == null) {
+                        throw new ApiException(ApiExceptionEnum.HOST_NOT_FOUND);
+                    }
                     List<Host> hostList = hostRepository.findAllByHostnameIn(hostSet);
                     for (Host host : hostList) {
                         HostComponent hostComponent = new HostComponent();
