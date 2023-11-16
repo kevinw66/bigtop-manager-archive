@@ -181,13 +181,15 @@ public class CommandServiceImpl implements CommandService {
         for (ConfigDataDTO configDataDTO : serviceConfigMap.get(serviceName)) {
             String typeName = configDataDTO.getTypeName();
             Map<String, Object> configData = configDataDTO.getConfigData();
-            Map<String, Map<String, Object>> configAttributes = configDataDTO.getConfigAttributes();
+            Map<String, PropertyDTO> configAttributes = configDataDTO.getConfigAttributes();
+            Map<String, String> attributes = configDataDTO.getAttributes();
             if (configDataDTOMap.containsKey(typeName)) {
                 configData = configDataDTOMap.get(typeName).getConfigData();
                 configAttributes = configDataDTOMap.get(typeName).getConfigAttributes();
+                attributes = configDataDTOMap.get(typeName).getAttributes();
             }
 
-            ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configData, configAttributes);
+            ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configData, configAttributes, attributes);
 
             //ServiceConfigMapping
             ServiceConfigMapping serviceConfigMapping = new ServiceConfigMapping();

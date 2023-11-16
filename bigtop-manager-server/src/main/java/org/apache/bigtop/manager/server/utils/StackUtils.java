@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
+import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
@@ -23,6 +24,7 @@ import org.apache.bigtop.manager.server.stack.xml.StackMetainfoXml;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.io.File;
 import java.net.URL;
@@ -119,12 +121,13 @@ public class StackUtils {
                             String fileExtension = configPath.substring(configPath.lastIndexOf(".") + 1);
                             if (fileExtension.equals(CONFIGURATION_FILE_EXTENSION)) {
                                 String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
-                                Map<String, Object> configData = StackConfigUtils.loadConfig(configPath);
+
+                                ImmutableTriple<Map<String, Object>, Map<String, String>, Map<String, PropertyDTO>> triple = StackConfigUtils.loadConfig(configPath);
                                 ConfigDataDTO configDataDTO = new ConfigDataDTO();
                                 configDataDTO.setTypeName(typeName);
-                                configDataDTO.setConfigData(configData);
-                                //todo need define configAttributes
-                                configDataDTO.setConfigAttributes(null);
+                                configDataDTO.setAttributes(triple.getMiddle());
+                                configDataDTO.setConfigData(triple.getLeft());
+                                configDataDTO.setConfigAttributes(triple.getRight());
                                 serviceConfigSet.add(configDataDTO);
                             }
                         }

@@ -24,6 +24,11 @@ public class ServiceConfig extends BaseEntity {
 
     @Lob
     @Basic(fetch= FetchType.LAZY)
+    @Column(name = "attributes", length = 16777216)
+    private String attributes;
+
+    @Lob
+    @Basic(fetch= FetchType.LAZY)
     @Column(name = "config_data", length = 16777216)
     private String configData;
 

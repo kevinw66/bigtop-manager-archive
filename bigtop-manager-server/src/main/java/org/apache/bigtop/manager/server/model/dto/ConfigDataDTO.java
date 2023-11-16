@@ -9,9 +9,11 @@ public class ConfigDataDTO {
 
     private String typeName;
 
+    private Map<String, String> attributes;
+
     private Integer version;
 
     private Map<String, Object> configData;
 
-    private Map<String, Map<String, Object>> configAttributes;
+    private Map<String, PropertyDTO> configAttributes;
 }
