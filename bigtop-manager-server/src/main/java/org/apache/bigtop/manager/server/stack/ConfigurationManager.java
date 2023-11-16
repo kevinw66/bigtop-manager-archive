@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
+import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.ServiceConfigMappingRepository;
 import org.apache.bigtop.manager.server.orm.repository.ServiceConfigRecordRepository;
@@ -67,7 +68,8 @@ public class ConfigurationManager {
     /**
      * add|update configuration
      */
-    public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, Map<String, Object> configData, Map<String, Map<String, Object>> configAttributes) {
+    public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, Map<String, Object> configData,
+                                      Map<String, PropertyDTO> configAttributes, Map<String, String> attributes) {
         ServiceConfig serviceConfig = new ServiceConfig();
 
         ServiceConfig latestServiceConfig = serviceConfigRepository.findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
@@ -77,9 +79,13 @@ public class ConfigurationManager {
         serviceConfig.setService(service);
         serviceConfig.setCluster(cluster);
         serviceConfig.setTypeName(typeName);
+
         String configDataStr = JsonUtils.writeAsString(configData);
+        String configAttributesStr = JsonUtils.writeAsString(configAttributes);
+
         serviceConfig.setConfigData(configDataStr);
-        serviceConfig.setConfigAttributes(JsonUtils.writeAsString(configAttributes));
+        serviceConfig.setConfigAttributes(configAttributesStr);
+        serviceConfig.setAttributes(JsonUtils.writeAsString(attributes));
 
         if (latestServiceConfig.getId() == null) {
             log.info("Insert serviceConfig");

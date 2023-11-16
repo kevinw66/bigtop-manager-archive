@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.server.stack.pojo;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Data;
 
 @Data
@@ -17,5 +16,7 @@ public class PropertyModel {
     @XmlElement(name = "display-name")
     private String displayName;
 
-    private String description;
+    @XmlElement(name = "description")
+    private String desc;
+
 }
