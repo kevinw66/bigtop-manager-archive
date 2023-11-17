@@ -76,10 +76,11 @@ public class ExecutorImpl implements Executor {
             } else {
                 method = script.getClass().getMethod(command.toLowerCase(), CommandPayload.class);
             }
-            log.info("method: {}", method);
+            log.info("start execute [{}] : [{}]", script.getName(), method.getName());
             result = method.invoke(script, commandMessage);
+            log.info("execute [{}] : [{}] complete, result: [{}]", script.getName(), method.getName(), result);
         } catch (Exception e) {
-            log.error("Execute command error, ", e);
+            log.info("execute [{}] error", script.getName());
             throw new StackException(e);
         }
 
@@ -99,14 +100,16 @@ public class ExecutorImpl implements Executor {
                 HookType before = annotation.before();
                 Hook hookBefore = hookMap.get(before.name());
                 if (hookBefore != null) {
+                    log.info("execute hook before: {}", hookBefore.getName());
                     hookBefore.before();
                 }
-
+                log.info("execute hook: {}", hook.getName());
                 method.invoke(hook);
 
                 HookType after = annotation.after();
                 Hook hookAfter = hookMap.get(after.name());
                 if (hookAfter != null) {
+                    log.info("execute hook after: {}", hookAfter.getName());
                     hookAfter.after();
                 }
             }

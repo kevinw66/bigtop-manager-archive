@@ -25,7 +25,6 @@ public class InstallHookImpl implements Hook {
     @Override
     @HookAnnotation(before = HookType.ANY)
     public void before() {
-        log.info("before install");
         List<RepoInfo> repos = LocalSettings.repos();
         String repoTemplate = LocalSettings.cluster().getRepoTemplate();
 
@@ -42,7 +41,6 @@ public class InstallHookImpl implements Hook {
     @Override
     @HookAnnotation(after = HookType.ANY)
     public void after() {
-        log.info("after install");
     }
 
     @Override

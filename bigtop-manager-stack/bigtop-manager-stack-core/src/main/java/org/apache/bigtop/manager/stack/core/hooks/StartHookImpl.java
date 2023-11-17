@@ -17,13 +17,11 @@ public class StartHookImpl implements Hook {
     @Override
     @HookAnnotation(before = HookType.ANY)
     public void before() {
-        log.info("before start");
     }
 
     @Override
     @HookAnnotation(after = HookType.ANY)
     public void after() {
-        log.info("after start");
     }
 
     @Override

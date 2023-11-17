@@ -45,7 +45,7 @@
                     <category>CLIENT</category>
                     <cardinality>1+</cardinality>
                     <commandScript>
-                        <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperServerScript</script>
+                        <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperClientScript</script>
                         <scriptType>JAVA</scriptType>
                     </commandScript>
                 </component>

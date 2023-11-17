@@ -17,13 +17,11 @@ public class RestartHookImpl implements Hook {
     @Override
     @HookAnnotation(before = HookType.START)
     public void before() {
-        log.info("before restart");
     }
 
     @Override
     @HookAnnotation(after = HookType.START)
     public void after() {
-        log.info("after restart");
     }
 
     @Override
