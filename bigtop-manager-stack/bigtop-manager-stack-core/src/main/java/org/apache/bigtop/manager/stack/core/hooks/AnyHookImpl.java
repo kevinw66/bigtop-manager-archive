@@ -20,7 +20,6 @@ public class AnyHookImpl implements Hook {
 
     @Override
     public void before() {
-        log.info("before any");
         Map<String, Set<String>> users = LocalSettings.users();
         String userGroup = LocalSettings.cluster().getUserGroup();
 
@@ -36,7 +35,6 @@ public class AnyHookImpl implements Hook {
 
     @Override
     public void after() {
-        log.info("after any");
     }
 
     @Override
