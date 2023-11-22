@@ -1,10 +1,10 @@
 package org.apache.bigtop.manager.server.model.req;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.config.CommandGroupSequenceProvider;
 import org.apache.bigtop.manager.server.enums.CommandType;
@@ -61,5 +61,6 @@ public class CommandReq {
     @Schema(example = "{\"ZOOKEEPER_SERVER\": [\"node1\"]}", description = "is required when commandType is SERVICE_INSTALL")
     private Map<String, Set<String>> componentHosts;
 
-
+    @Schema(description = "is optional when commandType is SERVICE_INSTALL")
+    private List<@Valid ConfigurationReq> serviceConfigs;
 }

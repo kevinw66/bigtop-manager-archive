@@ -22,4 +22,6 @@ export interface ServiceVO {
   serviceDesc: string
   serviceVersion: string
   clusterName: string
+  serviceUser: string
+  serviceGroup: string
 }

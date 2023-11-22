@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
 import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
 import org.apache.bigtop.manager.server.service.ConfigurationService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
@@ -42,11 +43,11 @@ public class ConfigurationController {
 
     @Operation(summary = "update", description = "update|create|roll-back configurations")
     @PutMapping
-    public ResponseEntity<List<ConfigurationVO>> update(@PathVariable Long clusterId,
-                                                        @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
+    public ResponseEntity<CommandVO> update(@PathVariable Long clusterId,
+                                            @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
         List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.Request2DTO(configurationReqs);
         log.info("configurationDTOList: {}", configurationDTOList);
-        List<ConfigurationVO> configurationVOList = configurationService.update(clusterId, configurationDTOList);
+        CommandVO configurationVOList = configurationService.update(clusterId, configurationDTOList);
         return ResponseEntity.success(configurationVOList);
     }
 

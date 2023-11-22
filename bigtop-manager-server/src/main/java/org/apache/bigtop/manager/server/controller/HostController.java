@@ -7,15 +7,12 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import jakarta.validation.Valid;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
-import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.req.HostReq;
-import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -66,12 +63,6 @@ public class HostController {
 //    @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return ResponseEntity.success(hostService.delete(id));
-    }
-
-    @Operation(summary = "get", description = "Get host-component list by host id")
-//    @GetMapping("/host-components/{id}")
-    public ResponseEntity<List<HostComponentVO>> hostComponent(@PathVariable Long id) {
-        return ResponseEntity.success(hostService.hostComponent(id));
     }
 
     @Operation(summary = "cache", description = "distribute cache")

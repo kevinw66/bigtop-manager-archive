@@ -10,18 +10,14 @@ import org.apache.bigtop.manager.server.listener.factory.HostCacheJobFactory;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.event.HostAddEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
-import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.query.PageQuery;
-import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.model.vo.PageVO;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.Host;
-import org.apache.bigtop.manager.server.orm.entity.HostComponent;
 import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.PageUtils;
@@ -41,9 +37,6 @@ public class HostServiceImpl implements HostService {
 
     @Resource
     private HostRepository hostRepository;
-
-    @Resource
-    private HostComponentRepository hostComponentRepository;
 
     @Resource
     private HostAddJobFactory hostAddJobFactory;
@@ -103,12 +96,6 @@ public class HostServiceImpl implements HostService {
     public Boolean delete(Long id) {
         hostRepository.deleteById(id);
         return true;
-    }
-
-    @Override
-    public List<HostComponentVO> hostComponent(Long id) {
-        List<HostComponent> hostComponentList = hostComponentRepository.findAllByHostId(id);
-        return HostComponentMapper.INSTANCE.Entity2VO(hostComponentList);
     }
 
     @Override

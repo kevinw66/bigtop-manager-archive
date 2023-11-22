@@ -10,13 +10,9 @@ public interface Script extends SPIIdentify {
 
     ShellResult configuration(CommandPayload commandMessage);
 
-    default ShellResult start(CommandPayload commandMessage) {
-        return null;
-    }
+    ShellResult start(CommandPayload commandMessage);
 
-    default ShellResult stop(CommandPayload commandMessage) {
-        return null;
-    }
+    ShellResult stop(CommandPayload commandMessage);
 
     default ShellResult restart(CommandPayload commandMessage) {
         ShellResult shellResult = stop(commandMessage);

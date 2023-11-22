@@ -2,29 +2,33 @@ package org.apache.bigtop.manager.server.model.mapper;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
+import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
+import org.apache.bigtop.manager.server.stack.pojo.PropertyModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mapper
 public interface ConfigurationMapper {
 
     ConfigurationMapper INSTANCE = Mappers.getMapper(ConfigurationMapper.class);
 
+    List<PropertyDTO> Model2DTO(List<PropertyModel> propertyModels);
+
     ConfigurationDTO Request2DTO(ConfigurationReq configurationReq);
 
     List<ConfigurationDTO> Request2DTO(List<ConfigurationReq> configurationReqs);
+
+    ConfigDataVO DTO2VO(ConfigDataDTO configDataDTO);
 
     default List<ConfigurationVO> Entity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
         Map<ServiceConfigRecord, ConfigurationVO> map = new HashMap<>();
@@ -38,9 +42,14 @@ public interface ConfigurationMapper {
             List<ConfigDataVO> configDataVOList = configurationVO.getConfigurations() == null ? new ArrayList<>() : configurationVO.getConfigurations();
 
             ConfigDataVO configDataVO = new ConfigDataVO();
+            String attributes = serviceConfig.getAttributes();
+            if (attributes != null) {
+                configDataVO.setAttributes(JsonUtils.readFromString(attributes, new TypeReference<>() {
+                }));
+            }
             String configAttributes = serviceConfig.getConfigAttributes();
             if (configAttributes != null) {
-                configDataVO.setConfigAttributes(JsonUtils.readFromString(serviceConfig.getConfigAttributes(), new TypeReference<>() {
+                configDataVO.setConfigAttributes(JsonUtils.readFromString(configAttributes, new TypeReference<>() {
                 }));
             }
             configDataVO.setConfigData(JsonUtils.readFromString(serviceConfig.getConfigData(), new TypeReference<>() {

@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
-import org.apache.bigtop.manager.server.model.vo.command.CommandVO;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 
 public interface CommandService {
 

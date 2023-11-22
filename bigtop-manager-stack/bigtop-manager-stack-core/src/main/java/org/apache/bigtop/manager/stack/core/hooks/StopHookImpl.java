@@ -17,13 +17,11 @@ public class StopHookImpl implements Hook {
     @Override
     @HookAnnotation(before = HookType.ANY)
     public void before() {
-        log.info("before stop");
     }
 
     @Override
     @HookAnnotation(after = HookType.ANY)
     public void after() {
-        log.info("after stop");
     }
 
     @Override

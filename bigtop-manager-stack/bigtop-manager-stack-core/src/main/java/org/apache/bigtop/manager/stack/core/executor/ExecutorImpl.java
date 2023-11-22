@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.stack.core.executor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
+import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
@@ -12,6 +13,7 @@ import org.apache.bigtop.manager.stack.spi.SPIFactory;
 import org.apache.bigtop.manager.stack.spi.Script;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -28,8 +30,27 @@ public class ExecutorImpl implements Executor {
         hookMap = hookSPIFactory.getSPIMap();
     }
 
-    private Script getScript(CommandPayload commandMessage) {
-        return scriptMap.get(commandMessage.getCommandScript().getScriptId());
+    private Script getCommandScript(String scriptId) {
+        Script script = scriptMap.get(scriptId);
+        if (script == null) {
+            throw new StackException("Cannot find Script Class {0}", scriptId);
+        }
+        return script;
+    }
+
+    private Script getCustomScript(String customCommand, List<CustomCommandInfo> customCommands) {
+        Script script = null;
+        String scriptId = null;
+        for (CustomCommandInfo customCommandInfo : customCommands) {
+            if (customCommandInfo.getName().equals(customCommand)) {
+                scriptId = customCommandInfo.getCommandScript().getScriptId();
+                script = getCommandScript(scriptId);
+            }
+        }
+        if (script == null) {
+            throw new StackException("Cannot find Script Class {0}", scriptId);
+        }
+        return script;
     }
 
     private Hook getHook(CommandPayload commandMessage) {
@@ -38,10 +59,7 @@ public class ExecutorImpl implements Executor {
 
     @Override
     public Object execute(CommandPayload commandMessage) {
-        Script script = getScript(commandMessage);
-        if (script == null) {
-            throw new StackException("Cannot find Class {0}", commandMessage.getCommandScript().getScriptId());
-        }
+        Script script = getCommandScript(commandMessage.getCommandScript().getScriptId());
 
         Hook hook = getHook(commandMessage);
         String command = commandMessage.getCommand().name();
@@ -52,14 +70,17 @@ public class ExecutorImpl implements Executor {
         try {
             Method method;
             if (command.equals(Command.CUSTOM_COMMAND.name())) {
-                method = script.getClass().getMethod(commandMessage.getCustomCommand().toLowerCase(), CommandPayload.class);
+                String customCommand = commandMessage.getCustomCommand();
+                script = getCustomScript(customCommand, commandMessage.getCustomCommands());
+                method = script.getClass().getMethod(customCommand.toLowerCase(), CommandPayload.class);
             } else {
                 method = script.getClass().getMethod(command.toLowerCase(), CommandPayload.class);
             }
-            log.info("method: {}", method);
+            log.info("start execute [{}] : [{}]", script.getName(), method.getName());
             result = method.invoke(script, commandMessage);
+            log.info("execute [{}] : [{}] complete, result: [{}]", script.getName(), method.getName(), result);
         } catch (Exception e) {
-            log.error("Execute command error, ", e);
+            log.info("execute [{}] error", script.getName());
             throw new StackException(e);
         }
 
@@ -79,14 +100,16 @@ public class ExecutorImpl implements Executor {
                 HookType before = annotation.before();
                 Hook hookBefore = hookMap.get(before.name());
                 if (hookBefore != null) {
+                    log.info("execute hook before: {}", hookBefore.getName());
                     hookBefore.before();
                 }
-
+                log.info("execute hook: {}", hook.getName());
                 method.invoke(hook);
 
                 HookType after = annotation.after();
                 Hook hookAfter = hookMap.get(after.name());
                 if (hookAfter != null) {
+                    log.info("execute hook after: {}", hookAfter.getName());
                     hookAfter.after();
                 }
             }

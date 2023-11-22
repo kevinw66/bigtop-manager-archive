@@ -28,14 +28,12 @@ public class KafkaServerScript implements Script {
 
     @Override
     public ShellResult install(CommandPayload commandMessage) {
-        log.info("KafkaServerScript install");
         List<String> packageList = KafkaParams.getPackageList(commandMessage);
         return PackageUtils.install(packageList);
     }
 
     @Override
     public ShellResult configuration(CommandPayload commandMessage) {
-        log.info("KafkaServerScript configuration");
 
         String confDir = KafkaParams.confDir(commandMessage);
         String kafkaUser = KafkaParams.user(commandMessage);
@@ -111,15 +109,11 @@ public class KafkaServerScript implements Script {
     @Override
     public ShellResult start(CommandPayload commandMessage) {
         configuration(commandMessage);
-        log.info("KafkaServerScript start");
 
         String cmd = MessageFormat.format("sh {0}/bin/kafka-server-start.sh -daemon {0}/config/server.properties",
                 KafkaParams.serviceHome(commandMessage));
         try {
-            ShellResult shellResult = LinuxOSUtils.sudoExecCmd(cmd, commandMessage.getServiceUser());
-            log.info("[KafkaServerScript] [start] output: {}", shellResult);
-
-            return shellResult;
+            return LinuxOSUtils.sudoExecCmd(cmd, commandMessage.getServiceUser());
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -127,13 +121,9 @@ public class KafkaServerScript implements Script {
 
     @Override
     public ShellResult stop(CommandPayload commandMessage) {
-        log.info("KafkaServerScript stop");
         String cmd = MessageFormat.format("sh {0}/bin/kafka-server-stop.sh", KafkaParams.serviceHome(commandMessage));
         try {
-            ShellResult shellResult = LinuxOSUtils.sudoExecCmd(cmd, commandMessage.getServiceUser());
-            log.info("[KafkaServerScript] [stop] output: {}", shellResult);
-
-            return shellResult;
+            return LinuxOSUtils.sudoExecCmd(cmd, commandMessage.getServiceUser());
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -141,14 +131,10 @@ public class KafkaServerScript implements Script {
 
     @Override
     public ShellResult status(CommandPayload commandMessage) {
-        log.info("KafkaServerScript status");
 
         String cmd = MessageFormat.format("cd {0}; netstat -nalpt | grep 9092", ZookeeperParams.serviceHome(commandMessage));
         try {
-            ShellResult shellResult = LinuxOSUtils.sudoExecCmd(cmd, commandMessage.getServiceUser());
-            log.info("[KafkaServerScript] [status] output: {}", shellResult);
-
-            return shellResult;
+            return LinuxOSUtils.sudoExecCmd(cmd, commandMessage.getServiceUser());
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -156,8 +142,7 @@ public class KafkaServerScript implements Script {
 
     public ShellResult test(CommandPayload commandMessage) {
         try {
-            ShellResult shellResult = LinuxOSUtils.sudoExecCmd("date", commandMessage.getServiceUser());
-            return shellResult;
+            return LinuxOSUtils.sudoExecCmd("date", commandMessage.getServiceUser());
         } catch (IOException e) {
             throw new StackException(e);
         }

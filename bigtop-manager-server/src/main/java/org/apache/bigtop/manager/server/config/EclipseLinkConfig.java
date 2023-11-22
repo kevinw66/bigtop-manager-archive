@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.config;
 
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@ConditionalOnProperty(value = "bigtop.manager.orm.type", havingValue = "eclipselink", matchIfMissing = true)
 public class EclipseLinkConfig extends JpaBaseConfiguration {
 
     @Resource
@@ -23,10 +25,12 @@ public class EclipseLinkConfig extends JpaBaseConfiguration {
         super(ds, props, txm);
     }
 
+    @Override
     protected AbstractJpaVendorAdapter createJpaVendorAdapter() {
         return new EclipseLinkJpaVendorAdapter();
     }
 
+    @Override
     protected Map<String, Object> getVendorProperties() {
         return new HashMap<>(properties.getProperties());
     }

@@ -1,10 +1,13 @@
 package org.apache.bigtop.manager.server.stack.pojo;
 
+import jakarta.xml.bind.annotation.*;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ComponentModel {
 
     private String name;
@@ -17,5 +20,7 @@ public class ComponentModel {
 
     private ScriptModel commandScript;
 
-    private Map<String, ScriptModel> customCommands;
+    @XmlElementWrapper(name="customCommands")
+    @XmlElements(@XmlElement(name="customCommand"))
+    private List<CustomCommandModel> customCommands;
 }

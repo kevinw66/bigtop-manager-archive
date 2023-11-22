@@ -43,6 +43,7 @@ public class KryoPoolHolder {
             kryo.register(Command.class);
             kryo.register(ScriptInfo.class);
             kryo.register(ComponentInfo.class);
+            kryo.register(CustomCommandInfo.class);
 
             // java classes
             kryo.register(BigDecimal.class);

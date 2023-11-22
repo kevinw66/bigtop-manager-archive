@@ -33,4 +33,6 @@ public class CommandDTO {
 
     private Map<String, Set<String>> componentHosts;
 
+    private List<ConfigurationDTO> serviceConfigs;
+
 }

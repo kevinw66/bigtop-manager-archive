@@ -1,10 +1,12 @@
 package org.apache.bigtop.manager.server.stack.pojo;
 
+import jakarta.xml.bind.annotation.*;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@XmlAccessorType(XmlAccessType.FIELD)
 public class StackModel {
 
     private String stackName;
@@ -19,5 +21,7 @@ public class StackModel {
 
     private String repoTemplate;
 
+    @XmlElementWrapper(name="repos")
+    @XmlElements(@XmlElement(name="repo"))
     private List<RepoModel> repos;
 }

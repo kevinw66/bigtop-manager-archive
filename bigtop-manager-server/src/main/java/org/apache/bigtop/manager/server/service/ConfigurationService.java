@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
+import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
 
 import java.util.List;
@@ -26,5 +27,5 @@ public interface ConfigurationService {
      *
      * @return configurations
      */
-    List<ConfigurationVO> update(Long clusterId, List<ConfigurationDTO> configurationDTOList);
+    CommandVO update(Long clusterId, List<ConfigurationDTO> configurationDTOList);
 }

@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.model.dto;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -17,5 +18,5 @@ public class ComponentDTO {
 
     private ScriptDTO commandScript;
 
-    private Map<String, ScriptDTO> customCommands;
+    private List<CustomCommandDTO> customCommands;
 }
