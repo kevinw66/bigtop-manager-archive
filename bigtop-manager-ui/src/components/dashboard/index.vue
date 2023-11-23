@@ -6,7 +6,8 @@
   import {
     CheckCircleTwoTone,
     CloseCircleTwoTone,
-    MinusCircleTwoTone
+    MinusCircleTwoTone,
+    DoubleRightOutlined
   } from '@ant-design/icons-vue'
   import { RouterLink } from 'vue-router'
 
@@ -235,7 +236,9 @@
       <a-divider dashed />
 
       <div class="host-link">
-        <router-link to="/hosts">{{ $t('common.view_all') }} ></router-link>
+        <router-link to="/hosts">
+          {{ $t('common.view_all') }} <double-right-outlined />
+        </router-link>
       </div>
 
       <a-table
@@ -302,7 +305,7 @@
       display: flex;
       flex-direction: column;
       align-items: end;
-      margin: 0 1.5rem 1.5rem 1.5rem;
+      margin-bottom: 1.5rem;
     }
   }
 </style>
