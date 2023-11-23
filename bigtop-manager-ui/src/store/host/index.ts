@@ -21,9 +21,8 @@ import { HostVO } from '@/api/hosts/types.ts'
 import { getHosts } from '@/api/hosts'
 import { formatFromByte } from '@/utils/storage.ts'
 import { useClusterStore } from '@/store/cluster'
-import { useIntervalFn } from '@vueuse/core/index'
 import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
-import { Pausable } from '@vueuse/core'
+import { useIntervalFn, Pausable } from '@vueuse/core'
 
 export const useHostStore = defineStore(
   'host',
@@ -32,7 +31,6 @@ export const useHostStore = defineStore(
 
     const { clusterId } = storeToRefs(clusterStore)
     const hosts = ref<HostVO[]>([])
-    const total = ref<number>(0)
     const loading = ref<boolean>(true)
     const intervalFn = ref<Pausable | undefined>()
 
@@ -43,12 +41,13 @@ export const useHostStore = defineStore(
     const refreshHosts = async () => {
       if (clusterId.value !== 0) {
         const res = await getHosts(clusterId.value)
-        res.content.map((v: HostVO) => {
-          v.totalMemorySize = formatFromByte(parseInt(v.totalMemorySize))
+        res.map((v: HostVO) => {
+          if (v.totalMemorySize) {
+            v.totalMemorySize = formatFromByte(parseInt(v.totalMemorySize))
+          }
         })
 
-        total.value = res.total
-        hosts.value = res.content
+        hosts.value = res
 
         if (loading.value) {
           loading.value = false
@@ -67,7 +66,7 @@ export const useHostStore = defineStore(
     const resumeIntervalFn = () => intervalFn.value?.resume()
     const pauseIntervalFn = () => intervalFn.value?.pause()
 
-    return { hosts, total, loading, resumeIntervalFn, pauseIntervalFn }
+    return { hosts, loading, resumeIntervalFn, pauseIntervalFn }
   },
   { persist: false }
 )

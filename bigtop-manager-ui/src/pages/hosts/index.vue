@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { onBeforeUnmount, onMounted, ref } from 'vue'
+  import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
   import { message } from 'ant-design-vue'
   import { storeToRefs } from 'pinia'
   import {
@@ -10,9 +10,16 @@
     StopFilled
   } from '@ant-design/icons-vue'
   import { useHostStore } from '@/store/host'
+  import { DEFAULT_PAGE_SIZE } from '@/utils/constant.ts'
 
   const hostStore = useHostStore()
   const { hosts, loading } = storeToRefs(hostStore)
+  const currentPage = ref<number>(1)
+  const pagination = computed(() => ({
+    total: hosts.value.length,
+    current: currentPage.value,
+    pageSize: DEFAULT_PAGE_SIZE
+  }))
 
   const selectedRowKeys = ref<string[]>([])
 
@@ -117,10 +124,12 @@
       :columns="hostColumns"
       :data-source="hosts"
       :loading="loading"
+      :pagination="pagination"
       :row-selection="{
         selectedRowKeys,
         onChange: (value: string[]) => (selectedRowKeys = value)
       }"
+      @change="(v: any) => (currentPage = v.current)"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>

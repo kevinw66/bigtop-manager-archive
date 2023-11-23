@@ -243,7 +243,7 @@
 
       <a-table
         :columns="hostColumns"
-        :data-source="hosts"
+        :data-source="hosts.length > 5 ? hosts.slice(0, 5) : hosts"
         :loading="loading"
         :pagination="false"
       >

@@ -17,9 +17,8 @@
 
 import request from '@/api/request.ts'
 import { HostVO } from '@/api/hosts/types.ts'
-import { PageVO } from '@/api/types.ts'
 
-export const getHosts = (clusterId: number): Promise<PageVO<HostVO>> => {
+export const getHosts = (clusterId: number): Promise<HostVO[]> => {
   return request({
     method: 'get',
     url: '/clusters/' + clusterId + '/hosts'
