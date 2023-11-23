@@ -7,7 +7,7 @@
   import ClusterCreate from '@/components/cluster-create/index.vue'
   import { getService } from '@/api/service'
   import { ServiceVO } from '@/api/service/types.ts'
-  import { useIntervalFn } from '@vueuse/core/index'
+  import { useIntervalFn } from '@vueuse/core'
   import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
   const stackStore = useStackStore()

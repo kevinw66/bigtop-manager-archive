@@ -15,12 +15,16 @@
  * limitations under the License.
  */
 
-import request from '@/api/request.ts'
-import { HostVO } from '@/api/hosts/types.ts'
-
-export const getHosts = (clusterId: number): Promise<HostVO[]> => {
-  return request({
-    method: 'get',
-    url: '/clusters/' + clusterId + '/hosts'
-  })
+export const formatFromByte = (value: number): string => {
+  if (value < 1024) {
+    return `${value} B`
+  } else if (value < 1024 ** 2) {
+    return `${(value / 1024).toFixed(2)} KB`
+  } else if (value < 1024 ** 3) {
+    return `${(value / 1024 ** 2).toFixed(2)} MB`
+  } else if (value < 1024 ** 4) {
+    return `${(value / 1024 ** 3).toFixed(2)} GB`
+  } else {
+    return `${(value / 1024 ** 4).toFixed(2)} TB`
+  }
 }

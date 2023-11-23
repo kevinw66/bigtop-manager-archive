@@ -28,6 +28,8 @@ export default {
   exit_confirm: '确定要退出吗？',
   install: '安装',
   finish: '完成',
+  more: '更多',
+  view_all: '查看全部',
   select_tips: '请选择',
   name: '名称',
   version: '版本',

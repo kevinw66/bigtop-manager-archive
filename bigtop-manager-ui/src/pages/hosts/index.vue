@@ -1,10 +1,7 @@
 <script setup lang="ts">
-  import { onMounted, ref, watch } from 'vue'
+  import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
   import { message } from 'ant-design-vue'
-  import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
-  import { getHosts } from '@/api/hosts/index.ts'
-  import { HostVO } from '@/api/hosts/types.ts'
   import {
     CaretRightFilled,
     CheckCircleTwoTone,
@@ -12,19 +9,19 @@
     MinusCircleTwoTone,
     StopFilled
   } from '@ant-design/icons-vue'
-  import { useIntervalFn } from '@vueuse/core'
-  import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
+  import { useHostStore } from '@/store/host'
+  import { DEFAULT_PAGE_SIZE } from '@/utils/constant.ts'
 
-  const clusterStore = useClusterStore()
-  const { clusterId } = storeToRefs(clusterStore)
-  watch(clusterId, async () => {
-    await refreshHosts()
-  })
+  const hostStore = useHostStore()
+  const { hosts, loading } = storeToRefs(hostStore)
+  const currentPage = ref<number>(1)
+  const pagination = computed(() => ({
+    total: hosts.value.length,
+    current: currentPage.value,
+    pageSize: DEFAULT_PAGE_SIZE
+  }))
 
-  const totalRecord = ref<number>(0)
-  const hostData = ref<HostVO[]>([])
   const selectedRowKeys = ref<string[]>([])
-  const loading = ref<boolean>(true)
 
   const hostColumns = [
     {
@@ -78,23 +75,12 @@
     message.info('This is a normal message' + selectedRowKeys)
   }
 
-  const refreshHosts = async () => {
-    if (clusterId.value !== 0) {
-      const res = await getHosts(clusterId.value)
-      totalRecord.value = res.total
-      hostData.value = res.content
-      loading.value = false
-    }
-  }
-
   onMounted(async () => {
-    useIntervalFn(
-      async () => {
-        await refreshHosts()
-      },
-      MONITOR_SCHEDULE_INTERVAL,
-      { immediateCallback: true }
-    )
+    hostStore.resumeIntervalFn()
+  })
+
+  onBeforeUnmount(() => {
+    hostStore.pauseIntervalFn()
   })
 </script>
 
@@ -136,12 +122,14 @@
     <a-table
       :row-key="hostColumns[0].dataIndex"
       :columns="hostColumns"
-      :data-source="hostData"
+      :data-source="hosts"
       :loading="loading"
+      :pagination="pagination"
       :row-selection="{
         selectedRowKeys,
         onChange: (value: string[]) => (selectedRowKeys = value)
       }"
+      @change="(v: any) => (currentPage = v.current)"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>

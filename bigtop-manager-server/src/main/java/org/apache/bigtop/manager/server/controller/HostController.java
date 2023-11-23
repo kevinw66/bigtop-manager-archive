@@ -29,14 +29,8 @@ public class HostController {
     private HostService hostService;
 
     @Operation(summary = "list", description = "List hosts")
-    @Parameters({
-            @Parameter(in = ParameterIn.QUERY, name = "pageNum", schema = @Schema(type = "integer", defaultValue = "1")),
-            @Parameter(in = ParameterIn.QUERY, name = "pageSize", schema = @Schema(type = "integer", defaultValue = "10")),
-            @Parameter(in = ParameterIn.QUERY, name = "orderBy", schema = @Schema(type = "string", defaultValue = "id")),
-            @Parameter(in = ParameterIn.QUERY, name = "sort", description = "asc/desc", schema = @Schema(type = "string", defaultValue = "asc"))
-    })
     @GetMapping
-    public ResponseEntity<PageVO<HostVO>> list(@PathVariable Long clusterId) {
+    public ResponseEntity<List<HostVO>> list(@PathVariable Long clusterId) {
         return ResponseEntity.success(hostService.list(clusterId));
     }
 

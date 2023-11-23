@@ -12,20 +12,14 @@ import org.apache.bigtop.manager.server.model.event.HostAddEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
-import org.apache.bigtop.manager.server.model.query.PageQuery;
-import org.apache.bigtop.manager.server.model.vo.HostVO;
-import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
+import org.apache.bigtop.manager.server.model.vo.HostVO;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.utils.PageUtils;
 import org.apache.bigtop.manager.server.validate.HostAddValidator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,15 +42,13 @@ public class HostServiceImpl implements HostService {
     private HostAddValidator hostAddValidator;
 
     @Override
-    public PageVO<HostVO> list(Long clusterId) {
-        PageQuery pageQuery = PageUtils.getPageQuery();
-        Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
-        Page<Host> page = hostRepository.findAllByClusterId(clusterId, pageable);
-        if (CollectionUtils.isEmpty(page.getContent())) {
+    public List<HostVO> list(Long clusterId) {
+        List<Host> hosts = hostRepository.findAllByClusterId(clusterId);
+        if (CollectionUtils.isEmpty(hosts)) {
             throw new ApiException(ApiExceptionEnum.HOST_NOT_FOUND);
         }
 
-        return PageVO.of(page);
+        return HostMapper.INSTANCE.Entity2VO(hosts);
     }
 
     @Override

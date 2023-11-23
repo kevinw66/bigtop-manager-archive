@@ -4,7 +4,7 @@
   import { onMounted, ref, watch } from 'vue'
   import { ServiceVO } from '@/api/service/types.ts'
   import { getService } from '@/api/service'
-  import { useIntervalFn } from '@vueuse/core/index'
+  import { useIntervalFn } from '@vueuse/core'
   import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
   const clusterStore = useClusterStore()
