@@ -15,35 +15,16 @@
  * limitations under the License.
  */
 
-export default {
-  prev: '上一步',
-  next: '下一步',
-  done: '完成',
-  exit: '退出',
-  action: '操作',
-  status: '状态',
-  edit: '编辑',
-  submit: '提交',
-  cancel: '取消',
-  exit_confirm: '确定要退出吗？',
-  install: '安装',
-  finish: '完成',
-  more: '更多',
-  view_all: '查看全部',
-  select_tips: '请选择',
-  name: '名称',
-  version: '版本',
-  desc: '描述',
-  os: '系统',
-  arch: '架构',
-  base_url: '地址',
-  host: '主机',
-  service: '服务',
-  stack: '组件栈',
-  stage: '阶段',
-  progress: '进度',
-  update_success: '更新成功',
-  update_fail: '更新失败',
-  unknown_error: '未知错误',
-  websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面'
+export const formatFromByte = (value: number): string => {
+  if (value < 1024) {
+    return `${value} B`
+  } else if (value < 1024 ** 2) {
+    return `${(value / 1024).toFixed(2)} KB`
+  } else if (value < 1024 ** 3) {
+    return `${(value / 1024 ** 2).toFixed(2)} MB`
+  } else if (value < 1024 ** 4) {
+    return `${(value / 1024 ** 3).toFixed(2)} GB`
+  } else {
+    return `${(value / 1024 ** 4).toFixed(2)} TB`
+  }
 }

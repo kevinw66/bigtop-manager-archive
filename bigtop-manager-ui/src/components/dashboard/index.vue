@@ -1,4 +1,210 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  import { onMounted, onBeforeUnmount, ref } from 'vue'
+  import * as echarts from 'echarts'
+  import { useHostStore } from '@/store/host'
+  import { storeToRefs } from 'pinia'
+  import {
+    CheckCircleTwoTone,
+    CloseCircleTwoTone,
+    MinusCircleTwoTone
+  } from '@ant-design/icons-vue'
+  import { RouterLink } from 'vue-router'
+
+  const hostStore = useHostStore()
+  const { hosts, loading } = storeToRefs(hostStore)
+
+  const resourceChartRef = ref<any>(null)
+  const diskChartRef = ref<any>(null)
+
+  const hostColumns = [
+    {
+      title: 'hosts.hostname',
+      dataIndex: 'hostname',
+      align: 'center'
+    },
+    {
+      title: 'hosts.cluster_name',
+      dataIndex: 'clusterName',
+      align: 'center'
+    },
+    {
+      title: 'common.os',
+      dataIndex: 'os',
+      align: 'center'
+    },
+    {
+      title: 'common.arch',
+      dataIndex: 'arch',
+      align: 'center'
+    },
+    {
+      title: 'hosts.ipv4',
+      dataIndex: 'ipv4',
+      align: 'center'
+    },
+    {
+      title: 'hosts.cores',
+      dataIndex: 'availableProcessors',
+      align: 'center'
+    },
+    {
+      title: 'hosts.ram',
+      dataIndex: 'totalMemorySize',
+      align: 'center'
+    },
+    {
+      title: 'hosts.disk',
+      dataIndex: 'disk',
+      align: 'center'
+    },
+    {
+      title: 'common.status',
+      dataIndex: 'state',
+      align: 'center'
+    }
+  ]
+
+  const renderResourceChart = () => {
+    let option = {
+      title: {
+        text: 'Resource'
+      },
+      legend: {
+        data: ['Core Usage(%)', 'Memory Usage(%)']
+      },
+      grid: {
+        left: '60px',
+        width: '75%'
+      },
+      xAxis: {
+        type: 'category',
+        data: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00']
+      },
+      yAxis: {
+        type: 'value',
+        scale: true,
+        name: 'Percentage',
+        axisLabel: {
+          formatter: '{value} %'
+        }
+      },
+      series: [
+        {
+          name: 'Core Usage(%)',
+          data: [10, 10, 90, 30, 10, 90, 90],
+          type: 'line',
+          smooth: true
+        },
+        {
+          name: 'Memory Usage(%)',
+          data: [22, 19, 88, 66, 5, 90, 75],
+          type: 'line',
+          smooth: true
+        }
+      ],
+      tooltip: {
+        show: true,
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          axis: 'auto'
+        },
+        showContent: true
+      }
+    }
+
+    const chart = echarts.init(resourceChartRef.value)
+    chart.setOption(option)
+  }
+
+  const renderDiskChart = () => {
+    let option = {
+      title: {
+        text: 'Disk'
+      },
+      legend: {
+        data: ['Percentage(%), Increment(MB)']
+      },
+      grid: {
+        left: '60px',
+        width: '75%'
+      },
+      xAxis: {
+        type: 'category',
+        data: [
+          '2023/08/13',
+          '2023/08/14',
+          '2023/08/15',
+          '2023/08/16',
+          '2023/08/17',
+          '2023/08/18',
+          '2023/08/19'
+        ]
+      },
+      yAxis: [
+        {
+          type: 'value',
+          scale: true,
+          name: 'Increment',
+          min: 0,
+          max: 1000,
+          interval: 100,
+          axisLabel: {
+            formatter: '{value} MB'
+          }
+        },
+        {
+          type: 'value',
+          scale: true,
+          name: 'Percentage',
+          max: 100,
+          min: 0,
+          interval: 10,
+          axisLabel: {
+            formatter: '{value} %'
+          }
+        }
+      ],
+      series: [
+        {
+          name: 'Disk Usage(%)',
+          data: [20, 35, 40, 65, 75, 90, 97],
+          type: 'line',
+          smooth: true,
+          yAxisIndex: 1
+        },
+        {
+          name: 'Increment(MB)',
+          data: [100, 800, 500, 233, 420, 155, 333],
+          type: 'bar'
+        }
+      ],
+      tooltip: {
+        show: true,
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          axis: 'auto'
+        },
+        showContent: true
+      }
+    }
+
+    const chart = echarts.init(diskChartRef.value)
+    chart.setOption(option)
+  }
+
+  onMounted(async () => {
+    renderResourceChart()
+    renderDiskChart()
+
+    hostStore.resumeIntervalFn()
+  })
+
+  onBeforeUnmount(() => {
+    hostStore.pauseIntervalFn()
+  })
+</script>
 
 <template>
   <a-watermark content="This is fake data">
@@ -22,6 +228,39 @@
         </a-card>
       </div>
       <a-divider dashed />
+      <div class="charts">
+        <div ref="resourceChartRef" class="chart" />
+        <div ref="diskChartRef" class="chart" />
+      </div>
+      <a-divider dashed />
+
+      <div class="host-link">
+        <router-link to="/hosts">{{ $t('common.view_all') }} ></router-link>
+      </div>
+
+      <a-table
+        :columns="hostColumns"
+        :data-source="hosts"
+        :loading="loading"
+        :pagination="false"
+      >
+        <template #headerCell="{ column }">
+          <span>{{ $t(column.title) }}</span>
+        </template>
+        <template #bodyCell="{ column, text }">
+          <template v-if="column.dataIndex === 'state'">
+            <CheckCircleTwoTone
+              v-if="text === 'INSTALLED'"
+              two-tone-color="#52c41a"
+            />
+            <MinusCircleTwoTone
+              v-else-if="text === 'MAINTAINED'"
+              two-tone-color="orange"
+            />
+            <CloseCircleTwoTone v-else two-tone-color="red" />
+          </template>
+        </template>
+      </a-table>
     </div>
   </a-watermark>
 </template>
@@ -46,6 +285,24 @@
           margin-top: 0.25rem;
         }
       }
+    }
+
+    .charts {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .chart {
+        width: 45%;
+        height: 24rem;
+      }
+    }
+
+    .host-link {
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      margin: 0 1.5rem 1.5rem 1.5rem;
     }
   }
 </style>

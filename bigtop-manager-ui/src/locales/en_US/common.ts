@@ -28,6 +28,8 @@ export default {
   exit_confirm: 'Are you sure you want to exit?',
   install: 'Install',
   finish: 'Finish',
+  more: 'More',
+  view_all: 'View all',
   select_tips: 'Please select',
   name: 'Name',
   version: 'Version',
