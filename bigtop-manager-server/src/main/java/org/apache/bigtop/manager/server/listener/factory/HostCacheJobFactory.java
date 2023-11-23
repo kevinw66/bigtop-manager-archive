@@ -136,7 +136,7 @@ public class HostCacheJobFactory implements JobFactory {
 
     private Map<String, Object> settingsMap;
 
-    private void createCache(Cluster cluster) {
+    public void createCache(Cluster cluster) {
         Long clusterId = cluster.getId();
 
         String clusterName = cluster.getClusterName();
@@ -233,7 +233,7 @@ public class HostCacheJobFactory implements JobFactory {
         });
     }
 
-    private RequestMessage getMessage(String hostname,
+    public RequestMessage getMessage(String hostname,
                                       Map<String, Object> settingsMap,
                                       ClusterInfo clusterInfo,
                                       Map<String, Map<String, Object>> serviceConfigMap,
