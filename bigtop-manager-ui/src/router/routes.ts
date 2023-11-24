@@ -27,6 +27,7 @@ import {
   BarsOutlined
 } from '@ant-design/icons-vue'
 import CircleFilled from '@/components/icons/circle-filled.vue'
+import ServiceDropdown from '@/components/service/service-dropdown.vue'
 
 const initialRoutes: RouteRecordRaw[] = [
   {
@@ -54,7 +55,8 @@ const layoutRoutes: RouteRecordRaw[] = [
     component: () => import('@/pages/hosts/index.vue'),
     meta: {
       title: 'Services',
-      icon: h(AppstoreOutlined)
+      icon: h(AppstoreOutlined),
+      suffix: h(ServiceDropdown)
     },
     children: [
       {

@@ -4,6 +4,7 @@
   import { useUserStore } from '@/store/user'
   import { storeToRefs } from 'pinia'
   import { RouterLink, useRouter } from 'vue-router'
+  import ServiceDropdown from '@/components/service/service-dropdown.vue'
 
   const uiStore = useUIStore()
   const userStore = useUserStore()
@@ -48,10 +49,19 @@
       mode="inline"
     >
       <template v-for="item in menuItems">
-        <template v-if="item.children !== undefined">
+        <template v-if="item.children">
           <a-sub-menu :key="item.key">
             <template #title>
-              <span>
+              <div v-if="item.suffix" class="menu-title-flex">
+                <span>
+                  <component :is="() => item.icon" />
+                  <span>
+                    {{ item.title }}
+                  </span>
+                </span>
+                <component :is="item.suffix" />
+              </div>
+              <span v-else>
                 <component :is="() => item.icon" />
                 <span>
                   {{ item.title }}
@@ -99,6 +109,12 @@
         font-size: 16px;
         margin-left: 1rem;
       }
+    }
+
+    .menu-title-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
   }
 </style>

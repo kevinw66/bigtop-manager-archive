@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed, onMounted, reactive, ref, watch } from 'vue'
+  import { onMounted, reactive, ref, watch } from 'vue'
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
   import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons-vue'
@@ -11,18 +11,12 @@
   import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
   const stackStore = useStackStore()
-  const { stackServices } = storeToRefs(stackStore)
+  const { currentStack } = storeToRefs(stackStore)
   const clusterStore = useClusterStore()
-  const { clusterId, selectedCluster } = storeToRefs(clusterStore)
+  const { clusterId } = storeToRefs(clusterStore)
   watch(clusterId, async () => {
     await refreshService()
   })
-  const fullStackName = computed(
-    () =>
-      selectedCluster.value?.stackName +
-      '-' +
-      selectedCluster.value?.stackVersion
-  )
   const loading = ref<boolean>(true)
   const nameServiceVOs = reactive<Record<string, ServiceVO>>({})
 
@@ -77,7 +71,7 @@
     <a-page-header class="host-page-header" :title="$t('common.stack')">
       <template #extra>
         <a-button type="primary" @click="createWindowOpened = true">
-          {{ $t('service.add_service') }}
+          {{ $t('service.add') }}
         </a-button>
       </template>
     </a-page-header>
@@ -86,7 +80,8 @@
     <a-table
       :columns="serviceColumns"
       :loading="loading"
-      :data-source="stackServices[fullStackName]"
+      :data-source="currentStack?.services"
+      :pagination="false"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>

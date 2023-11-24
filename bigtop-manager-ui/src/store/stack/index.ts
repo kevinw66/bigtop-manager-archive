@@ -15,19 +15,36 @@
  * limitations under the License.
  */
 
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { getStacks } from '@/api/stack'
-import { shallowReactive, shallowRef } from 'vue'
-import { StackOptionProps } from '@/store/stack/types.ts'
+import { ref, shallowReactive, shallowRef, watch } from 'vue'
+import { StackInfo, StackOptionProps } from '@/store/stack/types.ts'
 import { StackRepoVO, StackServiceVO, StackVO } from '@/api/stack/types.ts'
+import { useClusterStore } from '@/store/cluster'
 
 export const useStackStore = defineStore(
   'stack',
   () => {
+    const clusterStore = useClusterStore()
+    const { clusterId, selectedCluster } = storeToRefs(clusterStore)
+
     const stackOptions = shallowReactive<StackOptionProps[]>([])
     const stackServices = shallowReactive<Record<string, StackServiceVO[]>>({})
     const stackRepos = shallowReactive<Record<string, StackRepoVO[]>>({})
     const initialized = shallowRef(false)
+    const currentStack = ref<StackInfo | undefined>()
+    watch(clusterId, () => {
+      if (clusterId.value != 0) {
+        const cluster = selectedCluster.value
+        const name = [cluster?.stackName, cluster?.stackVersion].join('-')
+        const services = stackServices[name]
+
+        currentStack.value = {
+          name: name,
+          services: services ? services : []
+        }
+      }
+    })
 
     const initStacks = async () => {
       if (!initialized.value) {
@@ -69,6 +86,7 @@ export const useStackStore = defineStore(
       stackOptions,
       stackServices,
       stackRepos,
+      currentStack,
       initStacks
     }
   },

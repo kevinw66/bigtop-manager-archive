@@ -52,7 +52,8 @@ export const useUserStore = defineStore(
           key: route.meta?.title?.toLowerCase(),
           to: route.path,
           title: route.meta?.title,
-          icon: route.meta?.icon
+          icon: route.meta?.icon,
+          suffix: route.meta?.suffix
         }
 
         if (route.children !== undefined) {
@@ -62,7 +63,8 @@ export const useUserStore = defineStore(
               key: child.meta?.title?.toLowerCase(),
               to: route.path + child.path,
               title: child.meta?.title,
-              icon: child.meta?.icon
+              icon: child.meta?.icon,
+              suffix: route.meta?.suffix
             })
           })
         }
@@ -79,16 +81,12 @@ export const useUserStore = defineStore(
       } else {
         menuItems.value = await initMenu(initialRoutes)
       }
-
-      return Promise.resolve()
     }
 
     const logout = async () => {
       userVO.value = undefined
       localStorage.removeItem('Token')
       sessionStorage.removeItem('Token')
-
-      return Promise.resolve()
     }
 
     return {

@@ -41,13 +41,13 @@ export const useHostStore = defineStore(
     const refreshHosts = async () => {
       if (clusterId.value !== 0) {
         const res = await getHosts(clusterId.value)
-        res.map((v: HostVO) => {
+        hosts.value = res.map((v: HostVO) => {
           if (v.totalMemorySize) {
             v.totalMemorySize = formatFromByte(parseInt(v.totalMemorySize))
           }
-        })
 
-        hosts.value = res
+          return v
+        })
 
         if (loading.value) {
           loading.value = false

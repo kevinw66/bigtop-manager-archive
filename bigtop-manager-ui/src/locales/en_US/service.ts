@@ -16,10 +16,16 @@
  */
 
 export default {
+  start_all: 'Start All',
+  stop_all: 'Stop All',
+  add: 'Add service',
   service_name: 'Service Name',
-  add_service: 'Add service',
   service_selected: 'Selected {0} Services',
   service_account: 'Service Account',
   service_user: 'Service User',
-  service_group: 'Service Group'
+  service_group: 'Service Group',
+  choose_services: 'Choose Services',
+  assign_masters: 'Assign Masters',
+  assign_replicas: 'Assign Replicas',
+  configure_services: 'Customize Services'
 }
