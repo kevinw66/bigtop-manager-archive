@@ -31,7 +31,6 @@ import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
@@ -53,7 +52,7 @@ public class ClusterEventListener {
     private SyncJobStrategy syncJobStrategy;
 
     @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener
     public void handleClusterCreate(ClusterCreateEvent event) {
         log.info("listen ClusterCreateEvent: {}", event);
         Long jobId = event.getJobId();

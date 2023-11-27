@@ -1,13 +1,11 @@
 <script setup lang="ts">
-  const onNextStep = async () => {
-    return Promise.resolve(true)
-  }
-
-  defineExpose({
-    onNextStep
-  })
+  const serviceInfo = defineModel<any>('serviceInfo')
 </script>
 
-<template>Finish</template>
+<template>
+  <div class="container">
+    <div class="title">{{ $t('common.finish') }}</div>
+  </div>
+</template>
 
 <style scoped lang="scss"></style>

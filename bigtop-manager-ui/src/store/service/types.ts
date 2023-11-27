@@ -15,17 +15,11 @@
  * limitations under the License.
  */
 
-export default {
-  start_all: 'Start All',
-  stop_all: 'Stop All',
-  add: 'Add service',
-  service: 'Service',
-  service_name: 'Service Name',
-  service_selected: 'Selected {0} Services',
-  service_account: 'Service Account',
-  service_user: 'Service User',
-  service_group: 'Service Group',
-  choose_services: 'Choose Services',
-  assign_components: 'Assign Components',
-  configure_services: 'Configure Services'
+import { StackServiceVO } from '@/api/stack/types.ts'
+
+export type MergedServiceVO = StackServiceVO & {
+  installed: boolean
+  clusterName?: string
+  serviceUser?: string
+  serviceGroup?: string
 }

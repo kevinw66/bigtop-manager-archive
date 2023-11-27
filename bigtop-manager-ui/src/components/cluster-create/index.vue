@@ -135,7 +135,7 @@
 <template>
   <a-modal
     :open="open"
-    width="80%"
+    width="95%"
     centered
     destroy-on-close
     :mask-closable="false"

@@ -22,7 +22,6 @@ type MenuItem = {
   to: string
   title?: string
   icon?: VNode
-  suffix?: VNode
   children?: MenuItem[]
 }
 

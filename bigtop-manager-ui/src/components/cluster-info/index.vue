@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { ref } from 'vue'
-  import ClusterCreate from '@/components/cluster-create/index.vue'
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
+  import ClusterCreate from '@/components/cluster-create/index.vue'
 
   const clusterStore = useClusterStore()
   const { selectedCluster } = storeToRefs(clusterStore)

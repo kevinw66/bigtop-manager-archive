@@ -52,8 +52,7 @@ export const useUserStore = defineStore(
           key: route.meta?.title?.toLowerCase(),
           to: route.path,
           title: route.meta?.title,
-          icon: route.meta?.icon,
-          suffix: route.meta?.suffix
+          icon: route.meta?.icon
         }
 
         if (route.children !== undefined) {
@@ -63,8 +62,7 @@ export const useUserStore = defineStore(
               key: child.meta?.title?.toLowerCase(),
               to: route.path + child.path,
               title: child.meta?.title,
-              icon: child.meta?.icon,
-              suffix: route.meta?.suffix
+              icon: child.meta?.icon
             })
           })
         }

@@ -52,14 +52,14 @@
         <template v-if="item.children">
           <a-sub-menu :key="item.key">
             <template #title>
-              <div v-if="item.suffix" class="menu-title-flex">
+              <div v-if="item.title === 'Services'" class="menu-title-flex">
                 <span>
                   <component :is="() => item.icon" />
                   <span>
                     {{ item.title }}
                   </span>
                 </span>
-                <component :is="item.suffix" />
+                <service-dropdown />
               </div>
               <span v-else>
                 <component :is="() => item.icon" />

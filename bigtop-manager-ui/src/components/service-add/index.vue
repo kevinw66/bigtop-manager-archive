@@ -1,17 +1,21 @@
 <script setup lang="ts">
-  import { ref, reactive, h, watch } from 'vue'
+  import { ref, h, watch, reactive } from 'vue'
   import { Modal } from 'ant-design-vue'
   import { ExclamationCircleFilled } from '@ant-design/icons-vue'
   import { useI18n } from 'vue-i18n'
   import ChooseServices from '@/components/service-add/choose-services.vue'
-  import AssignMasters from '@/components/service-add/assign-masters.vue'
-  import AssignReplicas from '@/components/service-add/assign-replicas.vue'
+  import AssignComponents from '@/components/service-add/assign-components.vue'
   import ConfigureServices from '@/components/service-add/configure-services.vue'
   import Install from '@/components/service-add/install.vue'
   import Finish from '@/components/service-add/finish.vue'
+  import { useClusterStore } from '@/store/cluster'
+  import { storeToRefs } from 'pinia'
 
   const open = defineModel<boolean>('open')
+
   const { t, locale } = useI18n()
+  const clusterStore = useClusterStore()
+  const { clusterId } = storeToRefs(clusterStore)
 
   const initItems = () => [
     {
@@ -23,14 +27,8 @@
     {
       disabled: true,
       status: 'wait',
-      title: t('service.assign_masters'),
-      content: h(AssignMasters)
-    },
-    {
-      disabled: true,
-      status: 'wait',
-      title: t('service.assign_replicas'),
-      content: h(AssignReplicas)
+      title: t('service.assign_components'),
+      content: h(AssignComponents)
     },
     {
       disabled: true,
@@ -53,7 +51,14 @@
   ]
 
   const initServiceInfo = () => {
-    return {}
+    return {
+      command: 'INSTALL',
+      commandType: 'SERVICE_INSTALL',
+      serviceNames: [],
+      clusterId: clusterId.value,
+      componentHosts: {},
+      serviceConfigs: []
+    }
   }
 
   const current = ref<number>(0)
@@ -66,11 +71,16 @@
     Object.assign(items, initItems())
   })
 
+  watch(clusterId, () => {
+    serviceInfo.clusterId = clusterId.value
+  })
+
   const next = async () => {
     loadingNext.value = true
     try {
       const valid = await currentItemRef.value?.onNextStep()
       if (valid) {
+        console.log('serviceInfo:', JSON.stringify(serviceInfo))
         items[current.value].status = 'finish'
         current.value++
         items[current.value].status = 'process'
@@ -109,7 +119,7 @@
 <template>
   <a-modal
     :open="open"
-    width="80%"
+    width="95%"
     centered
     destroy-on-close
     :mask-closable="false"
