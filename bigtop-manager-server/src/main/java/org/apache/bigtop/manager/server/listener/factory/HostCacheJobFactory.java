@@ -233,14 +233,14 @@ public class HostCacheJobFactory implements JobFactory {
         });
     }
 
-    private RequestMessage getMessage(String hostname,
-                                      Map<String, Object> settingsMap,
-                                      ClusterInfo clusterInfo,
-                                      Map<String, Map<String, Object>> serviceConfigMap,
-                                      Map<String, Set<String>> hostMap,
-                                      List<RepoInfo> repoList,
-                                      Map<String, Set<String>> userMap,
-                                      Map<String, ComponentInfo> componentInfoMap) {
+    public RequestMessage getMessage(String hostname,
+                                     Map<String, Object> settingsMap,
+                                     ClusterInfo clusterInfo,
+                                     Map<String, Map<String, Object>> serviceConfigMap,
+                                     Map<String, Set<String>> hostMap,
+                                     List<RepoInfo> repoList,
+                                     Map<String, Set<String>> userMap,
+                                     Map<String, ComponentInfo> componentInfoMap) {
         HostCachePayload hostCachePayload = getMessagePayload(
                 hostname,
                 settingsMap,

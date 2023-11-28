@@ -10,7 +10,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -27,5 +26,7 @@ public interface RepoMapper {
     List<Repo> DTO2Entity(List<RepoDTO> repoDTOList, @Context Cluster cluster);
 
     RepoInfo Entity2Message(Repo repo);
+
+    List<RepoInfo> DTO2Message(List<RepoDTO> repoDTOs);
 
 }

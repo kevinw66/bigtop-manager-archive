@@ -85,12 +85,6 @@ public class CommandJobFactory implements JobFactory {
         Map<String, Set<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
 
 
-        int startOrder = 0;
-        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
-            startOrder = 1;
-            hostCacheJobFactory.createStage(job, cluster, startOrder);
-        }
-
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < sortedRcpList.size(); i++) {
             ComponentCommandWrapper componentCommandWrapper = sortedRcpList.get(i);
@@ -101,7 +95,7 @@ public class CommandJobFactory implements JobFactory {
             stage.setCluster(job.getCluster());
             stage.setState(JobState.PENDING);
             stage.setName(componentCommandWrapper.toString());
-            stage.setStageOrder(i + 1 + startOrder);
+            stage.setStageOrder(i + 1);
             stage = stageRepository.save(stage);
             log.info("stage: {}", stage);
 
@@ -120,7 +114,7 @@ public class CommandJobFactory implements JobFactory {
         taskRepository.saveAll(tasks);
 
         if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
-            hostCacheJobFactory.createStage(job, cluster, startOrder + sortedRcpList.size() + 1);
+            hostCacheJobFactory.createStage(job, cluster, sortedRcpList.size() + 1);
         }
         return job;
     }

@@ -22,6 +22,7 @@ import org.apache.bigtop.manager.server.enums.JobStrategyType;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.listener.strategy.SyncJobStrategy;
 import org.apache.bigtop.manager.server.model.event.HostAddEvent;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
@@ -31,7 +32,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -58,14 +62,27 @@ public class HostAddEventListener {
         Boolean failed = syncJobStrategy.handle(job, JobStrategyType.CONTINUE_ON_FAIL);
 
         if (!failed) {
-            saveHost(hostnames, job.getCluster().getId());
+            saveHost(job.getCluster(), hostnames);
         }
     }
 
-    private void saveHost(List<String> hostnames, Long clusterId) {
-        List<Host> hosts = hostRepository.findAllByClusterIdAndHostnameIn(clusterId, hostnames);
-        for (Host host : hosts) {
+    public void saveHost(Cluster cluster, List<String> hostnames) {
+        List<Host> hostnameIn = hostRepository.findAllByHostnameIn(hostnames);
+        List<Host> hosts = new ArrayList<>();
+
+        Map<String, Host> hostInMap = hostnameIn.stream().collect(Collectors.toMap(Host::getHostname, host -> host));
+
+        for (String hostname : hostnames) {
+            Host host = new Host();
+            host.setHostname(hostname);
+            host.setCluster(cluster);
             host.setState(MaintainState.INSTALLED);
+
+            if (hostInMap.containsKey(hostname)) {
+                host.setId(hostInMap.get(hostname).getId());
+            }
+
+            hosts.add(host);
         }
         hostRepository.saveAll(hosts);
     }
