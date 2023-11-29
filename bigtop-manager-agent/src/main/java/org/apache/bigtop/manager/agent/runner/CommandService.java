@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.apache.bigtop.manager.stack.core.executor.Executor;
@@ -105,23 +106,27 @@ public class CommandService {
      * @param requestMessage {@link RequestMessage}
      */
     public void executeTask(RequestMessage requestMessage) {
-        CommandPayload commandMessage = JsonUtils.readFromString(requestMessage.getMessagePayload(), CommandPayload.class);
-        log.info("[agent executeTask] taskEvent is: {}", requestMessage);
-        Object result = stackExecutor.execute(commandMessage);
+        ResultMessage resultMessage = new ResultMessage();
+        resultMessage.setMessageId(requestMessage.getMessageId());
+        resultMessage.setHostname(requestMessage.getHostname());
+        resultMessage.setMessageType(requestMessage.getMessageType());
 
-        if (result instanceof ShellResult shellResult) {
-            ResultMessage resultMessage = new ResultMessage();
+        resultMessage.setJobId(requestMessage.getJobId());
+        resultMessage.setStageId(requestMessage.getStageId());
+        resultMessage.setTaskId(requestMessage.getTaskId());
+        try {
+            CommandPayload commandMessage = JsonUtils.readFromString(requestMessage.getMessagePayload(), CommandPayload.class);
+            log.info("[agent executeTask] taskEvent is: {}", requestMessage);
+            ShellResult shellResult = (ShellResult) stackExecutor.execute(commandMessage);
+
             resultMessage.setCode(shellResult.getExitCode());
             resultMessage.setResult(shellResult.getResult());
-
-            resultMessage.setMessageId(requestMessage.getMessageId());
-            resultMessage.setHostname(requestMessage.getHostname());
-            resultMessage.setMessageType(requestMessage.getMessageType());
-
-            resultMessage.setJobId(requestMessage.getJobId());
-            resultMessage.setStageId(requestMessage.getStageId());
-            resultMessage.setTaskId(requestMessage.getTaskId());
-
+            agentWsTools.sendMessage(resultMessage);
+        } catch (Exception e) {
+            log.error("execute error: ", e);
+            ShellResult fail = DefaultShellResult.FAIL;
+            resultMessage.setCode(fail.getExitCode());
+            resultMessage.setResult(fail.getResult());
             agentWsTools.sendMessage(resultMessage);
         }
     }

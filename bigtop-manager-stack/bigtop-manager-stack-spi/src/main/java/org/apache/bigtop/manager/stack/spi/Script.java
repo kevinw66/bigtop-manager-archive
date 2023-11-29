@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.stack.spi;
 
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
+import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,4 +31,8 @@ public interface Script extends SPIIdentify {
     }
 
     ShellResult status(CommandPayload commandMessage);
+
+    default ShellResult check(CommandPayload commandMessage) {
+        return DefaultShellResult.SUCCESS;
+    }
 }
