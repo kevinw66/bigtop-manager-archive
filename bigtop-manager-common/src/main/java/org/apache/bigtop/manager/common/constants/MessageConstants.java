@@ -14,6 +14,6 @@ public final class MessageConstants {
     /**
      * default fail code
      */
-    public static final int DEFAULT_SUCCESS_CODE = -1;
+    public static final int DEFAULT_FAIL_CODE = -1;
 
 }
