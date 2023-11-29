@@ -99,7 +99,7 @@ public class ClusterEventListener {
         // Save cluster
         Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
         StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
-        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
+        Cluster cluster = ClusterMapper.INSTANCE.fromDTO2Entity(clusterDTO, stackDTO, stack);
         cluster.setSelected(clusterRepository.count() == 0);
         cluster.setState(MaintainState.INSTALLED);
 
@@ -112,7 +112,7 @@ public class ClusterEventListener {
         hostAddEventListener.saveHost(cluster, clusterDTO.getHostnames());
 
         // Save repo
-        List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(clusterDTO.getRepoInfoList(), cluster);
+        List<Repo> repos = RepoMapper.INSTANCE.fromDTO2Entity(clusterDTO.getRepoInfoList(), cluster);
         List<Repo> oldRepos = repoRepository.findAllByCluster(cluster);
 
         for (Repo repo : repos) {

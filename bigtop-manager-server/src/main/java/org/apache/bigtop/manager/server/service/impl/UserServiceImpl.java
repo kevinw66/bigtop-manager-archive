@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
     public UserVO current() {
         Long id = SessionUserHolder.getUserId();
         User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.NEED_LOGIN));
-        return UserMapper.INSTANCE.Entity2VO(user);
+        return UserMapper.INSTANCE.fromEntity2VO(user);
     }
 
     @Override
@@ -47,6 +47,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.NEED_LOGIN));
         user.setNickname(userDTO.getNickname());
         userRepository.save(user);
-        return UserMapper.INSTANCE.Entity2VO(user);
+        return UserMapper.INSTANCE.fromEntity2VO(user);
     }
 }

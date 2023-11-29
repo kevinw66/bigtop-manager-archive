@@ -10,5 +10,5 @@ public interface StageMapper {
 
     StageMapper INSTANCE = Mappers.getMapper(StageMapper.class);
 
-    StageVO Entity2VO(Stage stage);
+    StageVO fromEntity2VO(Stage stage);
 }

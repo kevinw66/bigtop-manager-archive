@@ -198,7 +198,7 @@ public class HostCacheJobFactory implements JobFactory {
         //Wrapper repoList for HostCacheMessage
         repoList = new ArrayList<>();
         repos.forEach(repo -> {
-            RepoInfo repoInfo = RepoMapper.INSTANCE.Entity2Message(repo);
+            RepoInfo repoInfo = RepoMapper.INSTANCE.fromEntity2Message(repo);
             repoList.add(repoInfo);
         });
 

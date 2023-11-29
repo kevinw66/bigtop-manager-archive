@@ -19,8 +19,8 @@ public interface HostComponentMapper {
     @Mapping(target = "serviceName", source = "component.service.serviceName")
     @Mapping(target = "clusterName", source = "component.cluster.clusterName")
     @Mapping(target = "hostname", source = "host.hostname")
-    HostComponentVO Entity2VO(HostComponent hostComponent);
+    HostComponentVO fromEntity2VO(HostComponent hostComponent);
 
-    List<HostComponentVO> Entity2VO(List<HostComponent> hostComponents);
+    List<HostComponentVO> fromEntity2VO(List<HostComponent> hostComponents);
 
 }

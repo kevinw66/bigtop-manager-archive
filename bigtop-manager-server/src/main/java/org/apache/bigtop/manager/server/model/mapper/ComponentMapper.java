@@ -15,7 +15,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface ComponentMapper {
@@ -26,15 +25,14 @@ public interface ComponentMapper {
     @Mapping(target = "customCommands", expression = "java(customCommands2str(componentDTO.getCustomCommands()))")
     @Mapping(target = "service", expression = "java(service)")
     @Mapping(target = "cluster", expression = "java(cluster)")
-    Component DTO2Entity(ComponentDTO componentDTO, @Context Service service, @Context Cluster cluster);
-
+    Component fromDTO2Entity(ComponentDTO componentDTO, @Context Service service, @Context Cluster cluster);
 
     @Mapping(target = "componentName", source = "name")
-    ComponentDTO Model2DTO(ComponentModel componentModel);
+    ComponentDTO fromModel2DTO(ComponentModel componentModel);
 
     @Mapping(target = "serviceName", source = "service.serviceName")
     @Mapping(target = "clusterName", source = "cluster.clusterName")
-    ComponentVO Entity2VO(Component component);
+    ComponentVO fromEntity2VO(Component component);
 
     default String commandScript2str(ScriptDTO commandScript) {
         return JsonUtils.writeAsString(commandScript);

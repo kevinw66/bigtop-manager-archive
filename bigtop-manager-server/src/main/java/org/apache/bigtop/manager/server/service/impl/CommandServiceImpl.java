@@ -73,7 +73,7 @@ public class CommandServiceImpl implements CommandService {
         commandEvent.setJobId(job.getId());
         SpringContextHolder.getApplicationContext().publishEvent(commandEvent);
 
-        return JobMapper.INSTANCE.Entity2CommandVO(job);
+        return JobMapper.INSTANCE.fromEntity2CommandVO(job);
     }
 
     private void installHostComponent(CommandDTO commandDTO) {
@@ -119,7 +119,7 @@ public class CommandServiceImpl implements CommandService {
             String serviceName = serviceDTO.getServiceName();
             if (serviceNameList.contains(serviceName)) {
                 // 1. Persist service
-                Service service = ServiceMapper.INSTANCE.DTO2Entity(serviceDTO, cluster);
+                Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
                 Optional<Service> serviceOptional = serviceRepository.findByServiceName(serviceName);
                 if (serviceOptional.isPresent()) {
                     service.setId(serviceOptional.get().getId());
@@ -135,7 +135,7 @@ public class CommandServiceImpl implements CommandService {
                     String componentName = componentDTO.getComponentName();
 
                     // 3. Persist component
-                    Component component = ComponentMapper.INSTANCE.DTO2Entity(componentDTO, service, cluster);
+                    Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
                     Optional<Component> componentOptional = componentRepository.findByClusterClusterNameAndComponentName(clusterName, componentName);
                     if (componentOptional.isPresent()) {
                         component.setId(componentOptional.get().getId());

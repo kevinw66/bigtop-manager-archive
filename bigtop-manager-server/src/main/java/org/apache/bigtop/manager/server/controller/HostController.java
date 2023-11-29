@@ -49,7 +49,7 @@ public class HostController {
     @Operation(summary = "update", description = "Update a host")
 //    @PutMapping("/{id}")
     public ResponseEntity<HostVO> update(@PathVariable Long id, @RequestBody @Validated HostReq hostReq) {
-        HostDTO hostDTO = HostMapper.INSTANCE.Req2DTO(hostReq);
+        HostDTO hostDTO = HostMapper.INSTANCE.fromReq2DTO(hostReq);
         return ResponseEntity.success(hostService.update(id, hostDTO));
     }
 

@@ -22,23 +22,23 @@ public interface ServiceMapper {
 
     @Mapping(target = "osSpecifics", expression = "java(osSpecificDTO2str(serviceDTO.getOsSpecifics()))")
     @Mapping(target = "cluster", expression = "java(cluster)")
-    Service DTO2Entity(ServiceDTO serviceDTO, @Context Cluster cluster);
+    Service fromDTO2Entity(ServiceDTO serviceDTO, @Context Cluster cluster);
 
-    StackServiceVO DTO2VO(ServiceDTO serviceDTO);
+    StackServiceVO fromDTO2VO(ServiceDTO serviceDTO);
 
-    List<StackServiceVO> DTO2VO(List<ServiceDTO> serviceDTOList);
+    List<StackServiceVO> fromDTO2VO(List<ServiceDTO> serviceDTOList);
 
     @Mapping(target = "serviceName", source = "name")
     @Mapping(target = "serviceDesc", source = "desc")
     @Mapping(target = "serviceVersion", source = "version")
     @Mapping(target = "serviceUser", source = "user")
     @Mapping(target = "serviceGroup", source = "group")
-    ServiceDTO Model2DTO(ServiceModel serviceModel);
+    ServiceDTO fromModel2DTO(ServiceModel serviceModel);
 
     @Mapping(target = "clusterName", source = "cluster.clusterName")
-    ServiceVO Entity2VO(Service service);
+    ServiceVO fromEntity2VO(Service service);
 
-    List<ServiceVO> Entity2VO(List<Service> services);
+    List<ServiceVO> fromEntity2VO(List<Service> services);
 
     default String osSpecificDTO2str(List<OSSpecificDTO> osSpecifics) {
         return JsonUtils.writeAsString(osSpecifics);

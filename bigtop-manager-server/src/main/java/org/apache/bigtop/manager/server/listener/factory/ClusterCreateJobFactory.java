@@ -72,7 +72,7 @@ public class ClusterCreateJobFactory implements JobFactory {
 
         StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
 
-        List<RepoInfo> repoList = RepoMapper.INSTANCE.DTO2Message(clusterDTO.getRepoInfoList());
+        List<RepoInfo> repoList = RepoMapper.INSTANCE.fromDTO2Message(clusterDTO.getRepoInfoList());
         ClusterInfo clusterInfo = new ClusterInfo();
         clusterInfo.setClusterName(clusterDTO.getClusterName());
         clusterInfo.setStackName(clusterDTO.getStackName());

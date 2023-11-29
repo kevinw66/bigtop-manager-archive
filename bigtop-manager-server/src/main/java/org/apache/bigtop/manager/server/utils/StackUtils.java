@@ -83,7 +83,7 @@ public class StackUtils {
         StackMetainfoXml stackMetainfoXml = JaxbUtils.readFromPath(
                 versionFolder.getAbsolutePath() + File.separator + META_FILE,
                 StackMetainfoXml.class);
-        return StackMapper.INSTANCE.Model2DTO(stackMetainfoXml.getStack());
+        return StackMapper.INSTANCE.fromModel2DTO(stackMetainfoXml.getStack());
     }
 
     /**
@@ -105,7 +105,7 @@ public class StackUtils {
                 // metainfo.xml
                 ServiceMetainfoXml serviceMetainfoXml = JaxbUtils.readFromPath(file.getAbsolutePath() + "/" + META_FILE, ServiceMetainfoXml.class);
                 for (ServiceModel serviceModel : serviceMetainfoXml.getServices()) {
-                    ServiceDTO serviceDTO = ServiceMapper.INSTANCE.Model2DTO(serviceModel);
+                    ServiceDTO serviceDTO = ServiceMapper.INSTANCE.fromModel2DTO(serviceModel);
                     services.add(serviceDTO);
 
                     // configurations

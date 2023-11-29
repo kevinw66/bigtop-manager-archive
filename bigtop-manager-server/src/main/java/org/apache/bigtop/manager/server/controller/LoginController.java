@@ -33,7 +33,7 @@ public class LoginController {
             throw new ApiException(ApiExceptionEnum.USERNAME_OR_PASSWORD_REQUIRED);
         }
 
-        LoginDTO loginDTO = LoginMapper.INSTANCE.Req2DTO(loginReq);
+        LoginDTO loginDTO = LoginMapper.INSTANCE.fromReq2DTO(loginReq);
         return ResponseEntity.success(loginService.login(loginDTO));
     }
 
