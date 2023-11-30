@@ -45,7 +45,7 @@ public class ConfigurationController {
     @PutMapping
     public ResponseEntity<CommandVO> update(@PathVariable Long clusterId,
                                             @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
-        List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.Request2DTO(configurationReqs);
+        List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.fromReq2DTO(configurationReqs);
         log.info("configurationDTOList: {}", configurationDTOList);
         CommandVO configurationVOList = configurationService.update(clusterId, configurationDTOList);
         return ResponseEntity.success(configurationVOList);

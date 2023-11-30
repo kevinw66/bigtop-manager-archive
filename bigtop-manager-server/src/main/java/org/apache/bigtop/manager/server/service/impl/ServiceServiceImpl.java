@@ -21,13 +21,13 @@ public class ServiceServiceImpl implements ServiceService {
     public List<ServiceVO> list(Long clusterId) {
         List<Service> serviceList = serviceRepository.findAllByClusterId(clusterId);
 
-        return ServiceMapper.INSTANCE.Entity2VO(serviceList);
+        return ServiceMapper.INSTANCE.fromEntity2VO(serviceList);
     }
 
     @Override
     public ServiceVO get(Long id) {
         Service service = serviceRepository.findById(id).orElse(new Service());
-        return ServiceMapper.INSTANCE.Entity2VO(service);
+        return ServiceMapper.INSTANCE.fromEntity2VO(service);
     }
 
 }

@@ -32,7 +32,7 @@ public class ClusterController {
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
     public ResponseEntity<CommandVO> create(@RequestBody @Validated ClusterReq clusterReq) {
-        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
+        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.fromReq2DTO(clusterReq);
         return ResponseEntity.success(clusterService.create(clusterDTO));
     }
 
@@ -45,7 +45,7 @@ public class ClusterController {
     @Operation(summary = "update", description = "Update a cluster")
     @PutMapping("/{id}")
     public ResponseEntity<ClusterVO> update(@PathVariable Long id, @RequestBody @Validated ClusterReq clusterReq) {
-        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.Req2DTO(clusterReq);
+        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.fromReq2DTO(clusterReq);
         return ResponseEntity.success(clusterService.update(id, clusterDTO));
     }
 

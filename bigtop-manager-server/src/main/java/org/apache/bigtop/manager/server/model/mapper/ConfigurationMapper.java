@@ -4,33 +4,32 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
-import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
 import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
-import org.apache.bigtop.manager.server.stack.pojo.PropertyModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ConfigurationMapper {
 
     ConfigurationMapper INSTANCE = Mappers.getMapper(ConfigurationMapper.class);
 
-    List<PropertyDTO> Model2DTO(List<PropertyModel> propertyModels);
+    ConfigurationDTO fromReq2DTO(ConfigurationReq configurationReq);
 
-    ConfigurationDTO Request2DTO(ConfigurationReq configurationReq);
+    List<ConfigurationDTO> fromReq2DTO(List<ConfigurationReq> configurationReqs);
 
-    List<ConfigurationDTO> Request2DTO(List<ConfigurationReq> configurationReqs);
+    ConfigDataVO fromDTO2VO(ConfigDataDTO configDataDTO);
 
-    ConfigDataVO DTO2VO(ConfigDataDTO configDataDTO);
-
-    default List<ConfigurationVO> Entity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
+    default List<ConfigurationVO> fromEntity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
         Map<ServiceConfigRecord, ConfigurationVO> map = new HashMap<>();
 
         for (ServiceConfigMapping serviceConfigMapping : serviceConfigMappings) {

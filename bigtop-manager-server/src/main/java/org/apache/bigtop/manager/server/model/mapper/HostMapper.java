@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.req.HostReq;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
@@ -16,16 +15,13 @@ public interface HostMapper {
 
     HostMapper INSTANCE = Mappers.getMapper(HostMapper.class);
 
-    HostDTO Req2DTO(HostReq hostReq);
+    HostDTO fromReq2DTO(HostReq hostReq);
 
-    Host DTO2Entity(HostDTO hostDTO);
-
-    Host Message2Entity(HostInfo hostInfo);
+    Host fromDTO2Entity(HostDTO hostDTO);
 
     @Mapping(target = "clusterName", source = "cluster.clusterName")
-    HostVO Entity2VO(Host host);
+    HostVO fromEntity2VO(Host host);
 
-    List<HostVO> Entity2VO(List<Host> hosts);
+    List<HostVO> fromEntity2VO(List<Host> hosts);
 
-    HostDTO Entity2DTO(Host host);
 }

@@ -13,13 +13,9 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    User DTO2Entity(UserDTO userDTO);
-
-    UserDTO Entity2DTO(User user);
-
     @Mapping(target = "createTime", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Mapping(target = "updateTime", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    UserVO Entity2VO(User user);
+    UserVO fromEntity2VO(User user);
 
-    UserDTO Req2DTO(UserReq userReq);
+    UserDTO fromReq2DTO(UserReq userReq);
 }

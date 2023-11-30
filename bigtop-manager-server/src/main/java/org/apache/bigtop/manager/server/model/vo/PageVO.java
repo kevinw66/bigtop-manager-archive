@@ -32,7 +32,7 @@ public class PageVO<T> {
                 String className = "org.apache.bigtop.manager.server.model.mapper." + clz.getSimpleName() + "Mapper";
                 Class<?> mapper = Class.forName(className);
                 Object o = Mappers.getMapper(mapper);
-                Method method = o.getClass().getDeclaredMethod("Entity2VO", List.class);
+                Method method = o.getClass().getDeclaredMethod("fromEntity2VO", List.class);
                 content = (List<T>) method.invoke(o, page.getContent());
             } catch (Exception e) {
                 throw new ServerException(e);

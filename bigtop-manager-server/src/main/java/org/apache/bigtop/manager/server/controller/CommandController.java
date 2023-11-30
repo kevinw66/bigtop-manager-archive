@@ -24,7 +24,7 @@ public class CommandController {
     @Operation(summary = "command", description = "Command for component by [host,component,service,cluster]")
     @PostMapping
     public ResponseEntity<CommandVO> command(@RequestBody @Validated CommandReq commandReq) {
-        CommandDTO commandDTO = CommandMapper.INSTANCE.Req2DTO(commandReq);
+        CommandDTO commandDTO = CommandMapper.INSTANCE.fromReq2DTO(commandReq);
         CommandVO commandVO = commandService.command(commandDTO);
         return ResponseEntity.success(commandVO);
     }

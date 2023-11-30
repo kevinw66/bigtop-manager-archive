@@ -46,13 +46,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public List<ConfigurationVO> list(Long clusterId) {
         List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllByServiceConfigRecordClusterId(clusterId);
-        return ConfigurationMapper.INSTANCE.Entity2VO(serviceConfigMappingList);
+        return ConfigurationMapper.INSTANCE.fromEntity2VO(serviceConfigMappingList);
     }
 
     @Override
     public List<ConfigurationVO> latest(Long clusterId) {
         List<ServiceConfigMapping> resultList = serviceConfigMappingRepository.findAllGroupLastest(clusterId);
-        return ConfigurationMapper.INSTANCE.Entity2VO(resultList);
+        return ConfigurationMapper.INSTANCE.fromEntity2VO(resultList);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         hostCacheEvent.setJobId(job.getId());
         SpringContextHolder.getApplicationContext().publishEvent(hostCacheEvent);
 
-        return JobMapper.INSTANCE.Entity2CommandVO(job);
+        return JobMapper.INSTANCE.fromEntity2CommandVO(job);
     }
 
     private void updateConfig(Cluster cluster, ConfigurationDTO configurationDTO) {

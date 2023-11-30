@@ -16,14 +16,14 @@ public interface ClusterMapper {
 
     ClusterMapper INSTANCE = Mappers.getMapper(ClusterMapper.class);
 
-    ClusterDTO Req2DTO(ClusterReq clusterReq);
+    ClusterDTO fromReq2DTO(ClusterReq clusterReq);
 
-    Cluster DTO2Entity(ClusterDTO clusterDTO);
+    Cluster fromDTO2Entity(ClusterDTO clusterDTO);
 
     @Mapping(target = "stackName", source = "cluster.stack.stackName")
     @Mapping(target = "stackVersion", source = "cluster.stack.stackVersion")
-    ClusterVO Entity2VO(Cluster cluster);
+    ClusterVO fromEntity2VO(Cluster cluster);
 
     @Mapping(target = "stack", expression = "java(stack)")
-    Cluster DTO2Entity(ClusterDTO clusterDTO, StackDTO stackDTO, @Context Stack stack);
+    Cluster fromDTO2Entity(ClusterDTO clusterDTO, StackDTO stackDTO, @Context Stack stack);
 }

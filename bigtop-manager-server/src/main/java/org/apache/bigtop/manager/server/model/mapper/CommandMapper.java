@@ -9,6 +9,6 @@ import org.mapstruct.factory.Mappers;
 public interface CommandMapper {
     CommandMapper INSTANCE = Mappers.getMapper(CommandMapper.class);
 
-    CommandDTO Req2DTO(CommandReq commandReq);
+    CommandDTO fromReq2DTO(CommandReq commandReq);
 
 }

@@ -48,7 +48,7 @@ public class ClusterServiceImpl implements ClusterService {
     public List<ClusterVO> list() {
         List<ClusterVO> clusterVOList = new ArrayList<>();
         clusterRepository.findAll().forEach(cluster -> {
-            ClusterVO clusterVO = ClusterMapper.INSTANCE.Entity2VO(cluster);
+            ClusterVO clusterVO = ClusterMapper.INSTANCE.fromEntity2VO(cluster);
             clusterVOList.add(clusterVO);
         });
 
@@ -79,7 +79,7 @@ public class ClusterServiceImpl implements ClusterService {
         ClusterCreateEvent event = new ClusterCreateEvent(clusterDTO);
         event.setJobId(job.getId());
         SpringContextHolder.getApplicationContext().publishEvent(event);
-        return JobMapper.INSTANCE.Entity2CommandVO(job);
+        return JobMapper.INSTANCE.fromEntity2CommandVO(job);
     }
 
 
@@ -87,16 +87,16 @@ public class ClusterServiceImpl implements ClusterService {
     public ClusterVO get(Long id) {
         Cluster cluster = clusterRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.CLUSTER_NOT_FOUND));
 
-        return ClusterMapper.INSTANCE.Entity2VO(cluster);
+        return ClusterMapper.INSTANCE.fromEntity2VO(cluster);
     }
 
     @Override
     public ClusterVO update(Long id, ClusterDTO clusterDTO) {
-        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO);
+        Cluster cluster = ClusterMapper.INSTANCE.fromDTO2Entity(clusterDTO);
         cluster.setId(id);
         clusterRepository.save(cluster);
 
-        return ClusterMapper.INSTANCE.Entity2VO(cluster);
+        return ClusterMapper.INSTANCE.fromEntity2VO(cluster);
     }
 
 }

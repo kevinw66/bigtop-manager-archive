@@ -26,5 +26,5 @@ public interface LoginMapper {
 
     LoginMapper INSTANCE = Mappers.getMapper(LoginMapper.class);
 
-    LoginDTO Req2DTO(LoginReq loginReq);
+    LoginDTO fromReq2DTO(LoginReq loginReq);
 }

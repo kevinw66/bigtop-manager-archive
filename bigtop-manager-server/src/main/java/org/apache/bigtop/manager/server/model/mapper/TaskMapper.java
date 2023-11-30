@@ -10,5 +10,5 @@ public interface TaskMapper {
 
     TaskMapper INSTANCE = Mappers.getMapper(TaskMapper.class);
 
-    TaskVO Entity2VO(Task task);
+    TaskVO fromEntity2VO(Task task);
 }

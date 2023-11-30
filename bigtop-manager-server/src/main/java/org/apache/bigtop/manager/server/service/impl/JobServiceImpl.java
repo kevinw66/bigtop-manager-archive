@@ -38,6 +38,6 @@ public class JobServiceImpl implements JobService {
     @Override
     public JobVO get(Long id) {
         Job job = jobRepository.getReferenceById(id);
-        return JobMapper.INSTANCE.Entity2VO(job);
+        return JobMapper.INSTANCE.fromEntity2VO(job);
     }
 }
