@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.stack.common;
+package org.apache.bigtop.manager.stack.spi;
 
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
@@ -11,11 +11,17 @@ public abstract class BaseParams {
 
     public static final String limitsConfDir = "/etc/security/limits.d";
 
+    private final CommandPayload commandPayload;
+
+    public BaseParams(CommandPayload commandPayload) {
+        this.commandPayload = commandPayload;
+    }
+
     /**
      * get the package list according to the os and arch
      */
-    public static List<String> getPackageList(CommandPayload commandMessage) {
-        List<OSSpecificInfo> osSpecifics = commandMessage.getOsSpecifics();
+    public List<String> getPackageList() {
+        List<OSSpecificInfo> osSpecifics = this.commandPayload.getOsSpecifics();
         if (osSpecifics == null) {
             return null;
         }
@@ -36,11 +42,11 @@ public abstract class BaseParams {
     /**
      * service home dir
      */
-    public static String serviceHome(CommandPayload commandMessage) {
-        String stackName = commandMessage.getStackName();
-        String stackVersion = commandMessage.getStackVersion();
-        String service = commandMessage.getServiceName();
-        String root = commandMessage.getRoot();
+    public String serviceHome() {
+        String stackName = this.commandPayload.getStackName();
+        String stackVersion = this.commandPayload.getStackVersion();
+        String service = this.commandPayload.getServiceName();
+        String root = this.commandPayload.getRoot();
 
         return root + "/" + stackName.toLowerCase() + "/" + stackVersion + "/usr/lib/" + service.toLowerCase();
     }
@@ -48,20 +54,20 @@ public abstract class BaseParams {
     /**
      * service conf dir
      */
-    public static String confDir(CommandPayload commandMessage) {
-        return "/etc/" + commandMessage.getServiceName().toLowerCase() + "/conf";
+    public String confDir() {
+        return "/etc/" + this.commandPayload.getServiceName().toLowerCase() + "/conf";
     }
 
-    public static String user(CommandPayload commandMessage) {
-        return StringUtils.isNotBlank(commandMessage.getServiceUser()) ? commandMessage.getServiceUser() : "root";
+    public String user() {
+        return StringUtils.isNotBlank(this.commandPayload.getServiceUser()) ? this.commandPayload.getServiceUser() : "root";
     }
 
-    public static String group(CommandPayload commandMessage) {
-        return StringUtils.isNotBlank(commandMessage.getServiceGroup()) ? commandMessage.getServiceGroup() : "root";
+    public String group() {
+        return StringUtils.isNotBlank(this.commandPayload.getServiceGroup()) ? this.commandPayload.getServiceGroup() : "root";
     }
 
-    public static String serviceName(CommandPayload commandMessage) {
-        return commandMessage.getServiceName();
+    public String serviceName() {
+        return this.commandPayload.getServiceName();
     }
 
 }
