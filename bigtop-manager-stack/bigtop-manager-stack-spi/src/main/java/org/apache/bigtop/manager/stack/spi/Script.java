@@ -1,25 +1,25 @@
 package org.apache.bigtop.manager.stack.spi;
 
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
+import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.commons.lang3.StringUtils;
 
 public interface Script extends SPIIdentify {
 
-    ShellResult install(CommandPayload commandMessage);
+    ShellResult install(BaseParams baseParams);
 
-    ShellResult configuration(CommandPayload commandMessage);
+    ShellResult configuration(BaseParams baseParams);
 
-    ShellResult start(CommandPayload commandMessage);
+    ShellResult start(BaseParams baseParams);
 
-    ShellResult stop(CommandPayload commandMessage);
+    ShellResult stop(BaseParams baseParams);
 
-    default ShellResult restart(CommandPayload commandMessage) {
-        ShellResult shellResult = stop(commandMessage);
+    default ShellResult restart(BaseParams baseParams) {
+        ShellResult shellResult = stop(baseParams);
         if (shellResult.getExitCode() != 0) {
             return shellResult;
         }
-        ShellResult shellResult1 = start(commandMessage);
+        ShellResult shellResult1 = start(baseParams);
         if (shellResult1.getExitCode() != 0) {
             return shellResult1;
         }
@@ -29,5 +29,9 @@ public interface Script extends SPIIdentify {
                 StringUtils.join(shellResult.getErrMsg(), shellResult1.getErrMsg()));
     }
 
-    ShellResult status(CommandPayload commandMessage);
+    ShellResult status(BaseParams baseParams);
+
+    default ShellResult check(BaseParams baseParams) {
+        return DefaultShellResult.success();
+    }
 }

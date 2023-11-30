@@ -2,11 +2,9 @@ package org.apache.bigtop.manager.stack.common.utils.linux;
 
 import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
-import org.apache.bigtop.manager.stack.common.utils.linux.LinuxAccountUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -22,22 +20,35 @@ public class LinuxOSUtils {
      * @throws IOException errors
      */
     public static ShellResult sudoExecCmd(String command, String tenant) throws IOException {
-        return execCmd(getSudoCmd(tenant, command));
+        return execCmd(command, getTenant(tenant));
     }
 
     /**
      * get sudo command
      *
      * @param tenant  Tenant User
-     * @param command command
      * @return result of sudo execute command
      */
-    public static String getSudoCmd(String tenant, String command) {
+    public static String getTenant(String tenant) {
         if (StringUtils.isBlank(tenant) || !LinuxAccountUtils.isUserExists(tenant)) {
-            return command;
+            return "root";
         }
 
-        return MessageFormat.format("sudo -u {0} {1}", tenant, command);
+        return tenant;
+    }
+
+    /**
+     * support sudo command
+     */
+    public static ShellResult execCmd(String command, String tenant) throws IOException {
+        List<String> builderParameters = new ArrayList<>();
+        builderParameters.add("sudo");
+        builderParameters.add("-u");
+        builderParameters.add(tenant);
+        builderParameters.add("sh");
+        builderParameters.add("-c");
+        builderParameters.add(command);
+        return ShellExecutor.execCommand(builderParameters);
     }
 
     /**

@@ -39,24 +39,24 @@ gpgcheck=0
         <repos>
             <repo>
                 <repoId>BIGTOP-3.3.0</repoId>
-                <repoName>Bigtop 3.3.0 for CentOS 7 x86_64</repoName>
+                <repoName>Bigtop-3.3.0 for CentOS-7 x86_64</repoName>
                 <os>centos7</os>
                 <arch>x86_64</arch>
-                <baseUrl>https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch</baseUrl>
+                <baseUrl>http://123.56.2.244/BIGTOP/3.3.0/centos7/x86_64/</baseUrl>
             </repo>
             <repo>
                 <repoId>BIGTOP-3.3.0</repoId>
-                <repoName>Bigtop 3.3.0 for CentOS 7 aarch64</repoName>
+                <repoName>Bigtop-3.3.0 for CentOS-7 aarch64</repoName>
                 <os>centos7</os>
                 <arch>aarch64</arch>
                 <baseUrl>https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch</baseUrl>
             </repo>
             <repo>
                 <repoId>BIGTOP-3.3.0</repoId>
-                <repoName>Bigtop 3.3.0 for Rocky Linux 8 x86_64</repoName>
+                <repoName>Bigtop-3.3.0 for RockyLinux-8 x86_64</repoName>
                 <os>rocky8</os>
                 <arch>x86_64</arch>
-                <baseUrl>https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch</baseUrl>
+                <baseUrl>http://123.56.2.244/BIGTOP/3.3.0/rocky8/x86_64/</baseUrl>
             </repo>
         </repos>
     </stack>

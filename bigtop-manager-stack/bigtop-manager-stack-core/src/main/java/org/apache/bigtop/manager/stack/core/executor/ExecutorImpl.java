@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
+import org.apache.bigtop.manager.stack.spi.BaseParams;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
@@ -11,6 +12,7 @@ import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
 import org.apache.bigtop.manager.stack.spi.Hook;
 import org.apache.bigtop.manager.stack.spi.SPIFactory;
 import org.apache.bigtop.manager.stack.spi.Script;
+import org.apache.commons.text.CaseUtils;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -53,31 +55,35 @@ public class ExecutorImpl implements Executor {
         return script;
     }
 
-    private Hook getHook(CommandPayload commandMessage) {
-        return hookMap.get(commandMessage.getCommand().name());
+    private Hook getHook(CommandPayload commandPayload) {
+        return hookMap.get(commandPayload.getCommand().name());
     }
 
     @Override
-    public Object execute(CommandPayload commandMessage) {
-        Script script = getCommandScript(commandMessage.getCommandScript().getScriptId());
+    public Object execute(CommandPayload commandPayload) {
+        Script script = getCommandScript(commandPayload.getCommandScript().getScriptId());
 
-        Hook hook = getHook(commandMessage);
-        String command = commandMessage.getCommand().name();
+        Hook hook = getHook(commandPayload);
+        String command = commandPayload.getCommand().name();
 
         hookAspect(hook, HookAroundType.BEFORE.getType());
 
         Object result;
         try {
+            String paramsPackageName = script.getClass().getPackageName() + "." + CaseUtils.toCamelCase(commandPayload.getServiceName(), true) + "Params";
+            Class<?> paramsClass = Class.forName(paramsPackageName);
+            BaseParams baseParams = (BaseParams) paramsClass.getDeclaredConstructor(CommandPayload.class).newInstance(commandPayload);
+
             Method method;
             if (command.equals(Command.CUSTOM_COMMAND.name())) {
-                String customCommand = commandMessage.getCustomCommand();
-                script = getCustomScript(customCommand, commandMessage.getCustomCommands());
-                method = script.getClass().getMethod(customCommand.toLowerCase(), CommandPayload.class);
+                String customCommand = commandPayload.getCustomCommand();
+                script = getCustomScript(customCommand, commandPayload.getCustomCommands());
+                method = script.getClass().getMethod(customCommand.toLowerCase(), BaseParams.class);
             } else {
-                method = script.getClass().getMethod(command.toLowerCase(), CommandPayload.class);
+                method = script.getClass().getMethod(command.toLowerCase(), BaseParams.class);
             }
             log.info("start execute [{}] : [{}]", script.getName(), method.getName());
-            result = method.invoke(script, commandMessage);
+            result = method.invoke(script, baseParams);
             log.info("execute [{}] : [{}] complete, result: [{}]", script.getName(), method.getName(), result);
         } catch (Exception e) {
             log.info("execute [{}] error", script.getName());
