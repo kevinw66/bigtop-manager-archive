@@ -7,7 +7,7 @@ public class DefaultShellResult {
     public static final ShellResult FAIL = new ShellResult(MessageConstants.DEFAULT_FAIL_CODE, "Default failed!!!", "");
 
     public static ShellResult success(String output) {
-        return new ShellResult(MessageConstants.DEFAULT_FAIL_CODE, output, "");
+        return new ShellResult(MessageConstants.SUCCESS_CODE, output, "");
     }
 
     public static ShellResult success() {
