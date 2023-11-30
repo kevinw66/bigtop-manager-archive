@@ -79,14 +79,14 @@ public class CommandJobFactory implements JobFactory {
 
         int stageOrder = 0;
 
-        // command stage
-        stageOrder = createStage(job, commandDTO, stageOrder);
-
         // cache stage
         if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
             stageOrder += 1;
             hostCacheJobFactory.createStage(job, cluster, stageOrder);
         }
+
+        // command stage
+        stageOrder = createStage(job, commandDTO, stageOrder);
 
         // start and check stage if service install
         if (commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
