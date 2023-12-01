@@ -30,7 +30,7 @@ public class CommandReq {
     private String clusterName;
 
     @NotEmpty
-    @Schema(example = "BIGTOP")
+    @Schema(example = "bigtop")
     private String stackName;
 
     @NotEmpty

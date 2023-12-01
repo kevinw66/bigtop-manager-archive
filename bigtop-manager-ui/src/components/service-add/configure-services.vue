@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  const serviceInfo = defineModel<any>('serviceInfo')
+  // const serviceInfo = defineModel<any>('serviceInfo')
   const onNextStep = async () => {
     return Promise.resolve(true)
   }

@@ -19,37 +19,38 @@
     <schemaVersion>2.0</schemaVersion>
     <services>
         <service>
-            <name>KAFKA</name>
-            <displayName>Kafka</displayName>
-            <desc>Apache Kafka is an open-source distributed event streaming platform used by thousands of companies for
-                high-performance data pipelines, streaming analytics, data integration, and mission-critical
-                applications.
+            <name>zookeeper</name>
+            <displayName>ZooKeeper</displayName>
+            <desc>
+                Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly
+                reliable distributed coordination.
             </desc>
-            <version>2.8.2</version>
-            <user>kafka</user>
-            <group>kafka</group>
-
+            <version>3.6.4</version>
+            <user>zookeeper</user>
+            <group>zookeeper</group>
             <components>
+
                 <component>
-                    <name>KAFKA_SERVER</name>
-                    <displayName>Kafka Server</displayName>
-                    <category>MASTER</category>
+                    <name>zookeeper-server</name>
+                    <displayName>ZooKeeper Server</displayName>
+                    <category>master</category>
                     <cardinality>1+</cardinality>
                     <commandScript>
-                        <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaServerScript</script>
-                        <scriptType>JAVA</scriptType>
+                        <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperServerScript</script>
+                        <scriptType>java</scriptType>
                         <timeout>1200</timeout>
                     </commandScript>
-                    <customCommands>
-                        <customCommand>
-                            <name>test</name>
-                            <commandScript>
-                                <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaServerScript</script>
-                                <scriptType>JAVA</scriptType>
-                                <timeout>600</timeout>
-                            </commandScript>
-                        </customCommand>
-                    </customCommands>
+                </component>
+
+                <component>
+                    <name>zookeeper-client</name>
+                    <displayName>ZooKeeper Client</displayName>
+                    <category>client</category>
+                    <cardinality>1+</cardinality>
+                    <commandScript>
+                        <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperClientScript</script>
+                        <scriptType>java</scriptType>
+                    </commandScript>
                 </component>
             </components>
 
@@ -63,11 +64,12 @@
                         <architecture>x86_64</architecture>
                     </architectures>
                     <packages>
-                        <package>kafka_3_3_0</package>
+                        <package>zookeeper_3_3_0</package>
                     </packages>
                 </osSpecific>
             </osSpecifics>
 
+            <configuration-dir>configuration</configuration-dir>
         </service>
     </services>
 </metainfo>

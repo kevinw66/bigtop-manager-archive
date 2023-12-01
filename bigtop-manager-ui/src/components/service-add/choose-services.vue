@@ -3,13 +3,16 @@
   import { TableProps } from 'ant-design-vue'
   import { useServiceStore } from '@/store/service'
   import { MergedServiceVO } from '@/store/service/types.ts'
-  import { onMounted } from 'vue'
+  import { computed, onMounted } from 'vue'
 
   const serviceInfo = defineModel<any>('serviceInfo')
   const disableButton = defineModel<boolean>('disableButton')
 
   const serviceStore = useServiceStore()
-  const { mergedServices } = storeToRefs(serviceStore)
+  const { installedServices, mergedServices } = storeToRefs(serviceStore)
+  const installedServiceNames = computed(() => {
+    return installedServices.value.map((item: any) => item.serviceName)
+  })
 
   const serviceColumns = [
     {
@@ -29,24 +32,25 @@
     }
   ]
 
-  const disableButtonIfNoService = () => {
-    disableButton.value = serviceInfo.value.serviceNames.length === 0
-  }
-
   const rowSelection: TableProps['rowSelection'] = {
-    defaultSelectedRowKeys: serviceInfo.value.serviceNames,
+    defaultSelectedRowKeys: [
+      ...serviceInfo.value.serviceNames,
+      ...installedServiceNames.value
+    ],
     onChange: (v: (string | number)[]) => {
       serviceInfo.value.serviceNames = v
-      disableButtonIfNoService()
+      console.log(111)
+      console.log(serviceInfo.value.serviceNames)
+      console.log(111)
+      disableButton.value = serviceInfo.value.serviceNames.length === 0
     },
     getCheckboxProps: (record: MergedServiceVO) => ({
-      disabled: record.installed,
-      name: record.serviceName
+      disabled: record.installed
     })
   }
 
   onMounted(async () => {
-    disableButtonIfNoService()
+    disableButton.value = serviceInfo.value.serviceNames.length === 0
   })
 
   const onNextStep = async () => {
