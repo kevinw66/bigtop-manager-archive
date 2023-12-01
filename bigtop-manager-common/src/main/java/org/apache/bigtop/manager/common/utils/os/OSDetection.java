@@ -34,7 +34,7 @@ public class OSDetection {
 
         String osType = regexOS(ID_PATTERN, output);
 
-        log.info("osType: {}", osType);
+        log.debug("osType: {}", osType);
         return osType;
     }
 
@@ -43,7 +43,7 @@ public class OSDetection {
 
         String osVersion = regexOS(VERSION_PATTERN, output);
 
-        log.info("osVersion: {}", osVersion);
+        log.debug("osVersion: {}", osVersion);
         return osVersion;
     }
 
@@ -57,9 +57,7 @@ public class OSDetection {
             ShellResult shellResult = ShellExecutor.execCommand(builderParameters);
             String output = shellResult.getOutput();
 
-            if (log.isDebugEnabled()) {
-                log.debug("getOSRelease: {}", output);
-            }
+            log.debug("getOSRelease: {}", output);
             return output;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -86,9 +84,7 @@ public class OSDetection {
         try {
             ShellResult shellResult = ShellExecutor.execCommand(builderParameters);
             String output = shellResult.getOutput().replace("\n", "");
-            if (log.isDebugEnabled()) {
-                log.debug("getArch: {}", output);
-            }
+            log.debug("getArch: {}", output);
 
             ifSupportedArch(output);
             return output;
@@ -104,14 +100,14 @@ public class OSDetection {
         if (!EnumUtils.isValidEnumIgnoreCase(OSType.class, os)) {
             throw new RuntimeException("Unsupported OS: [" + os + "]");
         }
-        log.info("OS [{}] is Supported", os);
+        log.debug("OS [{}] is Supported", os);
     }
 
     public static void ifSupportedArch(String arch) {
         if (!EnumUtils.isValidEnumIgnoreCase(OSArchType.class, arch)) {
             throw new RuntimeException("Unsupported Arch: [" + arch + "]");
         }
-        log.info("Arch [{}] is Supported", arch);
+        log.debug("Arch [{}] is Supported", arch);
     }
 
 }

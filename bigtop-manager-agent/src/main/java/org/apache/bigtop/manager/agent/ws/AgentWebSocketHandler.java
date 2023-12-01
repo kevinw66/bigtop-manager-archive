@@ -70,7 +70,6 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
         handleMessage(session, baseMessage);
 
-        System.out.println(baseMessage.toString());
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {

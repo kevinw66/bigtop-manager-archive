@@ -116,7 +116,7 @@ public class AsyncJobStrategy implements JobStrategy {
      * callback
      */
     public void call(ResultMessage resultMessage) {
-        log.info("Execute CommandMessage completed, {}", resultMessage);
+        log.info("Execute RequestMessage completed, {}", resultMessage);
         countDownLatch.countDown();
 
         Task task = taskRepository.getReferenceById(resultMessage.getTaskId());
