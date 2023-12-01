@@ -13,16 +13,10 @@ public interface StackMapper {
 
     StackMapper INSTANCE = Mappers.getMapper(StackMapper.class);
 
-    StackDTO Req2DTO(StackReq stackReq);
+    StackVO fromEntity2VO(Stack stack);
 
-    Stack DTO2Entity(StackDTO stackDTO);
+    StackVO fromDTO2VO(StackDTO stackDTO);
 
-    StackVO Entity2VO(Stack stack);
-
-    StackDTO Entity2DTO(Stack stack);
-
-    StackVO DTO2VO(StackDTO stackDTO);
-
-    StackDTO Model2DTO(StackModel stackModel);
+    StackDTO fromModel2DTO(StackModel stackModel);
 
 }

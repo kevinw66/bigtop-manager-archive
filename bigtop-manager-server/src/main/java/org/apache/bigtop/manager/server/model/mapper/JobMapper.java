@@ -21,17 +21,17 @@ public interface JobMapper {
 
     @Mapping(target = "cluster", expression = "java(cluster)")
     @Mapping(target = "state", expression = "java(initState())")
-    Job DTO2Entity(CommandDTO commandDTO, @Context Cluster cluster);
+    Job fromDTO2Entity(CommandDTO commandDTO, @Context Cluster cluster);
 
     @Mapping(target = "cluster", expression = "java(cluster)")
     @Mapping(target = "state", expression = "java(initState())")
-    Job DTO2Entity(HostDTO hostDTO, @Context Cluster cluster);
+    Job fromDTO2Entity(HostDTO hostDTO, @Context Cluster cluster);
 
-    JobVO Entity2VO(Job job);
+    JobVO fromEntity2VO(Job job);
 
-    List<JobVO> Entity2VO(List<Job> job);
+    List<JobVO> fromEntity2VO(List<Job> job);
 
-    CommandVO Entity2CommandVO(Job job);
+    CommandVO fromEntity2CommandVO(Job job);
 
     default JobState initState() {
         return JobState.PENDING;

@@ -7,8 +7,13 @@ public final class MessageConstants {
     }
 
     /**
-     * stack cache dir
+     * success code
      */
     public static final int SUCCESS_CODE = 0;
+
+    /**
+     * default fail code
+     */
+    public static final int DEFAULT_FAIL_CODE = -1;
 
 }

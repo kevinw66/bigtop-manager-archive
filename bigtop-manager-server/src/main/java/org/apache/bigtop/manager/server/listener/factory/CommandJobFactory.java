@@ -26,6 +26,7 @@ import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
@@ -67,29 +68,54 @@ public class CommandJobFactory implements JobFactory {
      */
     public Job createJob(CommandDTO commandDTO) {
         String clusterName = commandDTO.getClusterName();
-        String stackName = commandDTO.getStackName();
-        String stackVersion = commandDTO.getStackVersion();
-        Command command = commandDTO.getCommand();
-        String customCommand = commandDTO.getCustomCommand();
 
         Job job = new Job();
         job.setState(JobState.PENDING);
-        job.setContext(commandDTO.toString());
+        job.setContext(commandDTO.getContext());
         Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
         job.setCluster(cluster);
         job = jobRepository.save(job);
         log.info("CommandOperator-job: {}", job);
 
+        int stageOrder = 0;
+
+        // cache stage
+        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
+            stageOrder += 1;
+            hostCacheJobFactory.createStage(job, cluster, stageOrder);
+        }
+
+        // command stage
+        stageOrder = createStage(job, commandDTO, stageOrder);
+
+        // start and check stage if service install
+        if (commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
+            CommandDTO startCommandDTO = SerializationUtils.clone(commandDTO);
+            startCommandDTO.setCommand(Command.START);
+            startCommandDTO.setCommandType(CommandType.SERVICE);
+            stageOrder = createStage(job, startCommandDTO, stageOrder);
+
+            // The check action needs to be executed by a single node
+            CommandDTO checkCommandDTO = SerializationUtils.clone(commandDTO);
+            checkCommandDTO.setCommand(Command.CHECK);
+            checkCommandDTO.setCommandType(CommandType.SERVICE);
+            createStage(job, checkCommandDTO, stageOrder);
+        }
+
+        return job;
+    }
+
+    private int createStage(Job job, CommandDTO commandDTO, int stageOrder) {
+        String clusterName = commandDTO.getClusterName();
+        String stackName = commandDTO.getStackName();
+        String stackVersion = commandDTO.getStackVersion();
+        Command command = commandDTO.getCommand();
+        String customCommand = commandDTO.getCustomCommand();
+
         List<ComponentCommandWrapper> componentCommandWrappers = createCommandWrapper(commandDTO);
         List<ComponentCommandWrapper> sortedRcpList = stageSort(componentCommandWrappers, stackName, stackVersion);
         Map<String, Set<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
 
-
-        int startOrder = 0;
-        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
-            startOrder = 1;
-            hostCacheJobFactory.createStage(job, cluster, startOrder);
-        }
 
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < sortedRcpList.size(); i++) {
@@ -101,7 +127,7 @@ public class CommandJobFactory implements JobFactory {
             stage.setCluster(job.getCluster());
             stage.setState(JobState.PENDING);
             stage.setName(componentCommandWrapper.toString());
-            stage.setStageOrder(i + 1 + startOrder);
+            stage.setStageOrder(stageOrder + i + 1);
             stage = stageRepository.save(stage);
             log.info("stage: {}", stage);
 
@@ -119,10 +145,7 @@ public class CommandJobFactory implements JobFactory {
         }
         taskRepository.saveAll(tasks);
 
-        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
-            hostCacheJobFactory.createStage(job, cluster, startOrder + sortedRcpList.size() + 1);
-        }
-        return job;
+        return stageOrder + sortedRcpList.size();
     }
 
 
@@ -188,6 +211,13 @@ public class CommandJobFactory implements JobFactory {
                     List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterClusterNameAndComponentComponentName(clusterName, componentName);
 
                     Set<String> hostSet = hostComponentList.stream().map(x -> x.getHost().getHostname()).collect(Collectors.toSet());
+
+                    Command command = componentCommandWrapper.getCommand();
+                    if (command == Command.CHECK) {
+                        Random random = new Random();
+                        int index = random.nextInt(hostComponentList.size());
+                        hostSet = Set.of(hostComponentList.get(index).getHost().getHostname());
+                    }
 
                     componentHostMapping.put(componentName, hostSet);
                 }

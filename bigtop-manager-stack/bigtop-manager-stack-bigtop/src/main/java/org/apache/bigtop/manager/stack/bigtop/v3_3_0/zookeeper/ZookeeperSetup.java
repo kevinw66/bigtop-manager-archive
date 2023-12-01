@@ -1,12 +1,13 @@
 package org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.utils.NetUtils;
+import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
+import org.apache.bigtop.manager.stack.spi.BaseParams;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -16,14 +17,15 @@ import java.util.Map;
 @Slf4j
 public class ZookeeperSetup {
 
-    public static ShellResult config(CommandPayload commandMessage) {
+    public static ShellResult config(BaseParams baseParams) {
         log.info("ZookeeperSetup config");
+        ZookeeperParams zookeeperParams= (ZookeeperParams) baseParams;
 
-        String confDir = ZookeeperParams.confDir(commandMessage);
-        String zookeeperUser = ZookeeperParams.user(commandMessage);
-        String zookeeperGroup = ZookeeperParams.group(commandMessage);
-        Map<String, Object> zookeeperEnv = ZookeeperParams.zookeeperEnv(commandMessage);
-        Map<String, Object> zooCfg = ZookeeperParams.zooCfg(commandMessage);
+        String confDir = zookeeperParams.confDir();
+        String zookeeperUser = zookeeperParams.user();
+        String zookeeperGroup = zookeeperParams.group();
+        Map<String, Object> zookeeperEnv = zookeeperParams.zookeeperEnv();
+        Map<String, Object> zooCfg = zookeeperParams.zooCfg();
         List<String> zkHostList = LocalSettings.hosts("ZOOKEEPER_SERVER");
 
         String logDir = (String) zookeeperEnv.get("logDir");
@@ -33,7 +35,6 @@ public class ZookeeperSetup {
         LinuxFileUtils.createDirectories(logDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
         LinuxFileUtils.createDirectories(pidDir, zookeeperUser, zookeeperGroup, "rwxr-xr--", true);
 
-        log.info("{}", ZookeeperParams.zooCfg(commandMessage));
         //针对zkHostList排序，获取当前hostname的index+1
         //server.${host?index+1}=${host}:2888:3888
         zkHostList.sort(String::compareToIgnoreCase);
@@ -59,16 +60,14 @@ public class ZookeeperSetup {
 
         Map<String, Object> envMap = new HashMap<>();
         envMap.put("JAVA_HOME", "/usr/local/java");
-        envMap.put("ZOOKEEPER_HOME", ZookeeperParams.serviceHome(commandMessage));
+        envMap.put("ZOOKEEPER_HOME", zookeeperParams.serviceHome());
         envMap.put("ZOO_LOG_DIR", logDir);
         envMap.put("ZOOPIDFILE", pidDir + "/zookeeper_server.pid");
         envMap.put("securityEnabled", false);
 
-        log.info("modelMap: {}", envMap);
-        log.info("content: {}", zookeeperEnv.get("content"));
         LinuxFileUtils.toFileByTemplate(zookeeperEnv.get("content").toString(), MessageFormat.format("{0}/zookeeper-env.sh", confDir),
                 zookeeperUser, zookeeperGroup, "rw-r--r--", envMap);
 
-        return new ShellResult(0, "", "");
+        return DefaultShellResult.success("ZooKeeper Server Configuration success!");
     }
 }

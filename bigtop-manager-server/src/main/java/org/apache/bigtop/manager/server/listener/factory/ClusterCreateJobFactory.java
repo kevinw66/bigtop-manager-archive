@@ -2,23 +2,26 @@ package org.apache.bigtop.manager.server.listener.factory;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.constants.Constants;
+import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
+import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
+import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.entity.Repo;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.orm.repository.RepoRepository;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
+import org.apache.bigtop.manager.server.orm.repository.StageRepository;
+import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -28,13 +31,13 @@ public class ClusterCreateJobFactory implements JobFactory {
     private StackRepository stackRepository;
 
     @Resource
-    private RepoRepository repoRepository;
-
-    @Resource
-    private ClusterRepository clusterRepository;
-
-    @Resource
     private JobRepository jobRepository;
+
+    @Resource
+    private StageRepository stageRepository;
+
+    @Resource
+    private TaskRepository taskRepository;
 
     @Resource
     private HostAddJobFactory hostAddJobFactory;
@@ -43,8 +46,9 @@ public class ClusterCreateJobFactory implements JobFactory {
     private HostCacheJobFactory hostCacheJobFactory;
 
     public Job createJob(ClusterDTO clusterDTO) {
-
-        Cluster cluster = saveCluster(clusterDTO);
+        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
+        Cluster cluster = new Cluster();
+        cluster.setStack(stack);
         // Create job
         Job job = new Job();
         job.setContext("Create Cluster");
@@ -54,41 +58,68 @@ public class ClusterCreateJobFactory implements JobFactory {
 
         hostAddJobFactory.createHostCheckStage(job, cluster, clusterDTO.getHostnames(), 1);
 
-        hostCacheJobFactory.createStage(job, cluster, 2);
+        createCacheStage(job, clusterDTO, 2);
 
         return job;
     }
 
-    private Cluster saveCluster(ClusterDTO clusterDTO) {
-        // Save cluster
-        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
+    public void createCacheStage(Job job, ClusterDTO clusterDTO, int stageOrder) {
+        Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
+        Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
+        Map<String, Set<String>> hostMap = new HashMap<>();
+        Map<String, Set<String>> userMap = new HashMap<>();
+        Map<String, Object> settingsMap = new HashMap<>();
+
         StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
-        Cluster cluster = ClusterMapper.INSTANCE.DTO2Entity(clusterDTO, stackDTO, stack);
-        cluster.setSelected(clusterRepository.count() == 0);
-        cluster.setState(MaintainState.UNINSTALLED);
 
-        Cluster oldCluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
-        if (oldCluster.getId() != null) {
-            cluster.setId(oldCluster.getId());
+        List<RepoInfo> repoList = RepoMapper.INSTANCE.fromDTO2Message(clusterDTO.getRepoInfoList());
+        ClusterInfo clusterInfo = new ClusterInfo();
+        clusterInfo.setClusterName(clusterDTO.getClusterName());
+        clusterInfo.setStackName(clusterDTO.getStackName());
+        clusterInfo.setStackVersion(clusterDTO.getStackVersion());
+        clusterInfo.setUserGroup(stackDTO.getUserGroup());
+        clusterInfo.setRepoTemplate(stackDTO.getRepoTemplate());
+        clusterInfo.setRoot(stackDTO.getRoot());
+
+        List<String> hostnames = clusterDTO.getHostnames();
+        hostMap.put(Constants.ALL_HOST_KEY, new HashSet<>(hostnames));
+
+        Stage hostCacheStage = new Stage();
+        hostCacheStage.setJob(job);
+        hostCacheStage.setName("Cache Host");
+        hostCacheStage.setState(JobState.PENDING);
+        hostCacheStage.setStageOrder(stageOrder);
+        hostCacheStage = stageRepository.save(hostCacheStage);
+
+        for (String hostname : hostnames) {
+            Task task = new Task();
+            task.setJob(job);
+            task.setStage(hostCacheStage);
+            task.setStackName(clusterDTO.getStackName());
+            task.setStackVersion(clusterDTO.getStackVersion());
+            task.setHostname(hostname);
+            task.setServiceName("cluster");
+            task.setServiceUser("root");
+            task.setServiceGroup("root");
+            task.setComponentName("bigtop-manager-agent");
+            task.setCommand(Command.CUSTOM_COMMAND);
+            task.setCustomCommand("cache_host");
+            task.setState(JobState.PENDING);
+
+            RequestMessage requestMessage = hostCacheJobFactory.getMessage(
+                    hostname,
+                    settingsMap,
+                    clusterInfo,
+                    serviceConfigMap,
+                    hostMap,
+                    repoList,
+                    userMap,
+                    componentInfoMap);
+            log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
+            task.setContent(JsonUtils.writeAsString(requestMessage));
+
+            task.setMessageId(requestMessage.getMessageId());
+            taskRepository.save(task);
         }
-        clusterRepository.save(cluster);
-
-        hostAddJobFactory.saveHost(cluster, clusterDTO.getHostnames());
-
-        // Save repo
-        List<Repo> repos = RepoMapper.INSTANCE.DTO2Entity(clusterDTO.getRepoInfoList(), cluster);
-        List<Repo> oldRepos = repoRepository.findAllByCluster(cluster);
-
-        for (Repo repo : repos) {
-            for (Repo oldRepo : oldRepos) {
-                if (oldRepo.getArch().equals(repo.getArch()) && oldRepo.getOs().equals(repo.getOs())) {
-                    repo.setId(oldRepo.getId());
-                }
-            }
-        }
-
-        repoRepository.saveAll(repos);
-        return cluster;
     }
-
 }

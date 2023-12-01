@@ -30,8 +30,8 @@ public class StackServiceImpl implements StackService {
             StackDTO stackDTO = pair.left;
             List<ServiceDTO> serviceDTOList = pair.right;
 
-            StackVO stackVO = StackMapper.INSTANCE.DTO2VO(stackDTO);
-            stackVO.setServices(ServiceMapper.INSTANCE.DTO2VO(serviceDTOList));
+            StackVO stackVO = StackMapper.INSTANCE.fromDTO2VO(stackDTO);
+            stackVO.setServices(ServiceMapper.INSTANCE.fromDTO2VO(serviceDTOList));
             stackVOList.add(stackVO);
         }
 
@@ -46,7 +46,7 @@ public class StackServiceImpl implements StackService {
         Map<String, List<ConfigDataVO>> resultMap = new HashMap<>();
         for (Map.Entry<String, Set<ConfigDataDTO>> entry : serviceConfigMap.entrySet()) {
             Set<ConfigDataDTO> value = entry.getValue();
-            List<ConfigDataVO> configDataVOS = value.stream().map(ConfigurationMapper.INSTANCE::DTO2VO).toList();
+            List<ConfigDataVO> configDataVOS = value.stream().map(ConfigurationMapper.INSTANCE::fromDTO2VO).toList();
             resultMap.put(entry.getKey(), configDataVOS);
         }
         return resultMap;

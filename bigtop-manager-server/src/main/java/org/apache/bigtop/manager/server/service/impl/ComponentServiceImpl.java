@@ -25,7 +25,7 @@ public class ComponentServiceImpl implements ComponentService {
     public List<ComponentVO> list(Long clusterId) {
         List<ComponentVO> componentVOList = new ArrayList<>();
         componentRepository.findAllByClusterId(clusterId).forEach(component -> {
-            ComponentVO componentVO = ComponentMapper.INSTANCE.Entity2VO(component);
+            ComponentVO componentVO = ComponentMapper.INSTANCE.fromEntity2VO(component);
             componentVOList.add(componentVO);
         });
 
@@ -35,7 +35,7 @@ public class ComponentServiceImpl implements ComponentService {
     @Override
     public ComponentVO get(Long id) {
         Component component = componentRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.COMPONENT_NOT_FOUND));
-        return ComponentMapper.INSTANCE.Entity2VO(component);
+        return ComponentMapper.INSTANCE.fromEntity2VO(component);
     }
 
 }

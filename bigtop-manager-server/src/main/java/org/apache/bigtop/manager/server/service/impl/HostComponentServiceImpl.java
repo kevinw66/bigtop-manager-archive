@@ -21,19 +21,19 @@ public class HostComponentServiceImpl implements HostComponentService {
     @Override
     public List<HostComponentVO> list(Long clusterId) {
         List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterId(clusterId);
-        return HostComponentMapper.INSTANCE.Entity2VO(hostComponentList);
+        return HostComponentMapper.INSTANCE.fromEntity2VO(hostComponentList);
     }
 
     @Override
     public List<HostComponentVO> listByHost(Long clusterId, Long hostId) {
         List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterIdAndHostId(clusterId, clusterId);
-        return HostComponentMapper.INSTANCE.Entity2VO(hostComponentList);
+        return HostComponentMapper.INSTANCE.fromEntity2VO(hostComponentList);
     }
 
     @Override
     public List<HostComponentVO> listByService(Long clusterId, Long serviceId) {
         List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterIdAndComponentServiceId(clusterId, serviceId);
-        return HostComponentMapper.INSTANCE.Entity2VO(hostComponentList);
+        return HostComponentMapper.INSTANCE.fromEntity2VO(hostComponentList);
     }
 
 }

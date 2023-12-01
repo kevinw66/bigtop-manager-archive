@@ -48,7 +48,7 @@ public class HostServiceImpl implements HostService {
             throw new ApiException(ApiExceptionEnum.HOST_NOT_FOUND);
         }
 
-        return HostMapper.INSTANCE.Entity2VO(hosts);
+        return HostMapper.INSTANCE.fromEntity2VO(hosts);
     }
 
     @Override
@@ -65,23 +65,23 @@ public class HostServiceImpl implements HostService {
 
         SpringContextHolder.getApplicationContext().publishEvent(hostAddEvent);
 
-        return JobMapper.INSTANCE.Entity2CommandVO(job);
+        return JobMapper.INSTANCE.fromEntity2CommandVO(job);
     }
 
     @Override
     public HostVO get(Long id) {
         Host host = hostRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.HOST_NOT_FOUND));
 
-        return HostMapper.INSTANCE.Entity2VO(host);
+        return HostMapper.INSTANCE.fromEntity2VO(host);
     }
 
     @Override
     public HostVO update(Long id, HostDTO hostDTO) {
-        Host host = HostMapper.INSTANCE.DTO2Entity(hostDTO);
+        Host host = HostMapper.INSTANCE.fromDTO2Entity(hostDTO);
         host.setId(id);
         hostRepository.save(host);
 
-        return HostMapper.INSTANCE.Entity2VO(host);
+        return HostMapper.INSTANCE.fromEntity2VO(host);
     }
 
     @Override

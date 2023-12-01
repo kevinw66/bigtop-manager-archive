@@ -28,6 +28,7 @@
         <eclipse-link.version>4.0.2</eclipse-link.version>
         <jaxb-runtime.version>4.0.4</jaxb-runtime.version>
         <hibernate-core.version>6.2.5.Final</hibernate-core.version>
+        <commons-text.version>1.11.0</commons-text.version>
     </properties>
 
     <dependencyManagement>
@@ -136,6 +137,13 @@
                 <version>${hibernate-core.version}</version>
                 <scope>provided</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>${commons-text.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

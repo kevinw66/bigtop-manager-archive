@@ -4,20 +4,21 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.enums.MaintainState;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.entity.Stage;
+import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.orm.repository.StageRepository;
+import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -25,9 +26,6 @@ public class HostAddJobFactory implements JobFactory {
 
     @Resource
     private ClusterRepository clusterRepository;
-
-    @Resource
-    private HostRepository hostRepository;
 
     @Resource
     private JobRepository jobRepository;
@@ -44,8 +42,6 @@ public class HostAddJobFactory implements JobFactory {
     public Job createJob(Long clusterId, List<String> hostnames) {
         Job job = new Job();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
-
-        saveHost(cluster, hostnames);
 
         // Create job
         job.setContext("Add Hosts");
@@ -111,27 +107,6 @@ public class HostAddJobFactory implements JobFactory {
         hostCheckMessage.setHostCheckTypes(HostCheckType.values());
         hostCheckMessage.setHostname(hostname);
         return hostCheckMessage;
-    }
-
-    public void saveHost(Cluster cluster, List<String> hostnames) {
-        List<Host> hostnameIn = hostRepository.findAllByHostnameIn(hostnames);
-        List<Host> hosts = new ArrayList<>();
-
-        Map<String, Host> hostInMap = hostnameIn.stream().collect(Collectors.toMap(Host::getHostname, host -> host));
-
-        for (String hostname : hostnames) {
-            Host host = new Host();
-            host.setHostname(hostname);
-            host.setCluster(cluster);
-            host.setState(MaintainState.UNINSTALLED);
-
-            if (hostInMap.containsKey(hostname)) {
-                host.setId(hostInMap.get(hostname).getId());
-            }
-
-            hosts.add(host);
-        }
-        hostRepository.saveAll(hosts);
     }
 
 }
