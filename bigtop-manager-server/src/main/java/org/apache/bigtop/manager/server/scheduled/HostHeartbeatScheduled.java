@@ -25,8 +25,6 @@ public class HostHeartbeatScheduled {
     @Async
     @Scheduled(cron = "0/30 * *  * * ? ")
     public void execute() {
-        log.info("HostHeartbeatScheduled execute");
-
         List<Host> hosts = hostRepository.findAll();
         Map<String, Host> hostMap = hosts.stream().collect(Collectors.toMap(Host::getHostname, host -> host));
         for (Map.Entry<String, HeartbeatMessage> entry : ServerWebSocketHandler.HEARTBEAT_MESSAGE_MAP.entrySet()) {
