@@ -42,8 +42,6 @@ public class ComponentHeartbeatScheduled {
     @Async
     @Scheduled(cron = "0/30 * *  * * ? ")
     public void execute() {
-        log.info("ComponentHeartbeatScheduled execute");
-
         Map<String, List<String>> hosts = LocalSettings.hosts();
         if (hosts.isEmpty()) {
             log.warn("hosts is empty");
@@ -58,39 +56,32 @@ public class ComponentHeartbeatScheduled {
         String hostname = NetUtils.getHostname();
         ClusterInfo clusterInfo = LocalSettings.cluster();
 
-        if (log.isDebugEnabled()) {
-            log.debug("hosts:{}", hosts);
-            log.debug("components:{}", components);
-            log.debug("clusterInfo:{}", clusterInfo);
-        }
         for (Map.Entry<String, List<String>> entry : hosts.entrySet()) {
             String componentName = entry.getKey();
             List<String> hostnameList = entry.getValue();
 
             if (!componentName.equals(Constants.ALL_HOST_KEY) && hostnameList.contains(hostname)) {
-                CommandPayload commandMessage = new CommandPayload();
-                commandMessage.setCommand(Command.STATUS);
-                commandMessage.setHostname(hostname);
-                commandMessage.setStackName(clusterInfo.getStackName());
-                commandMessage.setStackVersion(clusterInfo.getStackVersion());
-                commandMessage.setRoot(clusterInfo.getRoot());
-                commandMessage.setServiceName(components.get(componentName).getServiceName());
+                CommandPayload commandPayload = new CommandPayload();
+                commandPayload.setCommand(Command.STATUS);
+                commandPayload.setHostname(hostname);
+                commandPayload.setStackName(clusterInfo.getStackName());
+                commandPayload.setStackVersion(clusterInfo.getStackVersion());
+                commandPayload.setRoot(clusterInfo.getRoot());
+                commandPayload.setServiceName(components.get(componentName).getServiceName());
                 try {
                     String commandScriptStr = components.get(componentName).getCommandScript();
                     ScriptInfo commandScript = JsonUtils.readFromString(commandScriptStr, ScriptInfo.class);
-                    commandMessage.setCommandScript(commandScript);
+                    commandPayload.setCommandScript(commandScript);
                 } catch (Exception e) {
                     log.error("{} commandScript is error", componentName, e);
                     break;
                 }
-                log.info("ComponentHeartbeatScheduled-commandMessage:{}", commandMessage);
-                Object result = executor.execute(commandMessage);
-                log.info("ComponentHeartbeatScheduled-result:{}", result);
+                Object result = executor.execute(commandPayload);
                 if (result instanceof ShellResult shellResult) {
                     ComponentHeartbeatMessage resultMessage = new ComponentHeartbeatMessage();
                     resultMessage.setCode(shellResult.getExitCode());
                     resultMessage.setResult(shellResult.getResult());
-                    resultMessage.setHostname(commandMessage.getHostname());
+                    resultMessage.setHostname(commandPayload.getHostname());
 
                     agentWsTools.sendMessage(resultMessage);
                 }

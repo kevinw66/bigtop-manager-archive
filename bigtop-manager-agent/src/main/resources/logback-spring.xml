@@ -30,10 +30,24 @@
     <appender name="WSLOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.base}/ws.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${log.base}/ws.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
-            <maxHistory>168</maxHistory>
+            <fileNamePattern>${log.base}/ws.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
             <maxFileSize>200MB</maxFileSize>
-            <totalSizeCap>50GB</totalSizeCap>
+            <totalSizeCap>10GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] %logger{96}:[%line] - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+    <appender name="STACKLOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.base}/bigtop-manager-stack.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.base}/bigtop-manager-stack.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>200MB</maxFileSize>
+            <totalSizeCap>10GB</totalSizeCap>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
@@ -43,11 +57,18 @@
     </appender>
     <appender name="AGENTLOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${log.base}/bigtop-manager-agent.log</file>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>logger.contains("org.apache.bigtop.manager.stack")</expression>
+            </evaluator>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
+        </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${log.base}/bigtop-manager-agent.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
-            <maxHistory>168</maxHistory>
+            <fileNamePattern>${log.base}/bigtop-manager-agent.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
             <maxFileSize>200MB</maxFileSize>
-            <totalSizeCap>50GB</totalSizeCap>
+            <totalSizeCap>10GB</totalSizeCap>
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
@@ -58,6 +79,10 @@
 
     <logger name="org.apache.bigtop.manager.agent.ws.AgentWebSocketHandler" level="INFO" additivity="true">
         <appender-ref ref="WSLOGFILE"/>
+    </logger>
+
+    <logger name="org.apache.bigtop.manager.stack" level="INFO" additivity="true">
+        <appender-ref ref="STACKLOGFILE"/>
     </logger>
 
     <root level="INFO">

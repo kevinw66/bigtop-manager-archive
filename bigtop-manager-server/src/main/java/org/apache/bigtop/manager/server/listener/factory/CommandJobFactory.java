@@ -348,40 +348,40 @@ public class CommandJobFactory implements JobFactory {
     }
 
     private CommandPayload getMessagePayload(Component component, String hostname, Command command, String customCommand) {
-        CommandPayload commandMessage = new CommandPayload();
-        commandMessage.setServiceName(component.getService().getServiceName());
-        commandMessage.setCommand(command);
-        commandMessage.setCustomCommand(customCommand);
-        commandMessage.setServiceUser(component.getService().getServiceUser());
-        commandMessage.setServiceGroup(component.getService().getServiceGroup());
-        commandMessage.setStackName(component.getCluster().getStack().getStackName());
-        commandMessage.setStackVersion(component.getCluster().getStack().getStackVersion());
-        commandMessage.setRoot(component.getService().getCluster().getRoot());
-        commandMessage.setComponentName(component.getComponentName());
-        commandMessage.setHostname(hostname);
+        CommandPayload commandPayload = new CommandPayload();
+        commandPayload.setServiceName(component.getService().getServiceName());
+        commandPayload.setCommand(command);
+        commandPayload.setCustomCommand(customCommand);
+        commandPayload.setServiceUser(component.getService().getServiceUser());
+        commandPayload.setServiceGroup(component.getService().getServiceGroup());
+        commandPayload.setStackName(component.getCluster().getStack().getStackName());
+        commandPayload.setStackVersion(component.getCluster().getStack().getStackVersion());
+        commandPayload.setRoot(component.getService().getCluster().getRoot());
+        commandPayload.setComponentName(component.getComponentName());
+        commandPayload.setHostname(hostname);
 
         try {
             List<CustomCommandInfo> customCommands = JsonUtils.readFromString(component.getCustomCommands(), new TypeReference<>() {
             });
-            commandMessage.setCustomCommands(customCommands);
+            commandPayload.setCustomCommands(customCommands);
         } catch (Exception ignored) {
         }
 
         try {
             List<OSSpecificInfo> osSpecifics = JsonUtils.readFromString(component.getService().getOsSpecifics(), new TypeReference<>() {
             });
-            commandMessage.setOsSpecifics(osSpecifics);
+            commandPayload.setOsSpecifics(osSpecifics);
         } catch (Exception ignored) {
         }
 
         try {
             ScriptInfo commandScript = JsonUtils.readFromString(component.getCommandScript(), new TypeReference<>() {
             });
-            commandMessage.setCommandScript(commandScript);
+            commandPayload.setCommandScript(commandScript);
         } catch (Exception ignored) {
         }
 
-        return commandMessage;
+        return commandPayload;
     }
 
 }

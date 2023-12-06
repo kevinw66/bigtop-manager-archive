@@ -22,7 +22,13 @@ public class HostVO {
 
     private Integer availableProcessors;
 
+    private Long freeMemorySize;
+
     private Long totalMemorySize;
+
+    private Long freeDisk;
+
+    private Long totalDisk;
 
     private MaintainState state;
 }

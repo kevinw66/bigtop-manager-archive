@@ -39,4 +39,8 @@ public class HostInfo implements Serializable {
     private Long committedVirtualMemorySize;
 
     private BigDecimal systemLoadAverage;
+
+    private Long freeDisk;
+
+    private Long totalDisk;
 }

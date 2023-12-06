@@ -70,7 +70,6 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
         handleMessage(session, baseMessage);
 
-        System.out.println(baseMessage.toString());
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
@@ -148,6 +147,9 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
         hostInfo.setCpuLoad(new BigDecimal(String.valueOf(osmxb.getCpuLoad())));
         hostInfo.setProcessCpuLoad(new BigDecimal(String.valueOf(osmxb.getProcessCpuLoad())));
         hostInfo.setSystemLoadAverage(new BigDecimal(String.valueOf(osmxb.getSystemLoadAverage())));
+
+        hostInfo.setFreeDisk(OSDetection.freeDisk());
+        hostInfo.setTotalDisk(OSDetection.totalDisk());
     }
 
     @SuppressWarnings("BusyWait")
