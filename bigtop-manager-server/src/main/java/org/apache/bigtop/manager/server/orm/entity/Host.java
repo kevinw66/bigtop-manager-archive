@@ -35,8 +35,17 @@ public class Host extends BaseEntity {
     @Column(name = "available_processors")
     private Integer availableProcessors;
 
+    @Column(name = "free_memory_size")
+    private Long freeMemorySize;
+
     @Column(name = "total_memory_size")
     private Long totalMemorySize;
+
+    @Column(name = "free_disk")
+    private Long freeDisk;
+
+    @Column(name = "total_disk")
+    private Long totalDisk;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")

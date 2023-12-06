@@ -39,8 +39,11 @@ public class HostHeartbeatScheduled {
                     host.setIpv4(hostInfo.getIpv4());
                     host.setIpv6(hostInfo.getIpv6());
                     host.setOs(hostInfo.getOs());
+                    host.setFreeMemorySize(hostInfo.getFreeMemorySize());
                     host.setTotalMemorySize(hostInfo.getTotalMemorySize());
-                    //                host.setState(HostState.HEALTHY);
+                    host.setFreeDisk(hostInfo.getFreeDisk());
+                    host.setTotalDisk(hostInfo.getTotalDisk());
+                    // heartbeat  HEALTHY
                 }
                 hostRepository.save(host);
                 hostMap.remove(hostname);
@@ -50,7 +53,7 @@ public class HostHeartbeatScheduled {
         if (!hostMap.isEmpty()) {
             for (Map.Entry<String, Host> entry : hostMap.entrySet()) {
                 Host host = entry.getValue();
-//                host.setState(HostState.LOST);
+                //heartbeat  LOST
                 hostRepository.save(host);
             }
         }

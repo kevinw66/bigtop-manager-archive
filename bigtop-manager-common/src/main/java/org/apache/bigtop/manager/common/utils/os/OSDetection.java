@@ -8,6 +8,7 @@ import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.SystemUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,6 +109,27 @@ public class OSDetection {
             throw new RuntimeException("Unsupported Arch: [" + arch + "]");
         }
         log.debug("Arch [{}] is Supported", arch);
+    }
+
+
+    /**
+     * get disk usage
+     *
+     * @return disk free size, unit: B
+     */
+    public static long freeDisk() {
+        File file = new File(".");
+        return file.getFreeSpace();
+    }
+
+    /**
+     * get total disk
+     *
+     * @return disk total size, unit: B
+     */
+    public static long totalDisk() {
+        File file = new File(".");
+        return file.getTotalSpace();
     }
 
 }
