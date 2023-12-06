@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
+import org.apache.bigtop.manager.server.model.vo.StackComponentVO;
 import org.apache.bigtop.manager.server.model.vo.StackVO;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public interface StackService {
      * @return Stacks
      */
     List<StackVO> list();
+
+    Map<String, List<StackComponentVO>> components(String stackName, String stackVersion);
 
     Map<String, List<ConfigDataVO>> configurations(String stackName, String stackVersion);
 }

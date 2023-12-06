@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
+import org.apache.bigtop.manager.server.model.vo.StackComponentVO;
 import org.apache.bigtop.manager.server.model.vo.StackVO;
 import org.apache.bigtop.manager.server.service.StackService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
@@ -27,6 +28,12 @@ public class StackController {
     @GetMapping
     public ResponseEntity<List<StackVO>> list() {
         return ResponseEntity.success(stackService.list());
+    }
+
+    @Operation(summary = "list", description = "List stacks components")
+    @GetMapping("/{stackName}/{stackVersion}/components")
+    public ResponseEntity<Map<String, List<StackComponentVO>>> components(@PathVariable String stackName, @PathVariable String stackVersion) {
+        return ResponseEntity.success(stackService.components(stackName, stackVersion));
     }
 
     @Operation(summary = "list", description = "List stacks configurations")

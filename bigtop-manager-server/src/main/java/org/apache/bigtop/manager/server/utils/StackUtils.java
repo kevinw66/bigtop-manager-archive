@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.server.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import org.apache.bigtop.manager.server.stack.pojo.StackModel;
 import org.apache.bigtop.manager.server.stack.xml.ServiceMetainfoXml;
 import org.apache.bigtop.manager.server.stack.xml.StackMetainfoXml;
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -44,7 +42,7 @@ public class StackUtils {
 
     private static final String SERVICES_FOLDER_NAME = "services";
 
-    private static final String DEFAULT_CONFIGURATION_FOLDER_NAME = "configuration";
+    private static final String CONFIGURATION_FOLDER = "configuration";
 
     private static final String CONFIGURATION_FILE_EXTENSION = "xml";
 
@@ -94,54 +92,47 @@ public class StackUtils {
      */
     public static List<ServiceDTO> parseService(File versionFolder, String fullStackName) {
         Map<String, Set<ConfigDataDTO>> mergedConfigMap = new HashMap<>();
-
         File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
-
         List<ServiceDTO> services = new ArrayList<>();
+
         if (files != null) {
             for (File file : files) {
                 log.info("service dir: {}", file);
 
                 // metainfo.xml
                 ServiceMetainfoXml serviceMetainfoXml = JaxbUtils.readFromPath(file.getAbsolutePath() + "/" + META_FILE, ServiceMetainfoXml.class);
-                for (ServiceModel serviceModel : serviceMetainfoXml.getServices()) {
-                    ServiceDTO serviceDTO = ServiceMapper.INSTANCE.fromModel2DTO(serviceModel);
-                    services.add(serviceDTO);
+                ServiceModel serviceModel = serviceMetainfoXml.getService();
+                ServiceDTO serviceDTO = ServiceMapper.INSTANCE.fromModel2DTO(serviceModel);
+                services.add(serviceDTO);
 
-                    // configurations
-                    String configFolderName = DEFAULT_CONFIGURATION_FOLDER_NAME;
-                    if (StringUtils.isNotEmpty(serviceModel.getConfigurationDir())) {
-                        configFolderName = serviceModel.getConfigurationDir();
-                    }
-                    Set<ConfigDataDTO> serviceConfigSet = new HashSet<>();
-                    File configFolder = new File(file.getAbsolutePath(), configFolderName);
-                    if (configFolder.exists()) {
-                        for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
-                            String configPath = configFile.getAbsolutePath();
-                            String fileExtension = configPath.substring(configPath.lastIndexOf(".") + 1);
-                            if (fileExtension.equals(CONFIGURATION_FILE_EXTENSION)) {
-                                String typeName = configPath.substring(configPath.lastIndexOf("/") + 1, configPath.lastIndexOf("."));
+                // configurations
+                Set<ConfigDataDTO> serviceConfigSet = new HashSet<>();
+                File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER);
+                if (configFolder.exists()) {
+                    for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
+                        String configPath = configFile.getAbsolutePath();
+                        String fileExtension = configPath.substring(configPath.lastIndexOf(".") + 1);
+                        if (fileExtension.equals(CONFIGURATION_FILE_EXTENSION)) {
+                            String typeName = configPath.substring(configPath.lastIndexOf(File.separator) + 1, configPath.lastIndexOf("."));
 
-                                ImmutableTriple<Map<String, Object>, Map<String, String>, Map<String, PropertyDTO>> triple = StackConfigUtils.loadConfig(configPath);
-                                ConfigDataDTO configDataDTO = new ConfigDataDTO();
-                                configDataDTO.setTypeName(typeName);
-                                configDataDTO.setAttributes(triple.getMiddle());
-                                configDataDTO.setConfigData(triple.getLeft());
-                                configDataDTO.setConfigAttributes(triple.getRight());
-                                serviceConfigSet.add(configDataDTO);
-                            }
+                            ImmutableTriple<Map<String, Object>, Map<String, String>, Map<String, PropertyDTO>> triple = StackConfigUtils.loadConfig(configPath);
+                            ConfigDataDTO configDataDTO = new ConfigDataDTO();
+                            configDataDTO.setTypeName(typeName);
+                            configDataDTO.setAttributes(triple.getMiddle());
+                            configDataDTO.setConfigData(triple.getLeft());
+                            configDataDTO.setConfigAttributes(triple.getRight());
+                            serviceConfigSet.add(configDataDTO);
                         }
                     }
-
-                    mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
                 }
+
+                mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
 
                 // order.json
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE_NAME);
                 if (dependencyFile.exists()) {
                     Map<String, List<String>> dependencyMap = STACK_DEPENDENCY_MAP.computeIfAbsent(fullStackName, k -> new HashMap<>());
-                    dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile, new TypeReference<>() {
-                    }));
+                    dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile));
                 }
             }
 

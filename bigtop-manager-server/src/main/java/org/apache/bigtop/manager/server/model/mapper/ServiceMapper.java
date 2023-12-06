@@ -24,9 +24,9 @@ public interface ServiceMapper {
     @Mapping(target = "cluster", expression = "java(cluster)")
     Service fromDTO2Entity(ServiceDTO serviceDTO, @Context Cluster cluster);
 
-    StackServiceVO fromDTO2VO(ServiceDTO serviceDTO);
+    StackServiceVO fromDTO2StackVO(ServiceDTO serviceDTO);
 
-    List<StackServiceVO> fromDTO2VO(List<ServiceDTO> serviceDTOList);
+    List<StackServiceVO> fromDTO2StackVO(List<ServiceDTO> serviceDTOList);
 
     @Mapping(target = "serviceName", source = "name")
     @Mapping(target = "serviceDesc", source = "desc")

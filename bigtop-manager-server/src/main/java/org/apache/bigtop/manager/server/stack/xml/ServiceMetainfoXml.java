@@ -1,10 +1,10 @@
 package org.apache.bigtop.manager.server.stack.xml;
 
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Data;
 import org.apache.bigtop.manager.server.stack.pojo.ServiceModel;
-
-import java.util.List;
 
 @Data
 @XmlRootElement(name="metainfo")
@@ -13,7 +13,5 @@ public class ServiceMetainfoXml {
 
     private String schemaVersion;
 
-    @XmlElementWrapper(name="services")
-    @XmlElements(@XmlElement(name="service"))
-    private List<ServiceModel> services;
+    private ServiceModel service;
 }
