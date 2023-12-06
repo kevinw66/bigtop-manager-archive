@@ -23,6 +23,9 @@ export interface HostVO {
   arch: string
   os: string
   availableProcessors: string
+  freeMemorySize: string
   totalMemorySize: string
   state: string
+  freeDisk: string
+  totalDisk: string
 }

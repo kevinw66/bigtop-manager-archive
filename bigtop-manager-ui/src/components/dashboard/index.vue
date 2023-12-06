@@ -55,7 +55,7 @@
     },
     {
       title: 'hosts.disk',
-      dataIndex: 'disk',
+      dataIndex: 'totalDisk',
       align: 'center'
     },
     {

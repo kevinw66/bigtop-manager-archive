@@ -45,6 +45,15 @@ export const useHostStore = defineStore(
           if (v.totalMemorySize) {
             v.totalMemorySize = formatFromByte(parseInt(v.totalMemorySize))
           }
+          if (v.freeMemorySize) {
+            v.freeMemorySize = formatFromByte(parseInt(v.freeMemorySize))
+          }
+          if (v.freeDisk) {
+            v.freeDisk = formatFromByte(parseInt(v.freeDisk))
+          }
+          if (v.totalDisk) {
+            v.totalDisk = formatFromByte(parseInt(v.totalDisk))
+          }
         })
 
         hosts.value = res
