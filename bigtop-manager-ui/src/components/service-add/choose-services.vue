@@ -4,6 +4,8 @@
   import { useServiceStore } from '@/store/service'
   import { MergedServiceVO } from '@/store/service/types.ts'
   import { computed, onMounted } from 'vue'
+  import { ServiceVO } from '@/api/service/types.ts'
+  import _ from 'lodash'
 
   const serviceInfo = defineModel<any>('serviceInfo')
   const disableButton = defineModel<boolean>('disableButton')
@@ -11,7 +13,7 @@
   const serviceStore = useServiceStore()
   const { installedServices, mergedServices } = storeToRefs(serviceStore)
   const installedServiceNames = computed(() => {
-    return installedServices.value.map((item: any) => item.serviceName)
+    return installedServices.value.map((item: ServiceVO) => item.serviceName)
   })
 
   const serviceColumns = [
@@ -38,10 +40,10 @@
       ...installedServiceNames.value
     ],
     onChange: (v: (string | number)[]) => {
-      serviceInfo.value.serviceNames = v
-      console.log(111)
-      console.log(serviceInfo.value.serviceNames)
-      console.log(111)
+      serviceInfo.value.serviceNames = _.difference(
+        v,
+        installedServiceNames.value
+      )
       disableButton.value = serviceInfo.value.serviceNames.length === 0
     },
     getCheckboxProps: (record: MergedServiceVO) => ({

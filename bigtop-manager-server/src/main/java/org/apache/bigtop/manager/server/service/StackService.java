@@ -16,7 +16,7 @@ public interface StackService {
      */
     List<StackVO> list();
 
-    Map<String, List<StackComponentVO>> components(String stackName, String stackVersion);
+    List<StackComponentVO> components(String stackName, String stackVersion);
 
     Map<String, List<ConfigDataVO>> configurations(String stackName, String stackVersion);
 }

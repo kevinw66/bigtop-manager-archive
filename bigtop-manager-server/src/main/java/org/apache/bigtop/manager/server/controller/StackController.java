@@ -32,7 +32,7 @@ public class StackController {
 
     @Operation(summary = "list", description = "List stacks components")
     @GetMapping("/{stackName}/{stackVersion}/components")
-    public ResponseEntity<Map<String, List<StackComponentVO>>> components(@PathVariable String stackName, @PathVariable String stackVersion) {
+    public ResponseEntity<List<StackComponentVO>> components(@PathVariable String stackName, @PathVariable String stackVersion) {
         return ResponseEntity.success(stackService.components(stackName, stackVersion));
     }
 

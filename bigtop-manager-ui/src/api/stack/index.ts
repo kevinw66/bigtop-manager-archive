@@ -16,7 +16,7 @@
  */
 
 import request from '@/api/request.ts'
-import { StackServiceVO, StackVO } from '@/api/stack/types.ts'
+import { StackComponentVO, StackVO } from '@/api/stack/types.ts'
 
 export const getStacks = (): Promise<StackVO[]> => {
   return request({
@@ -25,9 +25,12 @@ export const getStacks = (): Promise<StackVO[]> => {
   })
 }
 
-export const getServices = (id: number): Promise<StackServiceVO[]> => {
+export const getStackComponents = (
+  stackName: string,
+  stackVersion: string
+): Promise<StackComponentVO[]> => {
   return request({
     method: 'get',
-    url: '/stacks/' + id + '/services'
+    url: '/stacks/' + stackName + '/' + stackVersion + '/components'
   })
 }

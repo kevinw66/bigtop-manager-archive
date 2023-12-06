@@ -23,19 +23,18 @@
         <userGroup>hadoop</userGroup>
         <root>/opt</root>
         <packages>curl,wget</packages>
-        <repoTemplate>
-            <![CDATA[
-                [${repoId}]
-                name=${repoName}
-                <#if baseUrl?? >
-                baseurl=${baseUrl}
-                <#else>
-                mirrorlist=${mirrorList}
-                </#if>
-                path=/
-                enabled=1
-                gpgcheck=0
-            ]]>
+        <repoTemplate><![CDATA[
+[${repoId}]
+name=${repoName}
+<#if baseUrl?? >
+baseurl=${baseUrl}
+<#else>
+mirrorlist=${mirrorList}
+</#if>
+path=/
+enabled=1
+gpgcheck=0
+]]>
         </repoTemplate>
         <repos>
             <repo>

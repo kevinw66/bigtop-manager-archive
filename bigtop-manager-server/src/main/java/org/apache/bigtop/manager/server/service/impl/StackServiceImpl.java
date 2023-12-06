@@ -43,8 +43,8 @@ public class StackServiceImpl implements StackService {
     }
 
     @Override
-    public Map<String, List<StackComponentVO>> components(String stackName, String stackVersion) {
-        Map<String, List<StackComponentVO>> res = new HashMap<>();
+    public List<StackComponentVO> components(String stackName, String stackVersion) {
+        List<StackComponentVO> list = new ArrayList<>();
 
         ImmutablePair<StackDTO, List<ServiceDTO>> pair = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(stackName, stackVersion));
         if (pair == null) {
@@ -53,10 +53,10 @@ public class StackServiceImpl implements StackService {
 
         List<ServiceDTO> serviceDTOList = pair.right;
         for (ServiceDTO serviceDTO : serviceDTOList) {
-            res.put(serviceDTO.getServiceName(), ComponentMapper.INSTANCE.fromDTO2StackVO(serviceDTO.getComponents()));
+            list.addAll(ComponentMapper.INSTANCE.fromDTO2StackVO(serviceDTO.getComponents(), serviceDTO.getServiceName()));
         }
 
-        return res;
+        return list;
     }
 
     @Override

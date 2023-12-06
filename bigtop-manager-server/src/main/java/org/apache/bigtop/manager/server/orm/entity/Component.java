@@ -38,6 +38,4 @@ public class Component extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
-
-
 }

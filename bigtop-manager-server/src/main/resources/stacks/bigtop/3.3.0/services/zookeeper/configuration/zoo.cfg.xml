@@ -93,35 +93,34 @@
     <property>
         <name>templateContent</name>
         <description>The port the embedded Jetty server listens on. Defaults to 8080.</description>
-        <value>
-            <![CDATA[
-                <#compress>
-                    <#list model as key,value>
-                        <#if value??>
-                            <#if value?string == 'true'>
-                                ${key}=true
-                            <#elseif value?string == 'false'>
-                                ${key}=false
-                            <#else>
-                                ${key}=${value}
-                            </#if>
-                        </#if>
-                    </#list>
-                </#compress>
+        <value><![CDATA[
+<#compress>
+<#list model as key,value>
+    <#if value??>
+        <#if value?string == 'true'>
+            ${key}=true
+        <#elseif value?string == 'false'>
+            ${key}=false
+        <#else>
+            ${key}=${value}
+        </#if>
+    </#if>
+</#list>
+</#compress>
 
-                <#noparse>
-                <#if zkServerStr?? >
-                ${zkServerStr}
-                </#if>
+<#noparse>
+<#if zkServerStr?? >
+${zkServerStr}
+</#if>
 
-                <#if securityEnabled?? && securityEnabled >
-                authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
-                jaasLoginRenew=3600000
-                kerberos.removeHostFromPrincipal=true
-                kerberos.removeRealmFromPrincipal=true
-                </#if>
-                </#noparse>
-            ]]>
+<#if securityEnabled?? && securityEnabled >
+authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
+jaasLoginRenew=3600000
+kerberos.removeHostFromPrincipal=true
+kerberos.removeRealmFromPrincipal=true
+</#if>
+</#noparse>
+]]>
         </value>
     </property>
 </configuration>

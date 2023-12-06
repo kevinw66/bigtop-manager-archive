@@ -37,21 +37,20 @@
         <name>content</name>
         <display-name>zookeeper-env template</display-name>
         <description>This is the jinja template for zookeeper-env.sh file</description>
-        <value>
-            <![CDATA[
-                export JAVA_HOME=${JAVA_HOME!}
-                export ZOOKEEPER_HOME=${ZOOKEEPER_HOME!}
-                export ZOO_LOG_DIR=${ZOO_LOG_DIR!}
-                export ZOOPIDFILE=${ZOOPIDFILE!}
-                export SERVER_JVMFLAGS=${SERVER_JVMFLAGS!}
-                export JAVA=$JAVA_HOME/bin/java
-                export CLASSPATH=$CLASSPATH:/usr/share/zookeeper/*
+        <value><![CDATA[
+export JAVA_HOME=${JAVA_HOME!}
+export ZOOKEEPER_HOME=${ZOOKEEPER_HOME!}
+export ZOO_LOG_DIR=${ZOO_LOG_DIR!}
+export ZOOPIDFILE=${ZOOPIDFILE!}
+export SERVER_JVMFLAGS=${SERVER_JVMFLAGS!}
+export JAVA=$JAVA_HOME/bin/java
+export CLASSPATH=$CLASSPATH:/usr/share/zookeeper/*
 
-                <#if securityEnabled?? && securityEnabled >
-                export SERVER_JVMFLAGS="$SERVER_JVMFLAGS -Djava.security.auth.login.config=${zk_server_jaas_file!}"
-                export CLIENT_JVMFLAGS="$CLIENT_JVMFLAGS -Djava.security.auth.login.config=${zk_client_jaas_file!} -Dzookeeper.sasl.client.username=${zk_principal_user!}"
-                </#if>
-            ]]>
+<#if securityEnabled?? && securityEnabled >
+export SERVER_JVMFLAGS="$SERVER_JVMFLAGS -Djava.security.auth.login.config=${zk_server_jaas_file!}"
+export CLIENT_JVMFLAGS="$CLIENT_JVMFLAGS -Djava.security.auth.login.config=${zk_client_jaas_file!} -Dzookeeper.sasl.client.username=${zk_principal_user!}"
+</#if>
+]]>
         </value>
     </property>
 </configuration>

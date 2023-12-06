@@ -12,4 +12,6 @@ public class StackComponentVO {
     private String category;
 
     private String cardinality;
+
+    private String serviceName;
 }

@@ -24,8 +24,7 @@
         <name>content</name>
         <display-name>kafka.conf template</display-name>
         <description>This is the freemarker template for kafka-env.sh file</description>
-        <value>
-            <![CDATA[
+        <value><![CDATA[
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -46,7 +45,7 @@
 
 ${kafkaUser}    - nofile   ${kafkaUserNofileLimit}
 ${kafkaGroup}   - nproc    ${kafkaUserNprocLimit}
-            ]]>
+]]>
         </value>
     </property>
 </configuration>

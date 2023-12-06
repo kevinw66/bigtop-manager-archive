@@ -36,3 +36,11 @@ export interface StackRepoVO {
   os: string
   arch: string
 }
+
+export interface StackComponentVO {
+  componentName: string
+  displayName: string
+  category: string
+  cardinality: string
+  serviceName: string
+}

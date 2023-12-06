@@ -36,6 +36,7 @@
       :data-source="installedServices"
       :columns="serviceColumns"
       :loading="loadingServices"
+      :pagination="false"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>

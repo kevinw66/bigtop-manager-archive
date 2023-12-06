@@ -42,18 +42,10 @@ export const useHostStore = defineStore(
       if (clusterId.value !== 0) {
         const res = await getHosts(clusterId.value)
         hosts.value = res.map((v: HostVO) => {
-          if (v.totalMemorySize) {
-            v.totalMemorySize = formatFromByte(parseInt(v.totalMemorySize))
-          }
-          if (v.freeMemorySize) {
-            v.freeMemorySize = formatFromByte(parseInt(v.freeMemorySize))
-          }
-          if (v.freeDisk) {
-            v.freeDisk = formatFromByte(parseInt(v.freeDisk))
-          }
-          if (v.totalDisk) {
-            v.totalDisk = formatFromByte(parseInt(v.totalDisk))
-          }
+          v.totalMemorySize = formatFromByte(parseInt(v.totalMemorySize))
+          v.freeMemorySize = formatFromByte(parseInt(v.freeMemorySize))
+          v.freeDisk = formatFromByte(parseInt(v.freeDisk))
+          v.totalDisk = formatFromByte(parseInt(v.totalDisk))
 
           return v
         })
