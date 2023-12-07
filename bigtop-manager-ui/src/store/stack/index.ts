@@ -15,19 +15,49 @@
  * limitations under the License.
  */
 
-import { defineStore } from 'pinia'
-import { getStacks } from '@/api/stack'
-import { shallowReactive, shallowRef } from 'vue'
-import { StackOptionProps } from '@/store/stack/types.ts'
-import { StackRepoVO, StackServiceVO, StackVO } from '@/api/stack/types.ts'
+import { defineStore, storeToRefs } from 'pinia'
+import { getStackComponents, getStacks } from '@/api/stack'
+import { computed, shallowReactive, shallowRef, watch } from 'vue'
+import { StackInfo, StackOptionProps } from '@/store/stack/types.ts'
+import {
+  StackComponentVO,
+  StackRepoVO,
+  StackServiceVO,
+  StackVO
+} from '@/api/stack/types.ts'
+import { useClusterStore } from '@/store/cluster'
+import _ from 'lodash'
 
 export const useStackStore = defineStore(
   'stack',
   () => {
+    const clusterStore = useClusterStore()
+    const { clusterId, selectedCluster } = storeToRefs(clusterStore)
     const stackOptions = shallowReactive<StackOptionProps[]>([])
     const stackServices = shallowReactive<Record<string, StackServiceVO[]>>({})
     const stackRepos = shallowReactive<Record<string, StackRepoVO[]>>({})
+    const stackComponents = shallowRef<Record<string, StackComponentVO[]>>({})
     const initialized = shallowRef(false)
+
+    const currentStack = computed<StackInfo>(() => {
+      const cluster = selectedCluster.value
+      const name = [cluster?.stackName, cluster?.stackVersion].join('-')
+      const services = stackServices[name]
+
+      return {
+        name: name,
+        services: services ? services : []
+      }
+    })
+
+    watch(clusterId, async () => {
+      const res = await getStackComponents(
+        selectedCluster.value?.stackName as string,
+        selectedCluster.value?.stackVersion as string
+      )
+
+      stackComponents.value = _.groupBy(res, 'serviceName')
+    })
 
     const initStacks = async () => {
       if (!initialized.value) {
@@ -68,7 +98,9 @@ export const useStackStore = defineStore(
     return {
       stackOptions,
       stackServices,
+      stackComponents,
       stackRepos,
+      currentStack,
       initStacks
     }
   },

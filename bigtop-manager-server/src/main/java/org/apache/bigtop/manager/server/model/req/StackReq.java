@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class StackReq {
 
-    @Schema(example = "BIGTOP")
+    @Schema(example = "bigtop")
     private String stackName;
 
     @Schema(example = "3.3.0")

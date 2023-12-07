@@ -15,22 +15,15 @@
  * limitations under the License.
  */
 
-export const formatFromByte = (value: number): string => {
-  if (isNaN(value)) {
-    return ''
-  }
+import { MaintainState } from '@/utils/enums.ts'
 
-  if (value < 1024) {
-    return `${value} B`
-  } else if (value < 1024 ** 2) {
-    return `${(value / 1024).toFixed(2)} KB`
-  } else if (value < 1024 ** 3) {
-    return `${(value / 1024 ** 2).toFixed(2)} MB`
-  } else if (value < 1024 ** 4) {
-    return `${(value / 1024 ** 3).toFixed(2)} GB`
-  } else if (value < 1024 ** 5) {
-    return `${(value / 1024 ** 4).toFixed(2)} TB`
-  } else {
-    return `${(value / 1024 ** 5).toFixed(2)} PB`
-  }
+export interface HostComponentVO {
+  id: number
+  componentName: string
+  displayName: string
+  category: string
+  serviceName: string
+  clusterName: string
+  hostName: string
+  state: MaintainState
 }

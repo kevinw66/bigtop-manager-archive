@@ -1,19 +1,9 @@
 <script setup lang="ts">
   import { storeToRefs } from 'pinia'
-  import { useClusterStore } from '@/store/cluster'
-  import { onMounted, ref, watch } from 'vue'
-  import { ServiceVO } from '@/api/service/types.ts'
-  import { getService } from '@/api/service'
-  import { useIntervalFn } from '@vueuse/core'
-  import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
+  import { useServiceStore } from '@/store/service'
 
-  const clusterStore = useClusterStore()
-  const { clusterId } = storeToRefs(clusterStore)
-  watch(clusterId, async () => {
-    await refreshService()
-  })
-  const loading = ref<boolean>(true)
-  const serviceData = ref<ServiceVO[]>([])
+  const serviceStore = useServiceStore()
+  const { installedServices, loadingServices } = storeToRefs(serviceStore)
 
   const serviceColumns = [
     {
@@ -32,23 +22,6 @@
       align: 'center'
     }
   ]
-
-  const refreshService = async () => {
-    if (clusterId.value !== 0) {
-      serviceData.value = await getService(clusterId.value)
-      loading.value = false
-    }
-  }
-
-  onMounted(async () => {
-    useIntervalFn(
-      async () => {
-        await refreshService()
-      },
-      MONITOR_SCHEDULE_INTERVAL,
-      { immediateCallback: true }
-    )
-  })
 </script>
 
 <template>
@@ -60,9 +33,10 @@
     </a-page-header>
     <br />
     <a-table
-      :data-source="serviceData"
+      :data-source="installedServices"
       :columns="serviceColumns"
-      :loading="loading"
+      :loading="loadingServices"
+      :pagination="false"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>

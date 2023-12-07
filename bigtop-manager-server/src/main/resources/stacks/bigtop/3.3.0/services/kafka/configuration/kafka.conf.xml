@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 -->
-<configuration supports_adding_forbidden="true">
+<configuration>
     <property>
         <name>content</name>
         <display-name>kafka.conf template</display-name>
@@ -45,10 +45,7 @@
 
 ${kafkaUser}    - nofile   ${kafkaUserNofileLimit}
 ${kafkaGroup}   - nproc    ${kafkaUserNprocLimit}
-  ]]>
-      </value>
-        <value-attributes>
-            <type>content</type>
-        </value-attributes>
+]]>
+        </value>
     </property>
 </configuration>

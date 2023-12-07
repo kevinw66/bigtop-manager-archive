@@ -16,10 +16,16 @@
  */
 
 export default {
+  start_all: '启动所有',
+  stop_all: '停止所有',
+  add: '新增服务',
+  service: '服务',
   service_name: '服务名称',
-  add_service: '增加服务',
   service_selected: '已选择 {0} 个服务',
   service_account: '服务账号',
   service_user: '服务所属用户',
-  service_group: '服务所属用户组'
+  service_group: '服务所属用户组',
+  choose_services: '选择服务',
+  assign_components: '分配组件',
+  configure_services: '配置服务'
 }

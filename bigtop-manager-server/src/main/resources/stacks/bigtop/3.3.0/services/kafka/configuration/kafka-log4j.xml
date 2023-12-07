@@ -18,44 +18,30 @@
  * limitations under the License.
  */
 -->
-<configuration supports_adding_forbidden="false" supports_final="false">
+<configuration>
     <property>
         <name>kafkaLogMaxFileSize</name>
         <value>256</value>
         <description>The maximum size of backup file before the log is rotated</description>
         <display-name>Kafka Log: backup file size</display-name>
-        <value-attributes>
-            <unit>MB</unit>
-        </value-attributes>
     </property>
     <property>
         <name>kafkaLogMaxBackupIndex</name>
         <value>20</value>
         <description>The number of backup files</description>
         <display-name>Kafka Log: # of backup files</display-name>
-        <value-attributes>
-            <type>int</type>
-            <minimum>0</minimum>
-        </value-attributes>
     </property>
     <property>
         <name>controllerLogMaxFileSize</name>
         <value>256</value>
         <description>The maximum size of backup file before the log is rotated</description>
         <display-name>Kafka Controller Log: backup file size</display-name>
-        <value-attributes>
-            <unit>MB</unit>
-        </value-attributes>
     </property>
     <property>
         <name>controllerLogMaxBackupIndex</name>
         <value>20</value>
         <description>The number of backup files</description>
         <display-name>Kafka Controller Log: # of backup files</display-name>
-        <value-attributes>
-            <type>int</type>
-            <minimum>0</minimum>
-        </value-attributes>
     </property>
     <property>
         <name>content</name>
@@ -148,18 +134,7 @@ log4j.additivity.kafka.log.LogCleaner=false
 
 log4j.logger.state.change.logger=TRACE, stateChangeAppender
 log4j.additivity.state.change.logger=false
-
- ]]>
-    </value>
-        <value-attributes>
-            <type>content</type>
-            <show-property-name>false</show-property-name>
-        </value-attributes>
-        <depends-on>
-            <property>
-                <type>ranger-kafka-plugin-properties</type>
-                <name>ranger-kafka-plugin-enabled</name>
-            </property>
-        </depends-on>
+]]>
+        </value>
     </property>
 </configuration>

@@ -1,30 +1,12 @@
 <script setup lang="ts">
-  import { computed, onMounted, reactive, ref, watch } from 'vue'
-  import { useClusterStore } from '@/store/cluster'
+  import { ref } from 'vue'
   import { storeToRefs } from 'pinia'
   import { CheckCircleTwoTone, CloseCircleTwoTone } from '@ant-design/icons-vue'
-  import { useStackStore } from '@/store/stack'
   import ClusterCreate from '@/components/cluster-create/index.vue'
-  import { getService } from '@/api/service'
-  import { ServiceVO } from '@/api/service/types.ts'
-  import { useIntervalFn } from '@vueuse/core'
-  import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
+  import { useServiceStore } from '@/store/service'
 
-  const stackStore = useStackStore()
-  const { stackServices } = storeToRefs(stackStore)
-  const clusterStore = useClusterStore()
-  const { clusterId, selectedCluster } = storeToRefs(clusterStore)
-  watch(clusterId, async () => {
-    await refreshService()
-  })
-  const fullStackName = computed(
-    () =>
-      selectedCluster.value?.stackName +
-      '-' +
-      selectedCluster.value?.stackVersion
-  )
-  const loading = ref<boolean>(true)
-  const nameServiceVOs = reactive<Record<string, ServiceVO>>({})
+  const serviceStore = useServiceStore()
+  const { mergedServices, loadingServices } = storeToRefs(serviceStore)
 
   const createWindowOpened = ref(false)
 
@@ -50,26 +32,6 @@
       align: 'center'
     }
   ]
-
-  const refreshService = async () => {
-    if (clusterId.value !== 0) {
-      const res = await getService(clusterId.value)
-      res.forEach((serviceVO) => {
-        nameServiceVOs[serviceVO.serviceName] = serviceVO
-      })
-      loading.value = false
-    }
-  }
-
-  onMounted(async () => {
-    useIntervalFn(
-      async () => {
-        await refreshService()
-      },
-      MONITOR_SCHEDULE_INTERVAL,
-      { immediateCallback: true }
-    )
-  })
 </script>
 
 <template>
@@ -77,7 +39,7 @@
     <a-page-header class="host-page-header" :title="$t('common.stack')">
       <template #extra>
         <a-button type="primary" @click="createWindowOpened = true">
-          {{ $t('service.add_service') }}
+          {{ $t('service.add') }}
         </a-button>
       </template>
     </a-page-header>
@@ -85,8 +47,9 @@
 
     <a-table
       :columns="serviceColumns"
-      :loading="loading"
-      :data-source="stackServices[fullStackName]"
+      :loading="loadingServices"
+      :data-source="mergedServices"
+      :pagination="false"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
@@ -94,17 +57,12 @@
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.dataIndex === 'state'">
           <CheckCircleTwoTone
-            v-if="nameServiceVOs[record.serviceName]"
+            v-if="record.installed"
             two-tone-color="#52c41a"
           />
           <CloseCircleTwoTone v-else two-tone-color="red" />
         </template>
-        <template
-          v-if="
-            column.dataIndex === 'displayName' &&
-            nameServiceVOs[record.serviceName]
-          "
-        >
+        <template v-if="column.dataIndex === 'displayName' && record.installed">
           <router-link :to="'/services/' + record.serviceName.toLowerCase()">
             {{ text }}
           </router-link>

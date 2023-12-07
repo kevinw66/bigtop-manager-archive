@@ -29,8 +29,20 @@ public class JsonUtils {
         }
     }
 
+    public static <T> T readFromFile(String fileName) {
+        return readFromFile(new File(fileName), new TypeReference<>() {});
+    }
+
     public static <T> T readFromFile(String fileName, TypeReference<T> typeReference) {
         return readFromFile(new File(fileName), typeReference);
+    }
+
+    public static <T> T readFromFile(File file) {
+        try {
+            return OBJECTMAPPER.readValue(file, new TypeReference<>() {});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static <T> T readFromFile(File file, TypeReference<T> typeReference) {

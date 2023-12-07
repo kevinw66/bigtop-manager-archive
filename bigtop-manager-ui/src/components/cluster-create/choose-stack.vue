@@ -38,8 +38,7 @@
     {
       title: t('common.desc'),
       dataIndex: 'serviceDesc',
-      align: 'center',
-      ellipsis: true
+      align: 'center'
     }
   ]
 

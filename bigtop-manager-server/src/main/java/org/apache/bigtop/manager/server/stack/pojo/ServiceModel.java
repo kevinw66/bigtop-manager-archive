@@ -28,7 +28,4 @@ public class ServiceModel {
     @XmlElementWrapper(name = "components")
     @XmlElements(@XmlElement(name = "component"))
     private List<ComponentModel> components;
-
-    @XmlElement(name = "configuration-dir")
-    private String configurationDir;
 }

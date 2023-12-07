@@ -19,7 +19,7 @@
  * limitations under the License.
  */
 -->
-<configuration supports_adding_forbidden="true">
+<configuration>
     <property>
         <name>logDir</name>
         <display-name>Kafka Log directory</display-name>
@@ -31,11 +31,6 @@
         <value>/var/run/kafka</value>
         <display-name>Kafka PID dir</display-name>
         <description />
-        <value-attributes>
-            <type>directory</type>
-            <editable-only-at-install>true</editable-only-at-install>
-            <overridable>false</overridable>
-        </value-attributes>
     </property>
     <property>
         <name>kafkaUserNofileLimit</name>
@@ -68,10 +63,7 @@ export KAFKA_OPTS="-Djavax.security.auth.useSubjectCredsOnly=false {{kafka_kerbe
 export KAFKA_OPTS={{kafka_kerberos_params}}
 </#if>
 export CLASSPATH=$CLASSPATH:${CONF_DIR}
-  ]]>
+]]>
       </value>
-        <value-attributes>
-            <type>content</type>
-        </value-attributes>
     </property>
 </configuration>

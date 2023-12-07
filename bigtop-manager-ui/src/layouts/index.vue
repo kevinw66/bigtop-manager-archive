@@ -6,15 +6,18 @@
   import LayoutSider from '@/layouts/sider.vue'
   import { useUserStore } from '@/store/user'
   import { useClusterStore } from '@/store/cluster'
+  import { useServiceStore } from '@/store/service'
 
   const userStore = useUserStore()
   const clusterStore = useClusterStore()
+  const serviceStore = useServiceStore()
 
   onMounted(async () => {
     await userStore.getUserInfo()
     await userStore.generateMenu()
 
     await clusterStore.loadClusters()
+    await serviceStore.loadServices()
   })
 </script>
 

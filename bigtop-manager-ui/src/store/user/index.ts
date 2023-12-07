@@ -79,16 +79,12 @@ export const useUserStore = defineStore(
       } else {
         menuItems.value = await initMenu(initialRoutes)
       }
-
-      return Promise.resolve()
     }
 
     const logout = async () => {
       userVO.value = undefined
       localStorage.removeItem('Token')
       sessionStorage.removeItem('Token')
-
-      return Promise.resolve()
     }
 
     return {

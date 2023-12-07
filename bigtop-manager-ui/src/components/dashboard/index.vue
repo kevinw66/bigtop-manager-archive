@@ -124,7 +124,7 @@
         text: 'Disk'
       },
       legend: {
-        data: ['Percentage(%), Increment(MB)']
+        data: ['Disk Usage(%)', 'Disk Increment(MB)']
       },
       grid: {
         left: '60px',
@@ -168,16 +168,17 @@
       ],
       series: [
         {
+          name: 'Disk Increment(MB)',
+          data: [100, 800, 500, 233, 420, 155, 333],
+          type: 'bar',
+          yAxisIndex: 0
+        },
+        {
           name: 'Disk Usage(%)',
           data: [20, 35, 40, 65, 75, 90, 97],
           type: 'line',
           smooth: true,
           yAxisIndex: 1
-        },
-        {
-          name: 'Increment(MB)',
-          data: [100, 800, 500, 233, 420, 155, 333],
-          type: 'bar'
         }
       ],
       tooltip: {

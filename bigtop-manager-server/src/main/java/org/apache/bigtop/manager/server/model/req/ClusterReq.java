@@ -19,7 +19,7 @@ public class ClusterReq {
     private Integer clusterType;
 
     @NotEmpty
-    @Schema(example = "BIGTOP")
+    @Schema(example = "bigtop")
     private String stackName;
 
     @NotEmpty

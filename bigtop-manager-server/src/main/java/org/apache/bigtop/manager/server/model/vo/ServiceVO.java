@@ -20,5 +20,4 @@ public class ServiceVO {
     private String serviceUser;
 
     private String serviceGroup;
-
 }

@@ -15,22 +15,14 @@
  * limitations under the License.
  */
 
-export const formatFromByte = (value: number): string => {
-  if (isNaN(value)) {
-    return ''
-  }
+import { HostComponentVO } from '@/api/component/types.ts'
+import request from '@/api/request.ts'
 
-  if (value < 1024) {
-    return `${value} B`
-  } else if (value < 1024 ** 2) {
-    return `${(value / 1024).toFixed(2)} KB`
-  } else if (value < 1024 ** 3) {
-    return `${(value / 1024 ** 2).toFixed(2)} MB`
-  } else if (value < 1024 ** 4) {
-    return `${(value / 1024 ** 3).toFixed(2)} GB`
-  } else if (value < 1024 ** 5) {
-    return `${(value / 1024 ** 4).toFixed(2)} TB`
-  } else {
-    return `${(value / 1024 ** 5).toFixed(2)} PB`
-  }
+export const getHostComponents = (
+  clusterId: number
+): Promise<HostComponentVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/host-components'
+  })
 }
