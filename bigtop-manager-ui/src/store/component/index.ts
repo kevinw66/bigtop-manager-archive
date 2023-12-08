@@ -26,13 +26,17 @@ export const useComponentStore = defineStore(
   () => {
     const clusterStore = useClusterStore()
     const { clusterId } = storeToRefs(clusterStore)
-    const components = shallowRef<HostComponentVO[]>([])
+    const hostComponents = shallowRef<HostComponentVO[]>([])
 
     watch(clusterId, async () => {
-      components.value = await getHostComponents(clusterId.value)
+      await loadHostComponents()
     })
 
-    return {}
+    const loadHostComponents = async () => {
+      hostComponents.value = await getHostComponents(clusterId.value)
+    }
+
+    return { hostComponents, loadHostComponents }
   },
   { persist: false }
 )

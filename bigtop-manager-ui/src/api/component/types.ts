@@ -24,6 +24,6 @@ export interface HostComponentVO {
   category: string
   serviceName: string
   clusterName: string
-  hostName: string
+  hostname: string
   state: MaintainState
 }
