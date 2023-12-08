@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
-public class SyncJobStrategy implements JobStrategy {
+public class SyncJobStrategy extends AbstractJobStrategy {
 
     @Resource
     private JobRepository jobRepository;
@@ -73,6 +73,11 @@ public class SyncJobStrategy implements JobStrategy {
                 stage.setState(JobState.SUCCESSFUL);
             }
             stageRepository.save(stage);
+
+            StageCallback stageCallback = getStageCallback(stage);
+            if (stageCallback != null) {
+                stageCallback.onStageCompleted(stage);
+            }
 
             if (failed.get() && strategyType == JobStrategyType.OVER_ON_FAIL) {
                 break;

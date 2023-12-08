@@ -22,7 +22,6 @@ import org.apache.bigtop.manager.server.stack.xml.ServiceMetainfoXml;
 import org.apache.bigtop.manager.server.stack.xml.StackMetainfoXml;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.io.File;
 import java.net.URL;
@@ -115,12 +114,11 @@ public class StackUtils {
                         if (fileExtension.equals(CONFIGURATION_FILE_EXTENSION)) {
                             String typeName = configPath.substring(configPath.lastIndexOf(File.separator) + 1, configPath.lastIndexOf("."));
 
-                            ImmutableTriple<Map<String, Object>, Map<String, String>, Map<String, PropertyDTO>> triple = StackConfigUtils.loadConfig(configPath);
+                            ImmutablePair<List<PropertyDTO>, Map<String, String>> pair = StackConfigUtils.loadConfig(configPath);
                             ConfigDataDTO configDataDTO = new ConfigDataDTO();
                             configDataDTO.setTypeName(typeName);
-                            configDataDTO.setAttributes(triple.getMiddle());
-                            configDataDTO.setConfigData(triple.getLeft());
-                            configDataDTO.setConfigAttributes(triple.getRight());
+                            configDataDTO.setAttributes(pair.getRight());
+                            configDataDTO.setProperties(pair.getLeft());
                             serviceConfigSet.add(configDataDTO);
                         }
                     }
@@ -207,7 +205,7 @@ public class StackUtils {
             throw new ServerException("Unsupported command: " + command);
         }
 
-        ComponentCommandWrapper commandWrapper = new ComponentCommandWrapper(role, Command.valueOf(command));
+        ComponentCommandWrapper commandWrapper = new ComponentCommandWrapper(role, Command.valueOf(command), null);
         dag.addNodeIfAbsent(roleCommand, commandWrapper);
     }
 

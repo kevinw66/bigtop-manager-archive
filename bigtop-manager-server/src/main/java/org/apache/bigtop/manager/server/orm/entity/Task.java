@@ -21,9 +21,6 @@ public class Task extends BaseEntity {
     @Column(name = "message_id")
     private String messageId;
 
-    @Column(name = "timeout")
-    private Long timeout;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private JobState state;

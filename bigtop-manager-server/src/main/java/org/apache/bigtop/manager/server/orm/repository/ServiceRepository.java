@@ -16,8 +16,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     List<Service> findAllByClusterClusterName(String clusterName);
 
-    Optional<Service> findByServiceName(String serviceName);
-
     Optional<Service> findByClusterClusterNameAndServiceName(String clusterName, String serviceName);
 
     List<Service> findAllByClusterClusterNameAndServiceNameIn(String clusterName, List<String> serviceName);

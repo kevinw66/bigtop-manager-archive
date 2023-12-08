@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.config.CommandGroupSequenceProvider;
-import org.apache.bigtop.manager.server.enums.CommandType;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.hibernate.validator.group.GroupSequenceProvider;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class CommandReq {
 
     @NotNull
     @Schema(example = "CLUSTER")
-    private CommandType commandType;
+    private CommandLevel commandLevel;
 
     @NotEmpty(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class, CommandGroupSequenceProvider.HostCommandGroup.class, CommandGroupSequenceProvider.HostInstallCommandGroup.class})
     @Schema(example = "[\"ZOOKEEPER_SERVER\"]", description = "is required when commandType is COMPONENT or HOST or HOST_INSTALL")

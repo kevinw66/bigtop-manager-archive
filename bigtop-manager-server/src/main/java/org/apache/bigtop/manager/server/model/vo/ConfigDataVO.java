@@ -1,8 +1,8 @@
 package org.apache.bigtop.manager.server.model.vo;
 
 import lombok.Data;
-import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -14,7 +14,6 @@ public class ConfigDataVO {
 
     private Integer version;
 
-    private Map<String, Object> configData;
+    private List<PropertyVO> properties;
 
-    private Map<String, PropertyDTO> configAttributes;
 }

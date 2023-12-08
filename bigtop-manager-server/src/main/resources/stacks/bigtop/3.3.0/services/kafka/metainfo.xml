@@ -31,12 +31,12 @@
 
         <components>
             <component>
-                <name>kafka_server</name>
-                <displayName>Kafka Server</displayName>
+                <name>kafka_broker</name>
+                <displayName>Kafka Broker</displayName>
                 <category>master</category>
                 <cardinality>1+</cardinality>
                 <commandScript>
-                    <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaServerScript</script>
+                    <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaBrokerScript</script>
                     <scriptType>java</scriptType>
                     <timeout>1200</timeout>
                 </commandScript>
@@ -44,7 +44,7 @@
                     <customCommand>
                         <name>test</name>
                         <commandScript>
-                            <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaServerScript</script>
+                            <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaBrokerScript</script>
                             <scriptType>java</scriptType>
                             <timeout>600</timeout>
                         </commandScript>

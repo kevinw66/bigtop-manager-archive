@@ -2,8 +2,9 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
-import org.apache.bigtop.manager.server.enums.CommandType;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
@@ -57,12 +58,16 @@ public class CommandServiceImpl implements CommandService {
     @Override
     @Transactional
     public CommandVO command(CommandDTO commandDTO) {
-        CommandType commandType = commandDTO.getCommandType();
+        CommandLevel commandType = commandDTO.getCommandLevel();
+        Command command = commandDTO.getCommand();
+        if (command == Command.REINSTALL) {
+            commandDTO.setCommand(Command.INSTALL);
+        }
 
-        if (commandType == CommandType.SERVICE_INSTALL) {
+        if (commandType == CommandLevel.SERVICE && command == Command.INSTALL) {
             // service install
             installService(commandDTO);
-        } else if (commandType == CommandType.HOST_INSTALL) {
+        } else if (commandType == CommandLevel.HOST && command == Command.INSTALL) {
             // host install
             installHostComponent(commandDTO);
         }
@@ -102,11 +107,7 @@ public class CommandServiceImpl implements CommandService {
         String stackName = commandDTO.getStackName();
         String stackVersion = commandDTO.getStackVersion();
         Map<String, Set<String>> componentHostMapping = commandDTO.getComponentHosts();
-        List<ConfigurationDTO> serviceConfigs = commandDTO.getServiceConfigs();
-        Map<String, List<ConfigDataDTO>> configDataDTOMap = new HashMap<>();
-        if (serviceConfigs != null) {
-            configDataDTOMap = serviceConfigs.stream().collect(Collectors.toMap(ConfigurationDTO::getServiceName, ConfigurationDTO::getConfigurations));
-        }
+        Map<String, Service> serviceMap = new HashMap<>();
 
         Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
@@ -120,15 +121,13 @@ public class CommandServiceImpl implements CommandService {
             if (serviceNameList.contains(serviceName)) {
                 // 1. Persist service
                 Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
-                Optional<Service> serviceOptional = serviceRepository.findByServiceName(serviceName);
+                Optional<Service> serviceOptional = serviceRepository.findByClusterClusterNameAndServiceName(clusterName, serviceName);
                 if (serviceOptional.isPresent()) {
                     service.setId(serviceOptional.get().getId());
                 }
+                service.setState(MaintainState.UNINSTALLED);
                 service = serviceRepository.save(service);
-
-                // 2. Initial config
-                List<ConfigDataDTO> configDataDTOList = configDataDTOMap.get(serviceName);
-                initialConfig(cluster, service, configDataDTOList);
+                serviceMap.put(serviceName, service);
 
                 List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
                 for (ComponentDTO componentDTO : componentDTOList) {
@@ -161,35 +160,30 @@ public class CommandServiceImpl implements CommandService {
                 }
             }
         }
+
+        // 2. Initial config
+        for (ConfigurationDTO configurationDTO : commandDTO.getServiceConfigs()) {
+            serviceMap.get(configurationDTO.getServiceName());
+            initialConfig(cluster, serviceMap, configurationDTO);
+        }
     }
 
-    private void initialConfig(Cluster cluster, Service service, List<ConfigDataDTO> configDataDTOList) {
-        String stackName = cluster.getStack().getStackName();
-        String stackVersion = cluster.getStack().getStackVersion();
-        String serviceName = service.getServiceName();
-        Map<String, ConfigDataDTO> configDataDTOMap = new HashMap<>();
-        if (configDataDTOList != null) {
-            configDataDTOMap = configDataDTOList.stream().collect(Collectors.toMap(ConfigDataDTO::getTypeName, configDataDTO -> configDataDTO));
-        }
+    private void initialConfig(Cluster cluster, Map<String, Service> serviceMap, ConfigurationDTO configurationDTO) {
+        String serviceName = configurationDTO.getServiceName();
+        Service service = serviceMap.containsKey(serviceName) ? serviceMap.get(serviceName) :
+                serviceRepository.findByClusterClusterNameAndServiceName(cluster.getClusterName(), serviceName).orElse(new Service());
 
         //ServiceConfigRecord
-        String defaultConfigDesc = MessageFormat.format("Initial config {0} for cluster {1}", serviceName, cluster.getClusterName());
-        ServiceConfigRecord serviceConfigRecord = configurationManager.saveConfigRecord(cluster, service, defaultConfigDesc).left;
-
+        String configDesc = configurationDTO.getConfigDesc();
+        ImmutablePair<ServiceConfigRecord, List<ServiceConfigMapping>> immutablePair = configurationManager.saveConfigRecord(cluster, service, configDesc);
+        ServiceConfigRecord serviceConfigRecord = immutablePair.left;
         //ServiceConfig
-        Map<String, Set<ConfigDataDTO>> serviceConfigMap = StackUtils.getStackConfigMap().get(StackUtils.fullStackName(stackName, stackVersion));
-        for (ConfigDataDTO configDataDTO : serviceConfigMap.get(serviceName)) {
+        for (ConfigDataDTO configDataDTO : configurationDTO.getConfigurations()) {
             String typeName = configDataDTO.getTypeName();
-            Map<String, Object> configData = configDataDTO.getConfigData();
-            Map<String, PropertyDTO> configAttributes = configDataDTO.getConfigAttributes();
+            List<PropertyDTO> properties = configDataDTO.getProperties();
             Map<String, String> attributes = configDataDTO.getAttributes();
-            if (configDataDTOMap.containsKey(typeName)) {
-                configData = configDataDTOMap.get(typeName).getConfigData();
-                configAttributes = configDataDTOMap.get(typeName).getConfigAttributes();
-                attributes = configDataDTOMap.get(typeName).getAttributes();
-            }
 
-            ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configData, configAttributes, attributes);
+            ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, properties, attributes);
 
             //ServiceConfigMapping
             ServiceConfigMapping serviceConfigMapping = new ServiceConfigMapping();

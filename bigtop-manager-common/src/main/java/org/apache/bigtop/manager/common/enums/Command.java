@@ -4,6 +4,11 @@ public enum Command {
 
     INSTALL,
 
+    /*
+    Actually, it is the packaging of INSTALL, which will send the INSTALL command to the agent
+    */
+    REINSTALL,
+
     UNINSTALL,
 
     START,

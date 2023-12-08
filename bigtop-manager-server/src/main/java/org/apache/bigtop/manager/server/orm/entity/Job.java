@@ -25,7 +25,7 @@ public class Job extends BaseEntity {
     private JobState state;
 
     @Lob
-    @Basic(fetch= FetchType.LAZY)
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "context", length = 16777216)
     private String context;
 

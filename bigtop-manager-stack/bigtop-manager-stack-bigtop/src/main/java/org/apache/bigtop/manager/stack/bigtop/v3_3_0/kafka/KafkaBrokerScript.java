@@ -26,7 +26,7 @@ import static org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaParams.*;
 
 @Slf4j
 @AutoService(Script.class)
-public class KafkaServerScript implements Script {
+public class KafkaBrokerScript implements Script {
 
     @Override
     public ShellResult install(BaseParams baseParams) {
@@ -52,7 +52,7 @@ public class KafkaServerScript implements Script {
 
 
         // server.properties
-        List<String> zookeeperServerHosts = LocalSettings.hosts("ZOOKEEPER_SERVER");
+        List<String> zookeeperServerHosts = LocalSettings.hosts("zookeeper_server");
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("zkHostList", zookeeperServerHosts);
         paramMap.put("host", NetUtils.getHostname());

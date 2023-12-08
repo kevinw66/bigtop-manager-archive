@@ -68,8 +68,7 @@ public class ConfigurationManager {
     /**
      * add|update configuration
      */
-    public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, Map<String, Object> configData,
-                                      Map<String, PropertyDTO> configAttributes, Map<String, String> attributes) {
+    public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, List<PropertyDTO> properties, Map<String, String> attributes) {
         ServiceConfig serviceConfig = new ServiceConfig();
 
         ServiceConfig latestServiceConfig = serviceConfigRepository.findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
@@ -80,11 +79,9 @@ public class ConfigurationManager {
         serviceConfig.setCluster(cluster);
         serviceConfig.setTypeName(typeName);
 
-        String configDataStr = JsonUtils.writeAsString(configData);
-        String configAttributesStr = JsonUtils.writeAsString(configAttributes);
+        String configDataStr = JsonUtils.writeAsString(properties);
 
         serviceConfig.setConfigData(configDataStr);
-        serviceConfig.setConfigAttributes(configAttributesStr);
         serviceConfig.setAttributes(JsonUtils.writeAsString(attributes));
 
         if (latestServiceConfig.getId() == null) {

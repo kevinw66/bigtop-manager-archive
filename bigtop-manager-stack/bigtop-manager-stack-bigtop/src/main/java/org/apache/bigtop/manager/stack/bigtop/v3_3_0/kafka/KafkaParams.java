@@ -33,7 +33,7 @@ public class KafkaParams extends BaseParams {
     public Map<String, Object> kafkaEnv() {
         Map<String, Object> kafkaEnv = LocalSettings.configurations(serviceName(), "kafka-env");
         KAFKA_PID_DIR = (String) kafkaEnv.get("pidDir");
-        KAFKA_PID_FILE = KAFKA_PID_DIR + "/kafka_server.pid";
+        KAFKA_PID_FILE = KAFKA_PID_DIR + "/kafka_broker.pid";
         KAFKA_LOG_DIR = (String) kafkaEnv.get("logDir");
         KAFKA_ENV_CONTENT = (String) kafkaEnv.get("content");
         return kafkaEnv;

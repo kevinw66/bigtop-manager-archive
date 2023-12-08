@@ -26,7 +26,7 @@ public class ZookeeperSetup {
         String zookeeperGroup = zookeeperParams.group();
         Map<String, Object> zookeeperEnv = zookeeperParams.zookeeperEnv();
         Map<String, Object> zooCfg = zookeeperParams.zooCfg();
-        List<String> zkHostList = LocalSettings.hosts("ZOOKEEPER_SERVER");
+        List<String> zkHostList = LocalSettings.hosts("zookeeper_server");
 
         String logDir = (String) zookeeperEnv.get("logDir");
         String pidDir = (String) zookeeperEnv.get("pidDir");

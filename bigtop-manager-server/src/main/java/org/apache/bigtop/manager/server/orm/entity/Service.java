@@ -3,9 +3,7 @@ package org.apache.bigtop.manager.server.orm.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-
-import java.util.List;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,11 +38,11 @@ public class Service extends BaseEntity {
     @Column(name = "service_group")
     private String serviceGroup;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state")
+    private MaintainState state;
+
     @ManyToOne
     @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;
-
-    @ToString.Exclude
-    @OneToMany(mappedBy = "service")
-    private List<Component> components;
 }

@@ -32,11 +32,6 @@ public class ServiceConfig extends BaseEntity {
     @Column(name = "config_data", length = 16777216)
     private String configData;
 
-    @Lob
-    @Basic(fetch= FetchType.LAZY)
-    @Column(name = "config_attributes",length = 16777216)
-    private String configAttributes;
-
     @ManyToOne
     @JoinColumn(name = "service_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Service service;

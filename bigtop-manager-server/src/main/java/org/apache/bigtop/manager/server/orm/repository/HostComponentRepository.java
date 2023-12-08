@@ -17,4 +17,6 @@ public interface HostComponentRepository extends JpaRepository<HostComponent, Lo
     List<HostComponent> findAllByComponentClusterIdAndHostId(Long clusterId, Long componentId);
 
     List<HostComponent> findAllByComponentClusterIdAndComponentServiceId(Long clusterId, Long serviceId);
+
+    List<HostComponent> findAllByComponentServiceId(Long serviceId);
 }

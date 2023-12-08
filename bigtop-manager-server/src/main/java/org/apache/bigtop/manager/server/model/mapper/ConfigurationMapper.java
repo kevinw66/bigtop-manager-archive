@@ -46,12 +46,7 @@ public interface ConfigurationMapper {
                 configDataVO.setAttributes(JsonUtils.readFromString(attributes, new TypeReference<>() {
                 }));
             }
-            String configAttributes = serviceConfig.getConfigAttributes();
-            if (configAttributes != null) {
-                configDataVO.setConfigAttributes(JsonUtils.readFromString(configAttributes, new TypeReference<>() {
-                }));
-            }
-            configDataVO.setConfigData(JsonUtils.readFromString(serviceConfig.getConfigData(), new TypeReference<>() {
+            configDataVO.setProperties(JsonUtils.readFromString(serviceConfig.getConfigData(), new TypeReference<>() {
             }));
             configDataVO.setVersion(serviceConfig.getVersion());
             configDataVO.setTypeName(serviceConfig.getTypeName());
