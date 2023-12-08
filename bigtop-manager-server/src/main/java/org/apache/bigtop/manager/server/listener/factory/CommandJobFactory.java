@@ -32,6 +32,7 @@ import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.codehaus.janino.IClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,10 +136,10 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             stage.setStageOrder(stageOrder + i + 1);
             stage.setServiceName(component.getService().getServiceName());
             stage.setComponentName(componentName);
-            stage.setCommand(command);
             log.debug("stage: {}", stage);
             // Set stage callback
             stage.setCallbackClassName(this.getClass().getName());
+            stage.setPayload(JsonUtils.writeAsString(commandDTO));
             stage = stageRepository.save(stage);
 
             Set<String> hostSet = componentHostMapping.get(componentName);
@@ -411,19 +412,45 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
     @Override
     public void onStageCompleted(Stage stage) {
-        Command command = stage.getCommand();
         String clusterName = stage.getCluster().getClusterName();
         String componentName = stage.getComponentName();
+        CommandDTO commandDTO = JsonUtils.readFromString(stage.getPayload(), CommandDTO.class);
+
+        Command command = commandDTO.getCommand();
+        CommandLevel commandLevel = commandDTO.getCommandLevel();
+
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterClusterNameAndComponentComponentName(clusterName, componentName);
         Service service = hostComponents.get(0).getComponent().getService();
         if (stage.getState() == JobState.SUCCESSFUL) {
             if (command == Command.START || command == Command.STOP || command == Command.INSTALL) {
-                switch (command) {
-                    case START ->
-                            hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STARTED));
-                    case STOP -> hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STOPPED));
-                    case INSTALL ->
-                            hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.INSTALLED));
+                if (commandLevel == CommandLevel.HOST) {
+                    String hostname = commandDTO.getHostname();
+                    switch (command) {
+                        case START -> hostComponents.forEach(hostComponent -> {
+                            if (hostname.equals(hostComponent.getHost().getHostname())) {
+                                hostComponent.setState(MaintainState.STARTED);
+                            }
+                        });
+                        case STOP -> hostComponents.forEach(hostComponent -> {
+                            if (hostname.equals(hostComponent.getHost().getHostname())) {
+                                hostComponent.setState(MaintainState.STOPPED);
+                            }
+                        });
+                        case INSTALL -> hostComponents.forEach(hostComponent -> {
+                            if (hostname.equals(hostComponent.getHost().getHostname())) {
+                                hostComponent.setState(MaintainState.INSTALLED);
+                            }
+                        });
+                    }
+                } else {
+                    switch (command) {
+                        case START ->
+                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STARTED));
+                        case STOP ->
+                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STOPPED));
+                        case INSTALL ->
+                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.INSTALLED));
+                    }
                 }
                 hostComponentRepository.saveAll(hostComponents);
 

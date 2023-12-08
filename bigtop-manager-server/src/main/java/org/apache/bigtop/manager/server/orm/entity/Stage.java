@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.JobState;
 
 import java.util.List;
@@ -37,9 +36,10 @@ public class Stage extends BaseEntity {
     @Column(name = "component_name")
     private String componentName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "command")
-    private Command command;
+    @Lob
+    @Basic(fetch= FetchType.LAZY)
+    @Column(name = "payload", length = 16777216)
+    private String payload;
 
     @ManyToOne
     @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
