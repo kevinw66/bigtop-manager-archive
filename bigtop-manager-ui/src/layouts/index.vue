@@ -7,10 +7,12 @@
   import { useUserStore } from '@/store/user'
   import { useClusterStore } from '@/store/cluster'
   import { useServiceStore } from '@/store/service'
+  import { useComponentStore } from '@/store/component'
 
   const userStore = useUserStore()
   const clusterStore = useClusterStore()
   const serviceStore = useServiceStore()
+  const componentStore = useComponentStore()
 
   onMounted(async () => {
     await userStore.getUserInfo()
@@ -18,6 +20,7 @@
 
     await clusterStore.loadClusters()
     await serviceStore.loadServices()
+    await componentStore.loadHostComponents()
   })
 </script>
 

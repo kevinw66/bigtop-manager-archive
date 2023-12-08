@@ -16,6 +16,7 @@
  */
 
 export default {
+  host: 'Host',
   host_selected: 'Selected {0} hosts',
   host_restart: 'Restart Hosts',
   host_stop: 'Stop Hosts',
