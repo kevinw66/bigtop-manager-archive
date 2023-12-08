@@ -88,7 +88,7 @@
     return {
       pageSize: pageSize.value,
       showSizeChanger: true,
-      onShowSizeChange: (_: number, size: number) => {
+      onShowSizeChange: (_current: number, size: number) => {
         pageSize.value = size
       }
     }
