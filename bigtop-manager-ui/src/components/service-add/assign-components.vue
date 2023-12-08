@@ -35,7 +35,7 @@
   const columns = computed(() => {
     const services = Object.entries(
       _.omit(
-        stackComponents.value,
+        _.pick(stackComponents.value, serviceInfo.value.serviceNames),
         _.uniqBy(hostComponents.value, 'serviceName').map((v) => v.serviceName)
       )
     ).map(([serviceName, components]) => {
