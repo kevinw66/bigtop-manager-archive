@@ -26,11 +26,7 @@ public class CommandGroupSequenceProvider implements DefaultGroupSequenceProvide
                     }
                     break;
                 case HOST:
-                    if (bean.getCommand() == Command.INSTALL) {
-                        defaultGroupSequence.add(HostInstallCommandGroup.class);
-                    } else {
-                        defaultGroupSequence.add(HostCommandGroup.class);
-                    }
+                    defaultGroupSequence.add(HostCommandGroup.class);
                     break;
                 case COMPONENT:
                     defaultGroupSequence.add(ComponentCommandGroup.class);
@@ -51,8 +47,5 @@ public class CommandGroupSequenceProvider implements DefaultGroupSequenceProvide
     }
 
     public interface ServiceInstallCommandGroup {
-    }
-
-    public interface HostInstallCommandGroup {
     }
 }

@@ -23,9 +23,7 @@ import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.MessageFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -83,10 +81,10 @@ public class CommandServiceImpl implements CommandService {
 
     private void installHostComponent(CommandDTO commandDTO) {
         List<String> componentNameList = commandDTO.getComponentNames();
-        String clusterName = commandDTO.getClusterName();
         String hostname = commandDTO.getHostname();
+        Long clusterId = commandDTO.getClusterId();
         //Persist hostComponent to database
-        List<Component> componentList = componentRepository.findAllByClusterClusterNameAndComponentNameIn(clusterName, componentNameList);
+        List<Component> componentList = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, componentNameList);
         Host host = hostRepository.findByHostname(hostname);
         for (Component component : componentList) {
             HostComponent hostComponent = new HostComponent();
@@ -103,9 +101,11 @@ public class CommandServiceImpl implements CommandService {
     private void installService(CommandDTO commandDTO) {
         log.info("Enter install method");
         List<String> serviceNameList = commandDTO.getServiceNames();
-        String clusterName = commandDTO.getClusterName();
-        String stackName = commandDTO.getStackName();
-        String stackVersion = commandDTO.getStackVersion();
+        Long clusterId = commandDTO.getClusterId();
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+
+        String stackName = cluster.getStack().getStackName();
+        String stackVersion = cluster.getStack().getStackVersion();
         Map<String, Set<String>> componentHostMapping = commandDTO.getComponentHosts();
         Map<String, Service> serviceMap = new HashMap<>();
 
@@ -115,13 +115,12 @@ public class CommandServiceImpl implements CommandService {
         List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
 
         // Persist service, component and hostComponent metadata to database
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
         for (ServiceDTO serviceDTO : serviceDTOSet) {
             String serviceName = serviceDTO.getServiceName();
             if (serviceNameList.contains(serviceName)) {
                 // 1. Persist service
                 Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
-                Optional<Service> serviceOptional = serviceRepository.findByClusterClusterNameAndServiceName(clusterName, serviceName);
+                Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName);
                 if (serviceOptional.isPresent()) {
                     service.setId(serviceOptional.get().getId());
                 }
@@ -135,7 +134,7 @@ public class CommandServiceImpl implements CommandService {
 
                     // 3. Persist component
                     Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
-                    Optional<Component> componentOptional = componentRepository.findByClusterClusterNameAndComponentName(clusterName, componentName);
+                    Optional<Component> componentOptional = componentRepository.findByClusterIdAndComponentName(clusterId, componentName);
                     if (componentOptional.isPresent()) {
                         component.setId(componentOptional.get().getId());
                     }
@@ -171,7 +170,7 @@ public class CommandServiceImpl implements CommandService {
     private void initialConfig(Cluster cluster, Map<String, Service> serviceMap, ConfigurationDTO configurationDTO) {
         String serviceName = configurationDTO.getServiceName();
         Service service = serviceMap.containsKey(serviceName) ? serviceMap.get(serviceName) :
-                serviceRepository.findByClusterClusterNameAndServiceName(cluster.getClusterName(), serviceName).orElse(new Service());
+                serviceRepository.findByClusterIdAndServiceName(cluster.getId(), serviceName).orElse(new Service());
 
         //ServiceConfigRecord
         String configDesc = configurationDTO.getConfigDesc();

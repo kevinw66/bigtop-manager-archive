@@ -8,13 +8,11 @@ import java.util.Optional;
 
 public interface ComponentRepository extends JpaRepository<Component, Long> {
 
-    Optional<Component> findByClusterClusterNameAndComponentName(String clusterName, String componentName);
+    Optional<Component> findByClusterIdAndComponentName(Long clusterId, String componentName);
 
-    List<Component> findAllByClusterClusterNameAndComponentNameIn(String clusterName, Iterable<String> componentNames);
-
-    List<Component> findAllByClusterClusterName(String clusterName);
+    List<Component> findAllByClusterIdAndComponentNameIn(Long clusterId, List<String> componentNames);
 
     List<Component> findAllByClusterId(Long clusterId);
 
-    List<Component> findAllByClusterClusterNameAndServiceServiceNameIn(String clusterName, Iterable<String> serviceNames);
+    List<Component> findAllByClusterIdAndServiceServiceNameIn(Long clusterId, List<String> serviceNames);
 }

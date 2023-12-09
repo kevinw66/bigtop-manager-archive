@@ -14,9 +14,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     Page<Service> findAllByClusterId(Long clusterId, Pageable pageable);
 
-    List<Service> findAllByClusterClusterName(String clusterName);
+    Optional<Service> findByClusterIdAndServiceName(Long clusterId, String serviceName);
 
-    Optional<Service> findByClusterClusterNameAndServiceName(String clusterName, String serviceName);
-
-    List<Service> findAllByClusterClusterNameAndServiceNameIn(String clusterName, List<String> serviceName);
 }

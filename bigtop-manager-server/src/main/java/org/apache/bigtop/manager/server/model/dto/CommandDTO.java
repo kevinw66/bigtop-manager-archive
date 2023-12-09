@@ -16,11 +16,7 @@ public class CommandDTO implements Serializable {
 
     private String customCommand;
 
-    private String stackName;
-
-    private String stackVersion;
-
-    private String clusterName;
+    private Long clusterId;
 
     private CommandLevel commandLevel;
 
@@ -37,19 +33,7 @@ public class CommandDTO implements Serializable {
     private List<ConfigurationDTO> serviceConfigs;
 
     public String getContext() {
-        return "CommandDTO{" +
-                "command=" + command +
-                ", customCommand='" + customCommand + '\'' +
-                ", stackName='" + stackName + '\'' +
-                ", stackVersion='" + stackVersion + '\'' +
-                ", clusterName='" + clusterName + '\'' +
-                ", commandType=" + commandLevel +
-                ", componentNames=" + componentNames +
-                ", serviceName='" + serviceName + '\'' +
-                ", hostname='" + hostname + '\'' +
-                ", serviceNames=" + serviceNames +
-                ", componentHosts=" + componentHosts +
-                '}';
+        return this.toString();
     }
 
 }
