@@ -132,7 +132,7 @@ public class CommandServiceImpl implements CommandService {
                 for (ComponentDTO componentDTO : componentDTOList) {
                     String componentName = componentDTO.getComponentName();
 
-                    // 3. Persist component
+                    // 2. Persist component
                     Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
                     Optional<Component> componentOptional = componentRepository.findByClusterIdAndComponentName(clusterId, componentName);
                     if (componentOptional.isPresent()) {
@@ -140,7 +140,7 @@ public class CommandServiceImpl implements CommandService {
                     }
                     component = componentRepository.save(component);
 
-                    // 4. Persist hostComponent
+                    // 3. Persist hostComponent
                     Set<String> hostSet = componentHostMapping.get(componentName);
                     if (hostSet == null) {
                         throw new ApiException(ApiExceptionEnum.HOST_NOT_FOUND);
@@ -160,22 +160,26 @@ public class CommandServiceImpl implements CommandService {
             }
         }
 
-        // 2. Initial config
+        // 4. Initial or update config
         for (ConfigurationDTO configurationDTO : commandDTO.getServiceConfigs()) {
-            serviceMap.get(configurationDTO.getServiceName());
-            initialConfig(cluster, serviceMap, configurationDTO);
+            String serviceName = configurationDTO.getServiceName();
+            Service service;
+            if (serviceMap.containsKey(serviceName)) {
+                service = serviceMap.get(serviceName);
+            } else {
+                service = serviceRepository.findByClusterIdAndServiceName(cluster.getId(), serviceName).orElse(null);
+            }
+
+            if (service != null) {
+                initialConfig(cluster, service, configurationDTO);
+            }
         }
     }
 
-    private void initialConfig(Cluster cluster, Map<String, Service> serviceMap, ConfigurationDTO configurationDTO) {
-        String serviceName = configurationDTO.getServiceName();
-        Service service = serviceMap.containsKey(serviceName) ? serviceMap.get(serviceName) :
-                serviceRepository.findByClusterIdAndServiceName(cluster.getId(), serviceName).orElse(new Service());
-
+    private void initialConfig(Cluster cluster, Service service, ConfigurationDTO configurationDTO) {
         //ServiceConfigRecord
         String configDesc = configurationDTO.getConfigDesc();
-        ImmutablePair<ServiceConfigRecord, List<ServiceConfigMapping>> immutablePair = configurationManager.saveConfigRecord(cluster, service, configDesc);
-        ServiceConfigRecord serviceConfigRecord = immutablePair.left;
+        ServiceConfigRecord serviceConfigRecord = configurationManager.saveConfigRecord(cluster, service, configDesc).left;
         //ServiceConfig
         for (ConfigDataDTO configDataDTO : configurationDTO.getConfigurations()) {
             String typeName = configDataDTO.getTypeName();

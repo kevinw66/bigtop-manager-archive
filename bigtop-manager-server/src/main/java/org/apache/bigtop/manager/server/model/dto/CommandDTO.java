@@ -5,6 +5,7 @@ import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +34,8 @@ public class CommandDTO implements Serializable {
     private List<ConfigurationDTO> serviceConfigs;
 
     public String getContext() {
-        return this.toString();
+        return MessageFormat.format("command={0}, customCommand={1}, clusterId={2}, commandLevel={3}",
+                command, customCommand, clusterId, commandLevel);
     }
 
 }
