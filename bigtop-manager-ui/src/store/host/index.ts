@@ -67,7 +67,7 @@ export const useHostStore = defineStore(
     const resumeIntervalFn = () => intervalFn.value?.resume()
     const pauseIntervalFn = () => intervalFn.value?.pause()
 
-    return { hosts, loading, resumeIntervalFn, pauseIntervalFn }
+    return { hosts, loading, refreshHosts, resumeIntervalFn, pauseIntervalFn }
   },
   { persist: false }
 )

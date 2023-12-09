@@ -183,7 +183,7 @@
     align-items: center;
 
     .step {
-      width: 25%;
+      width: 15%;
       height: 35rem;
     }
 
@@ -191,7 +191,7 @@
       margin-top: 1rem;
       padding-left: 1rem;
       height: 35rem;
-      width: 100%;
+      width: 85%;
       text-align: center;
       border-left: 1px solid #d9d9d9;
     }

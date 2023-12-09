@@ -39,3 +39,7 @@ html {
 .hidden {
   display: none;
 }
+
+.ant-table-body {
+  overflow-y: auto !important;
+}

@@ -20,12 +20,14 @@
     {
       title: 'service.service',
       dataIndex: 'displayName',
-      align: 'center'
+      align: 'center',
+      width: 150
     },
     {
       title: 'common.version',
       dataIndex: 'serviceVersion',
-      align: 'center'
+      align: 'center',
+      width: 150
     },
     {
       title: 'common.desc',
@@ -73,6 +75,7 @@
       :data-source="mergedServices"
       :row-selection="rowSelection"
       :pagination="false"
+      :scroll="{ y: 400 }"
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
