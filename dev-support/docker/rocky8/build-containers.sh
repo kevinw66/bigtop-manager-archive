@@ -21,7 +21,7 @@ echo $PWD
 
 echo -e "\033[32mStarting container bigtop-manager-build-r8\033[0m"
 if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build-r8") ]];then
-  docker run -it -d --name bigtop-manager-build-r8 -v $PWD/../../../:/opt/develop/bigtop-manager/ -w /opt/develop/bigtop-manager bigtop-manager/develop:trunk-rocky-8
+  docker run -it -d --name bigtop-manager-build-r8 -u $(id -u):$(id -g) -v $PWD/../../../:/opt/develop/bigtop-manager/ -w /opt/develop/bigtop-manager bigtop-manager/develop:trunk-rocky-8
 else
   docker start bigtop-manager-build-r8
 fi
