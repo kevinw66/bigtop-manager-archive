@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.server.enums;
 
-public enum CommandType {
+public enum CommandLevel {
 
     /**
      * cluster command
@@ -20,16 +20,5 @@ public enum CommandType {
     /**
      * host command
      */
-    HOST,
-
-    /**
-     * service install
-     */
-    SERVICE_INSTALL,
-
-    /**
-     * host component install
-     */
-    HOST_INSTALL
-
+    HOST
 }

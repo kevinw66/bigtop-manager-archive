@@ -75,8 +75,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private void updateConfig(Cluster cluster, ConfigurationDTO configurationDTO) {
         String serviceName = configurationDTO.getServiceName();
+        Long clusterId = cluster.getId();
 
-        Service service = serviceRepository.findByServiceName(serviceName).orElse(new Service());
+        Service service = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName).orElse(new Service());
         //ServiceConfigRecord
         ImmutablePair<ServiceConfigRecord, List<ServiceConfigMapping>> immutablePair = configurationManager.saveConfigRecord(cluster, service, configurationDTO.getConfigDesc());
         ServiceConfigRecord serviceConfigRecord = immutablePair.left;
@@ -101,8 +102,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     serviceConfig = configurationManager.rollbackConfig(cluster, service, typeName, version);
                 } else {
                     //upsert
-                    serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configDataDTO.getConfigData(),
-                            configDataDTO.getConfigAttributes(), configDataDTO.getAttributes());
+                    serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configDataDTO.getProperties(), configDataDTO.getAttributes());
                 }
 
                 serviceConfigMapping.setServiceConfig(serviceConfig);

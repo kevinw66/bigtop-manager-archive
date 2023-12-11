@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +13,12 @@ import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
+import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
+import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.utils.StackConfigUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,7 +27,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostCacheJobFactory implements JobFactory {
+public class HostCacheJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -87,6 +91,8 @@ public class HostCacheJobFactory implements JobFactory {
         hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setStageOrder(stageOrder);
         hostCacheStage.setCluster(cluster);
+
+        hostCacheStage.setCallbackClassName(this.getClass().getName());
         hostCacheStage = stageRepository.save(hostCacheStage);
 
         for (String hostname : hostnames) {
@@ -170,11 +176,15 @@ public class HostCacheJobFactory implements JobFactory {
         serviceConfigMap = new HashMap<>();
         serviceConfigMappingList.forEach(scm -> {
             ServiceConfig sc = scm.getServiceConfig();
+            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getConfigData(), new TypeReference<>() {
+            });
+            String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
+
             if (serviceConfigMap.containsKey(sc.getService().getServiceName())) {
-                serviceConfigMap.get(sc.getService().getServiceName()).put(sc.getTypeName(), sc.getConfigData());
+                serviceConfigMap.get(sc.getService().getServiceName()).put(sc.getTypeName(), configMapStr);
             } else {
                 Map<String, Object> hashMap = new HashMap<>();
-                hashMap.put(sc.getTypeName(), sc.getConfigData());
+                hashMap.put(sc.getTypeName(), configMapStr);
                 serviceConfigMap.put(sc.getService().getServiceName(), hashMap);
             }
         });
@@ -204,15 +214,7 @@ public class HostCacheJobFactory implements JobFactory {
 
         //Wrapper userMap for HostCacheMessage
         userMap = new HashMap<>();
-        services.forEach(x -> {
-            if (userMap.containsKey(x.getServiceUser())) {
-                userMap.get(x.getServiceUser()).add(x.getServiceGroup());
-            } else {
-                Set<String> set = new HashSet<>();
-                set.add(x.getServiceGroup());
-                userMap.put(x.getServiceUser(), set);
-            }
-        });
+        services.forEach(x -> userMap.put(x.getServiceUser(), Set.of(x.getServiceGroup())));
 
         //Wrapper settings for HostCacheMessage
         settingsMap = new HashMap<>();
@@ -257,7 +259,6 @@ public class HostCacheJobFactory implements JobFactory {
 
         requestMessage.setMessagePayload(JsonUtils.writeAsString(hostCachePayload));
         return requestMessage;
-
     }
 
     private HostCachePayload getMessagePayload(
@@ -282,4 +283,20 @@ public class HostCacheJobFactory implements JobFactory {
         return hostCacheMessage;
     }
 
+    @Override
+    public String generatePayload(Task task) {
+        Cluster cluster = task.getCluster();
+        createCache(cluster);
+        RequestMessage requestMessage = getMessage(
+                task.getHostname(),
+                settingsMap,
+                clusterInfo,
+                serviceConfigMap,
+                hostMap,
+                repoList,
+                userMap,
+                componentInfoMap);
+        log.info("[generatePayload]-[HostCacheJobFactory-requestMessage]: {}", requestMessage);
+        return JsonUtils.writeAsString(requestMessage);
+    }
 }

@@ -12,14 +12,18 @@ import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.enums.CommandType;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.JobState;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
+import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
@@ -34,19 +38,21 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class CommandJobFactory implements JobFactory {
+public class CommandJobFactory implements JobFactory, StageCallback {
+    @Resource
+    private ComponentRepository componentRepository;
 
     @Resource
     private ClusterRepository clusterRepository;
 
     @Resource
+    private HostRepository hostRepository;
+
+    @Resource
     private HostComponentRepository hostComponentRepository;
 
     @Resource
-    private ComponentRepository componentRepository;
-
-    @Resource
-    private HostRepository hostRepository;
+    private ServiceRepository serviceRepository;
 
     @Resource
     private JobRepository jobRepository;
@@ -67,12 +73,12 @@ public class CommandJobFactory implements JobFactory {
      * @return task flow queue
      */
     public Job createJob(CommandDTO commandDTO) {
-        String clusterName = commandDTO.getClusterName();
+        Long clusterId = commandDTO.getClusterId();
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         Job job = new Job();
         job.setState(JobState.PENDING);
         job.setContext(commandDTO.getContext());
-        Cluster cluster = clusterRepository.findByClusterName(clusterName).orElse(new Cluster());
         job.setCluster(cluster);
         job = jobRepository.save(job);
         log.info("CommandOperator-job: {}", job);
@@ -80,7 +86,7 @@ public class CommandJobFactory implements JobFactory {
         int stageOrder = 0;
 
         // cache stage
-        if (commandDTO.getCommandType() == CommandType.HOST_INSTALL || commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
+        if (commandDTO.getCommand() == Command.INSTALL) {
             stageOrder += 1;
             hostCacheJobFactory.createStage(job, cluster, stageOrder);
         }
@@ -89,16 +95,14 @@ public class CommandJobFactory implements JobFactory {
         stageOrder = createStage(job, commandDTO, stageOrder);
 
         // start and check stage if service install
-        if (commandDTO.getCommandType() == CommandType.SERVICE_INSTALL) {
+        if (commandDTO.getCommandLevel() == CommandLevel.SERVICE && commandDTO.getCommand() == Command.INSTALL) {
             CommandDTO startCommandDTO = SerializationUtils.clone(commandDTO);
             startCommandDTO.setCommand(Command.START);
-            startCommandDTO.setCommandType(CommandType.SERVICE);
             stageOrder = createStage(job, startCommandDTO, stageOrder);
 
             // The check action needs to be executed by a single node
             CommandDTO checkCommandDTO = SerializationUtils.clone(commandDTO);
             checkCommandDTO.setCommand(Command.CHECK);
-            checkCommandDTO.setCommandType(CommandType.SERVICE);
             createStage(job, checkCommandDTO, stageOrder);
         }
 
@@ -106,48 +110,52 @@ public class CommandJobFactory implements JobFactory {
     }
 
     private int createStage(Job job, CommandDTO commandDTO, int stageOrder) {
-        String clusterName = commandDTO.getClusterName();
-        String stackName = commandDTO.getStackName();
-        String stackVersion = commandDTO.getStackVersion();
         Command command = commandDTO.getCommand();
         String customCommand = commandDTO.getCustomCommand();
+        Long clusterId = commandDTO.getClusterId();
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+        String stackName = cluster.getStack().getStackName();
+        String stackVersion = cluster.getStack().getStackVersion();
 
         List<ComponentCommandWrapper> componentCommandWrappers = createCommandWrapper(commandDTO);
         List<ComponentCommandWrapper> sortedRcpList = stageSort(componentCommandWrappers, stackName, stackVersion);
         Map<String, Set<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
 
-
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < sortedRcpList.size(); i++) {
             ComponentCommandWrapper componentCommandWrapper = sortedRcpList.get(i);
             String componentName = componentCommandWrapper.getComponentName();
-
+            Component component = componentCommandWrapper.getComponent();
+            if (component == null) {
+                throw new ServerException("Component not found");
+            }
             Stage stage = new Stage();
             stage.setJob(job);
             stage.setCluster(job.getCluster());
             stage.setState(JobState.PENDING);
             stage.setName(componentCommandWrapper.toString());
             stage.setStageOrder(stageOrder + i + 1);
+            stage.setServiceName(component.getService().getServiceName());
+            stage.setComponentName(componentName);
+            log.debug("stage: {}", stage);
+            // Set stage callback
+            stage.setCallbackClassName(this.getClass().getName());
+            stage.setPayload(JsonUtils.writeAsString(commandDTO));
             stage = stageRepository.save(stage);
-            log.info("stage: {}", stage);
 
             Set<String> hostSet = componentHostMapping.get(componentName);
-            // Query host component table, obtain the host list for this role
-            Component component = componentRepository.findByClusterClusterNameAndComponentName(clusterName, componentName).orElse(new Component());
             // Generate task list
-            if (component.getId() != null) {
-                for (String hostname : hostSet) {
-                    Task task = createTask(component, hostname, command, job, stage, customCommand);
-                    log.info("task: {}", task);
-                    tasks.add(task);
-                }
+            for (String hostname : hostSet) {
+                Task task = createTask(component, hostname, command, job, stage, customCommand);
+                log.debug("task: {}", task);
+                tasks.add(task);
             }
+
         }
         taskRepository.saveAll(tasks);
 
         return stageOrder + sortedRcpList.size();
     }
-
 
     /**
      * Execute tasks based on DAG serial sorting
@@ -168,8 +176,10 @@ public class CommandJobFactory implements JobFactory {
 
             for (String node : orderedList) {
                 ComponentCommandWrapper nodeInfo = dag.getNode(node);
-                if (todoList.contains(nodeInfo)) {
-                    sortedList.add(nodeInfo);
+                for (ComponentCommandWrapper componentCommandWrapper : todoList) {
+                    if (componentCommandWrapper.equals(nodeInfo)) {
+                        sortedList.add(componentCommandWrapper);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -189,37 +199,40 @@ public class CommandJobFactory implements JobFactory {
      *
      * @param sortedRcpList result of {@link #stageSort}
      * @param commandDTO    command event
-     * @return componentHostMapping key: component name, value: host list. e.g. {ZOOKEEPER_SERVER=[node1], KAFKA_SERVER=[node1, node2]}
+     * @return componentHostMapping key: component name, value: host list. e.g. {zookeeper_server=[node1], kafka_broker=[node1, node2]}
      */
     private Map<String, Set<String>> createComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList, CommandDTO commandDTO) throws ApiException {
         Map<String, Set<String>> componentHostMapping = new HashMap<>();
 
-        String clusterName = commandDTO.getClusterName();
+        Long clusterId = commandDTO.getClusterId();
 
-        switch (commandDTO.getCommandType()) {
-            case HOST, HOST_INSTALL -> {
+        switch (commandDTO.getCommandLevel()) {
+            case HOST -> {
                 String hostname = commandDTO.getHostname();
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                     Set<String> hostSet = Sets.newHashSet(hostname);
                     componentHostMapping.put(componentCommandWrapper.getComponentName(), hostSet);
                 }
             }
-            case SERVICE_INSTALL -> componentHostMapping = commandDTO.getComponentHosts();
             case CLUSTER, SERVICE, COMPONENT -> {
-                for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
-                    String componentName = componentCommandWrapper.getComponentName();
-                    List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterClusterNameAndComponentComponentName(clusterName, componentName);
+                if (commandDTO.getCommand() == Command.INSTALL) {
+                    componentHostMapping = commandDTO.getComponentHosts();
+                } else {
+                    for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
+                        String componentName = componentCommandWrapper.getComponentName();
+                        List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
 
-                    Set<String> hostSet = hostComponentList.stream().map(x -> x.getHost().getHostname()).collect(Collectors.toSet());
+                        Set<String> hostSet = hostComponentList.stream().map(x -> x.getHost().getHostname()).collect(Collectors.toSet());
 
-                    Command command = componentCommandWrapper.getCommand();
-                    if (command == Command.CHECK) {
-                        Random random = new Random();
-                        int index = random.nextInt(hostComponentList.size());
-                        hostSet = Set.of(hostComponentList.get(index).getHost().getHostname());
+                        Command command = componentCommandWrapper.getCommand();
+                        if (command == Command.CHECK) {
+                            Random random = new Random();
+                            int index = random.nextInt(hostComponentList.size());
+                            hostSet = Set.of(hostComponentList.get(index).getHost().getHostname());
+                        }
+
+                        componentHostMapping.put(componentName, hostSet);
                     }
-
-                    componentHostMapping.put(componentName, hostSet);
                 }
             }
             default -> log.warn("Unknown commandType: {}", commandDTO);
@@ -247,57 +260,72 @@ public class CommandJobFactory implements JobFactory {
      * 生成最小命令单元
      */
     private List<ComponentCommandWrapper> createCommandWrapper(CommandDTO commandDTO) {
-        String clusterName = commandDTO.getClusterName();
         Command command = commandDTO.getCommand();
-        String stackName = commandDTO.getStackName();
-        String stackVersion = commandDTO.getStackVersion();
+        Long clusterId = commandDTO.getClusterId();
 
         List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
-        switch (commandDTO.getCommandType()) {
+        switch (commandDTO.getCommandLevel()) {
             case SERVICE -> {
-                List<String> serviceNameList = commandDTO.getServiceNames();
-                List<Component> componentList = componentRepository.findAllByClusterClusterNameAndServiceServiceNameIn(clusterName, serviceNameList);
-                for (Component component : componentList) {
-                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command);
-                    componentCommandWrappers.add(componentCommandWrapper);
-                }
-            }
-            case COMPONENT, HOST, HOST_INSTALL -> {
-                for (String componentName : commandDTO.getComponentNames()) {
-                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command);
-                    componentCommandWrappers.add(componentCommandWrapper);
-                }
-            }
-            case SERVICE_INSTALL -> {
-                List<String> serviceNameList = commandDTO.getServiceNames();
-                Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
-
-                ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-                List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
-
-                // Persist service, component and hostComponent metadata to database
-                for (ServiceDTO serviceDTO : serviceDTOSet) {
-                    String serviceName = serviceDTO.getServiceName();
-
-                    if (serviceNameList.contains(serviceName)) {
-                        List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
-                        for (ComponentDTO componentDTO : componentDTOList) {
-                            String componentName = componentDTO.getComponentName();
-                            // Generate componentCommandWrapper
-                            ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command);
-                            componentCommandWrappers.add(componentCommandWrapper);
-                        }
+                if (command == Command.INSTALL) {
+                    componentCommandWrappers = getCommandWrappersFromStack(commandDTO);
+                } else {
+                    List<String> serviceNameList = commandDTO.getServiceNames();
+                    List<Component> componentList = componentRepository.findAllByClusterIdAndServiceServiceNameIn(clusterId, serviceNameList);
+                    for (Component component : componentList) {
+                        ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
+                        componentCommandWrappers.add(componentCommandWrapper);
                     }
+                }
+
+            }
+            case COMPONENT, HOST -> {
+                List<Component> components = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, commandDTO.getComponentNames());
+                for (Component component : components) {
+                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
+                    componentCommandWrappers.add(componentCommandWrapper);
                 }
             }
             case CLUSTER -> {
-                List<Component> componentList = componentRepository.findAllByClusterClusterName(clusterName);
+                List<Component> componentList = componentRepository.findAllByClusterId(clusterId);
                 for (Component component : componentList) {
-                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command);
+                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
                     componentCommandWrappers.add(componentCommandWrapper);
                 }
             }
             default -> log.warn("Unknown commandType: {}", commandDTO);
+        }
+        return componentCommandWrappers;
+    }
+
+    private List<ComponentCommandWrapper> getCommandWrappersFromStack(CommandDTO commandDTO) {
+        Command command = commandDTO.getCommand();
+        Long clusterId = commandDTO.getClusterId();
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+
+        String stackName = cluster.getStack().getStackName();
+        String stackVersion = cluster.getStack().getStackVersion();
+        List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
+
+        List<String> serviceNameList = commandDTO.getServiceNames();
+        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
+        // Persist service, component and hostComponent metadata to database
+        for (ServiceDTO serviceDTO : serviceDTOSet) {
+            String serviceName = serviceDTO.getServiceName();
+            if (serviceNameList.contains(serviceName)) {
+
+                Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
+                List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
+                for (ComponentDTO componentDTO : componentDTOList) {
+                    String componentName = componentDTO.getComponentName();
+                    Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
+                    // Generate componentCommandWrapper
+                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command, component);
+                    componentCommandWrappers.add(componentCommandWrapper);
+                }
+            }
         }
         return componentCommandWrappers;
     }
@@ -384,4 +412,65 @@ public class CommandJobFactory implements JobFactory {
         return commandPayload;
     }
 
+    @Override
+    public void onStageCompleted(Stage stage) {
+        Long clusterId = stage.getCluster().getId();
+        String componentName = stage.getComponentName();
+        CommandDTO commandDTO = JsonUtils.readFromString(stage.getPayload(), CommandDTO.class);
+
+        Command command = commandDTO.getCommand();
+        CommandLevel commandLevel = commandDTO.getCommandLevel();
+
+        List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
+        Service service = hostComponents.get(0).getComponent().getService();
+        if (stage.getState() == JobState.SUCCESSFUL) {
+            if (command == Command.START || command == Command.STOP || command == Command.INSTALL) {
+                if (commandLevel == CommandLevel.HOST) {
+                    String hostname = commandDTO.getHostname();
+                    switch (command) {
+                        case START -> hostComponents.forEach(hostComponent -> {
+                            if (hostname.equals(hostComponent.getHost().getHostname())) {
+                                hostComponent.setState(MaintainState.STARTED);
+                            }
+                        });
+                        case STOP -> hostComponents.forEach(hostComponent -> {
+                            if (hostname.equals(hostComponent.getHost().getHostname())) {
+                                hostComponent.setState(MaintainState.STOPPED);
+                            }
+                        });
+                        case INSTALL -> hostComponents.forEach(hostComponent -> {
+                            if (hostname.equals(hostComponent.getHost().getHostname())) {
+                                hostComponent.setState(MaintainState.INSTALLED);
+                            }
+                        });
+                    }
+                } else {
+                    switch (command) {
+                        case START ->
+                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STARTED));
+                        case STOP ->
+                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STOPPED));
+                        case INSTALL ->
+                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.INSTALLED));
+                    }
+                }
+                hostComponentRepository.saveAll(hostComponents);
+
+                List<HostComponent> allByComponentServiceId = hostComponentRepository.findAllByComponentServiceId(service.getId());
+                if (allByComponentServiceId.stream().allMatch(x -> x.getState() == MaintainState.INSTALLED)) {
+                    service.setState(MaintainState.INSTALLED);
+                } else if (allByComponentServiceId.stream().allMatch(x -> x.getState() == MaintainState.STARTED)) {
+                    service.setState(MaintainState.STARTED);
+                } else if (allByComponentServiceId.stream().allMatch(x -> x.getState() == MaintainState.STOPPED)) {
+                    service.setState(MaintainState.STOPPED);
+                }
+                serviceRepository.save(service);
+            }
+        } else {
+            if (command == Command.INSTALL) {
+                service.setState(MaintainState.UNINSTALLED);
+            }
+            serviceRepository.save(service);
+        }
+    }
 }

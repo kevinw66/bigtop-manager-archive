@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -22,9 +22,7 @@ public class ConfigDataReq {
     private Map<String, String> attributes;
 
     @NotNull
-    @Schema(example = "{\"clientPort\": \"2181\"}")
-    private Map<String, Object> configData;
+    @Schema(example = "{\"name\":\"clientPort\",\"value\": \"2181\"}")
+    private List<PropertyReq> properties;
 
-    @Schema(example = "{\"clientPort\": {\"displayName\": \"Client Port\"}}")
-    private Map<String, PropertyDTO> configAttributes;
 }

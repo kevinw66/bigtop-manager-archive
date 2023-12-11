@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
+import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.orm.entity.CommandLog;
 import org.apache.bigtop.manager.server.orm.entity.Job;
@@ -18,6 +19,7 @@ import org.apache.bigtop.manager.server.orm.repository.CommandLogRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.COMMAND_MESSA
 
 @Slf4j
 @Component
-public class AsyncJobStrategy implements JobStrategy {
+public class AsyncJobStrategy extends AbstractJobStrategy {
 
     @Resource
     private JobRepository jobRepository;
@@ -65,6 +67,7 @@ public class AsyncJobStrategy implements JobStrategy {
             // Stage state change to processing
             stage.setState(JobState.PROCESSING);
             stageRepository.save(stage);
+            StageCallback stageCallback = getStageCallback(stage);
 
             countDownLatch = new CountDownLatch(stage.getTasks().size());
             for (Task task : stage.getTasks()) {
@@ -72,7 +75,12 @@ public class AsyncJobStrategy implements JobStrategy {
                 task.setState(JobState.PROCESSING);
                 taskRepository.save(task);
 
-                BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), RequestMessage.class);
+                String content = task.getContent();
+                if (stageCallback != null) {
+                    content = stageCallback.generatePayload(task);
+                }
+
+                BaseCommandMessage message = JsonUtils.readFromString(content, RequestMessage.class);
                 message.setTaskId(task.getId());
                 message.setStageId(stage.getId());
                 message.setJobId(job.getId());
@@ -99,6 +107,10 @@ public class AsyncJobStrategy implements JobStrategy {
             }
             stageCompletedList.add(stage);
             stageRepository.save(stage);
+
+            if (stageCallback != null) {
+                stageCallback.onStageCompleted(stage);
+            }
         }
 
         boolean stageSuccessful = stageCompletedList.stream().allMatch(stage -> stage.getState() == JobState.SUCCESSFUL);

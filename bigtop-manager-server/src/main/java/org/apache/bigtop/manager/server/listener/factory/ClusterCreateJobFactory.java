@@ -11,6 +11,7 @@ import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
@@ -20,6 +21,7 @@ import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.apache.bigtop.manager.server.utils.StackUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
 
@@ -70,7 +72,9 @@ public class ClusterCreateJobFactory implements JobFactory {
         Map<String, Set<String>> userMap = new HashMap<>();
         Map<String, Object> settingsMap = new HashMap<>();
 
-        StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion()));
+        StackDTO stackDTO = immutablePair.getLeft();
+        List<ServiceDTO> serviceDTOList = immutablePair.getRight();
 
         List<RepoInfo> repoList = RepoMapper.INSTANCE.fromDTO2Message(clusterDTO.getRepoInfoList());
         ClusterInfo clusterInfo = new ClusterInfo();
@@ -83,6 +87,10 @@ public class ClusterCreateJobFactory implements JobFactory {
 
         List<String> hostnames = clusterDTO.getHostnames();
         hostMap.put(Constants.ALL_HOST_KEY, new HashSet<>(hostnames));
+
+        for (ServiceDTO serviceDTO : serviceDTOList) {
+            userMap.put(serviceDTO.getServiceUser(), Set.of(serviceDTO.getServiceGroup()));
+        }
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setJob(job);

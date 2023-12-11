@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.model.vo;
 
 import lombok.Data;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 
 @Data
 public class ServiceVO {
@@ -20,4 +21,6 @@ public class ServiceVO {
     private String serviceUser;
 
     private String serviceGroup;
+
+    private MaintainState state;
 }

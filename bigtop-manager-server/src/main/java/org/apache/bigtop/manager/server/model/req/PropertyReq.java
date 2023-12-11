@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class PropertyReq {
 
+    private String name;
+
+    private String value;
+
     private String displayName;
 
     private String desc;

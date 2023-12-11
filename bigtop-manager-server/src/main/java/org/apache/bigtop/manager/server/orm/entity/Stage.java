@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.bigtop.manager.server.enums.JobState;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,6 +30,17 @@ public class Stage extends BaseEntity {
     @Column(name = "stage_order")
     private Integer stageOrder;
 
+    @Column(name = "service_name")
+    private String serviceName;
+
+    @Column(name = "component_name")
+    private String componentName;
+
+    @Lob
+    @Basic(fetch= FetchType.LAZY)
+    @Column(name = "payload", length = 16777216)
+    private String payload;
+
     @ManyToOne
     @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Job job;
@@ -42,4 +52,8 @@ public class Stage extends BaseEntity {
     @ToString.Exclude
     @OneToMany(mappedBy = "stage")
     private List<Task> tasks;
+
+    @Column(name = "callback_class_name")
+    private String callbackClassName;
+
 }

@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.config;
 
-import org.apache.bigtop.manager.server.enums.CommandType;
+import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.model.req.CommandReq;
 import org.hibernate.validator.spi.group.DefaultGroupSequenceProvider;
 
@@ -14,23 +15,21 @@ public class CommandGroupSequenceProvider implements DefaultGroupSequenceProvide
         defaultGroupSequence.add(CommandReq.class); // 这一步不能省,否则Default分组都不会执行了，会抛错的
 
         if (bean != null) { // 这块判空请务必要做
-            CommandType commandType = bean.getCommandType();
+            CommandLevel commandLevel = bean.getCommandLevel();
 
-            switch (commandType) {
+            switch (commandLevel) {
                 case SERVICE:
-                    defaultGroupSequence.add(ServiceCommandGroup.class);
+                    if (bean.getCommand() == Command.INSTALL) {
+                        defaultGroupSequence.add(ServiceInstallCommandGroup.class);
+                    } else {
+                        defaultGroupSequence.add(ServiceCommandGroup.class);
+                    }
                     break;
                 case HOST:
                     defaultGroupSequence.add(HostCommandGroup.class);
                     break;
                 case COMPONENT:
                     defaultGroupSequence.add(ComponentCommandGroup.class);
-                    break;
-                case SERVICE_INSTALL:
-                    defaultGroupSequence.add(ServiceInstallCommandGroup.class);
-                    break;
-                case HOST_INSTALL:
-                    defaultGroupSequence.add(HostInstallCommandGroup.class);
                     break;
             }
 
@@ -48,8 +47,5 @@ public class CommandGroupSequenceProvider implements DefaultGroupSequenceProvide
     }
 
     public interface ServiceInstallCommandGroup {
-    }
-
-    public interface HostInstallCommandGroup {
     }
 }

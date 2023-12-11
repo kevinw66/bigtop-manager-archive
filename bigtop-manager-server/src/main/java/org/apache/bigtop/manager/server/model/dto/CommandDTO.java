@@ -2,9 +2,10 @@ package org.apache.bigtop.manager.server.model.dto;
 
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.server.enums.CommandType;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,13 +17,9 @@ public class CommandDTO implements Serializable {
 
     private String customCommand;
 
-    private String stackName;
+    private Long clusterId;
 
-    private String stackVersion;
-
-    private String clusterName;
-
-    private CommandType commandType;
+    private CommandLevel commandLevel;
 
     private List<String> componentNames;
 
@@ -37,19 +34,8 @@ public class CommandDTO implements Serializable {
     private List<ConfigurationDTO> serviceConfigs;
 
     public String getContext() {
-        return "CommandDTO{" +
-                "command=" + command +
-                ", customCommand='" + customCommand + '\'' +
-                ", stackName='" + stackName + '\'' +
-                ", stackVersion='" + stackVersion + '\'' +
-                ", clusterName='" + clusterName + '\'' +
-                ", commandType=" + commandType +
-                ", componentNames=" + componentNames +
-                ", serviceName='" + serviceName + '\'' +
-                ", hostname='" + hostname + '\'' +
-                ", serviceNames=" + serviceNames +
-                ", componentHosts=" + componentHosts +
-                '}';
+        return MessageFormat.format("command={0}, customCommand={1}, clusterId={2}, commandLevel={3}",
+                command, customCommand, clusterId, commandLevel);
     }
 
 }

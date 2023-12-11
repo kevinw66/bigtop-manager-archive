@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface HostComponentRepository extends JpaRepository<HostComponent, Long> {
 
-    List<HostComponent> findAllByComponentClusterClusterNameAndComponentComponentName(String clusterName, String componentName);
+    List<HostComponent> findAllByComponentClusterIdAndComponentComponentName(Long clusterId, String componentName);
 
     List<HostComponent> findAllByComponentClusterId(Long clusterId);
 
@@ -17,4 +17,6 @@ public interface HostComponentRepository extends JpaRepository<HostComponent, Lo
     List<HostComponent> findAllByComponentClusterIdAndHostId(Long clusterId, Long componentId);
 
     List<HostComponent> findAllByComponentClusterIdAndComponentServiceId(Long clusterId, Long serviceId);
+
+    List<HostComponent> findAllByComponentServiceId(Long serviceId);
 }

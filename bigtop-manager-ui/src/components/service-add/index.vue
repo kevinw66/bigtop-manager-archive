@@ -53,7 +53,7 @@
   const initServiceInfo = () => {
     return {
       command: 'INSTALL',
-      commandType: 'SERVICE_INSTALL',
+      commandLevel: 'SERVICE',
       serviceNames: [],
       clusterId: clusterId.value,
       componentHosts: {},
