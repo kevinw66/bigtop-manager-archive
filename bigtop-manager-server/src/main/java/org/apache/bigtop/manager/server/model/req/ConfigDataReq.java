@@ -1,8 +1,9 @@
 package org.apache.bigtop.manager.server.model.req;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Map;
 @Data
 public class ConfigDataReq {
 
-    @NotEmpty
+    @NotBlank
     @Schema(example = "zoo.cfg", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeName;
 
@@ -21,8 +22,8 @@ public class ConfigDataReq {
     @Schema(example = "{\"supports_adding_forbidden\": \"true\"}")
     private Map<String, String> attributes;
 
-    @NotNull
+    @NotEmpty
     @Schema(example = "{\"name\":\"clientPort\",\"value\": \"2181\"}")
-    private List<PropertyReq> properties;
+    private List<@Valid PropertyReq> properties;
 
 }

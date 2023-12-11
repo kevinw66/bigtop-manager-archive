@@ -27,5 +27,9 @@ export default {
   service_group: 'Service Group',
   choose_services: 'Choose Services',
   assign_components: 'Assign Components',
-  configure_services: 'Configure Services'
+  configure_services: 'Configure Services',
+  add_success_title: 'Congratulations!',
+  add_success_sub_title: 'Service added successfully, please enjoy it.',
+  add_fail_title: 'Oh no!',
+  add_fail_sub_title: 'Service added failed, please retry it.'
 }

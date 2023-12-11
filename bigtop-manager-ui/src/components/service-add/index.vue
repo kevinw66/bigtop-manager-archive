@@ -10,12 +10,14 @@
   import Finish from '@/components/service-add/finish.vue'
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
+  import { useServiceStore } from '@/store/service'
 
   const open = defineModel<boolean>('open')
 
   const { t, locale } = useI18n()
   const clusterStore = useClusterStore()
   const { clusterId } = storeToRefs(clusterStore)
+  const serviceStore = useServiceStore()
 
   const initItems = () => [
     {
@@ -57,7 +59,11 @@
       serviceNames: [],
       clusterId: clusterId.value,
       componentHosts: {},
-      serviceConfigs: []
+      serviceConfigs: [],
+      // Related job id
+      jobId: 0,
+      // Job Status
+      success: false
     }
   }
 
@@ -97,6 +103,9 @@
   }
 
   const clear = () => {
+    // Reload services
+    serviceStore.loadServices()
+
     // Clear status
     current.value = 0
     open.value = false

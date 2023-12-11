@@ -1,11 +1,39 @@
 <script setup lang="ts">
-  // const serviceInfo = defineModel<any>('serviceInfo')
+  import { SmileOutlined, FrownOutlined } from '@ant-design/icons-vue'
+
+  const serviceInfo = defineModel<any>('serviceInfo')
 </script>
 
 <template>
   <div class="container">
-    <div class="title">{{ $t('common.finish') }}</div>
+    <a-result
+      v-if="serviceInfo.success"
+      :title="$t('cluster.create_success_title')"
+      :sub-title="$t('cluster.create_success_sub_title')"
+    >
+      <template #icon>
+        <smile-outlined />
+      </template>
+    </a-result>
+    <a-result
+      v-else
+      :title="$t('cluster.create_fail_title')"
+      :sub-title="$t('cluster.create_fail_sub_title')"
+    >
+      <template #icon>
+        <frown-outlined />
+      </template>
+    </a-result>
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    height: 100%;
+  }
+</style>

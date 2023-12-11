@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.enums;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.bigtop.manager.server.utils.MessageSourceUtils;
 
 @Getter
@@ -39,15 +40,12 @@ public enum ApiExceptionEnum {
 
     private final LocaleKeys key;
 
+    @Setter
     private String[] args;
 
     ApiExceptionEnum(Integer code, LocaleKeys key) {
         this.code = code;
         this.key = key;
-    }
-
-    public void setArgs(String[] args) {
-        this.args = args;
     }
 
     public String getMessage() {

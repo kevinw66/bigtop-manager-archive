@@ -27,5 +27,9 @@ export default {
   service_group: '服务所属用户组',
   choose_services: '选择服务',
   assign_components: '分配组件',
-  configure_services: '配置服务'
+  configure_services: '配置服务',
+  create_success_title: '新增成功',
+  create_success_sub_title: '组件新增成功，快点开始使用吧',
+  create_fail_title: '新增失败',
+  create_fail_sub_title: '组件新增失败，请重试'
 }
