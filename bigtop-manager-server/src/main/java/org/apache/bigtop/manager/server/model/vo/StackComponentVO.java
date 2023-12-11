@@ -5,6 +5,8 @@ import lombok.Data;
 @Data
 public class StackComponentVO {
 
+    private String serviceName;
+
     private String componentName;
 
     private String displayName;
@@ -12,6 +14,4 @@ public class StackComponentVO {
     private String category;
 
     private String cardinality;
-
-    private String serviceName;
 }

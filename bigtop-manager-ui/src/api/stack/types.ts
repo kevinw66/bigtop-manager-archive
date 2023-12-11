@@ -38,9 +38,22 @@ export interface StackRepoVO {
 }
 
 export interface StackComponentVO {
+  serviceName: string
   componentName: string
   displayName: string
   category: string
   cardinality: string
+}
+
+export interface StackConfigVO {
   serviceName: string
+  typeName: string
+  properties: PropertyVO[]
+}
+
+export interface PropertyVO {
+  name: string
+  value: string
+  displayName: string
+  desc: string
 }

@@ -15,23 +15,7 @@
  * limitations under the License.
  */
 
-export interface JobVO {
-  id: number
-  context: string
-  state: string
-  stages: StageVO[]
-}
-
-export interface StageVO {
-  id: number
-  name: string
-  state: string
-  stageOrder: number
-  tasks: TaskVO[]
-}
-
-export interface TaskVO {
+export interface CommandVO {
   id: number
   state: string
-  hostname: string
 }

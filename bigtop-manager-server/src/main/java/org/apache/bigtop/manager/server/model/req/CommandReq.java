@@ -53,7 +53,6 @@ public class CommandReq {
     @Schema(example = "{\"zookeeper_server\": [\"node1\"]}", description = "is required when CommandLevel is SERVICE and Command is INSTALL")
     private Map<String, Set<String>> componentHosts;
 
-    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
-    @Schema(description = "is required when CommandLevel is SERVICE and Command is INSTALL")
+    @Schema(description = "is optional when CommandLevel is SERVICE and Command is INSTALL")
     private List<@Valid ConfigurationReq> serviceConfigs;
 }

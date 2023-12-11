@@ -16,11 +16,12 @@
  */
 
 import { defineStore, storeToRefs } from 'pinia'
-import { getStackComponents, getStacks } from '@/api/stack'
+import { getStackComponents, getStackConfigs, getStacks } from '@/api/stack'
 import { computed, shallowReactive, shallowRef, watch } from 'vue'
 import { StackInfo, StackOptionProps } from '@/store/stack/types.ts'
 import {
   StackComponentVO,
+  StackConfigVO,
   StackRepoVO,
   StackServiceVO,
   StackVO
@@ -37,6 +38,7 @@ export const useStackStore = defineStore(
     const stackServices = shallowReactive<Record<string, StackServiceVO[]>>({})
     const stackRepos = shallowReactive<Record<string, StackRepoVO[]>>({})
     const stackComponents = shallowRef<Record<string, StackComponentVO[]>>({})
+    const stackConfigs = shallowRef<Record<string, StackConfigVO[]>>({})
     const initialized = shallowRef(false)
 
     const currentStack = computed<StackInfo>(() => {
@@ -51,12 +53,13 @@ export const useStackStore = defineStore(
     })
 
     watch(clusterId, async () => {
-      const res = await getStackComponents(
-        selectedCluster.value?.stackName as string,
-        selectedCluster.value?.stackVersion as string
-      )
+      const stackName = selectedCluster.value?.stackName as string
+      const stackVersion = selectedCluster.value?.stackVersion as string
+      const componentRes = await getStackComponents(stackName, stackVersion)
+      const configRes = await getStackConfigs(stackName, stackVersion)
 
-      stackComponents.value = _.groupBy(res, 'serviceName')
+      stackComponents.value = _.groupBy(componentRes, 'serviceName')
+      stackConfigs.value = _.groupBy(configRes, 'serviceName')
     })
 
     const initStacks = async () => {
@@ -98,8 +101,9 @@ export const useStackStore = defineStore(
     return {
       stackOptions,
       stackServices,
-      stackComponents,
       stackRepos,
+      stackComponents,
+      stackConfigs,
       currentStack,
       initStacks
     }

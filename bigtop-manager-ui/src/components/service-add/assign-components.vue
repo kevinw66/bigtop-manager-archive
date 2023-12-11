@@ -14,16 +14,12 @@
   const stackStore = useStackStore()
   const componentStore = useComponentStore()
   const { hosts, loading } = storeToRefs(hostStore)
-  const { currentStack, stackServices, stackComponents } =
-    storeToRefs(stackStore)
+  const { currentStack, stackComponents } = storeToRefs(stackStore)
   const { hostComponents } = storeToRefs(componentStore)
   const pageSize = ref<number>(DEFAULT_PAGE_SIZE)
 
   const serviceNameToDisplayName = _.fromPairs(
-    stackServices.value[currentStack.value.name].map((v) => [
-      v.serviceName,
-      v.displayName
-    ])
+    currentStack.value.services.map((v) => [v.serviceName, v.displayName])
   )
 
   const hostnames = _.sortBy(hosts.value.map((v) => v.hostname))

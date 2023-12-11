@@ -15,23 +15,13 @@
  * limitations under the License.
  */
 
-export interface JobVO {
-  id: number
-  context: string
-  state: string
-  stages: StageVO[]
-}
+import request from '@/api/request.ts'
+import { CommandVO } from '@/api/command/types.ts'
 
-export interface StageVO {
-  id: number
-  name: string
-  state: string
-  stageOrder: number
-  tasks: TaskVO[]
-}
-
-export interface TaskVO {
-  id: number
-  state: string
-  hostname: string
+export const execCommand = (data: any): Promise<CommandVO> => {
+  return request({
+    method: 'post',
+    url: '/command',
+    data
+  })
 }
