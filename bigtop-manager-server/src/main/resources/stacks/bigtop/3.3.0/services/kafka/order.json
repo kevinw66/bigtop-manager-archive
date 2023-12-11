@@ -1,14 +1,14 @@
 {
-  "kafka_broker-INSTALL": [
-    "zookeeper_server-INSTALL"
+  "KAFKA_BROKER-INSTALL": [
+    "ZOOKEEPER_SERVER-INSTALL"
   ],
-  "kafka_broker-START": [
-    "zookeeper_server-START"
+  "KAFKA_BROKER-START": [
+    "ZOOKEEPER_SERVER-START"
   ],
-  "kafka_broker-RESTART": [
-    "zookeeper_server-RESTART"
+  "KAFKA_BROKER-RESTART": [
+    "ZOOKEEPER_SERVER-RESTART"
   ],
-  "zookeeper_server-STOP": [
-    "kafka_broker-STOP"
+  "ZOOKEEPER_SERVER-STOP": [
+    "KAFKA_BROKER-STOP"
   ]
 }

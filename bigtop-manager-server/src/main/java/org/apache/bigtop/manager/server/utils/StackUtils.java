@@ -130,7 +130,16 @@ public class StackUtils {
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE_NAME);
                 if (dependencyFile.exists()) {
                     Map<String, List<String>> dependencyMap = STACK_DEPENDENCY_MAP.computeIfAbsent(fullStackName, k -> new HashMap<>());
-                    dependencyMap.putAll(JsonUtils.readFromFile(dependencyFile));
+
+                    Map<String, List<String>> dependencyMapByFile = JsonUtils.readFromFile(dependencyFile);
+                    for (Map.Entry<String, List<String>> entry : dependencyMapByFile.entrySet()) {
+                        String blocked = entry.getKey();
+                        String fixedBlocked = blocked.split(ROLE_COMMAND_SPLIT)[0].toLowerCase() + ROLE_COMMAND_SPLIT + blocked.split(ROLE_COMMAND_SPLIT)[1];
+                        List<String> blockers = entry.getValue();
+                        List<String> fixedBlockers = blockers.stream().map(x -> x.split(ROLE_COMMAND_SPLIT)[0].toLowerCase() + ROLE_COMMAND_SPLIT + x.split(ROLE_COMMAND_SPLIT)[1]).toList();
+
+                        dependencyMap.put(fixedBlocked, fixedBlockers);
+                    }
                 }
             }
 
