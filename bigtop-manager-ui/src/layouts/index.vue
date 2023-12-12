@@ -16,10 +16,10 @@
 
   onMounted(async () => {
     await userStore.getUserInfo()
-    await userStore.generateMenu()
 
     await clusterStore.loadClusters()
-    await serviceStore.loadServices()
+
+    serviceStore.resumeIntervalFn()
     await componentStore.loadHostComponents()
   })
 </script>
