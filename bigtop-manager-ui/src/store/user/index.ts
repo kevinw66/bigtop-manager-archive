@@ -35,9 +35,6 @@ export const useUserStore = defineStore(
     const serviceStore = useServiceStore()
     const { selectedCluster } = storeToRefs(clusterStore)
     const { installedServices } = storeToRefs(serviceStore)
-    const menuUpdated = shallowRef<boolean>(true)
-
-    const setMenuUpdated = (updated: boolean) => (menuUpdated.value = updated)
 
     const initMenu = (routes: RouteRecordRaw[]) => {
       const items: MenuItem[] = []
@@ -52,13 +49,13 @@ export const useUserStore = defineStore(
         if (route.meta?.title === 'Services') {
           menuItem.children = []
           installedServices.value.forEach((service) => {
-            const iconColor = service.state === 'STARTED' ? '#52c41a' : 'red'
+            const color = service.state === 'STARTED' ? '#52c41a' : '#f5222d'
             menuItem.children?.push({
               key: service.serviceName,
               to: '/services/' + service.serviceName,
               title: service.displayName,
               icon: h(CircleFilled, {
-                style: `font-size: 8px; color: ${iconColor}; margin-right: 0.5rem;`
+                style: `font-size: 8px; color: ${color}; margin-right: 0.5rem;`
               })
             })
           })
@@ -107,8 +104,6 @@ export const useUserStore = defineStore(
     return {
       userVO,
       menuItems,
-      menuUpdated,
-      setMenuUpdated,
       getUserInfo,
       updateUserInfo,
       logout
