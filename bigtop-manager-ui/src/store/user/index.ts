@@ -17,23 +17,76 @@
 
 import { defineStore, storeToRefs } from 'pinia'
 import { getCurrentUser, updateUser } from '@/api/user'
-import { ref, shallowRef, watch } from 'vue'
+import { computed, h, shallowRef } from 'vue'
 import { UserReq, UserVO } from '@/api/user/types.ts'
 import { MenuItem } from '@/store/user/types.ts'
 import { initialRoutes, layoutRoutes } from '@/router/routes.ts'
 import { useClusterStore } from '@/store/cluster'
 import { RouteRecordRaw } from 'vue-router'
+import { useServiceStore } from '@/store/service'
+import CircleFilled from '@/components/icons/circle-filled.vue'
 
 export const useUserStore = defineStore(
   'user',
   () => {
     const userVO = shallowRef<UserVO>()
-    const menuItems = ref<MenuItem[]>([])
 
     const clusterStore = useClusterStore()
+    const serviceStore = useServiceStore()
     const { selectedCluster } = storeToRefs(clusterStore)
-    watch(selectedCluster, async () => {
-      await generateMenu()
+    const { installedServices } = storeToRefs(serviceStore)
+    const menuUpdated = shallowRef<boolean>(true)
+
+    const setMenuUpdated = (updated: boolean) => (menuUpdated.value = updated)
+
+    const initMenu = (routes: RouteRecordRaw[]) => {
+      const items: MenuItem[] = []
+      routes.forEach((route) => {
+        const menuItem: MenuItem = {
+          key: route.meta?.title?.toLowerCase(),
+          to: route.path,
+          title: route.meta?.title,
+          icon: route.meta?.icon
+        }
+
+        if (route.meta?.title === 'Services') {
+          menuItem.children = []
+          installedServices.value.forEach((service) => {
+            const iconColor = service.state === 'STARTED' ? '#52c41a' : 'red'
+            menuItem.children?.push({
+              key: service.serviceName,
+              to: '/services/' + service.serviceName,
+              title: service.displayName,
+              icon: h(CircleFilled, {
+                style: `font-size: 8px; color: ${iconColor}; margin-right: 0.5rem;`
+              })
+            })
+          })
+        } else if (route.children !== undefined) {
+          menuItem.children = []
+          route.children.forEach((child) => {
+            menuItem.children?.push({
+              key: child.meta?.title?.toLowerCase(),
+              to: route.path + child.path,
+              title: child.meta?.title,
+              icon: child.meta?.icon
+            })
+          })
+        } else {
+        }
+
+        items.push(menuItem)
+      })
+
+      return items
+    }
+
+    const menuItems = computed(() => {
+      if (selectedCluster.value) {
+        return initMenu(layoutRoutes)
+      } else {
+        return initMenu(initialRoutes)
+      }
     })
 
     const getUserInfo = async () => {
@@ -45,42 +98,6 @@ export const useUserStore = defineStore(
       await getUserInfo()
     }
 
-    const initMenu = async (pages: RouteRecordRaw[]) => {
-      const items: MenuItem[] = []
-      pages.forEach((route) => {
-        const menuItem: MenuItem = {
-          key: route.meta?.title?.toLowerCase(),
-          to: route.path,
-          title: route.meta?.title,
-          icon: route.meta?.icon
-        }
-
-        if (route.children !== undefined) {
-          menuItem.children = []
-          route.children.forEach((child) => {
-            menuItem.children?.push({
-              key: child.meta?.title?.toLowerCase(),
-              to: route.path + child.path,
-              title: child.meta?.title,
-              icon: child.meta?.icon
-            })
-          })
-        }
-
-        items.push(menuItem)
-      })
-
-      return Promise.resolve(items)
-    }
-
-    const generateMenu = async () => {
-      if (selectedCluster.value) {
-        menuItems.value = await initMenu(layoutRoutes)
-      } else {
-        menuItems.value = await initMenu(initialRoutes)
-      }
-    }
-
     const logout = async () => {
       userVO.value = undefined
       localStorage.removeItem('Token')
@@ -90,9 +107,10 @@ export const useUserStore = defineStore(
     return {
       userVO,
       menuItems,
+      menuUpdated,
+      setMenuUpdated,
       getUserInfo,
       updateUserInfo,
-      generateMenu,
       logout
     }
   },

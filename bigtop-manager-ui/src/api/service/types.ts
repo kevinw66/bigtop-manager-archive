@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import { MaintainState } from '@/utils/enums.ts'
+
 export interface ServiceVO {
   id: number
   serviceName: string
@@ -24,4 +26,5 @@ export interface ServiceVO {
   clusterName: string
   serviceUser: string
   serviceGroup: string
+  state: MaintainState
 }

@@ -45,5 +45,7 @@ export default {
   update_success: 'Update success',
   update_fail: 'Update fail',
   unknown_error: 'Unknown error',
+  desc_404: 'Sorry, the page you visited does not exist.',
+  back_home: 'Back Home',
   websocket_disconnected: 'WebSocket disconnected, please reload the page'
 }

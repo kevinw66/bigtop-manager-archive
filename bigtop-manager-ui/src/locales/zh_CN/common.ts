@@ -45,5 +45,7 @@ export default {
   update_success: '更新成功',
   update_fail: '更新失败',
   unknown_error: '未知错误',
+  desc_404: '抱歉，您查看的页面不存在',
+  back_home: '返回首页',
   websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面'
 }

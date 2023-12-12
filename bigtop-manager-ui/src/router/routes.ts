@@ -26,7 +26,6 @@ import {
   ProfileOutlined,
   BarsOutlined
 } from '@ant-design/icons-vue'
-import CircleFilled from '@/components/icons/circle-filled.vue'
 
 const initialRoutes: RouteRecordRaw[] = [
   {
@@ -50,36 +49,13 @@ const layoutRoutes: RouteRecordRaw[] = [
     }
   },
   {
-    path: '/services/',
-    component: () => import('@/pages/hosts/index.vue'),
+    name: 'services',
+    path: '/services/:serviceName',
+    component: () => import('@/pages/service/index.vue'),
     meta: {
       title: 'Services',
       icon: h(AppstoreOutlined)
-    },
-    children: [
-      {
-        path: 'zookeeper',
-        component: () => import('@/pages/hosts/index.vue'),
-        children: [],
-        meta: {
-          title: 'ZooKeeper',
-          icon: h(CircleFilled, {
-            style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
-          })
-        }
-      },
-      {
-        path: 'kafka',
-        component: () => import('@/pages/hosts/index.vue'),
-        children: [],
-        meta: {
-          title: 'Kafka',
-          icon: h(CircleFilled, {
-            style: 'font-size: 8px; color: #52c41a; margin-right: 0.5rem;'
-          })
-        }
-      }
-    ]
+    }
   },
   {
     path: '/cluster/',
@@ -143,6 +119,10 @@ const routes: RouteRecordRaw[] = [
     redirect: '/dashboard',
     component: () => import('@/layouts/index.vue'),
     children: [...layoutRoutes, ...notDisplayedRoutes]
+  },
+  {
+    path: '/:pathMatch(.*)',
+    component: () => import('@/pages/error/404.vue')
   }
 ]
 
