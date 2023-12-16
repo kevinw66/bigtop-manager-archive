@@ -9,6 +9,7 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ScriptModel {
 
+    @XmlElement(name = "script-type")
     private String scriptType;
 
     @XmlElement(name = "script")

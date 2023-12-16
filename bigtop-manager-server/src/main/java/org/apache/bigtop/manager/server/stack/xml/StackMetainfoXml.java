@@ -12,6 +12,7 @@ import org.apache.bigtop.manager.server.stack.pojo.StackModel;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StackMetainfoXml {
 
+    @XmlElement(name="schema-version")
     private String schemaVersion;
 
     @XmlElement(name="stack")
