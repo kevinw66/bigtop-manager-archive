@@ -14,6 +14,7 @@ import java.util.Map;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigurationXml {
 
+    @XmlElement(name="schema-version")
     private String schemaVersion;
 
     @XmlAnyAttribute

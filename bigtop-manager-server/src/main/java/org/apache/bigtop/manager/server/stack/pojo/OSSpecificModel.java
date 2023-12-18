@@ -10,11 +10,11 @@ import java.util.List;
 public class OSSpecificModel {
 
     @XmlElementWrapper(name="operating-systems")
-    @XmlElements(@XmlElement(name="operating-system"))
+    @XmlElements(@XmlElement(name="os"))
     private List<String> os;
 
     @XmlElementWrapper(name="architectures")
-    @XmlElements(@XmlElement(name="architecture"))
+    @XmlElements(@XmlElement(name="arch"))
     private List<String> arch;
 
     @XmlElementWrapper(name="packages")

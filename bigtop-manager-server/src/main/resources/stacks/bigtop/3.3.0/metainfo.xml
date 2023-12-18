@@ -16,14 +16,14 @@
    limitations under the License.
 -->
 <metainfo>
-    <schemaVersion>2.0</schemaVersion>
+    <schema-version>2.0</schema-version>
     <stack>
-        <stackName>bigtop</stackName>
-        <stackVersion>3.3.0</stackVersion>
-        <userGroup>hadoop</userGroup>
+        <stack-name>bigtop</stack-name>
+        <stack-version>3.3.0</stack-version>
+        <user-group>hadoop</user-group>
         <root>/opt</root>
         <packages>curl,wget</packages>
-        <repoTemplate><![CDATA[
+        <repo-template><![CDATA[
 [${repoId}]
 name=${repoName}
 <#if baseUrl?? >
@@ -35,28 +35,28 @@ path=/
 enabled=1
 gpgcheck=0
 ]]>
-        </repoTemplate>
+        </repo-template>
         <repos>
             <repo>
-                <repoId>Bigtop-3.3.0</repoId>
-                <repoName>Bigtop-3.3.0 for CentOS-7 x86_64</repoName>
+                <repo-id>Bigtop-3.3.0</repo-id>
+                <repo-name>Bigtop-3.3.0 for CentOS-7 x86_64</repo-name>
                 <os>centos7</os>
                 <arch>x86_64</arch>
-                <baseUrl>http://123.56.2.244/bigtop/3.3.0/centos7/x86_64/</baseUrl>
+                <base-url>http://123.56.2.244/bigtop/3.3.0/centos7/x86_64/</base-url>
             </repo>
             <repo>
-                <repoId>Bigtop-3.3.0</repoId>
-                <repoName>Bigtop-3.3.0 for CentOS-7 aarch64</repoName>
+                <repo-id>Bigtop-3.3.0</repo-id>
+                <repo-name>Bigtop-3.3.0 for CentOS-7 aarch64</repo-name>
                 <os>centos7</os>
                 <arch>aarch64</arch>
-                <baseUrl>https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch</baseUrl>
+                <base-url>https://bigtop-snapshot.s3.amazonaws.com/centos-7/$basearch</base-url>
             </repo>
             <repo>
-                <repoId>Bigtop-3.3.0</repoId>
-                <repoName>Bigtop-3.3.0 for RockyLinux-8 x86_64</repoName>
+                <repo-id>Bigtop-3.3.0</repo-id>
+                <repo-name>Bigtop-3.3.0 for RockyLinux-8 x86_64</repo-name>
                 <os>rocky8</os>
                 <arch>x86_64</arch>
-                <baseUrl>http://123.56.2.244/bigtop/3.3.0/rocky8/x86_64/</baseUrl>
+                <base-url>http://123.56.2.244/bigtop/3.3.0/rocky8/x86_64/</base-url>
             </repo>
         </repos>
     </stack>
