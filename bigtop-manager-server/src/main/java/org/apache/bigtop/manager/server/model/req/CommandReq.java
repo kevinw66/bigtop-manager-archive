@@ -54,5 +54,5 @@ public class CommandReq {
     private Map<String, Set<String>> componentHosts;
 
     @Schema(description = "is optional when CommandLevel is SERVICE and Command is INSTALL")
-    private List<@Valid ConfigurationReq> serviceConfigs;
+    private List<@Valid ServiceConfigReq> serviceConfigs;
 }

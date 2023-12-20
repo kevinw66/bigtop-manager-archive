@@ -102,7 +102,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                     serviceConfig = configurationManager.rollbackConfig(cluster, service, typeName, version);
                 } else {
                     //upsert
-                    serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configDataDTO.getProperties(), configDataDTO.getAttributes());
+                    serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, configDataDTO.getProperties());
                 }
 
                 serviceConfigMapping.setServiceConfig(serviceConfig);

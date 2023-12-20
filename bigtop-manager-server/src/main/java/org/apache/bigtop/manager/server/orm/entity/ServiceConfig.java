@@ -23,14 +23,9 @@ public class ServiceConfig extends BaseEntity {
     private String typeName;
 
     @Lob
-    @Basic(fetch= FetchType.LAZY)
-    @Column(name = "attributes", length = 16777216)
-    private String attributes;
-
-    @Lob
-    @Basic(fetch= FetchType.LAZY)
-    @Column(name = "config_data", length = 16777216)
-    private String configData;
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "properties_json", length = 16777216)
+    private String propertiesJson;
 
     @ManyToOne
     @JoinColumn(name = "service_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

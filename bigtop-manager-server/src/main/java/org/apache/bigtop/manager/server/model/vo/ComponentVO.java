@@ -17,4 +17,6 @@ public class ComponentVO {
 
     private String clusterName;
 
+    private String cardinality;
+
 }

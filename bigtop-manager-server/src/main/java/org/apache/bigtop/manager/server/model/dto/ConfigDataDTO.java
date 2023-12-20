@@ -11,8 +11,6 @@ public class ConfigDataDTO implements Serializable {
 
     private String typeName;
 
-    private Map<String, String> attributes;
-
     private Integer version;
 
     private List<PropertyDTO> properties;

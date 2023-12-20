@@ -25,6 +25,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -163,35 +164,35 @@ public class CommandServiceImpl implements CommandService {
         }
 
         // 4. Initial or update config
-        List<ConfigurationDTO> serviceConfigs = commandDTO.getServiceConfigs();
-        Map<String, ConfigurationDTO> configurationDTOMap = new HashMap<>();
-        if (serviceConfigs != null) {
-            configurationDTOMap = serviceConfigs.stream().collect(Collectors.toMap(ConfigurationDTO::getServiceName, x -> x));
-        }
+        List<ServiceConfigDTO> serviceConfigs = Optional.ofNullable(commandDTO.getServiceConfigs()).orElse(new ArrayList<>());
+        Map<String, ServiceConfigDTO> configDTOMap = serviceConfigs.stream()
+                .collect(Collectors.toMap(ServiceConfigDTO::getServiceName, Function.identity()));
+
         for (Map.Entry<String, Service> entry : serviceMap.entrySet()) {
             String serviceName = entry.getKey();
             Service service = entry.getValue();
-            initialConfig(cluster, service, configurationDTOMap.get(serviceName));
+            initialConfig(cluster, service, configDTOMap.get(serviceName));
         }
 
-        for (ConfigurationDTO configurationDTO : commandDTO.getServiceConfigs()) {
-            String serviceName = configurationDTO.getServiceName();
+        for (ServiceConfigDTO serviceConfigDTO : commandDTO.getServiceConfigs()) {
+            String serviceName = serviceConfigDTO.getServiceName();
             if (!serviceMap.containsKey(serviceName)) {
-                serviceRepository.findByClusterIdAndServiceName(cluster.getId(), serviceName)
-                        .ifPresent(service -> initialConfig(cluster, service, configurationDTO));
+                serviceRepository
+                        .findByClusterIdAndServiceName(cluster.getId(), serviceName)
+                        .ifPresent(service -> initialConfig(cluster, service, serviceConfigDTO));
             }
         }
     }
 
-    private void initialConfig(Cluster cluster, Service service, ConfigurationDTO configurationDTO) {
+    private void initialConfig(Cluster cluster, Service service, ServiceConfigDTO serviceConfigDTO) {
         Map<String, ConfigDataDTO> configDataDTOMap = new HashMap<>();
         String configDesc = "Initial configuration for " + service.getServiceName();
-        if (configurationDTO != null) {
-            List<ConfigDataDTO> configurations = configurationDTO.getConfigurations();
+        if (serviceConfigDTO != null) {
+            List<ConfigDataDTO> configurations = serviceConfigDTO.getConfigs();
             if (CollectionUtils.isEmpty(configurations)) {
                 configDataDTOMap = configurations.stream().collect(Collectors.toMap(ConfigDataDTO::getTypeName, configDataDTO -> configDataDTO));
             }
-            configDesc = configurationDTO.getConfigDesc();
+            configDesc = serviceConfigDTO.getConfigDesc();
         }
 
         //ServiceConfigRecord
@@ -201,13 +202,11 @@ public class CommandServiceImpl implements CommandService {
         for (ConfigDataDTO configDataDTO : initServiceConfigMap.get(service.getServiceName())) {
             String typeName = configDataDTO.getTypeName();
             List<PropertyDTO> properties = configDataDTO.getProperties();
-            Map<String, String> attributes = configDataDTO.getAttributes();
             if (configDataDTOMap.containsKey(typeName)) {
                 properties = configDataDTOMap.get(typeName).getProperties();
-                attributes = configDataDTOMap.get(typeName).getAttributes();
             }
 
-            ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, properties, attributes);
+            ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, properties);
             //ServiceConfigMapping
             ServiceConfigMapping serviceConfigMapping = new ServiceConfigMapping();
             serviceConfigMapping.setServiceConfig(serviceConfig);

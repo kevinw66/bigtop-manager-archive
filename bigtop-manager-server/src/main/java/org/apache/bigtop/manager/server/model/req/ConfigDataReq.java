@@ -19,9 +19,6 @@ public class ConfigDataReq {
     @Schema(example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "如果进行回滚操作，需要指定版本号")
     private Integer version;
 
-    @Schema(example = "{\"supports_adding_forbidden\": \"true\"}")
-    private Map<String, String> attributes;
-
     @NotEmpty
     @Schema(example = "{\"name\":\"clientPort\",\"value\": \"2181\"}")
     private List<@Valid PropertyReq> properties;

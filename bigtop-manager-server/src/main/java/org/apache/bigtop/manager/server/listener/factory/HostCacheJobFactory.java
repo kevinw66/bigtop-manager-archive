@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -176,8 +175,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         serviceConfigMap = new HashMap<>();
         serviceConfigMappingList.forEach(scm -> {
             ServiceConfig sc = scm.getServiceConfig();
-            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getConfigData(), new TypeReference<>() {
-            });
+            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getPropertiesJson());
             String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
 
             if (serviceConfigMap.containsKey(sc.getService().getServiceName())) {
