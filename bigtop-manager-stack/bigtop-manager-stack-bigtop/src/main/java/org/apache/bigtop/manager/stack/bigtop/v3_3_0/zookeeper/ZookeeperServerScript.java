@@ -12,7 +12,6 @@ import org.apache.bigtop.manager.stack.spi.Script;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.List;
 
 @Slf4j
 @AutoService(Script.class)
@@ -20,10 +19,7 @@ public class ZookeeperServerScript implements Script {
 
     @Override
     public ShellResult install(BaseParams baseParams) {
-        ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
-        List<String> packageList = zookeeperParams.getPackageList();
-
-        return PackageUtils.install(packageList);
+        return PackageUtils.install(baseParams.getPackageList());
     }
 
     @Override
@@ -58,12 +54,7 @@ public class ZookeeperServerScript implements Script {
     @Override
     public ShellResult status(BaseParams baseParams) {
         ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
-        String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh status", zookeeperParams.serviceHome());
-        try {
-            return LinuxOSUtils.sudoExecCmd(cmd, zookeeperParams.user());
-        } catch (IOException e) {
-            throw new StackException(e);
-        }
+        return LinuxOSUtils.checkProcess(zookeeperParams.getZookeeperPidFile());
     }
 
 }

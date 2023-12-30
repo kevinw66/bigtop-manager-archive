@@ -35,4 +35,13 @@ public final class Constants {
      * timeout for command message to wait for response
      */
     public static final long COMMAND_MESSAGE_RESPONSE_TIMEOUT = 15 * 60 * 1000L;
+
+    /**
+     * permission 755
+     */
+    public static final String PERMISSION_755 = "rwxr-xr-x";
+    /**
+     * permission 644
+     */
+    public static final String PERMISSION_644 = "rw-r--r--";
 }

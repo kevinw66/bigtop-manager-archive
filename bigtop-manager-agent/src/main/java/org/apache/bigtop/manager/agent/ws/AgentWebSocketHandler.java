@@ -90,7 +90,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        agentWsTools.session = session;
+        agentWsTools.setSession(session);
 
         executor.scheduleAtFixedRate(() -> {
             try {
@@ -107,7 +107,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         log.info("WebSocket connection closed unexpectedly, reconnecting...");
-        agentWsTools.session = null;
+        agentWsTools.setSession(null);
         connectToServer();
     }
 

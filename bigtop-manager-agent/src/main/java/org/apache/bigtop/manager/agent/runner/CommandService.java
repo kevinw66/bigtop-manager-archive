@@ -117,7 +117,7 @@ public class CommandService {
         try {
             CommandPayload commandPayload = JsonUtils.readFromString(requestMessage.getMessagePayload(), CommandPayload.class);
             log.info("[agent executeTask] taskEvent is: {}", requestMessage);
-            ShellResult shellResult = (ShellResult) stackExecutor.execute(commandPayload);
+            ShellResult shellResult = stackExecutor.execute(commandPayload);
 
             resultMessage.setCode(shellResult.getExitCode());
             resultMessage.setResult(shellResult.getResult());
