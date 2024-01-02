@@ -16,4 +16,8 @@ public class ComponentHeartbeatMessage extends BaseMessage {
     private String result;
 
     private String hostname;
+
+    private String componentName;
+
+    private String serviceName;
 }

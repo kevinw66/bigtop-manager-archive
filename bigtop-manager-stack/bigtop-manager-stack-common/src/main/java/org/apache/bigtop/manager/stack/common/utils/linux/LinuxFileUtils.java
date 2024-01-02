@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.stack.common.utils.linux;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
@@ -110,7 +111,7 @@ public class LinuxFileUtils {
             log.error("dir must not be null");
             return;
         }
-        permissions = StringUtils.isBlank(permissions) ? "rw-r--r--" : permissions;
+        permissions = StringUtils.isBlank(permissions) ? Constants.PERMISSION_644 : permissions;
 
         Path path = Paths.get(dir);
         Set<PosixFilePermission> perms = PosixFilePermissions.fromString(permissions);
