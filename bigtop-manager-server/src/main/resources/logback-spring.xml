@@ -22,7 +22,7 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} %logger{96}:[%line] - %msg%n</pattern>
+            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] %logger{96}:[%line] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -37,7 +37,7 @@
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
-            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%X{traceId}] %logger{96}:[%line] - %msg%n</pattern>
+            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] %logger{96}:[%line] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -59,7 +59,7 @@
             <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
-            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] [%X{traceId}] %logger{96}:[%line] - %msg%n</pattern>
+            <pattern>[%-5level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] %logger{96}:[%line] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
