@@ -20,6 +20,7 @@ import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.utils.LogUtils;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -53,6 +54,7 @@ public class ClusterCreateJobFactory implements JobFactory {
         cluster.setStack(stack);
         // Create job
         Job job = new Job();
+        job.setTraceId(LogUtils.getTraceId());
         job.setContext("Create Cluster");
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
@@ -93,6 +95,7 @@ public class ClusterCreateJobFactory implements JobFactory {
         }
 
         Stage hostCacheStage = new Stage();
+        hostCacheStage.setTraceId(job.getTraceId());
         hostCacheStage.setJob(job);
         hostCacheStage.setName("Cache Host");
         hostCacheStage.setState(JobState.PENDING);
@@ -113,6 +116,7 @@ public class ClusterCreateJobFactory implements JobFactory {
             task.setCommand(Command.CUSTOM_COMMAND);
             task.setCustomCommand("cache_host");
             task.setState(JobState.PENDING);
+            task.setTraceId(job.getTraceId());
 
             RequestMessage requestMessage = hostCacheJobFactory.getMessage(
                     hostname,

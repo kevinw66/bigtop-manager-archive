@@ -20,6 +20,9 @@ public class Job extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "trace_id")
+    private String traceId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private JobState state;

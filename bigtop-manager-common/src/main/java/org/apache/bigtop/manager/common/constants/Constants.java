@@ -44,4 +44,9 @@ public final class Constants {
      * permission 644
      */
     public static final String PERMISSION_644 = "rw-r--r--";
+
+    /**
+     * MDC trace id key
+     */
+    public static final String TRACE_ID_KEY = "traceId";
 }

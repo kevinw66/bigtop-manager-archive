@@ -16,6 +16,9 @@ public class CommandLog extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "trace_id")
+    private String traceId;
+
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "result", length = 16777216)

@@ -29,6 +29,7 @@ import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
+import org.apache.bigtop.manager.server.utils.LogUtils;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -77,6 +78,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         Job job = new Job();
+        job.setTraceId(LogUtils.getTraceId());
         job.setState(JobState.PENDING);
         job.setContext(commandDTO.getContext());
         job.setCluster(cluster);
@@ -130,6 +132,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                 throw new ServerException("Component not found");
             }
             Stage stage = new Stage();
+            stage.setTraceId(job.getTraceId());
             stage.setJob(job);
             stage.setCluster(job.getCluster());
             stage.setState(JobState.PENDING);
@@ -355,6 +358,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         task.setJob(job);
         task.setStage(stage);
         task.setState(JobState.PENDING);
+        task.setTraceId(job.getTraceId());
 
         RequestMessage requestMessage = getMessage(component, hostname, command, customCommand);
         task.setContent(JsonUtils.writeAsString(requestMessage));

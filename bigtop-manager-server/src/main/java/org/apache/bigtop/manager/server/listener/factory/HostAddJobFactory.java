@@ -17,6 +17,7 @@ import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.utils.LogUtils;
 
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class HostAddJobFactory implements JobFactory {
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         // Create job
+        job.setTraceId(LogUtils.getTraceId());
         job.setContext("Add Hosts");
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
@@ -65,6 +67,7 @@ public class HostAddJobFactory implements JobFactory {
         hostCheckStage.setState(JobState.PENDING);
         hostCheckStage.setStageOrder(stageOrder);
         hostCheckStage.setCluster(cluster);
+        hostCheckStage.setTraceId(job.getTraceId());
         hostCheckStage = stageRepository.save(hostCheckStage);
 
         for (String hostname : hostnames) {
@@ -87,6 +90,7 @@ public class HostAddJobFactory implements JobFactory {
             task.setContent(JsonUtils.writeAsString(requestMessage));
 
             task.setMessageId(requestMessage.getMessageId());
+            task.setTraceId(job.getTraceId());
             taskRepository.save(task);
         }
     }
