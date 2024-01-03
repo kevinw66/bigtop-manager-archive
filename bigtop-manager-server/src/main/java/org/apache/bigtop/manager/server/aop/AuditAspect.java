@@ -6,23 +6,18 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.holder.SessionUserHolder;
 import org.apache.bigtop.manager.server.orm.entity.AuditLog;
 import org.apache.bigtop.manager.server.orm.repository.AuditLogRepository;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.UUID;
-
-import static org.apache.bigtop.manager.common.constants.Constants.TRACE_ID_KEY;
 
 @Slf4j
 @Aspect
@@ -37,11 +32,12 @@ public class AuditAspect {
 
     @Before(value = POINT_CUT)
     public void before(JoinPoint joinPoint) {
-        String traceId = UUID.randomUUID().toString();
-        MDC.put(TRACE_ID_KEY, traceId);
-
+        MethodSignature ms = (MethodSignature) joinPoint.getSignature();
+        Audit audit = ms.getMethod().getDeclaredAnnotation(Audit.class);
+        if (audit == null) {
+            return;
+        }
         AuditLog auditLog = new AuditLog();
-        auditLog.setTraceId(traceId);
         auditLog.setUserId(SessionUserHolder.getUserId());
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -51,7 +47,6 @@ public class AuditAspect {
             String uri = request.getRequestURI();
             // obtain controller name
             Class<?> controller = joinPoint.getThis().getClass();
-            log.info("controller: {}", controller);
             Tag annotation = controller.getAnnotation(Tag.class);
             String apiName = "";
             String apiDesc = "";
@@ -60,15 +55,14 @@ public class AuditAspect {
                 apiDesc = annotation.description();
             }
             // obtain method name
-            MethodSignature ms = (MethodSignature) joinPoint.getSignature();
             String methodName = ms.getName();
             // obtain method desc
             String operationSummary = "";
             String operationDesc = "";
-            Operation methodApiOperation = ms.getMethod().getDeclaredAnnotation(Operation.class);
-            if (methodApiOperation != null) {
-                operationSummary = methodApiOperation.summary();
-                operationDesc = methodApiOperation.description();
+            Operation operation = ms.getMethod().getDeclaredAnnotation(Operation.class);
+            if (operation != null) {
+                operationSummary = operation.summary();
+                operationDesc = operation.description();
             }
 
             auditLog.setUri(uri);
@@ -85,8 +79,4 @@ public class AuditAspect {
         }
     }
 
-    @After(value = POINT_CUT)
-    public void after(JoinPoint joinPoint) {
-        MDC.clear();
-    }
 }

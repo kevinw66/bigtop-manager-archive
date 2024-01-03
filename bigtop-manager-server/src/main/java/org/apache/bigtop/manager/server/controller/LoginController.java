@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SessionUserHolder;
@@ -26,6 +27,7 @@ public class LoginController {
     @Resource
     private LoginService loginService;
 
+    @Audit
     @Operation(summary = "login", description = "User Login")
     @PostMapping(value = "/login")
     public ResponseEntity<LoginVO> login(@RequestBody LoginReq loginReq) {

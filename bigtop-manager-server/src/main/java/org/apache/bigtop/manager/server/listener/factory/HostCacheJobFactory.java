@@ -18,7 +18,6 @@ import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
-import org.apache.bigtop.manager.server.utils.LogUtils;
 import org.apache.bigtop.manager.server.utils.StackConfigUtils;
 
 import java.util.*;
@@ -69,7 +68,6 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         // Create job
-        job.setTraceId(LogUtils.getTraceId());
         job.setContext("Cache Hosts");
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
@@ -93,7 +91,6 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setStageOrder(stageOrder);
         hostCacheStage.setCluster(cluster);
-        hostCacheStage.setTraceId(job.getTraceId());
 
         hostCacheStage.setCallbackClassName(this.getClass().getName());
         hostCacheStage = stageRepository.save(hostCacheStage);
@@ -127,7 +124,6 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
             task.setContent(JsonUtils.writeAsString(requestMessage));
 
             task.setMessageId(requestMessage.getMessageId());
-            task.setTraceId(job.getTraceId());
             taskRepository.save(task);
         }
     }

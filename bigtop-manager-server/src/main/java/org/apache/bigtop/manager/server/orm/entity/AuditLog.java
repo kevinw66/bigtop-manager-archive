@@ -16,9 +16,6 @@ public class AuditLog extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "trace_id")
-    private String traceId;
-
     @Column(name = "uri")
     private String uri;
 

@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.CommandMapper;
 import org.apache.bigtop.manager.server.model.req.CommandReq;
@@ -21,6 +22,7 @@ public class CommandController {
     @Resource
     private CommandService commandService;
 
+    @Audit
     @Operation(summary = "command", description = "Command for component by [host,component,service,cluster]")
     @PostMapping
     public ResponseEntity<CommandVO> command(@RequestBody @Validated CommandReq commandReq) {

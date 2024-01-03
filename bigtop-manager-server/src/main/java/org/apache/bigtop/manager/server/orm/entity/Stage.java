@@ -20,9 +20,6 @@ public class Stage extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "trace_id")
-    private String traceId;
-
     @Column(name = "name")
     private String name;
 

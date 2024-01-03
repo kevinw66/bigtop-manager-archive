@@ -18,9 +18,6 @@ public class Task extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "trace_id")
-    private String traceId;
-
     @Column(name = "message_id")
     private String messageId;
 

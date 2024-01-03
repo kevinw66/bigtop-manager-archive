@@ -169,7 +169,6 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
         commandLog.setJob(task.getJob());
         commandLog.setHostname(task.getHostname());
         commandLog.setResult(result);
-        commandLog.setTraceId(task.getTraceId());
         commandLogRepository.save(commandLog);
     }
 
