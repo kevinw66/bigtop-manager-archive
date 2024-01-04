@@ -27,10 +27,10 @@ public abstract class BaseEntity {
 
     @CreatedBy
     @Column(name = "create_by", updatable = false)
-    private Long createdBy;
+    private Long createBy;
 
     @LastModifiedBy
     @Column(name = "update_by")
-    private Long updatedBy;
+    private Long updateBy;
 
 }
