@@ -63,7 +63,7 @@ public class ClusterEventListener {
     @Resource
     private HostAddEventListener hostAddEventListener;
 
-    @Async("asyncServiceExecutor")
+    @Async
     @TransactionalEventListener
     public void handleClusterCreate(ClusterCreateEvent event) {
         log.info("listen ClusterCreateEvent: {}", event);

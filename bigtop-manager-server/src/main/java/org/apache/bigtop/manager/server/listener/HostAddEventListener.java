@@ -50,7 +50,7 @@ public class HostAddEventListener {
     @Resource
     private SyncJobStrategy syncJobStrategy;
 
-    @Async("asyncServiceExecutor")
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleHostAdd(HostAddEvent event) {
         log.info("listen HostAddEvent: {}", event);

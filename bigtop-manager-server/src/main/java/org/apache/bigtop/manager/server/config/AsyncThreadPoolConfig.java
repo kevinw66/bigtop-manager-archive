@@ -3,30 +3,36 @@ package org.apache.bigtop.manager.server.config;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.holder.SessionUserHolder;
-import org.springframework.context.annotation.Bean;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskDecorator;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
-public class ThreadPoolConfig {
+public class AsyncThreadPoolConfig implements AsyncConfigurer {
 
-    @Bean("asyncServiceExecutor")
-    public ThreadPoolTaskExecutor asyncServiceExecutor() {
+    @Override
+    public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(5);
         threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
         threadPoolTaskExecutor.setMaxPoolSize(10);
         threadPoolTaskExecutor.setQueueCapacity(300);
-        // Add Decorator
         threadPoolTaskExecutor.setTaskDecorator(new ContextCopyingDecorator());
-        // Configure thread pool prefix
-        threadPoolTaskExecutor.setThreadNamePrefix("AsyncEvent-");
+        threadPoolTaskExecutor.setThreadNamePrefix("AsyncTask-");
         threadPoolTaskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         threadPoolTaskExecutor.initialize();
         return threadPoolTaskExecutor;
+    }
+
+    @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new SimpleAsyncUncaughtExceptionHandler();
     }
 
     @Slf4j
@@ -34,12 +40,9 @@ public class ThreadPoolConfig {
         @Nonnull
         @Override
         public Runnable decorate(@Nonnull Runnable runnable) {
-            // main thread
             Long userId = SessionUserHolder.getUserId();
-            // sub thread
             return () -> {
                 try {
-                    // put userId into ThreadLocal
                     SessionUserHolder.setUserId(userId);
                     runnable.run();
                 } finally {

@@ -38,7 +38,7 @@ public class CommandEventListener {
     @Resource
     private AsyncJobStrategy asyncJobStrategy;
 
-    @Async("asyncServiceExecutor")
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCommand(CommandEvent event) {
         log.info("listen CommandEvent: {}", event);
