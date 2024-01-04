@@ -63,7 +63,7 @@ public class ClusterEventListener {
     @Resource
     private HostAddEventListener hostAddEventListener;
 
-    @Async
+    @Async("asyncServiceExecutor")
     @TransactionalEventListener
     public void handleClusterCreate(ClusterCreateEvent event) {
         log.info("listen ClusterCreateEvent: {}", event);
@@ -72,7 +72,6 @@ public class ClusterEventListener {
 
         ClusterDTO clusterDTO = (ClusterDTO) event.getSource();
 
-        // TODO temp code, just for test now
         Boolean failed = syncJobStrategy.handle(job, JobStrategyType.CONTINUE_ON_FAIL);
 
         if (!failed) {

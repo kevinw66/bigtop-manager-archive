@@ -50,7 +50,7 @@ public class HostAddEventListener {
     @Resource
     private SyncJobStrategy syncJobStrategy;
 
-    @Async
+    @Async("asyncServiceExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleHostAdd(HostAddEvent event) {
         log.info("listen HostAddEvent: {}", event);
@@ -58,7 +58,6 @@ public class HostAddEventListener {
         Job job = jobRepository.getReferenceById(jobId);
 
         List<String> hostnames = event.getHostnames();
-        // TODO temp code, just for test now
         Boolean failed = syncJobStrategy.handle(job, JobStrategyType.CONTINUE_ON_FAIL);
 
         if (!failed) {

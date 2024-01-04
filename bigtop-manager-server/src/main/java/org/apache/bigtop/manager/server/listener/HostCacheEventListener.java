@@ -21,7 +21,7 @@ public class HostCacheEventListener {
     @Resource
     private AsyncJobStrategy asyncJobStrategy;
 
-    @Async
+    @Async("asyncServiceExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleHostCache(HostCacheEvent event) {
         log.info("listen HostCacheEvent: {}", event);
