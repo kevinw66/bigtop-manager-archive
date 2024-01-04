@@ -26,11 +26,11 @@ public abstract class BaseEntity {
     private Timestamp updateTime;
 
     @CreatedBy
-    @Column(name = "created_by", updatable = false)
+    @Column(name = "create_by", updatable = false)
     private Long createdBy;
 
     @LastModifiedBy
-    @Column(name = "updated_by")
+    @Column(name = "update_by")
     private Long updatedBy;
 
 }
