@@ -14,7 +14,6 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -22,10 +21,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Slf4j
 @Aspect
 @Configuration
-@ConditionalOnProperty(value = "bigtop.manager.server.audit", havingValue = "true")
 public class AuditAspect {
 
-    private static final String POINT_CUT = "@annotation(io.swagger.v3.oas.annotations.Operation)";
+    private static final String POINT_CUT = "@annotation(org.apache.bigtop.manager.server.annotations.Audit)";
 
     @Resource
     private AuditLogRepository auditLogRepository;
@@ -33,10 +31,6 @@ public class AuditAspect {
     @Before(value = POINT_CUT)
     public void before(JoinPoint joinPoint) {
         MethodSignature ms = (MethodSignature) joinPoint.getSignature();
-        Audit audit = ms.getMethod().getDeclaredAnnotation(Audit.class);
-        if (audit == null) {
-            return;
-        }
         AuditLog auditLog = new AuditLog();
         auditLog.setUserId(SessionUserHolder.getUserId());
 
