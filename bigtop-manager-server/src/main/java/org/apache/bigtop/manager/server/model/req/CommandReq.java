@@ -10,8 +10,6 @@ import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.hibernate.validator.group.GroupSequenceProvider;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Data
 @GroupSequenceProvider(CommandGroupSequenceProvider.class)
@@ -36,24 +34,9 @@ public class CommandReq {
     @Schema(example = "[\"zookeeper_server\"]", description = "is required when CommandLevel is COMPONENT or HOST")
     private List<String> componentNames;
 
-//    @NotEmpty(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class})
-    @Schema(example = "zookeeper", description = "is required when CommandLevel is COMPONENT")
-    private String serviceName;
-
 //    @NotEmpty(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
     @Schema(example = "node1", description = "is required when CommandLevel is HOST")
     private String hostname;
-
-//    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceCommandGroup.class, CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
-    @Schema(example = "[\"zookeeper\"]", description = "is required when CommandLevel is SERVICE or SERVICE and Command is INSTALL")
-    private List<String> serviceNames;
-
-//    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
-    @Schema(example = "{\"zookeeper_server\": [\"node1\"]}", description = "is required when CommandLevel is SERVICE and Command is INSTALL")
-    private Map<String, Set<String>> componentHosts;
-
-    @Schema(description = "is optional when CommandLevel is SERVICE and Command is INSTALL")
-    private List<@Valid ServiceConfigReq> serviceConfigs;
 
     @Schema(description = "Command details for service level command")
     private List<@Valid ServiceCommandReq> serviceCommands;

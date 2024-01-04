@@ -7,8 +7,6 @@ import org.apache.bigtop.manager.server.enums.CommandLevel;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Data
 public class CommandDTO implements Serializable {
@@ -23,15 +21,7 @@ public class CommandDTO implements Serializable {
 
     private List<String> componentNames;
 
-    private String serviceName;
-
     private String hostname;
-
-    private List<String> serviceNames;
-
-    private Map<String, Set<String>> componentHosts;
-
-    private List<ServiceConfigDTO> serviceConfigs;
 
     private List<ServiceCommandDTO> serviceCommands;
 
