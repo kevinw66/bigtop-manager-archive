@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class ThreadPoolConfig {
 
     @Bean("asyncServiceExecutor")
-    public ThreadPoolTaskExecutor asyncRabbitTimeoutServiceExecutor() {
+    public ThreadPoolTaskExecutor asyncServiceExecutor() {
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(5);
         threadPoolTaskExecutor.setAllowCoreThreadTimeOut(true);
