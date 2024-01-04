@@ -19,6 +19,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.model.dto.UserDTO;
 import org.apache.bigtop.manager.server.model.mapper.UserMapper;
 import org.apache.bigtop.manager.server.model.req.UserReq;
@@ -42,6 +43,7 @@ public class UserController {
         return ResponseEntity.success(userService.current());
     }
 
+    @Audit
     @Operation(summary = "update", description = "Update a user")
     @PutMapping
     public ResponseEntity<UserVO> update(@RequestBody @Validated UserReq userReq) {

@@ -9,7 +9,6 @@ import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
-import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.orm.entity.CommandLog;
 import org.apache.bigtop.manager.server.orm.entity.Job;
@@ -19,7 +18,6 @@ import org.apache.bigtop.manager.server.orm.repository.CommandLogRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

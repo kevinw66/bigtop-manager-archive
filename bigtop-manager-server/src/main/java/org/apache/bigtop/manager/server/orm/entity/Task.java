@@ -60,7 +60,7 @@ public class Task extends BaseEntity {
     private String serviceGroup;
 
     @Lob
-    @Basic(fetch= FetchType.LAZY)
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "content", length = 16777216)
     private String content;
 

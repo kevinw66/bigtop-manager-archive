@@ -37,7 +37,7 @@ public class Stage extends BaseEntity {
     private String componentName;
 
     @Lob
-    @Basic(fetch= FetchType.LAZY)
+    @Basic(fetch = FetchType.LAZY)
     @Column(name = "payload", length = 16777216)
     private String payload;
 
