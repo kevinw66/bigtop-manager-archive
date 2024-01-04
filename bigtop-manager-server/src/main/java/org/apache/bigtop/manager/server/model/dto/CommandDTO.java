@@ -33,6 +33,8 @@ public class CommandDTO implements Serializable {
 
     private List<ServiceConfigDTO> serviceConfigs;
 
+    private List<ServiceCommandDTO> serviceCommands;
+
     public String getContext() {
         return MessageFormat.format("command={0}, customCommand={1}, clusterId={2}, commandLevel={3}",
                 command, customCommand, clusterId, commandLevel);

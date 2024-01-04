@@ -4,7 +4,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
-import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
@@ -20,11 +19,12 @@ import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.CommandService;
 import org.apache.bigtop.manager.server.stack.ConfigurationManager;
 import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -59,22 +59,14 @@ public class CommandServiceImpl implements CommandService {
     @Override
     @Transactional
     public CommandVO command(CommandDTO commandDTO) {
-        CommandLevel commandType = commandDTO.getCommandLevel();
-        Command command = commandDTO.getCommand();
-        if (command == Command.REINSTALL) {
-            commandDTO.setCommand(Command.INSTALL);
-        }
-
-        if (commandType == CommandLevel.SERVICE && command == Command.INSTALL) {
-            // service install
-            installService(commandDTO);
-        } else if (commandType == CommandLevel.HOST && command == Command.INSTALL) {
-            // host install
-            installHostComponent(commandDTO);
-        }
+        switch (commandDTO.getCommandLevel()) {
+            case SERVICE -> runServiceCommand(commandDTO);
+            case HOST -> runHostCommand(commandDTO);
+            default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_FOUND,
+                    commandDTO.getCommandLevel().toLowerCase());
+        };
 
         Job job = commandJobFactory.createJob(commandDTO);
-
         CommandEvent commandEvent = new CommandEvent(commandDTO);
         commandEvent.setJobId(job.getId());
         SpringContextHolder.getApplicationContext().publishEvent(commandEvent);
@@ -82,11 +74,36 @@ public class CommandServiceImpl implements CommandService {
         return JobMapper.INSTANCE.fromEntity2CommandVO(job);
     }
 
+    private void runServiceCommand(CommandDTO commandDTO) {
+        switch (commandDTO.getCommand()) {
+            case INSTALL -> installService(commandDTO);
+            case REINSTALL -> {
+                commandDTO.setCommand(Command.INSTALL);
+                installService(commandDTO);
+            }
+            default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED,
+                    commandDTO.getCommand().toLowerCase(), commandDTO.getCommandLevel().toLowerCase());
+        }
+    }
+
+    private void runHostCommand(CommandDTO commandDTO) {
+        switch (commandDTO.getCommand()) {
+            case INSTALL -> installHostComponent(commandDTO);
+            case REINSTALL -> {
+                commandDTO.setCommand(Command.INSTALL);
+                installHostComponent(commandDTO);
+            }
+            default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED,
+                    commandDTO.getCommand().toLowerCase(), commandDTO.getCommandLevel().toLowerCase());
+        }
+    }
+
     private void installHostComponent(CommandDTO commandDTO) {
         List<String> componentNameList = commandDTO.getComponentNames();
         String hostname = commandDTO.getHostname();
         Long clusterId = commandDTO.getClusterId();
-        //Persist hostComponent to database
+
+        // Persist hostComponent to database
         List<Component> componentList = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, componentNameList);
         Host host = hostRepository.findByHostname(hostname);
         for (Component component : componentList) {
@@ -103,111 +120,75 @@ public class CommandServiceImpl implements CommandService {
 
     private void installService(CommandDTO commandDTO) {
         log.info("Enter install method");
-        List<String> serviceNameList = commandDTO.getServiceNames();
+
+        List<ServiceCommandDTO> serviceCommands = commandDTO.getServiceCommands();
         Long clusterId = commandDTO.getClusterId();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         String stackName = cluster.getStack().getStackName();
         String stackVersion = cluster.getStack().getStackVersion();
-        Map<String, Set<String>> componentHostMapping = commandDTO.getComponentHosts();
-        Map<String, Service> serviceMap = new HashMap<>();
 
         Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
-
         ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-        List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
+        Map<String, ServiceDTO> serviceNameToDTO = immutablePair.getRight()
+                .stream()
+                .collect(Collectors.toMap(ServiceDTO::getServiceName, Function.identity()));
 
         // Persist service, component and hostComponent metadata to database
-        for (ServiceDTO serviceDTO : serviceDTOSet) {
-            String serviceName = serviceDTO.getServiceName();
-            if (serviceNameList.contains(serviceName)) {
-                // 1. Persist service
-                Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
-                Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName);
-                if (serviceOptional.isPresent()) {
-                    service.setId(serviceOptional.get().getId());
-                }
-                service.setState(MaintainState.UNINSTALLED);
-                service = serviceRepository.save(service);
-                serviceMap.put(serviceName, service);
-
-                List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
-                for (ComponentDTO componentDTO : componentDTOList) {
-                    String componentName = componentDTO.getComponentName();
-
-                    // 2. Persist component
-                    Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
-                    Optional<Component> componentOptional = componentRepository.findByClusterIdAndComponentName(clusterId, componentName);
-                    if (componentOptional.isPresent()) {
-                        component.setId(componentOptional.get().getId());
-                    }
-                    component = componentRepository.save(component);
-
-                    // 3. Persist hostComponent
-                    Set<String> hostSet = componentHostMapping.get(componentName);
-                    if (hostSet == null) {
-                        throw new ApiException(ApiExceptionEnum.HOST_NOT_FOUND);
-                    }
-                    List<Host> hostList = hostRepository.findAllByHostnameIn(hostSet);
-                    for (Host host : hostList) {
-                        HostComponent hostComponent = new HostComponent();
-                        hostComponent.setHost(host);
-                        hostComponent.setComponent(component);
-                        hostComponent.setState(MaintainState.UNINSTALLED);
-
-                        Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(componentName, host.getHostname());
-                        hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
-                        hostComponentRepository.save(hostComponent);
-                    }
-                }
+        for (ServiceCommandDTO serviceCommand : serviceCommands) {
+            String serviceName = serviceCommand.getServiceName();
+            Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName);
+            if (serviceOptional.isPresent()) {
+                // Service already installed, update config if changed
+                upsertConfig(cluster, serviceOptional.get(), serviceCommand);
+                continue;
             }
-        }
 
-        // 4. Initial or update config
-        List<ServiceConfigDTO> serviceConfigs = Optional.ofNullable(commandDTO.getServiceConfigs()).orElse(new ArrayList<>());
-        Map<String, ServiceConfigDTO> configDTOMap = serviceConfigs.stream()
-                .collect(Collectors.toMap(ServiceConfigDTO::getServiceName, Function.identity()));
+            // 1. Persist service
+            ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
+            Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
+            service.setState(MaintainState.UNINSTALLED);
+            service = serviceRepository.save(service);
 
-        for (Map.Entry<String, Service> entry : serviceMap.entrySet()) {
-            String serviceName = entry.getKey();
-            Service service = entry.getValue();
-            initialConfig(cluster, service, configDTOMap.get(serviceName));
-        }
+            // Init config for new installed service
+            upsertConfig(cluster, service, serviceCommand);
 
-        for (ServiceConfigDTO serviceConfigDTO : commandDTO.getServiceConfigs()) {
-            String serviceName = serviceConfigDTO.getServiceName();
-            if (!serviceMap.containsKey(serviceName)) {
-                serviceRepository
-                        .findByClusterIdAndServiceName(cluster.getId(), serviceName)
-                        .ifPresent(service -> initialConfig(cluster, service, serviceConfigDTO));
+            Map<String, ComponentDTO> componentNameToDTO = serviceDTO.getComponents()
+                    .stream()
+                    .collect(Collectors.toMap(ComponentDTO::getComponentName, Function.identity()));
+            for (ComponentHostDTO componentHostDTO : serviceCommand.getComponentHosts()) {
+                String componentName = componentHostDTO.getComponentName();
+                ComponentDTO componentDTO = componentNameToDTO.get(componentName);
+
+                // 2. Persist component
+                Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
+                component = componentRepository.save(component);
+
+                // 3. Persist hostComponent
+                List<Host> hostList = hostRepository.findAllByClusterIdAndHostnameIn(cluster.getId(), componentHostDTO.getHostnames());
+                for (Host host : hostList) {
+                    HostComponent hostComponent = new HostComponent();
+                    hostComponent.setHost(host);
+                    hostComponent.setComponent(component);
+                    hostComponent.setState(MaintainState.UNINSTALLED);
+                    hostComponentRepository.save(hostComponent);
+                }
             }
         }
     }
 
-    private void initialConfig(Cluster cluster, Service service, ServiceConfigDTO serviceConfigDTO) {
-        Map<String, ConfigDataDTO> configDataDTOMap = new HashMap<>();
-        String configDesc = "Initial configuration for " + service.getServiceName();
-        if (serviceConfigDTO != null) {
-            List<ConfigDataDTO> configurations = serviceConfigDTO.getConfigs();
-            if (CollectionUtils.isEmpty(configurations)) {
-                configDataDTOMap = configurations.stream().collect(Collectors.toMap(ConfigDataDTO::getTypeName, configDataDTO -> configDataDTO));
-            }
-            configDesc = serviceConfigDTO.getConfigDesc();
-        }
-
-        //ServiceConfigRecord
+    private void upsertConfig(Cluster cluster, Service service, ServiceCommandDTO serviceCommandDTO) {
+        // Save config record
+        String configDesc = "Initial config for " + serviceCommandDTO.getServiceName();
         ServiceConfigRecord serviceConfigRecord = configurationManager.saveConfigRecord(cluster, service, configDesc).left;
 
-        Map<String, Set<ConfigDataDTO>> initServiceConfigMap = StackUtils.getStackConfigMap().get(StackUtils.fullStackName(cluster.getStack().getStackName(), cluster.getStack().getStackVersion()));
-        for (ConfigDataDTO configDataDTO : initServiceConfigMap.get(service.getServiceName())) {
+        for (ConfigDataDTO configDataDTO : serviceCommandDTO.getConfigs()) {
             String typeName = configDataDTO.getTypeName();
             List<PropertyDTO> properties = configDataDTO.getProperties();
-            if (configDataDTOMap.containsKey(typeName)) {
-                properties = configDataDTOMap.get(typeName).getProperties();
-            }
 
             ServiceConfig serviceConfig = configurationManager.upsertConfig(cluster, service, typeName, properties);
-            //ServiceConfigMapping
+
+            // Save config mapping
             ServiceConfigMapping serviceConfigMapping = new ServiceConfigMapping();
             serviceConfigMapping.setServiceConfig(serviceConfig);
             serviceConfigMapping.setServiceConfigRecord(serviceConfigRecord);

@@ -30,10 +30,10 @@ public class ConfigurationManager {
     private ServiceConfigRepository serviceConfigRepository;
 
     public ImmutablePair<ServiceConfigRecord, List<ServiceConfigMapping>> saveConfigRecord(Cluster cluster, Service service, String configDesc) {
-        ServiceConfigRecord latestServiceConfigRecord = serviceConfigRecordRepository.findFirstByClusterIdAndServiceIdOrderByVersionDesc(cluster.getId(), service.getId())
+        ServiceConfigRecord latestServiceConfigRecord = serviceConfigRecordRepository
+                .findFirstByClusterIdAndServiceIdOrderByVersionDesc(cluster.getId(), service.getId())
                 .orElse(new ServiceConfigRecord());
         List<ServiceConfigMapping> serviceConfigMappingList = new ArrayList<>();
-
 
         ServiceConfigRecord serviceConfigRecord = new ServiceConfigRecord();
         if (latestServiceConfigRecord.getId() != null) {
@@ -70,7 +70,8 @@ public class ConfigurationManager {
     public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, List<PropertyDTO> properties) {
         ServiceConfig serviceConfig = new ServiceConfig();
 
-        ServiceConfig latestServiceConfig = serviceConfigRepository.findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
+        ServiceConfig latestServiceConfig = serviceConfigRepository
+                .findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
                 .orElse(new ServiceConfig());
 
         log.debug("The latest version of the configuration saved in database: {}", latestServiceConfig);

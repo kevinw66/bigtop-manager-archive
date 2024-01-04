@@ -34,6 +34,10 @@ public enum ApiExceptionEnum {
 
     // Configuration Exceptions -- 17000 ~ 17999
     CONFIGURATION_NOT_FOUND(17000, LocaleKeys.CONFIGURATION_NOT_FOUND),
+
+    // Command Exceptions -- 18000 ~ 18999
+    COMMAND_NOT_FOUND(18000, LocaleKeys.COMMAND_NOT_FOUND),
+    COMMAND_NOT_SUPPORTED(18000, LocaleKeys.COMMAND_NOT_SUPPORTED),
     ;
 
     private final Integer code;

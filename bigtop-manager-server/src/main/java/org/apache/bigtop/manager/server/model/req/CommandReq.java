@@ -2,7 +2,6 @@ package org.apache.bigtop.manager.server.model.req;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
@@ -19,7 +18,7 @@ import java.util.Set;
 public class CommandReq {
 
     @NotNull
-    @Schema(example = "START")
+    @Schema(example = "start")
     private Command command;
 
     @Schema(example = "custom_command")
@@ -30,29 +29,32 @@ public class CommandReq {
     private Long clusterId;
 
     @NotNull
-    @Schema(example = "CLUSTER")
+    @Schema(example = "cluster")
     private CommandLevel commandLevel;
 
-    @NotEmpty(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class, CommandGroupSequenceProvider.HostCommandGroup.class})
+//    @NotEmpty(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class, CommandGroupSequenceProvider.HostCommandGroup.class})
     @Schema(example = "[\"zookeeper_server\"]", description = "is required when CommandLevel is COMPONENT or HOST")
     private List<String> componentNames;
 
-    @NotEmpty(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class})
+//    @NotEmpty(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class})
     @Schema(example = "zookeeper", description = "is required when CommandLevel is COMPONENT")
     private String serviceName;
 
-    @NotEmpty(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
+//    @NotEmpty(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
     @Schema(example = "node1", description = "is required when CommandLevel is HOST")
     private String hostname;
 
-    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceCommandGroup.class, CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
+//    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceCommandGroup.class, CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
     @Schema(example = "[\"zookeeper\"]", description = "is required when CommandLevel is SERVICE or SERVICE and Command is INSTALL")
     private List<String> serviceNames;
 
-    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
+//    @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
     @Schema(example = "{\"zookeeper_server\": [\"node1\"]}", description = "is required when CommandLevel is SERVICE and Command is INSTALL")
     private Map<String, Set<String>> componentHosts;
 
     @Schema(description = "is optional when CommandLevel is SERVICE and Command is INSTALL")
     private List<@Valid ServiceConfigReq> serviceConfigs;
+
+    @Schema(description = "Command details for service level command")
+    private List<@Valid ServiceCommandReq> serviceCommands;
 }

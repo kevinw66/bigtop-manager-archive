@@ -47,6 +47,9 @@ public enum LocaleKeys {
     JOB_NOT_FOUND("job.not.found"),
 
     CONFIGURATION_NOT_FOUND("configuration.not.found"),
+
+    COMMAND_NOT_FOUND("command.not.found"),
+    COMMAND_NOT_SUPPORTED("command.not.supported"),
     ;
 
     private final String key;

@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class ConfigDataReq {
@@ -16,7 +15,7 @@ public class ConfigDataReq {
     @Schema(example = "zoo.cfg", requiredMode = Schema.RequiredMode.REQUIRED)
     private String typeName;
 
-    @Schema(example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED, description = "如果进行回滚操作，需要指定版本号")
+    @Schema(example = "1", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Integer version;
 
     @NotEmpty
