@@ -11,6 +11,7 @@ public class ServiceModel {
 
     private String name;
 
+    @XmlElement(name="display-name")
     private String displayName;
 
     private String desc;
@@ -21,8 +22,8 @@ public class ServiceModel {
 
     private String group;
 
-    @XmlElementWrapper(name = "osSpecifics")
-    @XmlElements(@XmlElement(name = "osSpecific"))
+    @XmlElementWrapper(name = "os-specifics")
+    @XmlElements(@XmlElement(name = "os-specific"))
     private List<OSSpecificModel> osSpecifics;
 
     @XmlElementWrapper(name = "components")

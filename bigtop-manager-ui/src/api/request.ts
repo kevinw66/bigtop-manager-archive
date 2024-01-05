@@ -23,13 +23,9 @@ import axios, {
 import { message } from 'ant-design-vue'
 import { ResponseEntity } from '@/api/types'
 import router from '@/router'
-import { useLocaleStore } from '@/store/locale'
-import { storeToRefs } from 'pinia'
 import i18n from '@/locales'
 import { API_EXPIRE_TIME } from '@/utils/constant.ts'
-
-const localeStore = useLocaleStore()
-const { locale } = storeToRefs(localeStore)
+import { Locale } from '@/store/locale/types.ts'
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
@@ -43,7 +39,8 @@ request.interceptors.request.use(
   ): InternalAxiosRequestConfig<any> => {
     config.headers = config.headers || {}
 
-    config.headers['Accept-Language'] = locale.value.replace('_', '-')
+    const locale = i18n.global.locale.value as Locale
+    config.headers['Accept-Language'] = locale.replace('_', '-')
 
     const token =
       localStorage.getItem('Token') ??

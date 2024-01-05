@@ -9,18 +9,13 @@ import org.apache.bigtop.manager.stack.spi.BaseParams;
 import org.apache.bigtop.manager.stack.spi.ClientScript;
 import org.apache.bigtop.manager.stack.spi.Script;
 
-import java.util.List;
-
 @Slf4j
 @AutoService(Script.class)
 public class ZookeeperClientScript implements ClientScript {
 
     @Override
     public ShellResult install(BaseParams baseParams) {
-        ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
-        List<String> packageList = zookeeperParams.getPackageList();
-
-        return PackageUtils.install(packageList);
+        return PackageUtils.install(baseParams.getPackageList());
     }
 
     @Override

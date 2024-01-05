@@ -12,15 +12,17 @@ public class ComponentModel {
 
     private String name;
 
+    @XmlElement(name="display-name")
     private String displayName;
 
     private String category;
 
     private String cardinality;
 
+    @XmlElement(name="command-script")
     private ScriptModel commandScript;
 
-    @XmlElementWrapper(name="customCommands")
-    @XmlElements(@XmlElement(name="customCommand"))
+    @XmlElementWrapper(name="custom-commands")
+    @XmlElements(@XmlElement(name="custom-command"))
     private List<CustomCommandModel> customCommands;
 }

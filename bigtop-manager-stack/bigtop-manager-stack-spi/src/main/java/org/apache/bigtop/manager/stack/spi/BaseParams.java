@@ -9,11 +9,11 @@ import java.util.List;
 
 public abstract class BaseParams {
 
-    public static final String limitsConfDir = "/etc/security/limits.d";
+    public static final String LIMITS_CONF_DIR = "/etc/security/limits.d";
 
     private final CommandPayload commandPayload;
 
-    public BaseParams(CommandPayload commandPayload) {
+    protected BaseParams(CommandPayload commandPayload) {
         this.commandPayload = commandPayload;
     }
 
@@ -23,7 +23,7 @@ public abstract class BaseParams {
     public List<String> getPackageList() {
         List<OSSpecificInfo> osSpecifics = this.commandPayload.getOsSpecifics();
         if (osSpecifics == null) {
-            return null;
+            return List.of();
         }
 
         String os = OSDetection.getOS();
@@ -36,7 +36,7 @@ public abstract class BaseParams {
             }
         }
 
-        return null;
+        return List.of();
     }
 
     /**

@@ -1,20 +1,22 @@
 package org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka;
 
+import lombok.Getter;
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.stack.spi.BaseParams;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 
 import java.util.Map;
 
+@Getter
 public class KafkaParams extends BaseParams {
 
-    public static String KAFKA_LOG_DIR = "/var/log/kafka";
-    public static String KAFKA_PID_DIR = "/var/run/kafka";
-    public static String KAFKA_PID_FILE = "/var/run/kafka/kafka.pid";
-    public static String KAFKA_DATA_DIR = "/kafka-logs";
-    public static String KAFKA_ENV_CONTENT;
-    public static String KAFKA_LOG4J_CONTENT;
-    public static String KAFKA_LIMITS_CONTENT;
+    private String kafkaLogDir = "/var/log/kafka";
+    private String kafkaPidDir = "/var/run/kafka";
+    private String kafkaPidFile = "/var/run/kafka/kafka_broker.pid";
+    private String kafkaDataDir = "/kafka-logs";
+    private String kafkaEnvContent;
+    private String kafkaLog4jContent;
+    private String kafkaLimitsContent;
 
     public KafkaParams(CommandPayload commandPayload) {
         super(commandPayload);
@@ -26,28 +28,28 @@ public class KafkaParams extends BaseParams {
 
     public Map<String, Object> kafkaBroker() {
         Map<String, Object> kafkaBroker = LocalSettings.configurations(serviceName(), "kafka-broker");
-        KAFKA_DATA_DIR = (String) kafkaBroker.get("log.dirs");
+        kafkaDataDir = (String) kafkaBroker.get("log.dirs");
         return kafkaBroker;
     }
 
     public Map<String, Object> kafkaEnv() {
         Map<String, Object> kafkaEnv = LocalSettings.configurations(serviceName(), "kafka-env");
-        KAFKA_PID_DIR = (String) kafkaEnv.get("pidDir");
-        KAFKA_PID_FILE = KAFKA_PID_DIR + "/kafka_broker.pid";
-        KAFKA_LOG_DIR = (String) kafkaEnv.get("logDir");
-        KAFKA_ENV_CONTENT = (String) kafkaEnv.get("content");
+        kafkaPidDir = (String) kafkaEnv.get("pidDir");
+        kafkaPidFile = kafkaPidDir + "/kafka_broker.pid";
+        kafkaLogDir = (String) kafkaEnv.get("logDir");
+        kafkaEnvContent = (String) kafkaEnv.get("content");
         return kafkaEnv;
     }
 
     public Map<String, Object> kafkaLog4j() {
         Map<String, Object> kafkaLog4j = LocalSettings.configurations(serviceName(), "kafka-log4j");
-        KAFKA_LOG4J_CONTENT = (String) kafkaLog4j.get("content");
+        kafkaLog4jContent = (String) kafkaLog4j.get("content");
         return kafkaLog4j;
     }
 
     public void kafkaLimits() {
         Map<String, Object> kafkaLimits = LocalSettings.configurations(serviceName(), "kafka.conf");
-        KAFKA_LIMITS_CONTENT = (String) kafkaLimits.get("content");
+        kafkaLimitsContent = (String) kafkaLimits.get("content");
     }
 
 }

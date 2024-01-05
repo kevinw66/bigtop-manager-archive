@@ -44,12 +44,12 @@ public class ComponentHeartbeatScheduled {
     public void execute() {
         Map<String, List<String>> hosts = LocalSettings.hosts();
         if (hosts.isEmpty()) {
-            log.warn("hosts is empty");
+            log.warn("All hosts are empty");
             return;
         }
         Map<String, ComponentInfo> components = LocalSettings.components();
         if (components.isEmpty()) {
-            log.warn("components is empty");
+            log.warn("All components are empty");
             return;
         }
 
@@ -76,15 +76,15 @@ public class ComponentHeartbeatScheduled {
                     log.error("{} commandScript is error", componentName, e);
                     break;
                 }
-                Object result = executor.execute(commandPayload);
-                if (result instanceof ShellResult shellResult) {
-                    ComponentHeartbeatMessage resultMessage = new ComponentHeartbeatMessage();
-                    resultMessage.setCode(shellResult.getExitCode());
-                    resultMessage.setResult(shellResult.getResult());
-                    resultMessage.setHostname(commandPayload.getHostname());
+                ShellResult shellResult = executor.execute(commandPayload);
+                ComponentHeartbeatMessage resultMessage = new ComponentHeartbeatMessage();
+                resultMessage.setCode(shellResult.getExitCode());
+                resultMessage.setResult(shellResult.getResult());
+                resultMessage.setHostname(commandPayload.getHostname());
+                resultMessage.setComponentName(componentName);
+                resultMessage.setServiceName(components.get(componentName).getServiceName());
 
-                    agentWsTools.sendMessage(resultMessage);
-                }
+                agentWsTools.sendMessage(resultMessage);
             }
 
         }

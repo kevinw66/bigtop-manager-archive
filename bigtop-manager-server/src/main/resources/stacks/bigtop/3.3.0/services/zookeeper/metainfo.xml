@@ -16,10 +16,10 @@
    limitations under the License.
 -->
 <metainfo>
-    <schemaVersion>2.0</schemaVersion>
+    <schema-version>2.0</schema-version>
     <service>
         <name>zookeeper</name>
-        <displayName>ZooKeeper</displayName>
+        <display-name>ZooKeeper</display-name>
         <desc>
             Apache ZooKeeper is an effort to develop and maintain an open-source server which enables highly
             reliable distributed coordination.
@@ -31,41 +31,41 @@
         <components>
             <component>
                 <name>zookeeper_server</name>
-                <displayName>ZooKeeper Server</displayName>
+                <display-name>ZooKeeper Server</display-name>
                 <category>master</category>
                 <cardinality>1+</cardinality>
-                <commandScript>
+                <command-script>
                     <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperServerScript</script>
-                    <scriptType>java</scriptType>
+                    <script-type>java</script-type>
                     <timeout>1200</timeout>
-                </commandScript>
+                </command-script>
             </component>
 
             <component>
                 <name>zookeeper_client</name>
-                <displayName>ZooKeeper Client</displayName>
+                <display-name>ZooKeeper Client</display-name>
                 <category>client</category>
                 <cardinality>1+</cardinality>
-                <commandScript>
+                <command-script>
                     <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperClientScript</script>
-                    <scriptType>java</scriptType>
-                </commandScript>
+                    <script-type>java</script-type>
+                </command-script>
             </component>
         </components>
 
-        <osSpecifics>
-            <osSpecific>
+        <os-specifics>
+            <os-specific>
                 <operating-systems>
-                    <operating-system>centos7</operating-system>
-                    <operating-system>rocky8</operating-system>
+                    <os>centos7</os>
+                    <os>rocky8</os>
                 </operating-systems>
                 <architectures>
-                    <architecture>x86_64</architecture>
+                    <arch>x86_64</arch>
                 </architectures>
                 <packages>
                     <package>zookeeper_3_3_0</package>
                 </packages>
-            </osSpecific>
-        </osSpecifics>
+            </os-specific>
+        </os-specifics>
     </service>
 </metainfo>

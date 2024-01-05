@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.req.ClusterReq;
@@ -29,6 +30,7 @@ public class ClusterController {
         return ResponseEntity.success(clusterService.list());
     }
 
+    @Audit
     @Operation(summary = "create", description = "Create a cluster")
     @PostMapping
     public ResponseEntity<CommandVO> create(@RequestBody @Validated ClusterReq clusterReq) {

@@ -1,6 +1,9 @@
 package org.apache.bigtop.manager.agent.ws;
 
 import jakarta.annotation.Resource;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.type.BaseMessage;
@@ -12,7 +15,9 @@ import org.springframework.web.socket.WebSocketSession;
 @Component
 public class AgentWsTools {
 
-    public WebSocketSession session = null;
+    @Getter
+    @Setter
+    private WebSocketSession session = null;
 
     @Resource
     private MessageSerializer serializer;

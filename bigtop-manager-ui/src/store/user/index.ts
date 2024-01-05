@@ -17,37 +17,28 @@
 
 import { defineStore, storeToRefs } from 'pinia'
 import { getCurrentUser, updateUser } from '@/api/user'
-import { ref, shallowRef, watch } from 'vue'
+import { computed, h, shallowRef } from 'vue'
 import { UserReq, UserVO } from '@/api/user/types.ts'
 import { MenuItem } from '@/store/user/types.ts'
 import { initialRoutes, layoutRoutes } from '@/router/routes.ts'
 import { useClusterStore } from '@/store/cluster'
 import { RouteRecordRaw } from 'vue-router'
+import { useServiceStore } from '@/store/service'
+import CircleFilled from '@/components/icons/circle-filled.vue'
 
 export const useUserStore = defineStore(
   'user',
   () => {
     const userVO = shallowRef<UserVO>()
-    const menuItems = ref<MenuItem[]>([])
 
     const clusterStore = useClusterStore()
+    const serviceStore = useServiceStore()
     const { selectedCluster } = storeToRefs(clusterStore)
-    watch(selectedCluster, async () => {
-      await generateMenu()
-    })
+    const { installedServices } = storeToRefs(serviceStore)
 
-    const getUserInfo = async () => {
-      userVO.value = await getCurrentUser()
-    }
-
-    const updateUserInfo = async (editUser: UserReq) => {
-      await updateUser(editUser)
-      await getUserInfo()
-    }
-
-    const initMenu = async (pages: RouteRecordRaw[]) => {
+    const initMenu = (routes: RouteRecordRaw[]) => {
       const items: MenuItem[] = []
-      pages.forEach((route) => {
+      routes.forEach((route) => {
         const menuItem: MenuItem = {
           key: route.meta?.title?.toLowerCase(),
           to: route.path,
@@ -55,7 +46,20 @@ export const useUserStore = defineStore(
           icon: route.meta?.icon
         }
 
-        if (route.children !== undefined) {
+        if (route.meta?.title === 'Services') {
+          menuItem.children = []
+          installedServices.value.forEach((service) => {
+            const color = service.state === 'STARTED' ? '#52c41a' : '#f5222d'
+            menuItem.children?.push({
+              key: service.serviceName,
+              to: '/services/' + service.serviceName,
+              title: service.displayName,
+              icon: h(CircleFilled, {
+                style: `font-size: 8px; color: ${color}; margin-right: 0.5rem;`
+              })
+            })
+          })
+        } else if (route.children !== undefined) {
           menuItem.children = []
           route.children.forEach((child) => {
             menuItem.children?.push({
@@ -65,20 +69,30 @@ export const useUserStore = defineStore(
               icon: child.meta?.icon
             })
           })
+        } else {
         }
 
         items.push(menuItem)
       })
 
-      return Promise.resolve(items)
+      return items
     }
 
-    const generateMenu = async () => {
+    const menuItems = computed(() => {
       if (selectedCluster.value) {
-        menuItems.value = await initMenu(layoutRoutes)
+        return initMenu(layoutRoutes)
       } else {
-        menuItems.value = await initMenu(initialRoutes)
+        return initMenu(initialRoutes)
       }
+    })
+
+    const getUserInfo = async () => {
+      userVO.value = await getCurrentUser()
+    }
+
+    const updateUserInfo = async (editUser: UserReq) => {
+      await updateUser(editUser)
+      await getUserInfo()
     }
 
     const logout = async () => {
@@ -92,7 +106,6 @@ export const useUserStore = defineStore(
       menuItems,
       getUserInfo,
       updateUserInfo,
-      generateMenu,
       logout
     }
   },

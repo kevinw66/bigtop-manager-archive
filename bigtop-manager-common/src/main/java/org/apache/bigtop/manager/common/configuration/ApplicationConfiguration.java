@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.common.configuration;
 import lombok.Data;
 import org.apache.bigtop.manager.common.configuration.application.SerializerConfiguration;
 import org.apache.bigtop.manager.common.configuration.application.ServerConfiguration;
-import org.apache.bigtop.manager.common.configuration.application.StackConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +18,4 @@ public class ApplicationConfiguration {
     @NestedConfigurationProperty
     private SerializerConfiguration serializer = new SerializerConfiguration();
 
-    @NestedConfigurationProperty
-    private StackConfiguration stack;
 }

@@ -22,7 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaParams.*;
+import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_644;
+import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_755;
 
 @Slf4j
 @AutoService(Script.class)
@@ -30,9 +31,7 @@ public class KafkaBrokerScript implements Script {
 
     @Override
     public ShellResult install(BaseParams baseParams) {
-        KafkaParams kafkaParams = (KafkaParams) baseParams;
-        List<String> packageList = kafkaParams.getPackageList();
-        return PackageUtils.install(packageList);
+        return PackageUtils.install(baseParams.getPackageList());
     }
 
     @Override
@@ -46,10 +45,9 @@ public class KafkaBrokerScript implements Script {
         Map<String, Object> kafkaBroker = kafkaParams.kafkaBroker();
         Map<String, Object> kafkaLog4j = kafkaParams.kafkaLog4j();
 
-        LinuxFileUtils.createDirectories(KAFKA_DATA_DIR, kafkaUser, kafkaGroup, "rwxr-xr--", true);
-        LinuxFileUtils.createDirectories(KAFKA_LOG_DIR, kafkaUser, kafkaGroup, "rwxr-xr--", true);
-        LinuxFileUtils.createDirectories(KAFKA_PID_DIR, kafkaUser, kafkaGroup, "rwxr-xr--", true);
-
+        LinuxFileUtils.createDirectories(kafkaParams.getKafkaDataDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
+        LinuxFileUtils.createDirectories(kafkaParams.getKafkaLogDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
+        LinuxFileUtils.createDirectories(kafkaParams.getKafkaPidDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
 
         // server.properties
         List<String> zookeeperServerHosts = LocalSettings.hosts("zookeeper_server");
@@ -60,43 +58,43 @@ public class KafkaBrokerScript implements Script {
                 MessageFormat.format("{0}/server.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
-                "rw-r--r--",
+                PERMISSION_644,
                 kafkaBroker,
                 paramMap);
 
         // env
         Map<String, Object> modelMap = new HashMap<>();
         modelMap.put("JAVA_HOME", "/usr/local/java");
-        modelMap.put("LOG_DIR", KAFKA_LOG_DIR);
-        modelMap.put("PID_DIR", KAFKA_PID_DIR);
+        modelMap.put("LOG_DIR", kafkaParams.getKafkaLogDir());
+        modelMap.put("PID_DIR", kafkaParams.getKafkaPidDir());
         modelMap.put("CONF_DIR", confDir);
         modelMap.put("securityEnabled", false);
 
-        LinuxFileUtils.toFileByTemplate(KAFKA_ENV_CONTENT,
+        LinuxFileUtils.toFileByTemplate(kafkaParams.getKafkaEnvContent(),
                 MessageFormat.format("{0}/kafka-env.sh", confDir),
                 kafkaUser,
                 kafkaGroup,
-                "rw-r--r--",
+                PERMISSION_644,
                 modelMap);
 
         // log4j
         Map<String, Object> log4jMap = Maps.newHashMap(kafkaLog4j);
         log4jMap.remove("content");
-        LinuxFileUtils.toFileByTemplate(KAFKA_LOG4J_CONTENT,
+        LinuxFileUtils.toFileByTemplate(kafkaParams.getKafkaLog4jContent(),
                 MessageFormat.format("{0}/log4j.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
-                "rw-r--r--",
+                PERMISSION_644,
                 log4jMap);
 
         // kafka.limits
         kafkaEnv.put("kafkaUser", kafkaUser);
         kafkaEnv.put("kafkaGroup", kafkaGroup);
-        LinuxFileUtils.toFileByTemplate(KAFKA_LIMITS_CONTENT,
-                MessageFormat.format("{0}/kafka.conf", KafkaParams.limitsConfDir),
+        LinuxFileUtils.toFileByTemplate(kafkaParams.getKafkaLimitsContent(),
+                MessageFormat.format("{0}/kafka.conf", KafkaParams.LIMITS_CONF_DIR),
                 "root",
                 "root",
-                "rw-r--r--",
+                PERMISSION_644,
                 kafkaEnv);
 
         return DefaultShellResult.success("Kafka Server Configuration success!");
@@ -107,8 +105,8 @@ public class KafkaBrokerScript implements Script {
         configuration(baseParams);
         KafkaParams kafkaParams = (KafkaParams) baseParams;
 
-        String cmd = MessageFormat.format("sh {0}/bin/kafka-server-start.sh {0}/config/server.properties > /dev/null 2>&1 & echo $!>{1}",
-                kafkaParams.serviceHome(), KAFKA_PID_FILE);
+        String cmd = MessageFormat.format("sh {0}/bin/kafka-server-start.sh {0}/config/server.properties > /dev/null 2>&1 & echo -n $!>{1}",
+                kafkaParams.serviceHome(), kafkaParams.getKafkaPidFile());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, kafkaParams.user());
         } catch (IOException e) {
@@ -130,13 +128,7 @@ public class KafkaBrokerScript implements Script {
     @Override
     public ShellResult status(BaseParams baseParams) {
         KafkaParams kafkaParams = (KafkaParams) baseParams;
-
-        String cmd = MessageFormat.format("cd {0}; netstat -nalpt | grep 9092", kafkaParams.serviceHome());
-        try {
-            return LinuxOSUtils.sudoExecCmd(cmd, kafkaParams.user());
-        } catch (IOException e) {
-            throw new StackException(e);
-        }
+        return LinuxOSUtils.checkProcess(kafkaParams.getKafkaPidFile());
     }
 
     public ShellResult test(BaseParams baseParams) {
