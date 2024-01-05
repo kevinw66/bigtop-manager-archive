@@ -11,7 +11,7 @@ public class StackVO {
 
     private String stackVersion;
 
-    private List<StackServiceVO> services;
+    private List<ServiceVO> services;
 
-    private List<StackRepoVO> repos;
+    private List<RepoVO> repos;
 }

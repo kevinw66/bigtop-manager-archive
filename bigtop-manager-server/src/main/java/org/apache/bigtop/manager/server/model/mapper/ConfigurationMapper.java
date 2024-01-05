@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
@@ -13,10 +12,7 @@ import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Mapper
 public interface ConfigurationMapper {
@@ -28,6 +24,8 @@ public interface ConfigurationMapper {
     List<ConfigurationDTO> fromReq2DTO(List<ConfigurationReq> configurationReqs);
 
     ConfigDataVO fromDTO2VO(ConfigDataDTO configDataDTO);
+
+    List<ConfigDataVO> fromDTO2VO(Collection<ConfigDataDTO> configDataDTOs);
 
     default List<ConfigurationVO> fromEntity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
         Map<ServiceConfigRecord, ConfigurationVO> map = new HashMap<>();
@@ -41,13 +39,7 @@ public interface ConfigurationMapper {
             List<ConfigDataVO> configDataVOList = configurationVO.getConfigurations() == null ? new ArrayList<>() : configurationVO.getConfigurations();
 
             ConfigDataVO configDataVO = new ConfigDataVO();
-            String attributes = serviceConfig.getAttributes();
-            if (attributes != null) {
-                configDataVO.setAttributes(JsonUtils.readFromString(attributes, new TypeReference<>() {
-                }));
-            }
-            configDataVO.setProperties(JsonUtils.readFromString(serviceConfig.getConfigData(), new TypeReference<>() {
-            }));
+            configDataVO.setProperties(JsonUtils.readFromString(serviceConfig.getPropertiesJson()));
             configDataVO.setVersion(serviceConfig.getVersion());
             configDataVO.setTypeName(serviceConfig.getTypeName());
             configDataVOList.add(configDataVO);

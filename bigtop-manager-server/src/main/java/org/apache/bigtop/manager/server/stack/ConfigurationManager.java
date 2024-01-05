@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -31,10 +30,10 @@ public class ConfigurationManager {
     private ServiceConfigRepository serviceConfigRepository;
 
     public ImmutablePair<ServiceConfigRecord, List<ServiceConfigMapping>> saveConfigRecord(Cluster cluster, Service service, String configDesc) {
-        ServiceConfigRecord latestServiceConfigRecord = serviceConfigRecordRepository.findFirstByClusterIdAndServiceIdOrderByVersionDesc(cluster.getId(), service.getId())
+        ServiceConfigRecord latestServiceConfigRecord = serviceConfigRecordRepository
+                .findFirstByClusterIdAndServiceIdOrderByVersionDesc(cluster.getId(), service.getId())
                 .orElse(new ServiceConfigRecord());
         List<ServiceConfigMapping> serviceConfigMappingList = new ArrayList<>();
-
 
         ServiceConfigRecord serviceConfigRecord = new ServiceConfigRecord();
         if (latestServiceConfigRecord.getId() != null) {
@@ -68,10 +67,11 @@ public class ConfigurationManager {
     /**
      * add|update configuration
      */
-    public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, List<PropertyDTO> properties, Map<String, String> attributes) {
+    public ServiceConfig upsertConfig(Cluster cluster, Service service, String typeName, List<PropertyDTO> properties) {
         ServiceConfig serviceConfig = new ServiceConfig();
 
-        ServiceConfig latestServiceConfig = serviceConfigRepository.findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
+        ServiceConfig latestServiceConfig = serviceConfigRepository
+                .findFirstByClusterIdAndServiceIdAndTypeNameOrderByVersionDesc(cluster.getId(), service.getId(), typeName)
                 .orElse(new ServiceConfig());
 
         log.debug("The latest version of the configuration saved in database: {}", latestServiceConfig);
@@ -79,16 +79,14 @@ public class ConfigurationManager {
         serviceConfig.setCluster(cluster);
         serviceConfig.setTypeName(typeName);
 
-        String configDataStr = JsonUtils.writeAsString(properties);
-
-        serviceConfig.setConfigData(configDataStr);
-        serviceConfig.setAttributes(JsonUtils.writeAsString(attributes));
+        String propertiesJson = JsonUtils.writeAsString(properties);
+        serviceConfig.setPropertiesJson(propertiesJson);
 
         if (latestServiceConfig.getId() == null) {
             log.info("Insert serviceConfig");
             serviceConfig.setVersion(1);
             serviceConfig = serviceConfigRepository.save(serviceConfig);
-        } else if (!configDataStr.equals(latestServiceConfig.getConfigData())) {
+        } else if (!propertiesJson.equals(latestServiceConfig.getPropertiesJson())) {
             log.info("Update serviceConfig");
             serviceConfig.setVersion(latestServiceConfig.getVersion() + 1);
             serviceConfig = serviceConfigRepository.save(serviceConfig);

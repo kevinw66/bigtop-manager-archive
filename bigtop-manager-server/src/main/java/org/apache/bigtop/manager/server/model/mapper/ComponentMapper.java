@@ -5,7 +5,6 @@ import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.CustomCommandDTO;
 import org.apache.bigtop.manager.server.model.dto.ScriptDTO;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
-import org.apache.bigtop.manager.server.model.vo.StackComponentVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Component;
 import org.apache.bigtop.manager.server.orm.entity.Service;
@@ -29,20 +28,9 @@ public interface ComponentMapper {
     @Mapping(target = "cluster", expression = "java(cluster)")
     Component fromDTO2Entity(ComponentDTO componentDTO, @Context Service service, @Context Cluster cluster);
 
-    StackComponentVO fromDTO2StackVO(ComponentDTO componentDTO, String serviceName);
+    ComponentVO fromDTO2VO(ComponentDTO componentDTO);
 
-    default List<StackComponentVO> fromDTO2StackVO(List<ComponentDTO> componentDTOList, String serviceName) {
-        if (componentDTOList == null) {
-            return null;
-        }
-
-        List<StackComponentVO> list = new ArrayList<>(componentDTOList.size());
-        for (ComponentDTO componentDTO : componentDTOList) {
-            list.add(fromDTO2StackVO(componentDTO, serviceName));
-        }
-
-        return list;
-    }
+    List<ComponentVO> fromDTO2VO(List<ComponentDTO> componentDTOList);
 
     @Mapping(target = "componentName", source = "name")
     ComponentDTO fromModel2DTO(ComponentModel componentModel);

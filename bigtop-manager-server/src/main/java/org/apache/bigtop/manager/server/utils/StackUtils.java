@@ -114,11 +114,10 @@ public class StackUtils {
                         if (fileExtension.equals(CONFIGURATION_FILE_EXTENSION)) {
                             String typeName = configPath.substring(configPath.lastIndexOf(File.separator) + 1, configPath.lastIndexOf("."));
 
-                            ImmutablePair<List<PropertyDTO>, Map<String, String>> pair = StackConfigUtils.loadConfig(configPath);
+                            List<PropertyDTO> properties = StackConfigUtils.loadConfig(configPath);
                             ConfigDataDTO configDataDTO = new ConfigDataDTO();
                             configDataDTO.setTypeName(typeName);
-                            configDataDTO.setAttributes(pair.getRight());
-                            configDataDTO.setProperties(pair.getLeft());
+                            configDataDTO.setProperties(properties);
                             serviceConfigSet.add(configDataDTO);
                         }
                     }

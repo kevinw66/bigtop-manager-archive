@@ -53,6 +53,14 @@ public class JsonUtils {
         }
     }
 
+    public static <T> T readFromString(String json) {
+        try {
+            return OBJECTMAPPER.readValue(json, new TypeReference<>() {});
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static <T> T readFromString(String json, TypeReference<T> typeReference) {
         try {
             return OBJECTMAPPER.readValue(json, typeReference);

@@ -17,9 +17,6 @@ public class ConfigurationXml {
     @XmlElement(name="schema-version")
     private String schemaVersion;
 
-    @XmlAnyAttribute
-    private Map<QName, String> attributes = new HashMap<>();
-
     @XmlElement(name="property")
     private List<PropertyModel> propertyModels;
 }

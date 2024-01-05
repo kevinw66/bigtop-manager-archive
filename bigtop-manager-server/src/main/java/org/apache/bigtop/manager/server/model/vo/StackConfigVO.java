@@ -7,8 +7,6 @@ import java.util.List;
 @Data
 public class StackConfigVO {
 
-    private String serviceName;
-
     private String typeName;
 
     private List<PropertyVO> properties;

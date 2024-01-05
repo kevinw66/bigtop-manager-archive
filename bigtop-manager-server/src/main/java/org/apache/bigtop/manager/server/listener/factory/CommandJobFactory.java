@@ -1,7 +1,6 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Sets;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
@@ -18,10 +17,7 @@ import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
-import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
-import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
@@ -34,6 +30,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -119,7 +116,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
         List<ComponentCommandWrapper> componentCommandWrappers = createCommandWrapper(commandDTO);
         List<ComponentCommandWrapper> sortedRcpList = stageSort(componentCommandWrappers, stackName, stackVersion);
-        Map<String, Set<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
+        Map<String, List<String>> componentHostMapping = createComponentHostMapping(sortedRcpList, commandDTO);
 
         ArrayList<Task> tasks = new ArrayList<>();
         for (int i = 0; i < sortedRcpList.size(); i++) {
@@ -143,9 +140,9 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             stage.setPayload(JsonUtils.writeAsString(commandDTO));
             stage = stageRepository.save(stage);
 
-            Set<String> hostSet = componentHostMapping.get(componentName);
+            List<String> hostnames = componentHostMapping.get(componentName);
             // Generate task list
-            for (String hostname : hostSet) {
+            for (String hostname : hostnames) {
                 Task task = createTask(component, hostname, command, job, stage, customCommand);
                 log.debug("task: {}", task);
                 tasks.add(task);
@@ -201,8 +198,8 @@ public class CommandJobFactory implements JobFactory, StageCallback {
      * @param commandDTO    command event
      * @return componentHostMapping key: component name, value: host list. e.g. {zookeeper_server=[node1], kafka_broker=[node1, node2]}
      */
-    private Map<String, Set<String>> createComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList, CommandDTO commandDTO) throws ApiException {
-        Map<String, Set<String>> componentHostMapping = new HashMap<>();
+    private Map<String, List<String>> createComponentHostMapping(List<ComponentCommandWrapper> sortedRcpList, CommandDTO commandDTO) throws ApiException {
+        Map<String, List<String>> componentHostMapping = new HashMap<>();
 
         Long clusterId = commandDTO.getClusterId();
 
@@ -210,28 +207,30 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             case HOST -> {
                 String hostname = commandDTO.getHostname();
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
-                    Set<String> hostSet = Sets.newHashSet(hostname);
-                    componentHostMapping.put(componentCommandWrapper.getComponentName(), hostSet);
+                    componentHostMapping.put(componentCommandWrapper.getComponentName(), List.of(hostname));
                 }
             }
             case CLUSTER, SERVICE, COMPONENT -> {
                 if (commandDTO.getCommand() == Command.INSTALL) {
-                    componentHostMapping = commandDTO.getComponentHosts();
+                    componentHostMapping = commandDTO.getServiceCommands()
+                            .stream()
+                            .flatMap(x -> x.getComponentHosts().stream())
+                            .collect(Collectors.toMap(ComponentHostDTO::getComponentName, ComponentHostDTO::getHostnames));
                 } else {
                     for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                         String componentName = componentCommandWrapper.getComponentName();
                         List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
 
-                        Set<String> hostSet = hostComponentList.stream().map(x -> x.getHost().getHostname()).collect(Collectors.toSet());
+                        List<String> hostnames = hostComponentList.stream().map(x -> x.getHost().getHostname()).collect(Collectors.toList());
 
                         Command command = componentCommandWrapper.getCommand();
                         if (command == Command.CHECK) {
                             Random random = new Random();
                             int index = random.nextInt(hostComponentList.size());
-                            hostSet = Set.of(hostComponentList.get(index).getHost().getHostname());
+                            hostnames = List.of(hostComponentList.get(index).getHost().getHostname());
                         }
 
-                        componentHostMapping.put(componentName, hostSet);
+                        componentHostMapping.put(componentName, hostnames);
                     }
                 }
             }
@@ -246,11 +245,11 @@ public class CommandJobFactory implements JobFactory, StageCallback {
     /**
      * Check if the host exists in the database and not in maintenance mode
      */
-    private void validateHost(Map<String, Set<String>> componentHostMapping) {
-        for (Map.Entry<String, Set<String>> entry : componentHostMapping.entrySet()) {
-            Set<String> hostSet = entry.getValue();
-            List<Host> hostList = hostRepository.findAllByHostnameIn(hostSet);
-            if (hostList.size() != hostSet.size()) {
+    private void validateHost(Map<String, List<String>> componentHostMapping) {
+        for (Map.Entry<String, List<String>> entry : componentHostMapping.entrySet()) {
+            List<String> hostnames = entry.getValue();
+            List<Host> hostList = hostRepository.findAllByHostnameIn(hostnames);
+            if (hostList.size() != hostnames.size()) {
                 throw new ServerException("Can't find host in database");
             }
         }
@@ -269,7 +268,10 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                 if (command == Command.INSTALL) {
                     componentCommandWrappers = getCommandWrappersFromStack(commandDTO);
                 } else {
-                    List<String> serviceNameList = commandDTO.getServiceNames();
+                    List<String> serviceNameList = commandDTO.getServiceCommands()
+                            .stream()
+                            .map(ServiceCommandDTO::getServiceName)
+                            .collect(Collectors.toList());
                     List<Component> componentList = componentRepository.findAllByClusterIdAndServiceServiceNameIn(clusterId, serviceNameList);
                     for (Component component : componentList) {
                         ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
@@ -306,27 +308,28 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         String stackVersion = cluster.getStack().getStackVersion();
         List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
 
-        List<String> serviceNameList = commandDTO.getServiceNames();
         Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
 
         ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-        List<ServiceDTO> serviceDTOSet = immutablePair.getRight();
-        // Persist service, component and hostComponent metadata to database
-        for (ServiceDTO serviceDTO : serviceDTOSet) {
-            String serviceName = serviceDTO.getServiceName();
-            if (serviceNameList.contains(serviceName)) {
+        Map<String, ServiceDTO> serviceNameToDTO = immutablePair.getRight()
+                .stream()
+                .collect(Collectors.toMap(ServiceDTO::getServiceName, Function.identity()));
 
-                Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
-                List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
-                for (ComponentDTO componentDTO : componentDTOList) {
-                    String componentName = componentDTO.getComponentName();
-                    Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
-                    // Generate componentCommandWrapper
-                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command, component);
-                    componentCommandWrappers.add(componentCommandWrapper);
-                }
+        // Persist service, component and hostComponent metadata to database
+        for (ServiceCommandDTO serviceCommand : commandDTO.getServiceCommands()) {
+            ServiceDTO serviceDTO = serviceNameToDTO.get(serviceCommand.getServiceName());
+            Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
+            List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
+            for (ComponentDTO componentDTO : componentDTOList) {
+                String componentName = componentDTO.getComponentName();
+                Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
+
+                // Generate componentCommandWrapper
+                ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(componentName, command, component);
+                componentCommandWrappers.add(componentCommandWrapper);
             }
         }
+
         return componentCommandWrappers;
     }
 

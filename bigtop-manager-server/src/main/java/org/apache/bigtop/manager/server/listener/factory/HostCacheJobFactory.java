@@ -176,8 +176,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         serviceConfigMap = new HashMap<>();
         serviceConfigMappingList.forEach(scm -> {
             ServiceConfig sc = scm.getServiceConfig();
-            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getConfigData(), new TypeReference<>() {
-            });
+            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getPropertiesJson(), new TypeReference<>() {});
             String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
 
             if (serviceConfigMap.containsKey(sc.getService().getServiceName())) {
