@@ -64,7 +64,7 @@ public class CommandServiceImpl implements CommandService {
             case HOST -> runHostCommand(commandDTO);
             default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_FOUND,
                     commandDTO.getCommandLevel().toLowerCase());
-        };
+        }
 
         Job job = commandJobFactory.createJob(commandDTO);
         CommandEvent commandEvent = new CommandEvent(commandDTO);
