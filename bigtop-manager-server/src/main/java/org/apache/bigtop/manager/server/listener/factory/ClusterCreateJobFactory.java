@@ -53,7 +53,7 @@ public class ClusterCreateJobFactory implements JobFactory {
         cluster.setStack(stack);
         // Create job
         Job job = new Job();
-        job.setContext("Create Cluster");
+        job.setName("Create Cluster");
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
         job = jobRepository.save(job);
@@ -94,13 +94,14 @@ public class ClusterCreateJobFactory implements JobFactory {
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setJob(job);
-        hostCacheStage.setName("Cache Host");
+        hostCacheStage.setName("Cache Hosts");
         hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setStageOrder(stageOrder);
         hostCacheStage = stageRepository.save(hostCacheStage);
 
         for (String hostname : hostnames) {
             Task task = new Task();
+            task.setName("Cache host for " + hostname);
             task.setJob(job);
             task.setStage(hostCacheStage);
             task.setStackName(clusterDTO.getStackName());

@@ -68,7 +68,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         // Create job
-        job.setContext("Cache Hosts");
+        job.setName("Cache Hosts");
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
         job = jobRepository.save(job);
@@ -87,7 +87,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setJob(job);
-        hostCacheStage.setName("Cache Host");
+        hostCacheStage.setName("Cache Hosts");
         hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setStageOrder(stageOrder);
         hostCacheStage.setCluster(cluster);
@@ -97,6 +97,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
 
         for (String hostname : hostnames) {
             Task task = new Task();
+            task.setName("Cache host for " + hostname);
             task.setJob(job);
             task.setStage(hostCacheStage);
             task.setCluster(cluster);
@@ -176,7 +177,8 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         serviceConfigMap = new HashMap<>();
         serviceConfigMappingList.forEach(scm -> {
             ServiceConfig sc = scm.getServiceConfig();
-            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getPropertiesJson(), new TypeReference<>() {});
+            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getPropertiesJson(), new TypeReference<>() {
+            });
             String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
 
             if (serviceConfigMap.containsKey(sc.getService().getServiceName())) {

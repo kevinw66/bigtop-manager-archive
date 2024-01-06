@@ -44,7 +44,7 @@ public class HostAddJobFactory implements JobFactory {
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
         // Create job
-        job.setContext("Add Hosts");
+        job.setName("Add Hosts");
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
         job = jobRepository.save(job);
@@ -69,6 +69,7 @@ public class HostAddJobFactory implements JobFactory {
 
         for (String hostname : hostnames) {
             Task task = new Task();
+            task.setName("Check host for " + hostname);
             task.setJob(job);
             task.setStage(hostCheckStage);
             task.setCluster(cluster);

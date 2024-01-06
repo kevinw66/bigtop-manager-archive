@@ -18,6 +18,9 @@ public class Task extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "message_id")
     private String messageId;
 

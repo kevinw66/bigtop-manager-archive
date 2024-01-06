@@ -18,6 +18,7 @@ import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.*;
+import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
@@ -28,7 +29,9 @@ import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.text.CaseUtils;
 
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -75,7 +78,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
         Job job = new Job();
         job.setState(JobState.PENDING);
-        job.setContext(commandDTO.getContext());
+        job.setName(commandDTO.getContext());
         job.setCluster(cluster);
         job = jobRepository.save(job);
         log.info("CommandOperator-job: {}", job);
@@ -130,7 +133,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             stage.setJob(job);
             stage.setCluster(job.getCluster());
             stage.setState(JobState.PENDING);
-            stage.setName(componentCommandWrapper.toString());
+            stage.setName(componentCommandWrapper.toDisplayString());
             stage.setStageOrder(stageOrder + i + 1);
             stage.setServiceName(component.getService().getServiceName());
             stage.setComponentName(componentName);
@@ -205,13 +208,13 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
         switch (commandDTO.getCommandLevel()) {
             case HOST -> {
-                String hostname = commandDTO.getHostname();
+                String hostname = commandDTO.getHostCommands().getHostname();
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                     componentHostMapping.put(componentCommandWrapper.getComponentName(), List.of(hostname));
                 }
             }
             case CLUSTER, SERVICE, COMPONENT -> {
-                if (commandDTO.getCommand() == Command.INSTALL) {
+                if (commandDTO.getCommand() == Command.INSTALL && commandDTO.getCommandLevel() == CommandLevel.SERVICE) {
                     componentHostMapping = commandDTO.getServiceCommands()
                             .stream()
                             .flatMap(x -> x.getComponentHosts().stream())
@@ -221,7 +224,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                         String componentName = componentCommandWrapper.getComponentName();
                         List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
 
-                        List<String> hostnames = hostComponentList.stream().map(x -> x.getHost().getHostname()).collect(Collectors.toList());
+                        List<String> hostnames = hostComponentList.stream().map(x -> x.getHost().getHostname()).toList();
 
                         Command command = componentCommandWrapper.getCommand();
                         if (command == Command.CHECK) {
@@ -271,7 +274,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                     List<String> serviceNameList = commandDTO.getServiceCommands()
                             .stream()
                             .map(ServiceCommandDTO::getServiceName)
-                            .collect(Collectors.toList());
+                            .toList();
                     List<Component> componentList = componentRepository.findAllByClusterIdAndServiceServiceNameIn(clusterId, serviceNameList);
                     for (Component component : componentList) {
                         ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
@@ -280,8 +283,15 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                 }
 
             }
-            case COMPONENT, HOST -> {
-                List<Component> components = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, commandDTO.getComponentNames());
+            case COMPONENT -> {
+                List<Component> components = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, commandDTO.getComponentCommands().getComponentNames());
+                for (Component component : components) {
+                    ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
+                    componentCommandWrappers.add(componentCommandWrapper);
+                }
+            }
+            case HOST -> {
+                List<Component> components = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, commandDTO.getHostCommands().getComponentNames());
                 for (Component component : components) {
                     ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
                     componentCommandWrappers.add(componentCommandWrapper);
@@ -336,6 +346,9 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
     private Task createTask(Component component, String hostname, Command command, Job job, Stage stage, String customCommand) {
         Task task = new Task();
+
+        task.setName(MessageFormat.format("{0} for {1} and {2}",
+                CaseUtils.toCamelCase(command.name(), true), component.getDisplayName(), hostname));
 
         // Required fields
         task.setHostname(hostname);
@@ -429,7 +442,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         if (stage.getState() == JobState.SUCCESSFUL) {
             if (command == Command.START || command == Command.STOP || command == Command.INSTALL) {
                 if (commandLevel == CommandLevel.HOST) {
-                    String hostname = commandDTO.getHostname();
+                    String hostname = commandDTO.getHostCommands().getHostname();
                     switch (command) {
                         case START -> hostComponents.forEach(hostComponent -> {
                             if (hostname.equals(hostComponent.getHost().getHostname())) {

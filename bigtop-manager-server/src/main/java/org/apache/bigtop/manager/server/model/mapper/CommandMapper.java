@@ -1,9 +1,9 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
-import org.apache.bigtop.manager.server.model.dto.ServiceCommandDTO;
+import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
 import org.apache.bigtop.manager.server.model.req.CommandReq;
-import org.apache.bigtop.manager.server.model.req.ServiceCommandReq;
+import org.apache.bigtop.manager.server.model.req.command.ServiceCommandReq;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
