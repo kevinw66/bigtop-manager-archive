@@ -1,6 +1,8 @@
-package org.apache.bigtop.manager.server.model.dto;
+package org.apache.bigtop.manager.server.model.dto.command;
 
 import lombok.Data;
+import org.apache.bigtop.manager.server.model.dto.ComponentHostDTO;
+import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 
 import java.io.Serializable;
 import java.util.List;

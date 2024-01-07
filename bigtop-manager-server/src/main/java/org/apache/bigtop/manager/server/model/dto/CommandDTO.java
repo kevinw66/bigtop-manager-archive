@@ -3,6 +3,10 @@ package org.apache.bigtop.manager.server.model.dto;
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
+import org.apache.bigtop.manager.server.model.dto.command.ComponentCommandDTO;
+import org.apache.bigtop.manager.server.model.dto.command.HostCommandDTO;
+import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
+import org.apache.commons.text.CaseUtils;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
@@ -19,15 +23,18 @@ public class CommandDTO implements Serializable {
 
     private CommandLevel commandLevel;
 
-    private List<String> componentNames;
-
-    private String hostname;
-
     private List<ServiceCommandDTO> serviceCommands;
 
+    private ComponentCommandDTO componentCommands;
+
+    private HostCommandDTO hostCommands;
+
     public String getContext() {
-        return MessageFormat.format("command={0}, customCommand={1}, clusterId={2}, commandLevel={3}",
-                command, customCommand, clusterId, commandLevel);
+        if (command == null) {
+            return MessageFormat.format("{0} for {1}", customCommand, commandLevel.toLowerCase());
+        } else {
+            return MessageFormat.format("{0} for {1}", CaseUtils.toCamelCase(command.name(), true), commandLevel.toLowerCase());
+        }
     }
 
 }

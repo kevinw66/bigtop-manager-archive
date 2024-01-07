@@ -3,12 +3,11 @@ package org.apache.bigtop.manager.server.service.impl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.MaintainState;
-import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.CommandJobFactory;
 import org.apache.bigtop.manager.server.model.dto.*;
+import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
 import org.apache.bigtop.manager.server.model.event.CommandEvent;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
@@ -62,8 +61,6 @@ public class CommandServiceImpl implements CommandService {
         switch (commandDTO.getCommandLevel()) {
             case SERVICE -> runServiceCommand(commandDTO);
             case HOST -> runHostCommand(commandDTO);
-            default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_FOUND,
-                    commandDTO.getCommandLevel().toLowerCase());
         }
 
         Job job = commandJobFactory.createJob(commandDTO);
@@ -81,8 +78,6 @@ public class CommandServiceImpl implements CommandService {
                 commandDTO.setCommand(Command.INSTALL);
                 installService(commandDTO);
             }
-            default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED,
-                    commandDTO.getCommand().toLowerCase(), commandDTO.getCommandLevel().toLowerCase());
         }
     }
 
@@ -93,14 +88,12 @@ public class CommandServiceImpl implements CommandService {
                 commandDTO.setCommand(Command.INSTALL);
                 installHostComponent(commandDTO);
             }
-            default -> throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED,
-                    commandDTO.getCommand().toLowerCase(), commandDTO.getCommandLevel().toLowerCase());
         }
     }
 
     private void installHostComponent(CommandDTO commandDTO) {
-        List<String> componentNameList = commandDTO.getComponentNames();
-        String hostname = commandDTO.getHostname();
+        List<String> componentNameList = commandDTO.getHostCommands().getComponentNames();
+        String hostname = commandDTO.getHostCommands().getHostname();
         Long clusterId = commandDTO.getClusterId();
 
         // Persist hostComponent to database

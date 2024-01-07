@@ -3,6 +3,8 @@ package org.apache.bigtop.manager.server.stack.dag;
 import lombok.*;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.orm.entity.Component;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.CaseUtils;
 
 
 @Data
@@ -18,5 +20,9 @@ public class ComponentCommandWrapper {
     @Override
     public String toString() {
         return componentName + "-" + command.name();
+    }
+
+    public String toDisplayString() {
+        return component.getDisplayName() + " " + CaseUtils.toCamelCase(command.name(), true);
     }
 }

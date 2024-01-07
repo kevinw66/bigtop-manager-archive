@@ -17,7 +17,7 @@
 
 export interface JobVO {
   id: number
-  context: string
+  name: string
   state: string
   stages: StageVO[]
 }
@@ -32,6 +32,7 @@ export interface StageVO {
 
 export interface TaskVO {
   id: number
+  name: string
   state: string
   hostname: string
 }
