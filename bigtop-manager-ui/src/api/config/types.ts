@@ -15,8 +15,22 @@
  * limitations under the License.
  */
 
-import { ServiceVO } from '@/api/service/types.ts'
+export interface PropertyVO {
+  name: string
+  value: string
+  displayName: string
+  desc: string
+}
 
-export type MergedServiceVO = ServiceVO & {
-  installed: boolean
+export interface ConfigDataVO {
+  typeName: string
+  version: number
+  properties: PropertyVO[]
+}
+
+export interface ServiceConfigVO {
+  serviceName: string
+  configDesc: string
+  version: number
+  configs: ConfigDataVO[]
 }

@@ -10,12 +10,12 @@ import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
 import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
-import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
+import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.ServiceConfigMappingRepository;
 import org.apache.bigtop.manager.server.orm.repository.ServiceRepository;
-import org.apache.bigtop.manager.server.service.ConfigurationService;
+import org.apache.bigtop.manager.server.service.ConfigService;
 import org.apache.bigtop.manager.server.stack.ConfigurationManager;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @org.springframework.stereotype.Service
-public class ConfigurationServiceImpl implements ConfigurationService {
+public class ConfigServiceImpl implements ConfigService {
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -44,13 +44,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     private HostCacheJobFactory hostCacheJobFactory;
 
     @Override
-    public List<ConfigurationVO> list(Long clusterId) {
+    public List<ServiceConfigVO> list(Long clusterId) {
         List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllByServiceConfigRecordClusterId(clusterId);
         return ConfigurationMapper.INSTANCE.fromEntity2VO(serviceConfigMappingList);
     }
 
     @Override
-    public List<ConfigurationVO> latest(Long clusterId) {
+    public List<ServiceConfigVO> latest(Long clusterId) {
         List<ServiceConfigMapping> resultList = serviceConfigMappingRepository.findAllGroupLastest(clusterId);
         return ConfigurationMapper.INSTANCE.fromEntity2VO(resultList);
     }

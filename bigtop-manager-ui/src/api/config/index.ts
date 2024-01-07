@@ -15,8 +15,14 @@
  * limitations under the License.
  */
 
-import { ServiceVO } from '@/api/service/types.ts'
+import request from '@/api/request.ts'
+import { ServiceConfigVO } from '@/api/config/types.ts'
 
-export type MergedServiceVO = ServiceVO & {
-  installed: boolean
+export const getLatestConfigs = (
+  clusterId: number
+): Promise<ServiceConfigVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/configurations/latest'
+  })
 }

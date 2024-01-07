@@ -8,19 +8,22 @@
   import { useClusterStore } from '@/store/cluster'
   import { useServiceStore } from '@/store/service'
   import { useComponentStore } from '@/store/component'
+  import { useConfigStore } from '@/store/config'
 
   const userStore = useUserStore()
   const clusterStore = useClusterStore()
   const serviceStore = useServiceStore()
   const componentStore = useComponentStore()
+  const configStore = useConfigStore()
 
   onMounted(async () => {
     await userStore.getUserInfo()
 
     await clusterStore.loadClusters()
 
-    serviceStore.resumeIntervalFn()
+    await serviceStore.loadServices()
     await componentStore.loadHostComponents()
+    await configStore.loadLatestConfigs()
   })
 </script>
 

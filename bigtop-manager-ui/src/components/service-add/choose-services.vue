@@ -3,18 +3,19 @@
   import { TableProps } from 'ant-design-vue'
   import { useServiceStore } from '@/store/service'
   import { MergedServiceVO } from '@/store/service/types.ts'
-  import { computed, onMounted } from 'vue'
-  import { ServiceVO } from '@/api/service/types.ts'
+  import { onMounted } from 'vue'
   import _ from 'lodash'
+  import { ServiceVO } from '@/api/service/types.ts'
 
   const serviceInfo = defineModel<any>('serviceInfo')
   const disableButton = defineModel<boolean>('disableButton')
 
   const serviceStore = useServiceStore()
   const { installedServices, mergedServices } = storeToRefs(serviceStore)
-  const installedServiceNames = computed(() => {
-    return installedServices.value.map((item: ServiceVO) => item.serviceName)
-  })
+
+  const installedServiceNames = installedServices.value.map(
+    (item: ServiceVO) => item.serviceName
+  )
 
   const serviceColumns = [
     {
@@ -38,15 +39,13 @@
 
   const rowSelection: TableProps['rowSelection'] = {
     defaultSelectedRowKeys: [
-      ...serviceInfo.value.serviceNames,
-      ...installedServiceNames.value
+      // ...serviceInfo.value.serviceNames,
+      // ...installedServiceNames
     ],
     onChange: (v: (string | number)[]) => {
-      serviceInfo.value.serviceNames = _.difference(
-        v,
-        installedServiceNames.value
-      )
-      disableButton.value = serviceInfo.value.serviceNames.length === 0
+      console.log(v)
+      // serviceInfo.value.serviceNames = _.difference(v, installedServiceNames)
+      // disableButton.value = serviceInfo.value.serviceNames.length === 0
     },
     getCheckboxProps: (record: MergedServiceVO) => ({
       disabled: record.installed
@@ -54,7 +53,7 @@
   }
 
   onMounted(async () => {
-    disableButton.value = serviceInfo.value.serviceNames.length === 0
+    // disableButton.value = serviceInfo.value.serviceNames.length === 0
   })
 
   const onNextStep = async () => {

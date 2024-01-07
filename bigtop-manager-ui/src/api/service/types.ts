@@ -18,13 +18,13 @@
 import { MaintainState } from '@/utils/enums.ts'
 
 export interface ServiceVO {
-  id: number
+  id?: number
   serviceName: string
   displayName: string
   serviceDesc: string
   serviceVersion: string
-  clusterName: string
-  serviceUser: string
-  serviceGroup: string
-  state: MaintainState
+  clusterName?: string
+  serviceUser?: string
+  serviceGroup?: string
+  state?: MaintainState
 }

@@ -15,45 +15,12 @@
  * limitations under the License.
  */
 
+import { ServiceVO } from '@/api/service/types.ts'
+import { RepoVO } from '@/api/repo/types.ts'
+
 export interface StackVO {
   stackName: string
   stackVersion: string
-  services: StackServiceVO[]
-  repos: StackRepoVO[]
-}
-
-export interface StackServiceVO {
-  serviceName: string
-  displayName: string
-  serviceDesc: string
-  serviceVersion: string
-}
-
-export interface StackRepoVO {
-  repoId: string
-  repoName: string
-  baseUrl: string
-  os: string
-  arch: string
-}
-
-export interface StackComponentVO {
-  serviceName: string
-  componentName: string
-  displayName: string
-  category: string
-  cardinality: string
-}
-
-export interface StackConfigVO {
-  serviceName: string
-  typeName: string
-  properties: PropertyVO[]
-}
-
-export interface PropertyVO {
-  name: string
-  value: string
-  displayName: string
-  desc: string
+  services: ServiceVO[]
+  repos: RepoVO[]
 }

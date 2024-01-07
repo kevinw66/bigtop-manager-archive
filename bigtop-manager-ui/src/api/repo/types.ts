@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-import { ServiceVO } from '@/api/service/types.ts'
-
-export type MergedServiceVO = ServiceVO & {
-  installed: boolean
+export interface RepoVO {
+  repoId: string
+  repoName: string
+  baseUrl: string
+  os: string
+  arch: string
 }

@@ -54,12 +54,10 @@
 
   const initServiceInfo = () => {
     return {
-      command: 'INSTALL',
-      commandLevel: 'SERVICE',
-      serviceNames: [],
+      command: 'install',
+      commandLevel: 'service',
       clusterId: clusterId.value,
-      componentHosts: {},
-      serviceConfigs: [],
+      serviceCommands: [],
       // Related job id
       jobId: 0,
       // Job Status

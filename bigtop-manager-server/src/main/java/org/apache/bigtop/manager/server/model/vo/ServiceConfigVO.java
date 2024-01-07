@@ -11,5 +11,7 @@ public class ServiceConfigVO {
 
     private String configDesc;
 
+    private Integer version;
+
     private List<ConfigDataVO> configs;
 }
