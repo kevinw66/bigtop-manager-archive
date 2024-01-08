@@ -3,7 +3,7 @@
   import { useStackStore } from '@/store/stack'
   import { storeToRefs } from 'pinia'
   import { useI18n } from 'vue-i18n'
-  import { StackServiceVO } from '@/api/stack/types.ts'
+  import { ServiceVO } from '@/api/service/types.ts'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
@@ -11,7 +11,7 @@
   const stackStore = useStackStore()
 
   const selectedOption = ref<string[]>([])
-  const serviceData = ref<StackServiceVO[]>([])
+  const serviceData = ref<ServiceVO[]>([])
   const { stackOptions, stackServices } = storeToRefs(stackStore)
 
   watch(selectedOption, (val) => {

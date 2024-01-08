@@ -11,13 +11,27 @@
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
   import { useServiceStore } from '@/store/service'
+  import { useComponentStore } from '@/store/component'
+  import { useConfigStore } from '@/store/config'
+  import { HostComponentVO } from '@/api/component/types.ts'
+  import {
+    ConfigDataVO,
+    PropertyVO,
+    ServiceConfigVO
+  } from '@/api/config/types.ts'
 
   const open = defineModel<boolean>('open')
 
   const { t, locale } = useI18n()
+
   const clusterStore = useClusterStore()
-  const { clusterId } = storeToRefs(clusterStore)
   const serviceStore = useServiceStore()
+  const componentStore = useComponentStore()
+  const configStore = useConfigStore()
+  const { clusterId } = storeToRefs(clusterStore)
+  const { installedServices } = storeToRefs(serviceStore)
+  const { hostComponents } = storeToRefs(componentStore)
+  const { latestConfigs } = storeToRefs(configStore)
 
   const initItems = () => [
     {
@@ -52,12 +66,71 @@
     }
   ]
 
-  const initServiceInfo = () => {
+  const initServiceInfo = async () => {
+    await serviceStore.loadServices()
+    await componentStore.loadHostComponents()
+    await configStore.loadLatestConfigs()
+
+    const componentHostsMap = new Map()
+    hostComponents.value.forEach((item: HostComponentVO) => {
+      if (componentHostsMap.has(item.componentName)) {
+        componentHostsMap.get(item.componentName).push(item.hostname)
+      } else {
+        componentHostsMap.set(item.componentName, [item.hostname])
+      }
+    })
+
+    const serviceCommands = installedServices.value.map((item: any) => {
+      const componentNames: string[] = []
+      hostComponents.value.forEach((hostComponentVO: HostComponentVO) => {
+        if (hostComponentVO.serviceName === item.serviceName) {
+          if (!componentNames.includes(hostComponentVO.componentName)) {
+            componentNames.push(hostComponentVO.componentName)
+          }
+        }
+      })
+
+      return {
+        serviceName: item.serviceName,
+        componentHosts: componentNames.map((componentName: string) => {
+          return {
+            componentName: componentName,
+            hostnames: componentHostsMap.get(componentName)
+          }
+        }),
+        configs: latestConfigs.value
+          .filter(
+            (serviceConfigVO: ServiceConfigVO) =>
+              serviceConfigVO.serviceName === item.serviceName
+          )
+          .map((serviceConfigVO: ServiceConfigVO) => {
+            const res: any[] = []
+            serviceConfigVO.configs.forEach((configDataVO: ConfigDataVO) => {
+              res.push({
+                typeName: configDataVO.typeName,
+                properties: configDataVO.properties.map(
+                  (property: PropertyVO) => {
+                    return {
+                      name: property.name,
+                      value: property.value,
+                      displayName: property.displayName,
+                      desc: property.desc
+                    }
+                  }
+                )
+              })
+            })
+
+            return res
+          })
+      }
+    })
+
     return {
       command: 'install',
       commandLevel: 'service',
       clusterId: clusterId.value,
-      serviceCommands: [],
+      serviceCommands: serviceCommands,
       // Related job id
       jobId: 0,
       // Job Status
@@ -67,7 +140,7 @@
 
   const current = ref<number>(0)
   const items = reactive(initItems())
-  const serviceInfo = reactive(initServiceInfo())
+  const serviceInfo = reactive(await initServiceInfo())
   const disableButton = ref<boolean>(false)
   const currentItemRef = ref<any>(null)
   const loadingNext = ref<boolean>(false)
@@ -100,15 +173,12 @@
     items[current.value].status = 'process'
   }
 
-  const clear = () => {
-    // Reload services
-    serviceStore.loadServices()
-
+  const clear = async () => {
     // Clear status
     current.value = 0
     open.value = false
     Object.assign(items, initItems())
-    Object.assign(serviceInfo, initServiceInfo())
+    Object.assign(serviceInfo, await initServiceInfo())
   }
 
   const cancel = () => {

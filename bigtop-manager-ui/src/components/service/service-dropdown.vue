@@ -29,7 +29,9 @@
     </template>
   </a-dropdown>
 
-  <service-add v-model:open="addWindowOpened" />
+  <suspense>
+    <service-add v-model:open="addWindowOpened" />
+  </suspense>
 </template>
 
 <style scoped lang="scss">

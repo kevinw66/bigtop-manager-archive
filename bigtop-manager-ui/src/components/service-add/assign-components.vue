@@ -5,7 +5,6 @@
   import { useComponentStore } from '@/store/component'
   import { storeToRefs } from 'pinia'
   import { useStackStore } from '@/store/stack'
-  import { StackComponentVO } from '@/api/stack/types.ts'
   import _ from 'lodash'
 
   const serviceInfo = defineModel<any>('serviceInfo')
@@ -34,18 +33,19 @@
         _.pick(stackComponents.value, serviceInfo.value.serviceNames),
         _.uniqBy(hostComponents.value, 'serviceName').map((v) => v.serviceName)
       )
-    ).map(([serviceName, components]) => {
+    ).map(([serviceName]) => {
       return {
         title: serviceNameToDisplayName[serviceName],
         align: 'center',
-        children: (components as StackComponentVO[]).map((component) => {
-          return {
-            title: component.displayName,
-            dataIndex: component.componentName,
-            align: 'center',
-            width: 180
-          }
-        })
+        children: []
+        // children: (components as StackComponentVO[]).map((component) => {
+        //   return {
+        //     title: component.displayName,
+        //     dataIndex: component.componentName,
+        //     align: 'center',
+        //     width: 180
+        //   }
+        // })
       }
     })
 

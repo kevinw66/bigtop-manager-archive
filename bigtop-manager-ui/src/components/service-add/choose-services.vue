@@ -4,14 +4,18 @@
   import { useServiceStore } from '@/store/service'
   import { MergedServiceVO } from '@/store/service/types.ts'
   import { onMounted } from 'vue'
-  import _ from 'lodash'
   import { ServiceVO } from '@/api/service/types.ts'
+  import _ from 'lodash'
 
   const serviceInfo = defineModel<any>('serviceInfo')
   const disableButton = defineModel<boolean>('disableButton')
 
   const serviceStore = useServiceStore()
   const { installedServices, mergedServices } = storeToRefs(serviceStore)
+
+  const defaultSelected = serviceInfo.value.serviceCommands.map(
+    (item: any) => item.serviceName
+  )
 
   const installedServiceNames = installedServices.value.map(
     (item: ServiceVO) => item.serviceName
@@ -38,14 +42,31 @@
   ]
 
   const rowSelection: TableProps['rowSelection'] = {
-    defaultSelectedRowKeys: [
-      // ...serviceInfo.value.serviceNames,
-      // ...installedServiceNames
-    ],
+    defaultSelectedRowKeys: defaultSelected,
     onChange: (v: (string | number)[]) => {
-      console.log(v)
-      // serviceInfo.value.serviceNames = _.difference(v, installedServiceNames)
-      // disableButton.value = serviceInfo.value.serviceNames.length === 0
+      // if difference is empty, keep installed services in serviceInfo
+      // otherwise, add new service to serviceInfo
+      const difference = _.difference(v, installedServiceNames)
+      if (difference.length === 0) {
+        _.remove(
+          serviceInfo.value.serviceCommands,
+          (item: any) => !installedServiceNames.includes(item.serviceName)
+        )
+      } else {
+        const exists = serviceInfo.value.serviceCommands.map(
+          (item: any) => item.serviceName
+        )
+
+        difference.map((item: string | number) => {
+          if (!exists.includes(item)) {
+            serviceInfo.value.serviceCommands.push({
+              serviceName: item
+            })
+          }
+        })
+      }
+
+      disableButton.value = _.isEqual(v, installedServiceNames)
     },
     getCheckboxProps: (record: MergedServiceVO) => ({
       disabled: record.installed
@@ -53,7 +74,7 @@
   }
 
   onMounted(async () => {
-    // disableButton.value = serviceInfo.value.serviceNames.length === 0
+    disableButton.value = _.isEqual(defaultSelected, installedServiceNames)
   })
 
   const onNextStep = async () => {

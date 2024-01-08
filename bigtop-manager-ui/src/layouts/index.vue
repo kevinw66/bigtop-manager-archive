@@ -16,14 +16,15 @@
   const componentStore = useComponentStore()
   const configStore = useConfigStore()
 
-  onMounted(async () => {
-    await userStore.getUserInfo()
+  onMounted(() => {
+    userStore.getUserInfo()
 
-    await clusterStore.loadClusters()
+    clusterStore.loadClusters()
 
-    await serviceStore.loadServices()
-    await componentStore.loadHostComponents()
-    await configStore.loadLatestConfigs()
+    console.log('loading...')
+    serviceStore.loadServices()
+    componentStore.loadHostComponents()
+    configStore.loadLatestConfigs()
   })
 </script>
 
