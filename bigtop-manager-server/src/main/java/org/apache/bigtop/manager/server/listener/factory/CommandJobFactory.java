@@ -327,11 +327,6 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
         // Persist service, component and hostComponent metadata to database
         for (ServiceCommandDTO serviceCommand : commandDTO.getServiceCommands()) {
-            Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceCommand.getServiceName());
-            if (serviceOptional.isPresent() && serviceOptional.get().getState() != MaintainState.UNINSTALLED) {
-                continue;
-            }
-
             ServiceDTO serviceDTO = serviceNameToDTO.get(serviceCommand.getServiceName());
             Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
             List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
