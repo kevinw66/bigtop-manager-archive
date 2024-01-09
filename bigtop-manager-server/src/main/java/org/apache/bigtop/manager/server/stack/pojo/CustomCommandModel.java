@@ -11,6 +11,6 @@ public class CustomCommandModel {
 
     private String name;
 
-    @XmlElement(name="command-script")
+    @XmlElement(name = "command-script")
     private ScriptModel commandScript;
 }
