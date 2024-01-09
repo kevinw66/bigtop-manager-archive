@@ -73,26 +73,25 @@
   const rowSelection: TableProps['rowSelection'] = {
     defaultSelectedRowKeys: defaultSelected,
     onChange: (v: (string | number)[]) => {
-      // if difference is empty, keep installed services in serviceInfo
-      // otherwise, add new service command to serviceInfo
-      const difference = _.difference(v, installedServiceNames)
-      if (difference.length === 0) {
-        _.remove(
-          serviceInfo.value.serviceCommands,
-          (item: any) => !installedServiceNames.includes(item.serviceName)
-        )
-      } else {
-        const exists = serviceInfo.value.serviceCommands.map(
-          (item: any) => item.serviceName
-        )
+      const existingServices = serviceInfo.value.serviceCommands.map(
+        (item: any) => item.serviceName
+      )
 
-        difference.map((item: string | number) => {
-          if (!exists.includes(item)) {
+      if (v.length > existingServices.length) {
+        // select a new service
+        v.map((item: string | number) => {
+          if (!existingServices.includes(item)) {
             serviceInfo.value.serviceCommands.push(
               newServiceCommand(item as string)
             )
           }
         })
+      } else {
+        // unselect a service
+        _.remove(
+          serviceInfo.value.serviceCommands,
+          (item: any) => !v.includes(item.serviceName)
+        )
       }
 
       disableButton.value = _.isEqual(v, installedServiceNames)
