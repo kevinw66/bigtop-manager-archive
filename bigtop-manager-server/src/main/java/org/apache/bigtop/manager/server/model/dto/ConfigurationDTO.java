@@ -8,8 +8,6 @@ import java.util.List;
 @Data
 public class ConfigurationDTO implements Serializable {
 
-    private String clusterName;
-
     private String serviceName;
 
     private String configDesc;

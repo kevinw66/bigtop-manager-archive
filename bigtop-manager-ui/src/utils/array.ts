@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-import { ServiceVO } from '@/api/service/types.ts'
+// Check if array equals ignore elements order
+export const arrayEquals = (arr1: any[], arr2: any[]): boolean => {
+  if (arr1.length !== arr2.length) {
+    return false
+  }
 
-export type MergedServiceVO = ServiceVO & {
-  installed: boolean
+  return arr1.every((item) => arr2.includes(item))
 }

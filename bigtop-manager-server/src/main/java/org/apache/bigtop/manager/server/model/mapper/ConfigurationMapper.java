@@ -5,7 +5,7 @@ import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
-import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
+import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
@@ -27,16 +27,16 @@ public interface ConfigurationMapper {
 
     List<ConfigDataVO> fromDTO2VO(Collection<ConfigDataDTO> configDataDTOs);
 
-    default List<ConfigurationVO> fromEntity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
-        Map<ServiceConfigRecord, ConfigurationVO> map = new HashMap<>();
+    default List<ServiceConfigVO> fromEntity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
+        Map<ServiceConfigRecord, ServiceConfigVO> map = new HashMap<>();
 
         for (ServiceConfigMapping serviceConfigMapping : serviceConfigMappings) {
             ServiceConfig serviceConfig = serviceConfigMapping.getServiceConfig();
             ServiceConfigRecord serviceConfigRecord = serviceConfigMapping.getServiceConfigRecord();
 
-            ConfigurationVO configurationVO = map.getOrDefault(serviceConfigRecord, new ConfigurationVO());
-            map.put(serviceConfigRecord, configurationVO);
-            List<ConfigDataVO> configDataVOList = configurationVO.getConfigurations() == null ? new ArrayList<>() : configurationVO.getConfigurations();
+            ServiceConfigVO serviceConfigVO = map.getOrDefault(serviceConfigRecord, new ServiceConfigVO());
+            map.put(serviceConfigRecord, serviceConfigVO);
+            List<ConfigDataVO> configDataVOList = serviceConfigVO.getConfigs() == null ? new ArrayList<>() : serviceConfigVO.getConfigs();
 
             ConfigDataVO configDataVO = new ConfigDataVO();
             configDataVO.setProperties(JsonUtils.readFromString(serviceConfig.getPropertiesJson()));
@@ -44,11 +44,10 @@ public interface ConfigurationMapper {
             configDataVO.setTypeName(serviceConfig.getTypeName());
             configDataVOList.add(configDataVO);
 
-            configurationVO.setConfigurations(configDataVOList);
-            configurationVO.setConfigDesc(serviceConfigRecord.getConfigDesc());
-            configurationVO.setVersion(serviceConfigRecord.getVersion());
-            configurationVO.setServiceName(serviceConfigRecord.getService().getServiceName());
-            configurationVO.setClusterName(serviceConfigRecord.getCluster().getClusterName());
+            serviceConfigVO.setConfigs(configDataVOList);
+            serviceConfigVO.setConfigDesc(serviceConfigRecord.getConfigDesc());
+            serviceConfigVO.setVersion(serviceConfigRecord.getVersion());
+            serviceConfigVO.setServiceName(serviceConfigRecord.getService().getServiceName());
         }
 
         return new ArrayList<>(map.values());

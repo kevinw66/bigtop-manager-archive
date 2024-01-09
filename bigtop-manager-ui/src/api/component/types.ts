@@ -17,6 +17,21 @@
 
 import { MaintainState } from '@/utils/enums.ts'
 
+export interface ComponentVO {
+  id: number
+  componentName: string
+  displayName: string
+  category: string
+  serviceName: string
+  clusterName: string
+  cardinality: string
+}
+
+export interface ServiceComponentVO {
+  serviceName: string
+  components: ComponentVO[]
+}
+
 export interface HostComponentVO {
   id: number
   componentName: string

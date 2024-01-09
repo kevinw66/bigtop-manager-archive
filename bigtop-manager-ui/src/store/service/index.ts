@@ -22,8 +22,6 @@ import { useClusterStore } from '@/store/cluster'
 import { getService } from '@/api/service'
 import { MergedServiceVO } from '@/store/service/types.ts'
 import { useStackStore } from '@/store/stack'
-import { Pausable, useIntervalFn } from '@vueuse/core'
-import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
 
 export const useServiceStore = defineStore(
   'service',
@@ -33,7 +31,6 @@ export const useServiceStore = defineStore(
     const { clusterId } = storeToRefs(clusterStore)
     const { currentStack } = storeToRefs(stackStore)
 
-    const intervalFn = ref<Pausable | undefined>()
     const installedServices = ref<ServiceVO[]>([])
     const loadingServices = ref<boolean>(true)
     const mergedServices = computed(() => {
@@ -74,24 +71,11 @@ export const useServiceStore = defineStore(
       }
     })
 
-    intervalFn.value = useIntervalFn(
-      async () => {
-        await loadServices()
-      },
-      MONITOR_SCHEDULE_INTERVAL,
-      { immediate: false, immediateCallback: true }
-    )
-
-    const resumeIntervalFn = () => intervalFn.value?.resume()
-    const pauseIntervalFn = () => intervalFn.value?.pause()
-
     return {
       installedServices,
       loadingServices,
       mergedServices,
-      loadServices,
-      resumeIntervalFn,
-      pauseIntervalFn
+      loadServices
     }
   },
   { persist: false }

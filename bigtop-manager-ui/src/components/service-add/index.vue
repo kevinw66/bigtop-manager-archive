@@ -11,13 +11,23 @@
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
   import { useServiceStore } from '@/store/service'
+  import { useComponentStore } from '@/store/component'
+  import { useConfigStore } from '@/store/config'
+  import { HostComponentVO } from '@/api/component/types.ts'
+  import { ConfigDataVO, ServiceConfigVO } from '@/api/config/types.ts'
 
   const open = defineModel<boolean>('open')
 
   const { t, locale } = useI18n()
+
   const clusterStore = useClusterStore()
-  const { clusterId } = storeToRefs(clusterStore)
   const serviceStore = useServiceStore()
+  const componentStore = useComponentStore()
+  const configStore = useConfigStore()
+  const { clusterId } = storeToRefs(clusterStore)
+  const { installedServices } = storeToRefs(serviceStore)
+  const { hostComponents } = storeToRefs(componentStore)
+  const { latestConfigs } = storeToRefs(configStore)
 
   const initItems = () => [
     {
@@ -52,14 +62,52 @@
     }
   ]
 
-  const initServiceInfo = () => {
+  const initServiceInfo = async () => {
+    await serviceStore.loadServices()
+    await componentStore.loadHostComponents()
+    await configStore.loadLatestConfigs()
+
+    const serviceCommands = installedServices.value.map((item: any) => {
+      const serviceName = item.serviceName
+      const componentHosts: any[] = hostComponents.value
+        .filter((hc: HostComponentVO) => hc.serviceName === serviceName)
+        .reduce((acc: any[], hc: HostComponentVO) => {
+          const existingComponent = acc.find(
+            (comp) => comp.componentName === hc.componentName
+          )
+
+          if (existingComponent) {
+            existingComponent.hostnames.push(hc.hostname)
+          } else {
+            acc.push({
+              componentName: hc.componentName,
+              hostnames: [hc.hostname]
+            })
+          }
+
+          return acc
+        }, [])
+
+      const configs = latestConfigs.value
+        .filter((sc: ServiceConfigVO) => sc.serviceName === serviceName)
+        .flatMap((sc: ServiceConfigVO) => sc.configs)
+        .map((cd: ConfigDataVO) => ({
+          typeName: cd.typeName,
+          properties: cd.properties
+        }))
+
+      return {
+        serviceName: serviceName,
+        componentHosts: componentHosts,
+        configs: configs
+      }
+    })
+
     return {
-      command: 'INSTALL',
-      commandLevel: 'SERVICE',
-      serviceNames: [],
+      command: 'install',
+      commandLevel: 'service',
       clusterId: clusterId.value,
-      componentHosts: {},
-      serviceConfigs: [],
+      serviceCommands: serviceCommands,
       // Related job id
       jobId: 0,
       // Job Status
@@ -69,7 +117,7 @@
 
   const current = ref<number>(0)
   const items = reactive(initItems())
-  const serviceInfo = reactive(initServiceInfo())
+  const serviceInfo = reactive(await initServiceInfo())
   const disableButton = ref<boolean>(false)
   const currentItemRef = ref<any>(null)
   const loadingNext = ref<boolean>(false)
@@ -102,15 +150,12 @@
     items[current.value].status = 'process'
   }
 
-  const clear = () => {
-    // Reload services
-    serviceStore.loadServices()
-
+  const clear = async () => {
     // Clear status
     current.value = 0
     open.value = false
     Object.assign(items, initItems())
-    Object.assign(serviceInfo, initServiceInfo())
+    Object.assign(serviceInfo, await initServiceInfo())
   }
 
   const cancel = () => {

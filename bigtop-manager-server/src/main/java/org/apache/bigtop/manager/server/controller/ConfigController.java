@@ -9,8 +9,8 @@ import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
 import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
-import org.apache.bigtop.manager.server.model.vo.ConfigurationVO;
-import org.apache.bigtop.manager.server.service.ConfigurationService;
+import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
+import org.apache.bigtop.manager.server.service.ConfigService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -22,23 +22,21 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/clusters/{clusterId}/configurations")
-public class ConfigurationController {
+public class ConfigController {
 
     @Resource
-    private ConfigurationService configurationService;
+    private ConfigService configService;
 
     @Operation(summary = "list", description = "list all version configurations")
     @GetMapping
-    public ResponseEntity<List<ConfigurationVO>> list(@PathVariable Long clusterId) {
-        List<ConfigurationVO> configurationVOList = configurationService.list(clusterId);
-        return ResponseEntity.success(configurationVOList);
+    public ResponseEntity<List<ServiceConfigVO>> list(@PathVariable Long clusterId) {
+        return ResponseEntity.success(configService.list(clusterId));
     }
 
     @Operation(summary = "list", description = "list all latest configurations")
     @GetMapping("/latest")
-    public ResponseEntity<List<ConfigurationVO>> latest(@PathVariable Long clusterId) {
-        List<ConfigurationVO> configurationVOList = configurationService.latest(clusterId);
-        return ResponseEntity.success(configurationVOList);
+    public ResponseEntity<List<ServiceConfigVO>> latest(@PathVariable Long clusterId) {
+        return ResponseEntity.success(configService.latest(clusterId));
     }
 
     @Operation(summary = "update", description = "update|create|roll-back configurations")
@@ -47,8 +45,8 @@ public class ConfigurationController {
                                             @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
         List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.fromReq2DTO(configurationReqs);
         log.info("configurationDTOList: {}", configurationDTOList);
-        CommandVO configurationVOList = configurationService.update(clusterId, configurationDTOList);
-        return ResponseEntity.success(configurationVOList);
+        CommandVO commandVO = configService.update(clusterId, configurationDTOList);
+        return ResponseEntity.success(commandVO);
     }
 
 }

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { StackServiceVO } from '@/api/stack/types.ts'
+import { ServiceVO } from '@/api/service/types.ts'
 
 export type StackOptionProps = {
   label: string
@@ -25,5 +25,5 @@ export type StackOptionProps = {
 
 export type StackInfo = {
   name: string
-  services: StackServiceVO[]
+  services: ServiceVO[]
 }

@@ -3,18 +3,28 @@
   import { TableProps } from 'ant-design-vue'
   import { useServiceStore } from '@/store/service'
   import { MergedServiceVO } from '@/store/service/types.ts'
-  import { computed, onMounted } from 'vue'
+  import { onMounted } from 'vue'
   import { ServiceVO } from '@/api/service/types.ts'
+  import { useStackStore } from '@/store/stack'
+  import { ComponentVO, ServiceComponentVO } from '@/api/component/types.ts'
+  import { ConfigDataVO, ServiceConfigVO } from '@/api/config/types.ts'
   import _ from 'lodash'
 
   const serviceInfo = defineModel<any>('serviceInfo')
   const disableButton = defineModel<boolean>('disableButton')
 
+  const stackStore = useStackStore()
   const serviceStore = useServiceStore()
+  const { stackComponents, stackConfigs } = storeToRefs(stackStore)
   const { installedServices, mergedServices } = storeToRefs(serviceStore)
-  const installedServiceNames = computed(() => {
-    return installedServices.value.map((item: ServiceVO) => item.serviceName)
-  })
+
+  const defaultSelected = serviceInfo.value.serviceCommands.map(
+    (item: any) => item.serviceName
+  )
+
+  const installedServiceNames = installedServices.value.map(
+    (item: ServiceVO) => item.serviceName
+  )
 
   const serviceColumns = [
     {
@@ -36,17 +46,55 @@
     }
   ]
 
+  const newServiceCommand = (serviceName: string) => {
+    const componentHosts = stackComponents.value
+      .filter((item: ServiceComponentVO) => item.serviceName === serviceName)
+      .flatMap((item: ServiceComponentVO) => item.components)
+      .map((item: ComponentVO) => ({
+        componentName: item.componentName,
+        hostnames: []
+      }))
+
+    const configs = stackConfigs.value
+      .filter((item: ServiceConfigVO) => item.serviceName === serviceName)
+      .flatMap((item: ServiceConfigVO) => item.configs)
+      .map((item: ConfigDataVO) => ({
+        typeName: item.typeName,
+        properties: item.properties
+      }))
+
+    return {
+      serviceName: serviceName,
+      componentHosts: componentHosts,
+      configs: configs
+    }
+  }
+
   const rowSelection: TableProps['rowSelection'] = {
-    defaultSelectedRowKeys: [
-      ...serviceInfo.value.serviceNames,
-      ...installedServiceNames.value
-    ],
+    defaultSelectedRowKeys: defaultSelected,
     onChange: (v: (string | number)[]) => {
-      serviceInfo.value.serviceNames = _.difference(
-        v,
-        installedServiceNames.value
+      const existingServices = serviceInfo.value.serviceCommands.map(
+        (item: any) => item.serviceName
       )
-      disableButton.value = serviceInfo.value.serviceNames.length === 0
+
+      if (v.length > existingServices.length) {
+        // select a new service
+        v.map((item: string | number) => {
+          if (!existingServices.includes(item)) {
+            serviceInfo.value.serviceCommands.push(
+              newServiceCommand(item as string)
+            )
+          }
+        })
+      } else {
+        // unselect a service
+        _.remove(
+          serviceInfo.value.serviceCommands,
+          (item: any) => !v.includes(item.serviceName)
+        )
+      }
+
+      disableButton.value = _.isEqual(v, installedServiceNames)
     },
     getCheckboxProps: (record: MergedServiceVO) => ({
       disabled: record.installed
@@ -54,7 +102,7 @@
   }
 
   onMounted(async () => {
-    disableButton.value = serviceInfo.value.serviceNames.length === 0
+    disableButton.value = _.isEqual(defaultSelected, installedServiceNames)
   })
 
   const onNextStep = async () => {

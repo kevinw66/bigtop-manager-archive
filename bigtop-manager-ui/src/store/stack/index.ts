@@ -19,26 +19,23 @@ import { defineStore, storeToRefs } from 'pinia'
 import { getStackComponents, getStackConfigs, getStacks } from '@/api/stack'
 import { computed, shallowReactive, shallowRef, watch } from 'vue'
 import { StackInfo, StackOptionProps } from '@/store/stack/types.ts'
-import {
-  StackComponentVO,
-  StackConfigVO,
-  StackRepoVO,
-  StackServiceVO,
-  StackVO
-} from '@/api/stack/types.ts'
 import { useClusterStore } from '@/store/cluster'
-import _ from 'lodash'
+import { StackVO } from '@/api/stack/types.ts'
+import { ServiceConfigVO } from '@/api/config/types.ts'
+import { ServiceComponentVO } from '@/api/component/types.ts'
+import { RepoVO } from '@/api/repo/types.ts'
+import { ServiceVO } from '@/api/service/types.ts'
 
 export const useStackStore = defineStore(
   'stack',
   () => {
     const clusterStore = useClusterStore()
     const { clusterId, selectedCluster } = storeToRefs(clusterStore)
-    const stackOptions = shallowReactive<StackOptionProps[]>([])
-    const stackServices = shallowReactive<Record<string, StackServiceVO[]>>({})
-    const stackRepos = shallowReactive<Record<string, StackRepoVO[]>>({})
-    const stackComponents = shallowRef<Record<string, StackComponentVO[]>>({})
-    const stackConfigs = shallowRef<Record<string, StackConfigVO[]>>({})
+    const stackOptions = shallowRef<StackOptionProps[]>([])
+    const stackServices = shallowReactive<Record<string, ServiceVO[]>>({})
+    const stackRepos = shallowReactive<Record<string, RepoVO[]>>({})
+    const stackComponents = shallowRef<ServiceComponentVO[]>([])
+    const stackConfigs = shallowRef<ServiceConfigVO[]>([])
     const initialized = shallowRef(false)
 
     const currentStack = computed<StackInfo>(() => {
@@ -55,11 +52,9 @@ export const useStackStore = defineStore(
     watch(clusterId, async () => {
       const stackName = selectedCluster.value?.stackName as string
       const stackVersion = selectedCluster.value?.stackVersion as string
-      const componentRes = await getStackComponents(stackName, stackVersion)
-      const configRes = await getStackConfigs(stackName, stackVersion)
 
-      stackComponents.value = _.groupBy(componentRes, 'serviceName')
-      stackConfigs.value = _.groupBy(configRes, 'serviceName')
+      stackComponents.value = await getStackComponents(stackName, stackVersion)
+      stackConfigs.value = await getStackConfigs(stackName, stackVersion)
     })
 
     const initStacks = async () => {
@@ -91,7 +86,7 @@ export const useStackStore = defineStore(
           }
         })
 
-        Object.assign(stackOptions, stacks)
+        stackOptions.value = stacks
         initialized.value = true
       }
 

@@ -4,18 +4,18 @@
   import { useI18n } from 'vue-i18n'
   import { useStackStore } from '@/store/stack'
   import { storeToRefs } from 'pinia'
-  import { StackRepoVO } from '@/api/stack/types.ts'
   import _ from 'lodash'
+  import { RepoVO } from '@/api/repo/types.ts'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
   const { t } = useI18n()
   const stackStore = useStackStore()
 
-  const editableData: UnwrapRef<Record<number, StackRepoVO>> = reactive({})
+  const editableData: UnwrapRef<Record<number, RepoVO>> = reactive({})
   const { stackRepos } = storeToRefs(stackStore)
 
-  const repositoryData: StackRepoVO[] = _.cloneDeep(
+  const repositoryData: RepoVO[] = _.cloneDeep(
     stackRepos.value[clusterInfo.value.fullStackName]
   )
 

@@ -15,8 +15,28 @@
  * limitations under the License.
  */
 
-import { ServiceVO } from '@/api/service/types.ts'
+import { defineStore, storeToRefs } from 'pinia'
+import { shallowRef, watch } from 'vue'
+import { useClusterStore } from '@/store/cluster'
+import { ServiceConfigVO } from '@/api/config/types.ts'
+import { getLatestConfigs } from '@/api/config'
 
-export type MergedServiceVO = ServiceVO & {
-  installed: boolean
-}
+export const useConfigStore = defineStore(
+  'config',
+  () => {
+    const clusterStore = useClusterStore()
+    const { clusterId } = storeToRefs(clusterStore)
+    const latestConfigs = shallowRef<ServiceConfigVO[]>([])
+
+    watch(clusterId, async () => {
+      await loadLatestConfigs()
+    })
+
+    const loadLatestConfigs = async () => {
+      latestConfigs.value = await getLatestConfigs(clusterId.value)
+    }
+
+    return { latestConfigs, loadLatestConfigs }
+  },
+  { persist: false }
+)
