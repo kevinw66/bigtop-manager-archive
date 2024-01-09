@@ -14,11 +14,7 @@
   import { useComponentStore } from '@/store/component'
   import { useConfigStore } from '@/store/config'
   import { HostComponentVO } from '@/api/component/types.ts'
-  import {
-    ConfigDataVO,
-    PropertyVO,
-    ServiceConfigVO
-  } from '@/api/config/types.ts'
+  import { ConfigDataVO, ServiceConfigVO } from '@/api/config/types.ts'
 
   const open = defineModel<boolean>('open')
 
@@ -71,58 +67,39 @@
     await componentStore.loadHostComponents()
     await configStore.loadLatestConfigs()
 
-    const componentHostsMap = new Map()
-    hostComponents.value.forEach((item: HostComponentVO) => {
-      if (componentHostsMap.has(item.componentName)) {
-        componentHostsMap.get(item.componentName).push(item.hostname)
-      } else {
-        componentHostsMap.set(item.componentName, [item.hostname])
-      }
-    })
-
     const serviceCommands = installedServices.value.map((item: any) => {
-      const componentNames: string[] = []
-      hostComponents.value.forEach((hostComponentVO: HostComponentVO) => {
-        if (hostComponentVO.serviceName === item.serviceName) {
-          if (!componentNames.includes(hostComponentVO.componentName)) {
-            componentNames.push(hostComponentVO.componentName)
+      const serviceName = item.serviceName
+      const componentHosts: any[] = hostComponents.value
+        .filter((hc: HostComponentVO) => hc.serviceName === serviceName)
+        .reduce((acc: any[], hc: HostComponentVO) => {
+          const existingComponent = acc.find(
+            (comp) => comp.componentName === hc.componentName
+          )
+
+          if (existingComponent) {
+            existingComponent.hostnames.push(hc.hostname)
+          } else {
+            acc.push({
+              componentName: hc.componentName,
+              hostnames: [hc.hostname]
+            })
           }
-        }
-      })
+
+          return acc
+        }, [])
+
+      const configs = latestConfigs.value
+        .filter((sc: ServiceConfigVO) => sc.serviceName === serviceName)
+        .flatMap((sc: ServiceConfigVO) => sc.configs)
+        .map((cd: ConfigDataVO) => ({
+          typeName: cd.typeName,
+          properties: cd.properties
+        }))
 
       return {
-        serviceName: item.serviceName,
-        componentHosts: componentNames.map((componentName: string) => {
-          return {
-            componentName: componentName,
-            hostnames: componentHostsMap.get(componentName)
-          }
-        }),
-        configs: latestConfigs.value
-          .filter(
-            (serviceConfigVO: ServiceConfigVO) =>
-              serviceConfigVO.serviceName === item.serviceName
-          )
-          .map((serviceConfigVO: ServiceConfigVO) => {
-            const res: any[] = []
-            serviceConfigVO.configs.forEach((configDataVO: ConfigDataVO) => {
-              res.push({
-                typeName: configDataVO.typeName,
-                properties: configDataVO.properties.map(
-                  (property: PropertyVO) => {
-                    return {
-                      name: property.name,
-                      value: property.value,
-                      displayName: property.displayName,
-                      desc: property.desc
-                    }
-                  }
-                )
-              })
-            })
-
-            return res
-          })
+        serviceName: serviceName,
+        componentHosts: componentHosts,
+        configs: configs
       }
     })
 

@@ -6,6 +6,8 @@
   import { storeToRefs } from 'pinia'
   import { useStackStore } from '@/store/stack'
   import _ from 'lodash'
+  import { ComponentVO, ServiceComponentVO } from '@/api/component/types.ts'
+  import { arrayEquals } from '@/utils/array.ts'
 
   const serviceInfo = defineModel<any>('serviceInfo')
 
@@ -21,48 +23,27 @@
     currentStack.value.services.map((v) => [v.serviceName, v.displayName])
   )
 
-  const hostnames = _.sortBy(hosts.value.map((v) => v.hostname))
-  const selectedComponents = _.mapValues(
-    _.groupBy(hostComponents.value, 'componentName'),
-    (g) => g.map((v) => v.hostname)
-  )
+  const hostnames = hosts.value.map((v) => v.hostname)
 
   const columns = computed(() => {
-    const services = Object.entries(
-      _.omit(
-        _.pick(stackComponents.value, serviceInfo.value.serviceNames),
-        _.uniqBy(hostComponents.value, 'serviceName').map((v) => v.serviceName)
-      )
-    ).map(([serviceName]) => {
+    const services = serviceInfo.value.serviceCommands.map((item: any) => {
       return {
-        title: serviceNameToDisplayName[serviceName],
+        title: serviceNameToDisplayName[item.serviceName],
         align: 'center',
-        children: []
-        // children: (components as StackComponentVO[]).map((component) => {
-        //   return {
-        //     title: component.displayName,
-        //     dataIndex: component.componentName,
-        //     align: 'center',
-        //     width: 180
-        //   }
-        // })
-      }
-    })
-
-    const selectedServices = Object.entries(
-      _.groupBy(_.uniqBy(hostComponents.value, 'componentName'), 'serviceName')
-    ).map(([serviceName, components]) => {
-      return {
-        title: serviceNameToDisplayName[serviceName],
-        align: 'center',
-        children: components.map((component) => {
-          return {
-            title: component.displayName,
-            dataIndex: component.componentName,
-            align: 'center',
-            width: 180
-          }
-        })
+        children: stackComponents.value
+          .filter(
+            (component: ServiceComponentVO) =>
+              component.serviceName === item.serviceName
+          )
+          .flatMap((component: ServiceComponentVO) => component.components)
+          .map((component: ComponentVO) => {
+            return {
+              title: component.displayName,
+              dataIndex: component.componentName,
+              align: 'center',
+              width: 180
+            }
+          })
       }
     })
 
@@ -74,8 +55,7 @@
         fixed: true,
         width: 200
       },
-      ...services,
-      ...selectedServices
+      ...services
     ]
   })
 
@@ -90,84 +70,49 @@
     }
   })
 
+  const checkedComponents = computed(() => {
+    return serviceInfo.value.serviceCommands
+      .flatMap((item: any) => item.componentHosts)
+      .reduce((acc: any, item: any) => {
+        acc[item.componentName] = item.hostnames
+        return acc
+      }, {})
+  })
+
+  const disabledComponents = _.uniq(
+    hostComponents.value.map((item) => item.componentName)
+  )
+
   const checkComponent = (record: any, column: any) => {
     const host = record.host
     const componentName = column.dataIndex
-    if (!serviceInfo.value.componentHosts[componentName]) {
-      serviceInfo.value.componentHosts[componentName] = []
-    }
 
-    if (serviceInfo.value.componentHosts[componentName].includes(host)) {
-      _.remove(
-        serviceInfo.value.componentHosts[componentName],
-        (v) => v === host
-      )
-      if (_.isEmpty(serviceInfo.value.componentHosts[componentName])) {
-        delete serviceInfo.value.componentHosts[componentName]
-      }
-    } else {
-      serviceInfo.value.componentHosts[componentName].push(host)
-    }
-  }
-
-  const isComponentCheckDisabled = (column: any): boolean => {
-    const componentName = column.dataIndex
-    return (
-      selectedComponents[componentName] &&
-      !_.isEmpty(selectedComponents[componentName])
-    )
-  }
-
-  const isComponentChecked = (record: any, column: any): boolean => {
-    const host = record.host
-    const componentName = column.dataIndex
-
-    return (
-      (serviceInfo.value.componentHosts[componentName] &&
-        serviceInfo.value.componentHosts[componentName].includes(host)) ||
-      (selectedComponents[componentName] &&
-        selectedComponents[componentName].includes(host))
-    )
+    serviceInfo.value.serviceCommands.forEach((serviceCommand: any) => {
+      serviceCommand.componentHosts.forEach((componentHost: any) => {
+        if (componentHost.componentName === componentName) {
+          if (componentHost.hostnames.includes(host)) {
+            _.remove(componentHost.hostnames, (item: any) => item === host)
+          } else {
+            componentHost.hostnames.push(host)
+          }
+        }
+      })
+    })
   }
 
   const checkGroup = (column: any) => {
     const componentName = column.dataIndex
-    if (serviceInfo.value.componentHosts[componentName]) {
-      // Uncheck if there is elements
-      delete serviceInfo.value.componentHosts[componentName]
-    } else {
-      // Check all
-      serviceInfo.value.componentHosts[componentName] = [...hostnames]
-    }
-  }
-
-  const isGroupIndeterminate = (column: any) => {
-    const componentName = column.dataIndex
-    return (
-      serviceInfo.value.componentHosts[componentName] &&
-      !_.isEqual(
-        _.sortBy(serviceInfo.value.componentHosts[componentName]),
-        hostnames
-      )
-    )
-  }
-
-  const isGroupCheckDisabled = (column: any): boolean => {
-    const componentName = column.dataIndex
-    return (
-      selectedComponents[componentName] &&
-      !_.isEmpty(selectedComponents[componentName])
-    )
-  }
-
-  const isGroupChecked = (column: any) => {
-    const componentName = column.dataIndex
-    return (
-      _.isEqual(
-        _.sortBy(serviceInfo.value.componentHosts[componentName]),
-        hostnames
-      ) || _.isEqual(_.sortBy(selectedComponents[componentName]), hostnames)
-    )
+    serviceInfo.value.serviceCommands.forEach((serviceCommand: any) => {
+      serviceCommand.componentHosts.forEach((componentHost: any) => {
+        if (componentHost.componentName === componentName) {
+          if (componentHost.hostnames.length > 0) {
+            componentHost.hostnames = []
+          } else {
+            componentHost.hostnames = [...hostnames]
+          }
+        }
+      })
+    })
   }
 
   onMounted(() => {
@@ -197,9 +142,14 @@
         <span v-if="column.dataIndex === 'host'">{{ $t(column.title) }}</span>
         <template v-if="column.dataIndex !== 'host' && !column.children">
           <a-checkbox
-            :indeterminate="isGroupIndeterminate(column)"
-            :checked="isGroupChecked(column)"
-            :disabled="isGroupCheckDisabled(column)"
+            :disabled="disabledComponents.includes(column.dataIndex)"
+            :indeterminate="
+              !arrayEquals(checkedComponents[column.dataIndex], hostnames) &&
+              checkedComponents[column.dataIndex].length > 0
+            "
+            :checked="
+              arrayEquals(checkedComponents[column.dataIndex], hostnames)
+            "
             @click="checkGroup(column)"
           >
             {{ column.title }}
@@ -210,8 +160,8 @@
       <template #bodyCell="{ record, column }">
         <template v-if="column.dataIndex !== 'host'">
           <a-checkbox
-            :checked="isComponentChecked(record, column)"
-            :disabled="isComponentCheckDisabled(column)"
+            :checked="checkedComponents[column.dataIndex].includes(record.host)"
+            :disabled="disabledComponents.includes(column.dataIndex)"
             @click="checkComponent(record, column)"
           />
         </template>

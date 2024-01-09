@@ -5,12 +5,17 @@
   import { MergedServiceVO } from '@/store/service/types.ts'
   import { onMounted } from 'vue'
   import { ServiceVO } from '@/api/service/types.ts'
+  import { useStackStore } from '@/store/stack'
+  import { ComponentVO, ServiceComponentVO } from '@/api/component/types.ts'
+  import { ConfigDataVO, ServiceConfigVO } from '@/api/config/types.ts'
   import _ from 'lodash'
 
   const serviceInfo = defineModel<any>('serviceInfo')
   const disableButton = defineModel<boolean>('disableButton')
 
+  const stackStore = useStackStore()
   const serviceStore = useServiceStore()
+  const { stackComponents, stackConfigs } = storeToRefs(stackStore)
   const { installedServices, mergedServices } = storeToRefs(serviceStore)
 
   const defaultSelected = serviceInfo.value.serviceCommands.map(
@@ -41,11 +46,35 @@
     }
   ]
 
+  const newServiceCommand = (serviceName: string) => {
+    const componentHosts = stackComponents.value
+      .filter((item: ServiceComponentVO) => item.serviceName === serviceName)
+      .flatMap((item: ServiceComponentVO) => item.components)
+      .map((item: ComponentVO) => ({
+        componentName: item.componentName,
+        hostnames: []
+      }))
+
+    const configs = stackConfigs.value
+      .filter((item: ServiceConfigVO) => item.serviceName === serviceName)
+      .flatMap((item: ServiceConfigVO) => item.configs)
+      .map((item: ConfigDataVO) => ({
+        typeName: item.typeName,
+        properties: item.properties
+      }))
+
+    return {
+      serviceName: serviceName,
+      componentHosts: componentHosts,
+      configs: configs
+    }
+  }
+
   const rowSelection: TableProps['rowSelection'] = {
     defaultSelectedRowKeys: defaultSelected,
     onChange: (v: (string | number)[]) => {
       // if difference is empty, keep installed services in serviceInfo
-      // otherwise, add new service to serviceInfo
+      // otherwise, add new service command to serviceInfo
       const difference = _.difference(v, installedServiceNames)
       if (difference.length === 0) {
         _.remove(
@@ -59,9 +88,9 @@
 
         difference.map((item: string | number) => {
           if (!exists.includes(item)) {
-            serviceInfo.value.serviceCommands.push({
-              serviceName: item
-            })
+            serviceInfo.value.serviceCommands.push(
+              newServiceCommand(item as string)
+            )
           }
         })
       }
