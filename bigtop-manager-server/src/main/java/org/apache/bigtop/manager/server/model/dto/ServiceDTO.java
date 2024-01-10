@@ -22,4 +22,6 @@ public class ServiceDTO {
     private List<OSSpecificDTO> osSpecifics;
 
     private List<ComponentDTO> components;
+
+    private List<String> requiredServices;
 }

@@ -9,15 +9,15 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class OSSpecificModel {
 
-    @XmlElementWrapper(name="operating-systems")
-    @XmlElements(@XmlElement(name="os"))
+    @XmlElementWrapper(name = "operating-systems")
+    @XmlElements(@XmlElement(name = "os"))
     private List<String> os;
 
-    @XmlElementWrapper(name="architectures")
-    @XmlElements(@XmlElement(name="arch"))
+    @XmlElementWrapper(name = "architectures")
+    @XmlElements(@XmlElement(name = "arch"))
     private List<String> arch;
 
-    @XmlElementWrapper(name="packages")
-    @XmlElements(@XmlElement(name="package"))
+    @XmlElementWrapper(name = "packages")
+    @XmlElements(@XmlElement(name = "package"))
     private List<String> packages;
 }

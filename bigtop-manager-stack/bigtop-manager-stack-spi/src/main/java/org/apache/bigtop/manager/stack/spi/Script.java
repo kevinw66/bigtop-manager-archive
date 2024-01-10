@@ -8,7 +8,7 @@ public interface Script extends SPIIdentify {
 
     ShellResult install(BaseParams baseParams);
 
-    ShellResult configuration(BaseParams baseParams);
+    ShellResult configure(BaseParams baseParams);
 
     ShellResult start(BaseParams baseParams);
 

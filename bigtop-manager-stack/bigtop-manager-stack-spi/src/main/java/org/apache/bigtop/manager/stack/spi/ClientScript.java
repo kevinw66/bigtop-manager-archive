@@ -6,7 +6,7 @@ import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 public interface ClientScript extends Script {
 
     default ShellResult start(BaseParams baseParams) {
-        configuration(baseParams);
+        configure(baseParams);
         return DefaultShellResult.success();
     }
 

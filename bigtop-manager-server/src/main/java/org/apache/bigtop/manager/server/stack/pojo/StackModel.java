@@ -9,23 +9,23 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StackModel {
 
-    @XmlElement(name="stack-name")
+    @XmlElement(name = "stack-name")
     private String stackName;
 
-    @XmlElement(name="stack-version")
+    @XmlElement(name = "stack-version")
     private String stackVersion;
 
     private String root;
 
-    @XmlElement(name="user-group")
+    @XmlElement(name = "user-group")
     private String userGroup;
 
     private String packages;
 
-    @XmlElement(name="repo-template")
+    @XmlElement(name = "repo-template")
     private String repoTemplate;
 
-    @XmlElementWrapper(name="repos")
-    @XmlElements(@XmlElement(name="repo"))
+    @XmlElementWrapper(name = "repos")
+    @XmlElements(@XmlElement(name = "repo"))
     private List<RepoModel> repos;
 }

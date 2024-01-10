@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -37,6 +39,9 @@ public class Service extends BaseEntity {
 
     @Column(name = "service_group")
     private String serviceGroup;
+
+    @Column(name = "required_service")
+    private String requiredServices;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
