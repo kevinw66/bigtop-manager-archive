@@ -19,7 +19,7 @@ public class ZookeeperClientScript implements ClientScript {
     }
 
     @Override
-    public ShellResult configuration(BaseParams baseParams) {
+    public ShellResult configure(BaseParams baseParams) {
         return ZookeeperSetup.config(baseParams);
     }
 

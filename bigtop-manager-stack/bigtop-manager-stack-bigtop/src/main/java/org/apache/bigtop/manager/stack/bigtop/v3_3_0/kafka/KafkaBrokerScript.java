@@ -35,7 +35,7 @@ public class KafkaBrokerScript implements Script {
     }
 
     @Override
-    public ShellResult configuration(BaseParams baseParams) {
+    public ShellResult configure(BaseParams baseParams) {
         KafkaParams kafkaParams = (KafkaParams) baseParams;
 
         String confDir = kafkaParams.confDir();
@@ -102,7 +102,7 @@ public class KafkaBrokerScript implements Script {
 
     @Override
     public ShellResult start(BaseParams baseParams) {
-        configuration(baseParams);
+        configure(baseParams);
         KafkaParams kafkaParams = (KafkaParams) baseParams;
 
         String cmd = MessageFormat.format("sh {0}/bin/kafka-server-start.sh {0}/config/server.properties > /dev/null 2>&1 & echo -n $!>{1}",

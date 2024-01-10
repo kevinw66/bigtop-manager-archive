@@ -23,13 +23,13 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult configuration(BaseParams baseParams) {
+    public ShellResult configure(BaseParams baseParams) {
         return ZookeeperSetup.config(baseParams);
     }
 
     @Override
     public ShellResult start(BaseParams baseParams) {
-        configuration(baseParams);
+        configure(baseParams);
         ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
 
         String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh start", zookeeperParams.serviceHome());

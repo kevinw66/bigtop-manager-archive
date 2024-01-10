@@ -19,7 +19,7 @@ public enum Command {
 
     RESTART,
 
-    CONFIGURATION,
+    CONFIGURE,
 
     CHECK,
 
