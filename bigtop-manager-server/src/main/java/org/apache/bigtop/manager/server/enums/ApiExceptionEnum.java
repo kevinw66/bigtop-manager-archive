@@ -25,6 +25,7 @@ public enum ApiExceptionEnum {
 
     // Service Exceptions -- 14000 ~ 14999
     SERVICE_NOT_FOUND(14000, LocaleKeys.SERVICE_NOT_FOUND),
+    SERVICE_REQUIRED_NOT_FOUND(14001, LocaleKeys.SERVICE_REQUIRED_NOT_FOUND),
 
     // Component Exceptions -- 15000 ~ 15999
     COMPONENT_NOT_FOUND(15000, LocaleKeys.COMPONENT_NOT_FOUND),

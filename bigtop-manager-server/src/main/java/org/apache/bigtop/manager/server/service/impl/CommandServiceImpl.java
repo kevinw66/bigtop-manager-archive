@@ -3,7 +3,9 @@ package org.apache.bigtop.manager.server.service.impl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.CommandJobFactory;
 import org.apache.bigtop.manager.server.model.dto.*;
@@ -18,9 +20,11 @@ import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.CommandService;
 import org.apache.bigtop.manager.server.stack.ConfigurationManager;
 import org.apache.bigtop.manager.server.utils.StackUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,9 +62,14 @@ public class CommandServiceImpl implements CommandService {
     @Override
     @Transactional
     public CommandVO command(CommandDTO commandDTO) {
-        switch (commandDTO.getCommandLevel()) {
-            case SERVICE -> runServiceCommand(commandDTO);
-            case HOST -> runHostCommand(commandDTO);
+        if (commandDTO.getCommand() == Command.INSTALL || commandDTO.getCommand() == Command.REINSTALL) {
+            if (commandDTO.getCommand() == Command.REINSTALL) {
+                commandDTO.setCommand(Command.INSTALL);
+            }
+            switch (commandDTO.getCommandLevel()) {
+                case SERVICE -> installService(commandDTO);
+                case HOST -> installHostComponent(commandDTO);
+            }
         }
 
         Job job = commandJobFactory.createJob(commandDTO);
@@ -69,26 +78,6 @@ public class CommandServiceImpl implements CommandService {
         SpringContextHolder.getApplicationContext().publishEvent(commandEvent);
 
         return JobMapper.INSTANCE.fromEntity2CommandVO(job);
-    }
-
-    private void runServiceCommand(CommandDTO commandDTO) {
-        switch (commandDTO.getCommand()) {
-            case INSTALL -> installService(commandDTO);
-            case REINSTALL -> {
-                commandDTO.setCommand(Command.INSTALL);
-                installService(commandDTO);
-            }
-        }
-    }
-
-    private void runHostCommand(CommandDTO commandDTO) {
-        switch (commandDTO.getCommand()) {
-            case INSTALL -> installHostComponent(commandDTO);
-            case REINSTALL -> {
-                commandDTO.setCommand(Command.INSTALL);
-                installHostComponent(commandDTO);
-            }
-        }
     }
 
     private void installHostComponent(CommandDTO commandDTO) {
@@ -113,6 +102,7 @@ public class CommandServiceImpl implements CommandService {
 
     private void installService(CommandDTO commandDTO) {
         log.info("Enter install method");
+        List<ServiceCommandDTO> installServiceCommands = new ArrayList<>();
 
         List<ServiceCommandDTO> serviceCommands = commandDTO.getServiceCommands();
         Long clusterId = commandDTO.getClusterId();
@@ -136,12 +126,16 @@ public class CommandServiceImpl implements CommandService {
                 upsertConfig(cluster, serviceOptional.get(), serviceCommand);
                 continue;
             }
+            installServiceCommands.add(serviceCommand);
 
             // 1. Persist service
             ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
             Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
             service.setState(MaintainState.UNINSTALLED);
             service = serviceRepository.save(service);
+
+            List<String> requiredServices = serviceDTO.getRequiredServices();
+            validRequiredServices(requiredServices, clusterId);
 
             // Init config for new installed service
             upsertConfig(cluster, service, serviceCommand);
@@ -168,6 +162,7 @@ public class CommandServiceImpl implements CommandService {
                 }
             }
         }
+        commandDTO.setServiceCommands(installServiceCommands);
     }
 
     private void upsertConfig(Cluster cluster, Service service, ServiceCommandDTO serviceCommandDTO) {
@@ -186,6 +181,16 @@ public class CommandServiceImpl implements CommandService {
             serviceConfigMapping.setServiceConfig(serviceConfig);
             serviceConfigMapping.setServiceConfigRecord(serviceConfigRecord);
             serviceConfigMappingRepository.save(serviceConfigMapping);
+        }
+    }
+
+    private void validRequiredServices(List<String> requiredServices, Long clusterId) {
+        if (CollectionUtils.isEmpty(requiredServices)) {
+            return;
+        }
+        List<Service> serviceList = serviceRepository.findByClusterIdAndServiceNameIn(clusterId, requiredServices);
+        if (serviceList.size() != requiredServices.size()) {
+            throw new ApiException(ApiExceptionEnum.SERVICE_REQUIRED_NOT_FOUND, String.join(",", requiredServices));
         }
     }
 }
