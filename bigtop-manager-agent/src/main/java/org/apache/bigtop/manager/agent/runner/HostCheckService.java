@@ -5,6 +5,7 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.ws.AgentWsTools;
+import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
@@ -13,6 +14,7 @@ import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -33,6 +35,9 @@ public class HostCheckService {
      * task event worker
      */
     private Thread taskEventThread;
+
+    @Value("${bigtop.manager.dev-mode}")
+    private Boolean devMode;
 
     @PostConstruct
     public void start() {
@@ -106,27 +111,33 @@ public class HostCheckService {
         HostCheckPayload hostCheckMessage = JsonUtils.readFromString(requestMessage.getMessagePayload(), HostCheckPayload.class);
 
         HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
+        ResultMessage resultMessage = new ResultMessage();
 
-        for (HostCheckType hostCheckType : hostCheckTypes) {
-            switch (hostCheckType) {
-                case TIME_SYNC -> {
-                    ResultMessage resultMessage = new ResultMessage();
-                    ShellResult shellResult = TimeSyncDetection.checkTimeSync();
+        if (devMode) {
+            resultMessage.setCode(MessageConstants.SUCCESS_CODE);
+            resultMessage.setResult("Success on dev mode");
+        } else {
+            for (HostCheckType hostCheckType : hostCheckTypes) {
+                switch (hostCheckType) {
+                    case TIME_SYNC -> {
+                        ShellResult shellResult = TimeSyncDetection.checkTimeSync();
 
-                    resultMessage.setCode(shellResult.getExitCode());
-                    resultMessage.setResult(shellResult.getResult());
-                    resultMessage.setMessageId(requestMessage.getMessageId());
-                    resultMessage.setHostname(requestMessage.getHostname());
-                    resultMessage.setMessageType(requestMessage.getMessageType());
-                    resultMessage.setJobId(requestMessage.getJobId());
-                    resultMessage.setStageId(requestMessage.getStageId());
-                    resultMessage.setTaskId(requestMessage.getTaskId());
+                        resultMessage.setCode(shellResult.getExitCode());
+                        resultMessage.setResult(shellResult.getResult());
 
-                    agentWsTools.sendMessage(resultMessage);
+                    }
+                    default -> log.warn("unknown hostCheckType");
                 }
-                default -> log.warn("unknown hostCheckType");
-
             }
         }
+
+        resultMessage.setMessageId(requestMessage.getMessageId());
+        resultMessage.setHostname(requestMessage.getHostname());
+        resultMessage.setMessageType(requestMessage.getMessageType());
+        resultMessage.setJobId(requestMessage.getJobId());
+        resultMessage.setStageId(requestMessage.getStageId());
+        resultMessage.setTaskId(requestMessage.getTaskId());
+
+        agentWsTools.sendMessage(resultMessage);
     }
 }

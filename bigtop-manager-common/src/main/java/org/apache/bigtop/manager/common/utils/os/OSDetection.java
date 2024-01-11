@@ -15,19 +15,32 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * The OSDetection class is used for detecting the type and architecture of the operating system.
+ * <p />
+ * Our agent should run on certain specific operating systems and architectures,
+ * which are defined in the OSType and OSArchType enums.
+ * <p>
+ * However, for convenience in development and testing, we also support running the agent on other operating systems,
+ * which is referred to as "develop mode".
+ * <p>
+ * In "develop mode", we do not check whether the operating system and architecture are in the supported list.
+ */
 @Slf4j
 public class OSDetection {
 
-    private static final Pattern ID_PATTERN = Pattern.compile("ID=[\"]?([\\w]+)[\"]?");
+    private static final Pattern ID_PATTERN = Pattern.compile("ID=\"?(\\w+)\"?");
 
-    private static final Pattern VERSION_PATTERN = Pattern.compile("VERSION_ID=[\"]?(\\d+)([\\.\\d]*)[\"]?");
+    private static final Pattern VERSION_PATTERN = Pattern.compile("VERSION_ID=\"?(\\d+)([.\\d]*)\"?");
 
     public static String getOS() {
-        String os = getOSType().toLowerCase() + getOSVersion().toLowerCase();
-
-        ifSupportedOS(os);
-
-        return os;
+        if (SystemUtils.IS_OS_LINUX) {
+            String os = getOSType().toLowerCase() + getOSVersion().toLowerCase();
+            ifSupportedOS(os);
+            return os;
+        } else {
+            return System.getProperty("os.name");
+        }
     }
 
     public static String getOSType() {
@@ -37,6 +50,14 @@ public class OSDetection {
 
         log.debug("osType: {}", osType);
         return osType;
+    }
+
+    public static String getVersion() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return getOSVersion();
+        } else {
+            return System.getProperty("os.version");
+        }
     }
 
     public static String getOSVersion() {
@@ -79,6 +100,14 @@ public class OSDetection {
 
 
     public static String getArch() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return getOSArch();
+        } else {
+            return System.getProperty("os.arch");
+        }
+    }
+
+    private static String getOSArch() {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("arch");
 
@@ -95,9 +124,6 @@ public class OSDetection {
     }
 
     public static void ifSupportedOS(String os) {
-        if (!SystemUtils.IS_OS_LINUX) {
-            throw new RuntimeException("Only Linux is supported: [" + os + "]");
-        }
         if (!EnumUtils.isValidEnumIgnoreCase(OSType.class, os)) {
             throw new RuntimeException("Unsupported OS: [" + os + "]");
         }

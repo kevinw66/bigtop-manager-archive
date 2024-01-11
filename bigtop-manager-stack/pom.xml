@@ -20,6 +20,7 @@
         <module>bigtop-manager-stack-spi</module>
         <module>bigtop-manager-stack-common</module>
         <module>bigtop-manager-stack-bigtop</module>
+        <module>bigtop-manager-stack-nop</module>
     </modules>
 
     <properties>

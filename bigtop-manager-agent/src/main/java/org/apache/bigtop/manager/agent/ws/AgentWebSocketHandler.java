@@ -11,7 +11,9 @@ import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-import org.apache.bigtop.manager.common.message.type.*;
+import org.apache.bigtop.manager.common.message.type.BaseMessage;
+import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -27,7 +29,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -113,8 +114,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
 
     @Override
     public void onApplicationEvent(ApplicationStartedEvent event) {
-        readHostInfo();
-        executor.scheduleAtFixedRate(this::readHostInfo, 3, 30, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this::readHostInfo, 0, 30, TimeUnit.SECONDS);
 
         log.info("Bootstrap successfully, connecting to server websocket endpoint...");
         connectToServer();
@@ -127,29 +127,29 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
             InetAddress addr = InetAddress.getLocalHost();
             hostInfo.setHostname(addr.getHostName());
             hostInfo.setIpv4(addr.getHostAddress());
-        } catch (UnknownHostException e) {
-            log.error(MessageFormat.format("Error getting host info: {0}", e.getMessage()));
+
+            OperatingSystemMXBean osmxb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+            hostInfo.setOs(OSDetection.getOS());
+            hostInfo.setVersion(OSDetection.getVersion());
+            hostInfo.setArch(OSDetection.getArch());
+            hostInfo.setAvailableProcessors(osmxb.getAvailableProcessors());
+            hostInfo.setProcessCpuTime(osmxb.getProcessCpuTime());
+            hostInfo.setTotalMemorySize(osmxb.getTotalMemorySize());
+            hostInfo.setFreeMemorySize(osmxb.getFreeMemorySize());
+            hostInfo.setTotalSwapSpaceSize(osmxb.getTotalSwapSpaceSize());
+            hostInfo.setFreeSwapSpaceSize(osmxb.getFreeSwapSpaceSize());
+            hostInfo.setCommittedVirtualMemorySize(osmxb.getCommittedVirtualMemorySize());
+
+            hostInfo.setCpuLoad(new BigDecimal(String.valueOf(osmxb.getCpuLoad())));
+            hostInfo.setProcessCpuLoad(new BigDecimal(String.valueOf(osmxb.getProcessCpuLoad())));
+            hostInfo.setSystemLoadAverage(new BigDecimal(String.valueOf(osmxb.getSystemLoadAverage())));
+
+            hostInfo.setFreeDisk(OSDetection.freeDisk());
+            hostInfo.setTotalDisk(OSDetection.totalDisk());
+        } catch (Exception e) {
+            log.error("Error getting host info", e);
             throw new RuntimeException(e);
         }
-
-        OperatingSystemMXBean osmxb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
-        hostInfo.setOs(OSDetection.getOS());
-        hostInfo.setVersion(OSDetection.getOSVersion());
-        hostInfo.setArch(OSDetection.getArch());
-        hostInfo.setAvailableProcessors(osmxb.getAvailableProcessors());
-        hostInfo.setProcessCpuTime(osmxb.getProcessCpuTime());
-        hostInfo.setTotalMemorySize(osmxb.getTotalMemorySize());
-        hostInfo.setFreeMemorySize(osmxb.getFreeMemorySize());
-        hostInfo.setTotalSwapSpaceSize(osmxb.getTotalSwapSpaceSize());
-        hostInfo.setFreeSwapSpaceSize(osmxb.getFreeSwapSpaceSize());
-        hostInfo.setCommittedVirtualMemorySize(osmxb.getCommittedVirtualMemorySize());
-
-        hostInfo.setCpuLoad(new BigDecimal(String.valueOf(osmxb.getCpuLoad())));
-        hostInfo.setProcessCpuLoad(new BigDecimal(String.valueOf(osmxb.getProcessCpuLoad())));
-        hostInfo.setSystemLoadAverage(new BigDecimal(String.valueOf(osmxb.getSystemLoadAverage())));
-
-        hostInfo.setFreeDisk(OSDetection.freeDisk());
-        hostInfo.setTotalDisk(OSDetection.totalDisk());
     }
 
     @SuppressWarnings("BusyWait")

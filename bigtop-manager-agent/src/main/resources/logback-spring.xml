@@ -78,14 +78,17 @@
     </appender>
 
     <logger name="org.apache.bigtop.manager.agent.ws.AgentWebSocketHandler" level="INFO" additivity="true">
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="WSLOGFILE"/>
     </logger>
 
     <logger name="org.apache.bigtop.manager.stack" level="INFO" additivity="true">
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="STACKLOGFILE"/>
     </logger>
 
     <root level="INFO">
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="AGENTLOGFILE"/>
     </root>
 </configuration>

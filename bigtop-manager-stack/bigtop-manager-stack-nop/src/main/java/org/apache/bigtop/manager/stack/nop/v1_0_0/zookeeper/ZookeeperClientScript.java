@@ -1,0 +1,26 @@
+package org.apache.bigtop.manager.stack.nop.v1_0_0.zookeeper;
+
+
+import com.google.auto.service.AutoService;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
+import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.stack.spi.BaseParams;
+import org.apache.bigtop.manager.stack.spi.ClientScript;
+import org.apache.bigtop.manager.stack.spi.Script;
+
+@Slf4j
+@AutoService(Script.class)
+public class ZookeeperClientScript implements ClientScript {
+
+    @Override
+    public ShellResult install(BaseParams baseParams) {
+        return DefaultShellResult.success();
+    }
+
+    @Override
+    public ShellResult configuration(BaseParams baseParams) {
+        return DefaultShellResult.success();
+    }
+
+}
