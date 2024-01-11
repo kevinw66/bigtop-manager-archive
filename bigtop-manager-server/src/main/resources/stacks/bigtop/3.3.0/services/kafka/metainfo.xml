@@ -68,5 +68,9 @@
             </os-specific>
         </os-specifics>
 
+        <required-services>
+            <service>zookeeper</service>
+        </required-services>
+
     </service>
 </metainfo>

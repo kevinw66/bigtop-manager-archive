@@ -41,6 +41,7 @@ public enum LocaleKeys {
     STACK_NOT_FOUND("stack.not.found"),
 
     SERVICE_NOT_FOUND("service.not.found"),
+    SERVICE_REQUIRED_NOT_FOUND("service.required.not.found"),
 
     COMPONENT_NOT_FOUND("component.not.found"),
 

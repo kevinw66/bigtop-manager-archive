@@ -3,6 +3,8 @@ package org.apache.bigtop.manager.server.model.vo;
 import lombok.Data;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 
+import java.util.List;
+
 @Data
 public class ServiceVO {
 
@@ -23,4 +25,6 @@ public class ServiceVO {
     private String serviceGroup;
 
     private MaintainState state;
+
+    private List<String> requiredServices;
 }

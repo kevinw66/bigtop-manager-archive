@@ -11,7 +11,7 @@ public class ServiceModel {
 
     private String name;
 
-    @XmlElement(name="display-name")
+    @XmlElement(name = "display-name")
     private String displayName;
 
     private String desc;
@@ -29,4 +29,8 @@ public class ServiceModel {
     @XmlElementWrapper(name = "components")
     @XmlElements(@XmlElement(name = "component"))
     private List<ComponentModel> components;
+
+    @XmlElementWrapper(name = "required-services")
+    @XmlElements(@XmlElement(name = "service"))
+    private List<String> requiredServices;
 }
