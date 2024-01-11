@@ -16,4 +16,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     Optional<Service> findByClusterIdAndServiceName(Long clusterId, String serviceName);
 
+    List<Service> findByClusterIdAndServiceNameIn(Long clusterId, List<String> serviceName);
+
 }
