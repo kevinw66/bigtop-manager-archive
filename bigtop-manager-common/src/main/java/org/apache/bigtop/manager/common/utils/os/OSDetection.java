@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The OSDetection class is used for detecting the type and architecture of the operating system.
+ * This class is used for detecting the type and architecture of the operating system.
  * <p />
  * Our agent should run on certain specific operating systems and architectures,
  * which are defined in the OSType and OSArchType enums.
@@ -43,15 +43,6 @@ public class OSDetection {
         }
     }
 
-    public static String getOSType() {
-        String output = getOSRelease();
-
-        String osType = regexOS(ID_PATTERN, output);
-
-        log.debug("osType: {}", osType);
-        return osType;
-    }
-
     public static String getVersion() {
         if (SystemUtils.IS_OS_LINUX) {
             return getOSVersion();
@@ -60,7 +51,44 @@ public class OSDetection {
         }
     }
 
-    public static String getOSVersion() {
+    public static String getArch() {
+        if (SystemUtils.IS_OS_LINUX) {
+            return getOSArch();
+        } else {
+            return System.getProperty("os.arch");
+        }
+    }
+
+    /**
+     * get disk usage
+     *
+     * @return disk free size, unit: B
+     */
+    public static long freeDisk() {
+        File file = new File(".");
+        return file.getFreeSpace();
+    }
+
+    /**
+     * get total disk
+     *
+     * @return disk total size, unit: B
+     */
+    public static long totalDisk() {
+        File file = new File(".");
+        return file.getTotalSpace();
+    }
+
+    private static String getOSType() {
+        String output = getOSRelease();
+
+        String osType = regexOS(ID_PATTERN, output);
+
+        log.debug("osType: {}", osType);
+        return osType;
+    }
+
+    private static String getOSVersion() {
         String output = getOSRelease();
 
         String osVersion = regexOS(VERSION_PATTERN, output);
@@ -70,7 +98,7 @@ public class OSDetection {
     }
 
 
-    public static String getOSRelease() {
+    private static String getOSRelease() {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("cat");
         builderParameters.add("/etc/os-release");
@@ -98,15 +126,6 @@ public class OSDetection {
         throw new RuntimeException("Unable to find OS: " + content);
     }
 
-
-    public static String getArch() {
-        if (SystemUtils.IS_OS_LINUX) {
-            return getOSArch();
-        } else {
-            return System.getProperty("os.arch");
-        }
-    }
-
     private static String getOSArch() {
         List<String> builderParameters = new ArrayList<>();
         builderParameters.add("arch");
@@ -123,39 +142,17 @@ public class OSDetection {
         }
     }
 
-    public static void ifSupportedOS(String os) {
+    private static void ifSupportedOS(String os) {
         if (!EnumUtils.isValidEnumIgnoreCase(OSType.class, os)) {
             throw new RuntimeException("Unsupported OS: [" + os + "]");
         }
         log.debug("OS [{}] is Supported", os);
     }
 
-    public static void ifSupportedArch(String arch) {
+    private static void ifSupportedArch(String arch) {
         if (!EnumUtils.isValidEnumIgnoreCase(OSArchType.class, arch)) {
             throw new RuntimeException("Unsupported Arch: [" + arch + "]");
         }
         log.debug("Arch [{}] is Supported", arch);
     }
-
-
-    /**
-     * get disk usage
-     *
-     * @return disk free size, unit: B
-     */
-    public static long freeDisk() {
-        File file = new File(".");
-        return file.getFreeSpace();
-    }
-
-    /**
-     * get total disk
-     *
-     * @return disk total size, unit: B
-     */
-    public static long totalDisk() {
-        File file = new File(".");
-        return file.getTotalSpace();
-    }
-
 }

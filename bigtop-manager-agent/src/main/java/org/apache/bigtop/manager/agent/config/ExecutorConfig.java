@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.agent.configuration;
+package org.apache.bigtop.manager.agent.config;
 
 
 import org.apache.bigtop.manager.stack.core.executor.Executor;
@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ExecutorConfiguration {
+public class ExecutorConfig {
 
     @Bean
     public Executor executor() {

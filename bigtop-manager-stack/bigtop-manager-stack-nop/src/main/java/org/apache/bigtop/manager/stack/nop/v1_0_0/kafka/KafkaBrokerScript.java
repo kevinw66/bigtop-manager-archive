@@ -18,7 +18,7 @@ public class KafkaBrokerScript implements Script {
     }
 
     @Override
-    public ShellResult configuration(BaseParams baseParams) {
+    public ShellResult configure(BaseParams baseParams) {
         return DefaultShellResult.success();
     }
 

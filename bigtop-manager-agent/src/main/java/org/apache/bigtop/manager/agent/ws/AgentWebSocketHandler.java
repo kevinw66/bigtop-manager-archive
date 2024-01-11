@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.runner.CommandService;
 import org.apache.bigtop.manager.agent.runner.HostCacheService;
 import org.apache.bigtop.manager.agent.runner.HostCheckService;
-import org.apache.bigtop.manager.common.configuration.ApplicationConfiguration;
+import org.apache.bigtop.manager.common.config.ApplicationConfig;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
@@ -41,7 +41,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MES
 public class AgentWebSocketHandler extends BinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
 
     @Resource
-    private ApplicationConfiguration applicationConfiguration;
+    private ApplicationConfig applicationConfig;
 
     @Resource
     private MessageSerializer serializer;
@@ -155,8 +155,8 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     @SuppressWarnings("BusyWait")
     private void connectToServer() {
         executor.execute(() -> {
-            String host = applicationConfiguration.getServer().getHost();
-            Integer port = applicationConfiguration.getServer().getPort();
+            String host = applicationConfig.getServer().getHost();
+            Integer port = applicationConfig.getServer().getPort();
             String uri = MessageFormat.format("ws://{0}:{1,number,#}/ws/server", host, port);
             StandardWebSocketClient webSocketClient = new StandardWebSocketClient();
             int retryTime = 0;
@@ -167,7 +167,8 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
                     break;
                 } catch (Exception e) {
                     log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));
-
+                    log.error(Thread.currentThread().getName());
+                    log.error("111");
                     // retry after 5 seconds
                     try {
                         Thread.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
