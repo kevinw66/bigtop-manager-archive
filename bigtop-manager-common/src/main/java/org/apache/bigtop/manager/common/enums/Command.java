@@ -7,8 +7,6 @@ public enum Command {
 
     INSTALL,
 
-    REINSTALL,
-
     UNINSTALL,
 
     START,

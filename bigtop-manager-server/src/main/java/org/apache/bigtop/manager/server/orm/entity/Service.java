@@ -10,7 +10,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "service")
+@Table(name = "service", uniqueConstraints = {@UniqueConstraint(name = "uk_service_name", columnNames = {"service_name", "cluster_id"})},
+        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "service_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Service extends BaseEntity {
 

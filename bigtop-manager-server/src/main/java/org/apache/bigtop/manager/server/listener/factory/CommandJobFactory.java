@@ -169,7 +169,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         List<ComponentCommandWrapper> sortedList = new ArrayList<>();
 
         DAG<String, ComponentCommandWrapper, DagGraphEdge> dag = StackUtils.getStackDagMap().get(StackUtils.fullStackName(stackName, stackVersion));
-
+        log.info("todolist: {}", todoList);
         try {
             List<String> orderedList = dag.topologicalSort();
             log.info("DAG topological sort list: {}", orderedList);
@@ -253,6 +253,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             List<String> hostnames = entry.getValue();
             List<Host> hostList = hostRepository.findAllByHostnameIn(hostnames);
             if (hostList.size() != hostnames.size()) {
+                log.info("componentHostMapping: {}, hostList: {}", componentHostMapping, hostList);
                 throw new ServerException("Can't find host in database");
             }
         }

@@ -7,7 +7,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "command_log")
+@Table(name = "command_log", indexes = {@Index(name = "idx_job_id", columnList = "job_id"),
+        @Index(name = "idx_stage_id", columnList = "stage_id"),
+        @Index(name = "idx_task_id", columnList = "task_id")})
 @TableGenerator(name = "command_log_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class CommandLog extends BaseEntity {
 

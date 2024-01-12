@@ -7,7 +7,8 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "service_config_mapping")
+@Table(name = "service_config_mapping", indexes = {@Index(name = "idx_service_config_id", columnList = "service_config_id"),
+        @Index(name = "idx_service_config_record_id", columnList = "service_config_record_id")})
 @TableGenerator(name = "service_config_mapping_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class ServiceConfigMapping extends BaseEntity {
 

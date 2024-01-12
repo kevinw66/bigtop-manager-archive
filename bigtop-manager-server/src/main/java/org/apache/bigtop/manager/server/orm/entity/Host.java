@@ -8,7 +8,8 @@ import org.apache.bigtop.manager.server.enums.MaintainState;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "host")
+@Table(name = "host", uniqueConstraints = {@UniqueConstraint(name = "uk_hostname", columnNames = {"hostname", "cluster_id"})},
+        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "host_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Host extends BaseEntity {
 
