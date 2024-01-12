@@ -1,6 +1,5 @@
 bigtop:
   manager:
-    dev-mode: true
     orm:
       # hibernate/eclipselink(default=eclipselink)
       type: eclipselink

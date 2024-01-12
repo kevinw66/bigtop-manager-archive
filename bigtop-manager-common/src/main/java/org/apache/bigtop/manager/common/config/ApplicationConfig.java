@@ -17,11 +17,4 @@ public class ApplicationConfig {
 
     @NestedConfigurationProperty
     private SerializerConfig serializer = new SerializerConfig();
-
-    /**
-     * Indicates whether the application is running in development mode, which is disabled by default.
-     * In development mode, only NOP stacks are available and no real shell commands will be executed on the agent side.
-     */
-    private Boolean devMode = false;
-
 }

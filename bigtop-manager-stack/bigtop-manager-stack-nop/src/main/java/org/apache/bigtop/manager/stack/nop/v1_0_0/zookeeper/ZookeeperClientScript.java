@@ -10,7 +10,7 @@ import org.apache.bigtop.manager.stack.spi.ClientScript;
 import org.apache.bigtop.manager.stack.spi.Script;
 
 @Slf4j
-@AutoService(Script.class)
+//@AutoService(Script.class)
 public class ZookeeperClientScript implements ClientScript {
 
     @Override

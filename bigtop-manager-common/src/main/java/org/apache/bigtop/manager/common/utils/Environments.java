@@ -1,22 +1,15 @@
 package org.apache.bigtop.manager.common.utils;
 
-import jakarta.annotation.Nonnull;
-import org.apache.bigtop.manager.common.config.ApplicationConfig;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
 
-@Component
-public class Environments implements ApplicationContextAware {
+public class Environments {
 
-    private static ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(@Nonnull ApplicationContext applicationContext) {
-        Environments.applicationContext = applicationContext;
-    }
-
+    /**
+     * Indicates whether the application is running in development mode, which is disabled by default.
+     * In development mode, only NOP stacks are available and no real shell commands will be executed on the agent side.
+     */
     public static Boolean isDevMode() {
-        return applicationContext.getBean(ApplicationConfig.class).getDevMode();
+        String devMode = System.getenv("DEV_MODE");
+        return StringUtils.isNotBlank(devMode) && devMode.equals("true");
     }
 }

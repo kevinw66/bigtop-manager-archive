@@ -89,9 +89,9 @@ docker exec bigtop-manager-agent-02 bash -c "systemctl start chronyd"
 docker exec bigtop-manager-agent-02 bash -c "chronyc tracking"
 
 echo -e "\033[32mServer Ip Setting\033[0m"
-docker exec bigtop-manager-server bash -c "sed -i 's/bigtop.manager.server.host=localhost/bigtop.manager.server.host=$BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.properties"
-docker exec bigtop-manager-agent-01 bash -c "sed -i 's/bigtop.manager.server.host=localhost/bigtop.manager.server.host=$BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.properties"
-docker exec bigtop-manager-agent-02 bash -c "sed -i 's/bigtop.manager.server.host=localhost/bigtop.manager.server.host=$BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.properties"
+docker exec bigtop-manager-server bash -c "sed -i 's/host: localhost/host: $BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.yml"
+docker exec bigtop-manager-agent-01 bash -c "sed -i 's/host: localhost/host: $BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.yml"
+docker exec bigtop-manager-agent-02 bash -c "sed -i 's/host: localhost/host: $BIGTOP_MANAGER_SERVER_IP/' /opt/bigtop-manager-agent/conf/application.yml"
 
 docker exec bigtop-manager-server bash -c "nohup /bin/bash /opt/bigtop-manager-server/bin/start.sh --debug > /dev/null 2>&1 &"
 docker exec bigtop-manager-server bash -c "nohup /bin/bash /opt/bigtop-manager-agent/bin/start.sh > /dev/null 2>&1 &"
