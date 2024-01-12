@@ -1,0 +1,16 @@
+bigtop:
+  manager:
+    dev-mode: true
+    server:
+      host: localhost
+      port: 8080
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          socket: DEBUG

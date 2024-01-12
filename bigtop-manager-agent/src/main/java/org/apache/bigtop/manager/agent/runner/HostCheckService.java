@@ -37,9 +37,6 @@ public class HostCheckService {
      */
     private Thread taskEventThread;
 
-    @Value("${bigtop.manager.dev-mode}")
-    private Boolean devMode;
-
     @PostConstruct
     public void start() {
         this.taskEventThread = new HostCacheDispatchThread();
