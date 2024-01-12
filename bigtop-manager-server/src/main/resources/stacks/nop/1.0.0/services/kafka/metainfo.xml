@@ -36,7 +36,7 @@
                 <category>master</category>
                 <cardinality>1+</cardinality>
                 <command-script>
-                    <script>org.apache.bigtop.manager.stack.nop.v1_0_0.kafka.KafkaBrokerScript</script>
+                    <script-id>org.apache.bigtop.manager.stack.nop.v1_0_0.kafka.KafkaBrokerScript</script-id>
                     <script-type>java</script-type>
                     <timeout>1200</timeout>
                 </command-script>
@@ -44,7 +44,7 @@
                     <custom-command>
                         <name>test</name>
                         <command-script>
-                            <script>org.apache.bigtop.manager.stack.nop.v1_0_0.kafka.KafkaBrokerScript</script>
+                            <script-id>org.apache.bigtop.manager.stack.nop.v1_0_0.kafka.KafkaBrokerScript</script-id>
                             <script-type>java</script-type>
                             <timeout>600</timeout>
                         </command-script>

@@ -9,11 +9,11 @@ import lombok.Data;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ScriptModel {
 
+    @XmlElement(name = "script-id")
+    private String scriptId;
+
     @XmlElement(name = "script-type")
     private String scriptType;
-
-    @XmlElement(name = "script")
-    private String scriptId;
 
     private Long timeout;
 }

@@ -35,7 +35,7 @@
                 <category>master</category>
                 <cardinality>1+</cardinality>
                 <command-script>
-                    <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperServerScript</script>
+                    <script-id>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperServerScript</script-id>
                     <script-type>java</script-type>
                     <timeout>1200</timeout>
                 </command-script>
@@ -47,7 +47,7 @@
                 <category>client</category>
                 <cardinality>1+</cardinality>
                 <command-script>
-                    <script>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperClientScript</script>
+                    <script-id>org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper.ZookeeperClientScript</script-id>
                     <script-type>java</script-type>
                 </command-script>
             </component>

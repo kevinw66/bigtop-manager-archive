@@ -40,7 +40,7 @@ public class ComponentHeartbeatScheduled {
     private AgentWsTools agentWsTools;
 
     @Async
-    @Scheduled(cron = "0/30 * *  * * ? ")
+    @Scheduled(cron = "0/30 * *  * * ?")
     public void execute() {
         Map<String, List<String>> hosts = LocalSettings.hosts();
         if (hosts.isEmpty()) {

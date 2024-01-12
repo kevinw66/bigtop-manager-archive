@@ -10,6 +10,7 @@ import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.type.HostCachePayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
+import org.apache.bigtop.manager.common.utils.Environments;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
@@ -114,18 +115,14 @@ public class HostCacheService {
         log.info("[agent executeTask] taskEvent is: {}", requestMessage);
         String cacheDir = Constants.STACK_CACHE_DIR;
 
-        if (!devMode) {
+        if (!Environments.isDevMode()) {
             LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
 
-            try {
-                JsonUtils.writeToFile(cacheDir + SETTINGS_INFO, hostCachePayload.getSettings());
-                JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCachePayload.getConfigurations());
-                JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCachePayload.getClusterHostInfo());
-                JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCachePayload.getUserInfo());
-                JsonUtils.writeToFile(cacheDir + COMPONENTS_INFO, hostCachePayload.getComponentInfo());
-            } catch (Exception e) {
-                log.warn(" [{}|{}|{}|{}] cache error: ", SETTINGS_INFO, CONFIGURATIONS_INFO, HOSTS_INFO, USERS_INFO, e);
-            }
+            JsonUtils.writeToFile(cacheDir + SETTINGS_INFO, hostCachePayload.getSettings());
+            JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, hostCachePayload.getConfigurations());
+            JsonUtils.writeToFile(cacheDir + HOSTS_INFO, hostCachePayload.getClusterHostInfo());
+            JsonUtils.writeToFile(cacheDir + USERS_INFO, hostCachePayload.getUserInfo());
+            JsonUtils.writeToFile(cacheDir + COMPONENTS_INFO, hostCachePayload.getComponentInfo());
             JsonUtils.writeToFile(cacheDir + REPOS_INFO, hostCachePayload.getRepoInfo());
             JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, hostCachePayload.getClusterInfo());
         }

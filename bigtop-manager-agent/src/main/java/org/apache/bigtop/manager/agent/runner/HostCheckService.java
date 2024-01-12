@@ -10,6 +10,7 @@ import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
+import org.apache.bigtop.manager.common.utils.Environments;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
@@ -113,10 +114,7 @@ public class HostCheckService {
         HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
         ResultMessage resultMessage = new ResultMessage();
 
-        if (devMode) {
-            resultMessage.setCode(MessageConstants.SUCCESS_CODE);
-            resultMessage.setResult("Success on dev mode");
-        } else {
+        if (!Environments.isDevMode()) {
             for (HostCheckType hostCheckType : hostCheckTypes) {
                 switch (hostCheckType) {
                     case TIME_SYNC -> {
@@ -129,6 +127,9 @@ public class HostCheckService {
                     default -> log.warn("unknown hostCheckType");
                 }
             }
+        } else {
+            resultMessage.setCode(MessageConstants.SUCCESS_CODE);
+            resultMessage.setResult("Success on dev mode");
         }
 
         resultMessage.setMessageId(requestMessage.getMessageId());
