@@ -21,6 +21,7 @@ import org.apache.bigtop.manager.server.service.CommandService;
 import org.apache.bigtop.manager.server.stack.ConfigurationManager;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,12 +63,9 @@ public class CommandServiceImpl implements CommandService {
     @Override
     @Transactional
     public CommandVO command(CommandDTO commandDTO) {
-        if (commandDTO.getCommand() == Command.INSTALL || commandDTO.getCommand() == Command.REINSTALL) {
-            if (commandDTO.getCommand() == Command.REINSTALL) {
-                commandDTO.setCommand(Command.INSTALL);
-            }
+        if (commandDTO.getCommand() == Command.INSTALL) {
             switch (commandDTO.getCommandLevel()) {
-                case SERVICE -> installService(commandDTO);
+                case SERVICE -> commandDTO = installService(commandDTO);
                 case HOST -> installHostComponent(commandDTO);
             }
         }
@@ -100,9 +98,10 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
-    private void installService(CommandDTO commandDTO) {
+    private CommandDTO installService(CommandDTO commandDTO) {
         log.info("Enter install method");
-        List<ServiceCommandDTO> installServiceCommands = new ArrayList<>();
+        CommandDTO installCommandDTO = SerializationUtils.clone(commandDTO);
+        installCommandDTO.setServiceCommands(new ArrayList<>());
 
         List<ServiceCommandDTO> serviceCommands = commandDTO.getServiceCommands();
         Long clusterId = commandDTO.getClusterId();
@@ -120,18 +119,23 @@ public class CommandServiceImpl implements CommandService {
         // Persist service, component and hostComponent metadata to database
         for (ServiceCommandDTO serviceCommand : serviceCommands) {
             String serviceName = serviceCommand.getServiceName();
-            Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName);
+            Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceNameAndStateNotIn(clusterId, serviceName, List.of(MaintainState.UNINSTALLED));
             if (serviceOptional.isPresent()) {
                 // Service already installed, update config if changed
                 upsertConfig(cluster, serviceOptional.get(), serviceCommand);
                 continue;
             }
-            installServiceCommands.add(serviceCommand);
+            installCommandDTO.getServiceCommands().add(serviceCommand);
 
             // 1. Persist service
             ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
             Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
             service.setState(MaintainState.UNINSTALLED);
+
+            Optional<Service> serviceOptional1 = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName);
+            if (serviceOptional1.isPresent()){
+                service.setId(serviceOptional1.get().getId());
+            }
             service = serviceRepository.save(service);
 
             List<String> requiredServices = serviceDTO.getRequiredServices();
@@ -149,12 +153,18 @@ public class CommandServiceImpl implements CommandService {
 
                 // 2. Persist component
                 Component component = ComponentMapper.INSTANCE.fromDTO2Entity(componentDTO, service, cluster);
+                Optional<Component> componentOptional = componentRepository.findByClusterIdAndComponentName(clusterId, componentName);
+                if (componentOptional.isPresent()) {
+                    component.setId(componentOptional.get().getId());
+                }
                 component = componentRepository.save(component);
 
                 // 3. Persist hostComponent
                 List<Host> hostList = hostRepository.findAllByClusterIdAndHostnameIn(cluster.getId(), componentHostDTO.getHostnames());
                 for (Host host : hostList) {
                     HostComponent hostComponent = new HostComponent();
+                    Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(componentName, host.getHostname());
+                    hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
                     hostComponent.setHost(host);
                     hostComponent.setComponent(component);
                     hostComponent.setState(MaintainState.UNINSTALLED);
@@ -162,7 +172,7 @@ public class CommandServiceImpl implements CommandService {
                 }
             }
         }
-        commandDTO.setServiceCommands(installServiceCommands);
+        return installCommandDTO;
     }
 
     private void upsertConfig(Cluster cluster, Service service, ServiceCommandDTO serviceCommandDTO) {
@@ -188,7 +198,7 @@ public class CommandServiceImpl implements CommandService {
         if (CollectionUtils.isEmpty(requiredServices)) {
             return;
         }
-        List<Service> serviceList = serviceRepository.findByClusterIdAndServiceNameIn(clusterId, requiredServices);
+        List<Service> serviceList = serviceRepository.findByClusterIdAndServiceNameInAndStateNotIn(clusterId, requiredServices, List.of(MaintainState.UNINSTALLED));
         if (serviceList.size() != requiredServices.size()) {
             throw new ApiException(ApiExceptionEnum.SERVICE_REQUIRED_NOT_FOUND, String.join(",", requiredServices));
         }

@@ -60,6 +60,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.eclipse.persistence</groupId>
+                <artifactId>org.eclipse.persistence.extension</artifactId>
+                <version>${eclipse-link.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
                 <version>${freemarker.version}</version>

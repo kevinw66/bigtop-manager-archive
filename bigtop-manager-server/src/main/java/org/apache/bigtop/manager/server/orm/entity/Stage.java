@@ -11,7 +11,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "stage")
+@Table(name = "stage", indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
+        @Index(name = "idx_job_id", columnList = "job_id")})
 @TableGenerator(name = "stage_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Stage extends BaseEntity {
 
