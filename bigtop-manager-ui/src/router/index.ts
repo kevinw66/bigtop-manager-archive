@@ -15,12 +15,29 @@
  * limitations under the License.
  */
 
-import { createRouter, createWebHistory } from 'vue-router'
 import routes from './routes'
+import { createRouter, createWebHistory } from 'vue-router'
+import { useServiceStore } from '@/store/service'
+import { storeToRefs } from 'pinia'
+import { ServiceVO } from '@/api/service/types.ts'
 
 const router = createRouter({
   routes,
   history: createWebHistory(import.meta.env.VITE_APP_BASE)
+})
+
+router.beforeEach((to) => {
+  if (to.name === 'services') {
+    const serviceStore = useServiceStore()
+    const { installedServices } = storeToRefs(serviceStore)
+    const installedServiceNames = installedServices.value.map(
+      (service: ServiceVO) => service.serviceName
+    )
+
+    if (!installedServiceNames.includes(to.params.serviceName as string)) {
+      return '/404'
+    }
+  }
 })
 
 export default router

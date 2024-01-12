@@ -69,7 +69,14 @@ request.interceptors.response.use(
     }
   },
   async (error: AxiosError) => {
-    message.error(i18n.global.t('common.unknown_error'))
+    if (error.code === AxiosError.ERR_NETWORK) {
+      message.error(i18n.global.t('common.error_network'))
+    } else if (error.code === AxiosError.ETIMEDOUT) {
+      message.error(i18n.global.t('common.error_timeout'))
+    } else {
+      message.error(i18n.global.t('common.error_unknown'))
+    }
+
     console.log(error)
     return Promise.reject(error)
   }

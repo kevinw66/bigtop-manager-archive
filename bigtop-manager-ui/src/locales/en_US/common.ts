@@ -44,7 +44,9 @@ export default {
   progress: 'Progress',
   update_success: 'Update success',
   update_fail: 'Update fail',
-  unknown_error: 'Unknown error',
+  error_unknown: 'Unknown error',
+  error_network: 'Network error',
+  error_timeout: 'Request timeout',
   desc_404: 'Sorry, the page you visited does not exist.',
   back_home: 'Back Home',
   websocket_disconnected: 'WebSocket disconnected, please reload the page'

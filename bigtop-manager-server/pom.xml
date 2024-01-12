@@ -184,7 +184,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>*.yaml</exclude>
+                        <exclude>*.yml</exclude>
                         <exclude>*.xml</exclude>
                         <exclude>assembly/</exclude>
                         <exclude>bin/</exclude>
