@@ -60,7 +60,7 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
                 }
             }
         } catch (Exception e) {
-            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
+            log.error("Error sending message to agent", e);
         }
 
         return null;

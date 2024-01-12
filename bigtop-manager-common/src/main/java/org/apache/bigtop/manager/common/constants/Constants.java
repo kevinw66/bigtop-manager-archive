@@ -9,7 +9,7 @@ public final class Constants {
     /**
      * stack cache dir
      */
-    public static final String STACK_CACHE_DIR = "/opt/bigtop-manager-agent/cache";
+    public static final String STACK_CACHE_DIR = Constants.class.getProtectionDomain().getCodeSource().getLocation().getPath() + "../cache";
 
     /**
      * host key for all hosts

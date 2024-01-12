@@ -22,7 +22,6 @@ import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.WebSocketHandler;
 
 @Component
 public class SpringContextHolder implements ApplicationContextAware {

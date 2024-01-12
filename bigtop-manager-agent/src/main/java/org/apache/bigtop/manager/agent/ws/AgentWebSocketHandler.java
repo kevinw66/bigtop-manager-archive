@@ -167,8 +167,6 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
                     break;
                 } catch (Exception e) {
                     log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));
-                    log.error(Thread.currentThread().getName());
-                    log.error("111");
                     // retry after 5 seconds
                     try {
                         Thread.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
