@@ -9,7 +9,6 @@ import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
-import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.orm.entity.CommandLog;
 import org.apache.bigtop.manager.server.orm.entity.Job;
@@ -94,11 +93,11 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
                 SpringContextHolder.getServerWebSocket().sendMessage(task.getHostname(), message, this::call);
             }
 
-            boolean timeoutFlag;
+            boolean timeoutFlag = false;
             try {
                 timeoutFlag = countDownLatch.await(COMMAND_MESSAGE_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
-                throw new ServerException(e);
+                stage.setState(JobState.FAILED);
             }
 
             if (timeoutFlag && !failed.get()) {
@@ -134,8 +133,6 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
      */
     public void call(ResultMessage resultMessage) {
         log.info("Execute RequestMessage completed, {}", resultMessage);
-        countDownLatch.countDown();
-
         Task task = taskRepository.getReferenceById(resultMessage.getTaskId());
 
         if (resultMessage.getCode() == MessageConstants.SUCCESS_CODE) {
@@ -145,8 +142,9 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
             failed.set(true);
         }
         taskRepository.save(task);
-
         saveCommandLog(resultMessage.getResult(), task);
+
+        countDownLatch.countDown();
     }
 
 

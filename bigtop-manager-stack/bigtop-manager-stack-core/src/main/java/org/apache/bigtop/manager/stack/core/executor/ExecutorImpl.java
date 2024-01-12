@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.CommandPayload;
 import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
+import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
@@ -16,7 +17,6 @@ import org.apache.bigtop.manager.stack.spi.Script;
 import org.apache.commons.text.CaseUtils;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -63,15 +63,13 @@ public class ExecutorImpl implements Executor {
 
     @Override
     public ShellResult execute(CommandPayload commandPayload) {
-        Script script = getCommandScript(commandPayload.getCommandScript().getScriptId());
-
-        Hook hook = getHook(commandPayload);
-        String command = commandPayload.getCommand().name();
-
-        hookAspect(hook, HookAroundType.BEFORE.getType());
-
-        ShellResult result;
         try {
+            Script script = getCommandScript(commandPayload.getCommandScript().getScriptId());
+            String command = commandPayload.getCommand().name();
+
+            Hook hook = getHook(commandPayload);
+            hookAspect(hook, HookAroundType.BEFORE.getType());
+
             String paramsPackageName = script.getClass().getPackageName() + "." + CaseUtils.toCamelCase(commandPayload.getServiceName(), true) + "Params";
             Class<?> paramsClass = Class.forName(paramsPackageName);
             BaseParams baseParams = (BaseParams) paramsClass.getDeclaredConstructor(CommandPayload.class).newInstance(commandPayload);
@@ -87,17 +85,17 @@ public class ExecutorImpl implements Executor {
             if (!command.equals(Command.STATUS.name())) {
                 log.info("start execute [{}] : [{}]", script.getName(), method.getName());
             }
-            result = (ShellResult) method.invoke(script, baseParams);
+            ShellResult result = (ShellResult) method.invoke(script, baseParams);
             if (!command.equals(Command.STATUS.name())) {
                 log.info("execute [{}] : [{}] complete, result: [{}]", script.getName(), method.getName(), result);
             }
+            hookAspect(hook, HookAroundType.AFTER.getType());
+            return result;
         } catch (Exception e) {
-            log.info("execute [{}] error", script.getName());
-            throw new StackException(e);
+            log.info("Execute for commandPayload [{}] Error!!!", commandPayload, e);
+            return DefaultShellResult.FAIL;
         }
 
-        hookAspect(hook, HookAroundType.AFTER.getType());
-        return result;
     }
 
     private void hookAspect(Hook hook, String type) {
