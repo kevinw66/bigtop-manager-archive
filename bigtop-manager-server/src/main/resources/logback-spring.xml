@@ -69,8 +69,7 @@
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="org.hibernate.SQL" level="DEBUG" additivity="true"/>
-    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" additivity="true"/>
+    <logger name="eclipselink.logging" level="DEBUG" additivity="true"/>
 
     <root level="INFO">
         <appender-ref ref="SERVERLOGFILE"/>
