@@ -4,7 +4,11 @@ import org.apache.bigtop.manager.server.orm.entity.Stage;
 import org.apache.bigtop.manager.server.orm.entity.Task;
 
 public interface StageCallback {
-    default void onStageCompleted(Stage stage) {
+
+    default void beforeStage(Stage stage) {
+    }
+
+    default void afterStage(Stage stage) {
     }
 
     default String generatePayload(Task task) {

@@ -17,8 +17,6 @@ public interface ServiceRepository extends JpaRepository<Service, Long> {
 
     Optional<Service> findByClusterIdAndServiceName(Long clusterId, String serviceName);
 
-    Optional<Service> findByClusterIdAndServiceNameAndStateNotIn(Long clusterId, String serviceName, List<MaintainState> states);
-
-    List<Service> findByClusterIdAndServiceNameInAndStateNotIn(Long clusterId, List<String> serviceName, List<MaintainState> states);
+    List<Service> findByClusterIdAndServiceNameIn(Long clusterId, List<String> serviceNames);
 
 }

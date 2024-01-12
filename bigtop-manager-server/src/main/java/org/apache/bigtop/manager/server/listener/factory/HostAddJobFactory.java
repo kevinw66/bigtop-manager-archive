@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
@@ -9,23 +10,25 @@ import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.entity.Stage;
-import org.apache.bigtop.manager.server.orm.entity.Task;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.orm.repository.StageRepository;
-import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.listener.persist.HostPersist;
+import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
+import org.apache.bigtop.manager.server.orm.entity.*;
+import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
+
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostAddJobFactory implements JobFactory {
+public class HostAddJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private ClusterRepository clusterRepository;
+
+    @Resource
+    private HostRepository hostRepository;
 
     @Resource
     private JobRepository jobRepository;
@@ -39,7 +42,9 @@ public class HostAddJobFactory implements JobFactory {
     @Resource
     private HostCacheJobFactory hostCacheJobFactory;
 
-    public Job createJob(Long clusterId, List<String> hostnames) {
+    public Job createJob(JobFactoryContext context) {
+        Long clusterId = context.getClusterId();
+        List<String> hostnames = context.getHostnames();
         Job job = new Job();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
@@ -52,7 +57,7 @@ public class HostAddJobFactory implements JobFactory {
         // Create stages
         createHostCheckStage(job, cluster, hostnames, 1);
 
-        hostCacheJobFactory.createStage(job, cluster, 2);
+        createStage(job, cluster, 2, this.getClass().getName(), JsonUtils.writeAsString(hostnames));
 
         return job;
     }
@@ -110,4 +115,76 @@ public class HostAddJobFactory implements JobFactory {
         return hostCheckMessage;
     }
 
+    public void createStage(Job job, Cluster cluster, int stageOrder, String callbackClassName, String payload) {
+        hostCacheJobFactory.createCache(cluster);
+
+        List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
+        List<String> hostnames = new java.util.ArrayList<>(hostList.stream().map(Host::getHostname).toList());
+        hostnames.addAll(JsonUtils.readFromString(payload, new TypeReference<List<String>>() {
+        }));
+
+        Stage hostCacheStage = new Stage();
+        hostCacheStage.setJob(job);
+        hostCacheStage.setName(CACHE_STAGE_NAME);
+        hostCacheStage.setState(JobState.PENDING);
+        hostCacheStage.setStageOrder(stageOrder);
+        hostCacheStage.setCluster(cluster);
+
+        if (StringUtils.isNotEmpty(callbackClassName)) {
+            hostCacheStage.setCallbackClassName(callbackClassName);
+        } else {
+            hostCacheStage.setCallbackClassName(this.getClass().getName());
+        }
+        if (StringUtils.isNotEmpty(callbackClassName)) {
+            hostCacheStage.setPayload(payload);
+        }
+        hostCacheStage = stageRepository.save(hostCacheStage);
+
+        for (String hostname : hostnames) {
+            Task task = new Task();
+            task.setName("Cache host for " + hostname);
+            task.setJob(job);
+            task.setStage(hostCacheStage);
+            task.setCluster(cluster);
+            task.setStackName(cluster.getStack().getStackName());
+            task.setStackVersion(cluster.getStack().getStackVersion());
+            task.setHostname(hostname);
+            task.setServiceName("cluster");
+            task.setServiceUser("root");
+            task.setServiceGroup("root");
+            task.setComponentName("bigtop-manager-agent");
+            task.setCommand(Command.CUSTOM_COMMAND);
+            task.setCustomCommand("cache_host");
+            task.setState(JobState.PENDING);
+
+            RequestMessage requestMessage = getMessage(hostname);
+            log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
+            task.setContent(JsonUtils.writeAsString(requestMessage));
+
+            task.setMessageId(requestMessage.getMessageId());
+            taskRepository.save(task);
+        }
+    }
+
+    @Resource
+    private HostPersist hostPersist;
+
+    @Override
+    public void beforeStage(Stage stage) {
+        Cluster cluster = stage.getCluster();
+        if (stage.getName().equals(CACHE_STAGE_NAME)) {
+            List<String> hostnames = JsonUtils.readFromString(stage.getPayload(), new TypeReference<>() {
+            });
+            hostPersist.persist(cluster, hostnames);
+        }
+    }
+
+    @Override
+    public String generatePayload(Task task) {
+        Cluster cluster = task.getCluster();
+        hostCacheJobFactory.createCache(cluster);
+        RequestMessage requestMessage = hostCacheJobFactory.getMessage(task.getHostname());
+        log.info("[generatePayload]-[HostCacheJobFactory-requestMessage]: {}", requestMessage);
+        return JsonUtils.writeAsString(requestMessage);
+    }
 }

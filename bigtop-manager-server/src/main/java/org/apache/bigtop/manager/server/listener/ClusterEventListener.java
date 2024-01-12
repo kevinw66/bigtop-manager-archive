@@ -19,31 +19,24 @@ package org.apache.bigtop.manager.server.listener;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
-import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.listener.strategy.SyncJobStrategy;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.event.ClusterCreateEvent;
-import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
-import org.apache.bigtop.manager.server.utils.StackUtils;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.entity.Stage;
+import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.orm.repository.StageRepository;
+import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.List;
-
 @Slf4j
 @Component
 public class ClusterEventListener {
-
-    @Resource
-    private StackRepository stackRepository;
-
-    @Resource
-    private RepoRepository repoRepository;
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -60,9 +53,6 @@ public class ClusterEventListener {
     @Resource
     private SyncJobStrategy syncJobStrategy;
 
-    @Resource
-    private HostAddEventListener hostAddEventListener;
-
     @Async
     @TransactionalEventListener
     public void handleClusterCreate(ClusterCreateEvent event) {
@@ -72,12 +62,13 @@ public class ClusterEventListener {
 
         ClusterDTO clusterDTO = (ClusterDTO) event.getSource();
 
-        Boolean failed = syncJobStrategy.handle(job, JobStrategyType.CONTINUE_ON_FAIL);
+        Boolean failed = syncJobStrategy.handle(job, JobStrategyType.OVER_ON_FAIL);
 
         if (!failed) {
-            Cluster cluster = saveCluster(clusterDTO);
+            Cluster cluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
             updateJob(job, cluster);
         }
+        log.info("[ClusterEventListener] failed: {}", failed);
     }
 
     private void updateJob(Job job, Cluster cluster) {
@@ -93,35 +84,4 @@ public class ClusterEventListener {
         jobRepository.save(job);
     }
 
-    private Cluster saveCluster(ClusterDTO clusterDTO) {
-        // Save cluster
-        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
-        StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
-        Cluster cluster = ClusterMapper.INSTANCE.fromDTO2Entity(clusterDTO, stackDTO, stack);
-        cluster.setSelected(clusterRepository.count() == 0);
-        cluster.setState(MaintainState.INSTALLED);
-
-        Cluster oldCluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
-        if (oldCluster.getId() != null) {
-            cluster.setId(oldCluster.getId());
-        }
-        clusterRepository.save(cluster);
-
-        hostAddEventListener.saveHost(cluster, clusterDTO.getHostnames());
-
-        // Save repo
-        List<Repo> repos = RepoMapper.INSTANCE.fromDTO2Entity(clusterDTO.getRepoInfoList(), cluster);
-        List<Repo> oldRepos = repoRepository.findAllByCluster(cluster);
-
-        for (Repo repo : repos) {
-            for (Repo oldRepo : oldRepos) {
-                if (oldRepo.getArch().equals(repo.getArch()) && oldRepo.getOs().equals(repo.getOs())) {
-                    repo.setId(oldRepo.getId());
-                }
-            }
-        }
-
-        repoRepository.saveAll(repos);
-        return cluster;
-    }
 }

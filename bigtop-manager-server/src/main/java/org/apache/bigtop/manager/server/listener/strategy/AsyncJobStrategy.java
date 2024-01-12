@@ -27,6 +27,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 import static org.apache.bigtop.manager.common.constants.Constants.COMMAND_MESSAGE_RESPONSE_TIMEOUT;
 
 @Slf4j
@@ -62,10 +63,15 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
         LinkedBlockingQueue<Stage> pipeLineQueue = new LinkedBlockingQueue<>(stages);
         while (!pipeLineQueue.isEmpty()) {
             Stage stage = pipeLineQueue.poll();
+
             // Stage state change to processing
             stage.setState(JobState.PROCESSING);
             stageRepository.save(stage);
             StageCallback stageCallback = getStageCallback(stage);
+
+            if (stageCallback != null) {
+                stageCallback.beforeStage(stage);
+            }
 
             countDownLatch = new CountDownLatch(stage.getTasks().size());
             for (Task task : stage.getTasks()) {
@@ -74,7 +80,7 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
                 taskRepository.save(task);
 
                 String content = task.getContent();
-                if (stageCallback != null) {
+                if (stageCallback != null && stage.getName().equals(CACHE_STAGE_NAME)) {
                     content = stageCallback.generatePayload(task);
                 }
 
@@ -87,11 +93,11 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
                 SpringContextHolder.getServerWebSocket().sendMessage(task.getHostname(), message, this::call);
             }
 
-            boolean timeoutFlag;
+            boolean timeoutFlag = false;
             try {
                 timeoutFlag = countDownLatch.await(COMMAND_MESSAGE_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                stage.setState(JobState.FAILED);
             }
 
             if (timeoutFlag && !failed.get()) {
@@ -107,7 +113,7 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
             stageRepository.save(stage);
 
             if (stageCallback != null) {
-                stageCallback.onStageCompleted(stage);
+                stageCallback.afterStage(stage);
             }
         }
 
@@ -127,8 +133,6 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
      */
     public void call(ResultMessage resultMessage) {
         log.info("Execute RequestMessage completed, {}", resultMessage);
-        countDownLatch.countDown();
-
         Task task = taskRepository.getReferenceById(resultMessage.getTaskId());
 
         if (resultMessage.getCode() == MessageConstants.SUCCESS_CODE) {
@@ -138,8 +142,9 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
             failed.set(true);
         }
         taskRepository.save(task);
-
         saveCommandLog(resultMessage.getResult(), task);
+
+        countDownLatch.countDown();
     }
 
 

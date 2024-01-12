@@ -19,11 +19,13 @@ import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.utils.StackConfigUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -62,7 +64,8 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
     @Resource
     private TaskRepository taskRepository;
 
-    public Job createJob(Long clusterId) {
+    public Job createJob(JobFactoryContext context) {
+        Long clusterId = context.getClusterId();
         Job job = new Job();
 
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
@@ -80,6 +83,10 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
     }
 
     public void createStage(Job job, Cluster cluster, int stageOrder) {
+        createStage(job, cluster, stageOrder, null, null);
+    }
+
+    public void createStage(Job job, Cluster cluster, int stageOrder, String callbackClassName, String payload) {
         createCache(cluster);
 
         List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
@@ -87,12 +94,19 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setJob(job);
-        hostCacheStage.setName("Cache Hosts");
+        hostCacheStage.setName(CACHE_STAGE_NAME);
         hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setStageOrder(stageOrder);
         hostCacheStage.setCluster(cluster);
 
-        hostCacheStage.setCallbackClassName(this.getClass().getName());
+        if (StringUtils.isNotEmpty(callbackClassName)) {
+            hostCacheStage.setCallbackClassName(callbackClassName);
+        } else {
+            hostCacheStage.setCallbackClassName(this.getClass().getName());
+        }
+        if (StringUtils.isNotEmpty(callbackClassName)) {
+            hostCacheStage.setPayload(payload);
+        }
         hostCacheStage = stageRepository.save(hostCacheStage);
 
         for (String hostname : hostnames) {
@@ -112,15 +126,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
             task.setCustomCommand("cache_host");
             task.setState(JobState.PENDING);
 
-            RequestMessage requestMessage = getMessage(
-                    hostname,
-                    settingsMap,
-                    clusterInfo,
-                    serviceConfigMap,
-                    hostMap,
-                    repoList,
-                    userMap,
-                    componentInfoMap);
+            RequestMessage requestMessage = getMessage(hostname);
             log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
             task.setContent(JsonUtils.writeAsString(requestMessage));
 
@@ -143,7 +149,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
 
     private Map<String, Object> settingsMap;
 
-    private void createCache(Cluster cluster) {
+    public void createCache(Cluster cluster) {
         Long clusterId = cluster.getId();
 
         String clusterName = cluster.getClusterName();
@@ -236,6 +242,17 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         });
     }
 
+    public RequestMessage getMessage(String hostname) {
+        return getMessage(hostname,
+                settingsMap,
+                clusterInfo,
+                serviceConfigMap,
+                hostMap,
+                repoList,
+                userMap,
+                componentInfoMap);
+    }
+
     public RequestMessage getMessage(String hostname,
                                      Map<String, Object> settingsMap,
                                      ClusterInfo clusterInfo,
@@ -284,20 +301,4 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
         return hostCacheMessage;
     }
 
-    @Override
-    public String generatePayload(Task task) {
-        Cluster cluster = task.getCluster();
-        createCache(cluster);
-        RequestMessage requestMessage = getMessage(
-                task.getHostname(),
-                settingsMap,
-                clusterInfo,
-                serviceConfigMap,
-                hostMap,
-                repoList,
-                userMap,
-                componentInfoMap);
-        log.info("[generatePayload]-[HostCacheJobFactory-requestMessage]: {}", requestMessage);
-        return JsonUtils.writeAsString(requestMessage);
-    }
 }
