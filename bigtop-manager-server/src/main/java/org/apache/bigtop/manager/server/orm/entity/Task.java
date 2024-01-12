@@ -9,7 +9,9 @@ import org.apache.bigtop.manager.server.enums.JobState;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "task")
+@Table(name = "task", indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
+        @Index(name = "idx_job_id", columnList = "job_id"),
+        @Index(name = "idx_stage_id", columnList = "stage_id")})
 @TableGenerator(name = "task_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Task extends BaseEntity {
 
