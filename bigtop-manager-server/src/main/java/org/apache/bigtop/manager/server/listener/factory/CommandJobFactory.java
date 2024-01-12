@@ -16,6 +16,7 @@ import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
+import org.apache.bigtop.manager.server.listener.persist.ServicePersist;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
@@ -36,9 +37,14 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
+
 @Slf4j
 @org.springframework.stereotype.Component
 public class CommandJobFactory implements JobFactory, StageCallback {
+
+    private final Random random = new Random();
+
     @Resource
     private ComponentRepository componentRepository;
 
@@ -50,9 +56,6 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private HostComponentRepository hostComponentRepository;
-
-    @Resource
-    private ServiceRepository serviceRepository;
 
     @Resource
     private JobRepository jobRepository;
@@ -69,10 +72,11 @@ public class CommandJobFactory implements JobFactory, StageCallback {
     /**
      * create job and persist it to database
      *
-     * @param commandDTO command DTO
+     * @param context command DTO
      * @return task flow queue
      */
-    public Job createJob(CommandDTO commandDTO) {
+    public Job createJob(JobFactoryContext context) {
+        CommandDTO commandDTO = context.getCommandDTO();
         Long clusterId = commandDTO.getClusterId();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
@@ -84,25 +88,25 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         log.info("CommandOperator-job: {}", job);
 
         int stageOrder = 0;
-
+        // command stage
+        stageOrder = createStage(job, commandDTO, stageOrder);
         // cache stage
         if (commandDTO.getCommand() == Command.INSTALL) {
             stageOrder += 1;
-            hostCacheJobFactory.createStage(job, cluster, stageOrder);
+            hostCacheJobFactory.createStage(job, cluster, stageOrder, this.getClass().getName(), JsonUtils.writeAsString(commandDTO));
         }
 
-        // command stage
-        stageOrder = createStage(job, commandDTO, stageOrder);
-
-        // start and check stage if service install
-        if (commandDTO.getCommandLevel() == CommandLevel.SERVICE && commandDTO.getCommand() == Command.INSTALL) {
+        // If the cache stage is successful, start services
+        if (commandDTO.getCommand() == Command.INSTALL && commandDTO.getCommandLevel() == CommandLevel.SERVICE) {
             CommandDTO startCommandDTO = SerializationUtils.clone(commandDTO);
             startCommandDTO.setCommand(Command.START);
+            startCommandDTO.setCommandLevel(CommandLevel.INTERNAL_SERVICE_INSTALL);
             stageOrder = createStage(job, startCommandDTO, stageOrder);
 
             // The check action needs to be executed by a single node
             CommandDTO checkCommandDTO = SerializationUtils.clone(commandDTO);
             checkCommandDTO.setCommand(Command.CHECK);
+            checkCommandDTO.setCommandLevel(CommandLevel.INTERNAL_SERVICE_INSTALL);
             createStage(job, checkCommandDTO, stageOrder);
         }
 
@@ -213,6 +217,23 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                     componentHostMapping.put(componentCommandWrapper.getComponentName(), List.of(hostname));
                 }
             }
+            case INTERNAL_SERVICE_INSTALL -> {
+                componentHostMapping = commandDTO.getServiceCommands()
+                        .stream()
+                        .flatMap(x -> x.getComponentHosts().stream())
+                        .collect(Collectors.toMap(ComponentHostDTO::getComponentName, ComponentHostDTO::getHostnames));
+
+                Command command = commandDTO.getCommand();
+                if (command == Command.CHECK) {
+                    HashMap<String, List<String>> map = new HashMap<>();
+                    for (Map.Entry<String, List<String>> entry : componentHostMapping.entrySet()) {
+                        String componentName = entry.getKey();
+                        int index = random.nextInt(entry.getValue().size());
+                        map.put(componentName, List.of(entry.getValue().get(index)));
+                    }
+                    componentHostMapping = map;
+                }
+            }
             case CLUSTER, SERVICE, COMPONENT -> {
                 if (commandDTO.getCommand() == Command.INSTALL && commandDTO.getCommandLevel() == CommandLevel.SERVICE) {
                     componentHostMapping = commandDTO.getServiceCommands()
@@ -228,7 +249,6 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
                         Command command = componentCommandWrapper.getCommand();
                         if (command == Command.CHECK) {
-                            Random random = new Random();
                             int index = random.nextInt(hostComponentList.size());
                             hostnames = List.of(hostComponentList.get(index).getHost().getHostname());
                         }
@@ -268,6 +288,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
         List<ComponentCommandWrapper> componentCommandWrappers = new ArrayList<>();
         switch (commandDTO.getCommandLevel()) {
+            case INTERNAL_SERVICE_INSTALL -> componentCommandWrappers = getCommandWrappersFromStack(commandDTO);
             case SERVICE -> {
                 if (command == Command.INSTALL) {
                     componentCommandWrappers = getCommandWrappersFromStack(commandDTO);
@@ -429,19 +450,40 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         return commandPayload;
     }
 
+    @Resource
+    private ServicePersist servicePersist;
+
     @Override
-    public void onStageCompleted(Stage stage) {
+    public void beforeStage(Stage stage) {
+        CommandDTO commandDTO = JsonUtils.readFromString(stage.getPayload(), CommandDTO.class);
+        if (stage.getName().equals(CACHE_STAGE_NAME) && commandDTO.getCommand() == Command.INSTALL) {
+            switch (commandDTO.getCommandLevel()) {
+                case SERVICE -> servicePersist.persistService(commandDTO);
+                case HOST -> servicePersist.persistHostComponent(commandDTO);
+            }
+        }
+    }
+
+    @Override
+    public String generatePayload(Task task) {
+        Cluster cluster = task.getCluster();
+        hostCacheJobFactory.createCache(cluster);
+        RequestMessage requestMessage = hostCacheJobFactory.getMessage(task.getHostname());
+        log.info("[generatePayload]-[HostCacheJobFactory-requestMessage]: {}", requestMessage);
+        return JsonUtils.writeAsString(requestMessage);
+    }
+
+    @Override
+    public void afterStage(Stage stage) {
         Long clusterId = stage.getCluster().getId();
         String componentName = stage.getComponentName();
         CommandDTO commandDTO = JsonUtils.readFromString(stage.getPayload(), CommandDTO.class);
-
         Command command = commandDTO.getCommand();
         CommandLevel commandLevel = commandDTO.getCommandLevel();
 
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
-        Service service = hostComponents.get(0).getComponent().getService();
         if (stage.getState() == JobState.SUCCESSFUL) {
-            if (command == Command.START || command == Command.STOP || command == Command.INSTALL) {
+            if (command == Command.START || command == Command.STOP) {
                 if (commandLevel == CommandLevel.HOST) {
                     String hostname = commandDTO.getHostCommands().getHostname();
                     switch (command) {
@@ -455,11 +497,6 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                                 hostComponent.setState(MaintainState.STOPPED);
                             }
                         });
-                        case INSTALL -> hostComponents.forEach(hostComponent -> {
-                            if (hostname.equals(hostComponent.getHost().getHostname())) {
-                                hostComponent.setState(MaintainState.INSTALLED);
-                            }
-                        });
                     }
                 } else {
                     switch (command) {
@@ -467,27 +504,11 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                                 hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STARTED));
                         case STOP ->
                                 hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STOPPED));
-                        case INSTALL ->
-                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.INSTALLED));
                     }
                 }
                 hostComponentRepository.saveAll(hostComponents);
-
-                List<HostComponent> allByComponentServiceId = hostComponentRepository.findAllByComponentServiceId(service.getId());
-                if (allByComponentServiceId.stream().allMatch(x -> x.getState() == MaintainState.INSTALLED)) {
-                    service.setState(MaintainState.INSTALLED);
-                } else if (allByComponentServiceId.stream().allMatch(x -> x.getState() == MaintainState.STARTED)) {
-                    service.setState(MaintainState.STARTED);
-                } else if (allByComponentServiceId.stream().allMatch(x -> x.getState() == MaintainState.STOPPED)) {
-                    service.setState(MaintainState.STOPPED);
-                }
-                serviceRepository.save(service);
             }
-        } else {
-            if (command == Command.INSTALL) {
-                service.setState(MaintainState.UNINSTALLED);
-            }
-            serviceRepository.save(service);
         }
     }
+
 }

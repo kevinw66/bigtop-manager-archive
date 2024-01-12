@@ -6,6 +6,7 @@ import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.ClusterCreateJobFactory;
+import org.apache.bigtop.manager.server.listener.factory.JobFactoryContext;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.event.ClusterCreateEvent;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
@@ -74,7 +75,9 @@ public class ClusterServiceImpl implements ClusterService {
         hostAddValidator.validate(hostnames);
 
         // Create job
-        Job job = clusterCreateJobFactory.createJob(clusterDTO);
+        JobFactoryContext jobFactoryContext = new JobFactoryContext();
+        jobFactoryContext.setClusterDTO(clusterDTO);
+        Job job = clusterCreateJobFactory.createJob(jobFactoryContext);
 
         ClusterCreateEvent event = new ClusterCreateEvent(clusterDTO);
         event.setJobId(job.getId());

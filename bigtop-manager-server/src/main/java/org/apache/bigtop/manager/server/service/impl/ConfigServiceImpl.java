@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.HostCacheJobFactory;
+import org.apache.bigtop.manager.server.listener.factory.JobFactoryContext;
 import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
 import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
@@ -64,7 +65,9 @@ public class ConfigServiceImpl implements ConfigService {
             updateConfig(cluster, configurationDTO);
         }
 
-        Job job = hostCacheJobFactory.createJob(clusterId);
+        JobFactoryContext jobFactoryContext = new JobFactoryContext();
+        jobFactoryContext.setClusterId(clusterId);
+        Job job = hostCacheJobFactory.createJob(jobFactoryContext);
 
         HostCacheEvent hostCacheEvent = new HostCacheEvent(clusterId);
         hostCacheEvent.setJobId(job.getId());

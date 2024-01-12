@@ -24,6 +24,9 @@ public enum CommandLevel {
      * host command
      */
     HOST,
+
+
+    INTERNAL_SERVICE_INSTALL,
     ;
 
     @JsonCreator

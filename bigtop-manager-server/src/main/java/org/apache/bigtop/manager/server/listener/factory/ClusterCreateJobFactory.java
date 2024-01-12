@@ -10,6 +10,8 @@ import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
+import org.apache.bigtop.manager.server.listener.persist.ClusterPersist;
+import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
@@ -25,9 +27,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
 
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
+
 @Slf4j
 @org.springframework.stereotype.Component
-public class ClusterCreateJobFactory implements JobFactory {
+public class ClusterCreateJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private StackRepository stackRepository;
@@ -47,7 +51,8 @@ public class ClusterCreateJobFactory implements JobFactory {
     @Resource
     private HostCacheJobFactory hostCacheJobFactory;
 
-    public Job createJob(ClusterDTO clusterDTO) {
+    public Job createJob(JobFactoryContext context) {
+        ClusterDTO clusterDTO = context.getClusterDTO();
         Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
         Cluster cluster = new Cluster();
         cluster.setStack(stack);
@@ -60,12 +65,23 @@ public class ClusterCreateJobFactory implements JobFactory {
 
         hostAddJobFactory.createHostCheckStage(job, cluster, clusterDTO.getHostnames(), 1);
 
-        createCacheStage(job, clusterDTO, 2);
+        createCacheStage(job, clusterDTO, 2, this.getClass().getName(), JsonUtils.writeAsString(clusterDTO));
 
         return job;
     }
 
-    public void createCacheStage(Job job, ClusterDTO clusterDTO, int stageOrder) {
+    @Resource
+    private ClusterPersist clusterPersist;
+
+    @Override
+    public void beforeStage(Stage stage) {
+        if (stage.getName().equals(CACHE_STAGE_NAME)) {
+            ClusterDTO clusterDTO = JsonUtils.readFromString(stage.getPayload(), ClusterDTO.class);
+            clusterPersist.persist(clusterDTO);
+        }
+    }
+
+    public void createCacheStage(Job job, ClusterDTO clusterDTO, int stageOrder, String callbackClassName, String payload) {
         Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
         Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
         Map<String, Set<String>> hostMap = new HashMap<>();
@@ -94,9 +110,11 @@ public class ClusterCreateJobFactory implements JobFactory {
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setJob(job);
-        hostCacheStage.setName("Cache Hosts");
+        hostCacheStage.setName(CACHE_STAGE_NAME);
         hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setStageOrder(stageOrder);
+        hostCacheStage.setCallbackClassName(callbackClassName);
+        hostCacheStage.setPayload(payload);
         hostCacheStage = stageRepository.save(hostCacheStage);
 
         for (String hostname : hostnames) {

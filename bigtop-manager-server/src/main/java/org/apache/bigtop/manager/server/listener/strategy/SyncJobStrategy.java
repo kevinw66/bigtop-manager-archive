@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
+
 @Slf4j
 @Component
 public class SyncJobStrategy extends AbstractJobStrategy {
@@ -45,12 +47,21 @@ public class SyncJobStrategy extends AbstractJobStrategy {
             stage.setState(JobState.PROCESSING);
             stageRepository.save(stage);
 
+            StageCallback stageCallback = getStageCallback(stage);
+            if (stageCallback != null) {
+                stageCallback.beforeStage(stage);
+            }
+
             List<Task> tasks = stage.getTasks();
             for (Task task : tasks) {
                 task.setState(JobState.PROCESSING);
                 taskRepository.save(task);
 
-                BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), RequestMessage.class);
+                String content = task.getContent();
+                if (stageCallback != null && stage.getName().equals(CACHE_STAGE_NAME)) {
+                    content = stageCallback.generatePayload(task);
+                }
+                BaseCommandMessage message = JsonUtils.readFromString(content, RequestMessage.class);
                 log.info("[SyncJobStrategy] [BaseCommandMessage]: {}", message);
                 String hostname = task.getHostname();
                 ResultMessage res = SpringContextHolder.getServerWebSocket().sendMessage(hostname, message);
@@ -74,9 +85,8 @@ public class SyncJobStrategy extends AbstractJobStrategy {
             }
             stageRepository.save(stage);
 
-            StageCallback stageCallback = getStageCallback(stage);
             if (stageCallback != null) {
-                stageCallback.onStageCompleted(stage);
+                stageCallback.afterStage(stage);
             }
 
             if (failed.get() && strategyType == JobStrategyType.OVER_ON_FAIL) {

@@ -44,4 +44,6 @@ public final class Constants {
      * permission 644
      */
     public static final String PERMISSION_644 = "rw-r--r--";
+
+    public static final String CACHE_STAGE_NAME = "Cache Hosts";
 }

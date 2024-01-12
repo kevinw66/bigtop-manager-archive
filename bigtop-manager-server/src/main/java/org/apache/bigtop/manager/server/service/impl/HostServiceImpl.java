@@ -7,6 +7,7 @@ import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.HostAddJobFactory;
 import org.apache.bigtop.manager.server.listener.factory.HostCacheJobFactory;
+import org.apache.bigtop.manager.server.listener.factory.JobFactoryContext;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.event.HostAddEvent;
 import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
@@ -57,7 +58,10 @@ public class HostServiceImpl implements HostService {
         // Check hosts
         hostAddValidator.validate(hostnames);
 
-        Job job = hostAddJobFactory.createJob(clusterId, hostnames);
+        JobFactoryContext jobFactoryContext = new JobFactoryContext();
+        jobFactoryContext.setClusterId(clusterId);
+        jobFactoryContext.setHostnames(hostnames);
+        Job job = hostAddJobFactory.createJob(jobFactoryContext);
 
         HostAddEvent hostAddEvent = new HostAddEvent(hostnames);
         hostAddEvent.setJobId(job.getId());
@@ -93,7 +97,9 @@ public class HostServiceImpl implements HostService {
     @Override
     @Transactional
     public Boolean cache(Long clusterId) {
-        Job job = hostCacheJobFactory.createJob(clusterId);
+        JobFactoryContext jobFactoryContext = new JobFactoryContext();
+        jobFactoryContext.setClusterId(clusterId);
+        Job job = hostCacheJobFactory.createJob(jobFactoryContext);
 
         HostCacheEvent hostCacheEvent = new HostCacheEvent(clusterId);
         hostCacheEvent.setJobId(job.getId());

@@ -1,5 +1,7 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
-public interface JobFactory {
+import org.apache.bigtop.manager.server.orm.entity.Job;
 
+public interface JobFactory {
+    Job createJob(JobFactoryContext context);
 }

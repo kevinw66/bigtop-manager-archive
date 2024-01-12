@@ -9,6 +9,7 @@ import org.apache.bigtop.manager.common.message.type.ResultMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
+import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.orm.entity.CommandLog;
 import org.apache.bigtop.manager.server.orm.entity.Job;
@@ -27,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 import static org.apache.bigtop.manager.common.constants.Constants.COMMAND_MESSAGE_RESPONSE_TIMEOUT;
 
 @Slf4j
@@ -62,10 +64,15 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
         LinkedBlockingQueue<Stage> pipeLineQueue = new LinkedBlockingQueue<>(stages);
         while (!pipeLineQueue.isEmpty()) {
             Stage stage = pipeLineQueue.poll();
+
             // Stage state change to processing
             stage.setState(JobState.PROCESSING);
             stageRepository.save(stage);
             StageCallback stageCallback = getStageCallback(stage);
+
+            if (stageCallback != null) {
+                stageCallback.beforeStage(stage);
+            }
 
             countDownLatch = new CountDownLatch(stage.getTasks().size());
             for (Task task : stage.getTasks()) {
@@ -74,7 +81,7 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
                 taskRepository.save(task);
 
                 String content = task.getContent();
-                if (stageCallback != null) {
+                if (stageCallback != null && stage.getName().equals(CACHE_STAGE_NAME)) {
                     content = stageCallback.generatePayload(task);
                 }
 
@@ -90,8 +97,8 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
             boolean timeoutFlag;
             try {
                 timeoutFlag = countDownLatch.await(COMMAND_MESSAGE_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                throw new ServerException(e);
             }
 
             if (timeoutFlag && !failed.get()) {
@@ -107,7 +114,7 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
             stageRepository.save(stage);
 
             if (stageCallback != null) {
-                stageCallback.onStageCompleted(stage);
+                stageCallback.afterStage(stage);
             }
         }
 
