@@ -34,7 +34,7 @@ public enum ApiExceptionEnum {
     JOB_NOT_FOUND(16000, LocaleKeys.JOB_NOT_FOUND),
 
     // Configuration Exceptions -- 17000 ~ 17999
-    CONFIGURATION_NOT_FOUND(17000, LocaleKeys.CONFIGURATION_NOT_FOUND),
+    CONFIG_NOT_FOUND(17000, LocaleKeys.CONFIG_NOT_FOUND),
 
     // Command Exceptions -- 18000 ~ 18999
     COMMAND_NOT_FOUND(18000, LocaleKeys.COMMAND_NOT_FOUND),

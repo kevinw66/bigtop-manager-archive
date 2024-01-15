@@ -16,6 +16,6 @@ public class ServiceConfigReq {
 
     private String configDesc;
 
-    private List<@Valid ConfigDataReq> configs;
+    private List<@Valid TypeConfigReq> configs;
 }
 

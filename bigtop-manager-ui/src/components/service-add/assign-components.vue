@@ -23,7 +23,7 @@
     currentStack.value.services.map((v) => [v.serviceName, v.displayName])
   )
 
-  const hostnames = hosts.value.map((v) => v.hostname)
+  const hostnames = computed(() => hosts.value.map((v) => v.hostname))
 
   const columns = computed(() => {
     const services = serviceInfo.value.serviceCommands.map((item: any) => {
@@ -108,7 +108,7 @@
           if (componentHost.hostnames.length > 0) {
             componentHost.hostnames = []
           } else {
-            componentHost.hostnames = [...hostnames]
+            componentHost.hostnames = _.cloneDeep(hostnames.value)
           }
         }
       })

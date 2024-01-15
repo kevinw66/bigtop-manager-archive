@@ -8,7 +8,7 @@ import org.apache.bigtop.manager.common.utils.Environments;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
-import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
+import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
@@ -52,7 +52,7 @@ public class StackUtils {
 
     private static final Map<String, Map<String, List<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
-    private static final Map<String, Map<String, Set<ConfigDataDTO>>> STACK_CONFIG_MAP = new HashMap<>();
+    private static final Map<String, Map<String, Set<TypeConfigDTO>>> STACK_CONFIG_MAP = new HashMap<>();
 
     private static final Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
@@ -62,7 +62,7 @@ public class StackUtils {
         return Collections.unmodifiableMap(STACK_DEPENDENCY_MAP);
     }
 
-    public static Map<String, Map<String, Set<ConfigDataDTO>>> getStackConfigMap() {
+    public static Map<String, Map<String, Set<TypeConfigDTO>>> getStackConfigMap() {
         return Collections.unmodifiableMap(STACK_CONFIG_MAP);
     }
 
@@ -93,7 +93,7 @@ public class StackUtils {
      * @return service model {@link ServiceModel}
      */
     public static List<ServiceDTO> parseService(File versionFolder, String fullStackName) {
-        Map<String, Set<ConfigDataDTO>> mergedConfigMap = new HashMap<>();
+        Map<String, Set<TypeConfigDTO>> mergedConfigMap = new HashMap<>();
         File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
         List<ServiceDTO> services = new ArrayList<>();
 
@@ -108,7 +108,7 @@ public class StackUtils {
                 services.add(serviceDTO);
 
                 // configurations
-                Set<ConfigDataDTO> serviceConfigSet = new HashSet<>();
+                Set<TypeConfigDTO> serviceConfigSet = new HashSet<>();
                 File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER);
                 if (configFolder.exists()) {
                     for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
@@ -118,10 +118,10 @@ public class StackUtils {
                             String typeName = configPath.substring(configPath.lastIndexOf(File.separator) + 1, configPath.lastIndexOf("."));
 
                             List<PropertyDTO> properties = StackConfigUtils.loadConfig(configPath);
-                            ConfigDataDTO configDataDTO = new ConfigDataDTO();
-                            configDataDTO.setTypeName(typeName);
-                            configDataDTO.setProperties(properties);
-                            serviceConfigSet.add(configDataDTO);
+                            TypeConfigDTO typeConfigDTO = new TypeConfigDTO();
+                            typeConfigDTO.setTypeName(typeName);
+                            typeConfigDTO.setProperties(properties);
+                            serviceConfigSet.add(typeConfigDTO);
                         }
                     }
                 }

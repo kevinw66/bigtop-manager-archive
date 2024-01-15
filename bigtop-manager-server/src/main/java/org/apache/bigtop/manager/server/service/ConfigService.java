@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.service;
 
-import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
+import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 
@@ -27,5 +28,7 @@ public interface ConfigService {
      *
      * @return configurations
      */
-    CommandVO update(Long clusterId, List<ConfigurationDTO> configurationDTOList);
+    CommandVO update(Long clusterId, List<ServiceConfigDTO> serviceConfigDTOList);
+
+    void upsert(Long clusterId, Long serviceId, List<TypeConfigDTO> configs);
 }

@@ -10,10 +10,10 @@ import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.listener.persist.HostPersist;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -41,6 +41,9 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private HostCacheJobFactory hostCacheJobFactory;
+
+    @Resource
+    private HostService hostService;
 
     public Job createJob(JobFactoryContext context) {
         Long clusterId = context.getClusterId();
@@ -166,16 +169,13 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
         }
     }
 
-    @Resource
-    private HostPersist hostPersist;
-
     @Override
     public void beforeStage(Stage stage) {
         Cluster cluster = stage.getCluster();
         if (stage.getName().equals(CACHE_STAGE_NAME)) {
             List<String> hostnames = JsonUtils.readFromString(stage.getPayload(), new TypeReference<>() {
             });
-            hostPersist.persist(cluster, hostnames);
+            hostService.batchSave(cluster.getId(), hostnames);
         }
     }
 

@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.service;
 
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.vo.ServiceVO;
 
 import java.util.List;
@@ -20,4 +21,5 @@ public interface ServiceService {
      */
     ServiceVO get(Long id);
 
+    void saveByCommand(CommandDTO commandDTO);
 }

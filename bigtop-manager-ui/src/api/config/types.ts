@@ -22,7 +22,7 @@ export interface PropertyVO {
   desc: string
 }
 
-export interface ConfigDataVO {
+export interface TypeConfigVO {
   typeName: string
   version: number
   properties: PropertyVO[]
@@ -32,5 +32,5 @@ export interface ServiceConfigVO {
   serviceName: string
   configDesc: string
   version: number
-  configs: ConfigDataVO[]
+  configs: TypeConfigVO[]
 }

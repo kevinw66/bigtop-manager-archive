@@ -10,7 +10,6 @@ import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.listener.persist.ClusterPersist;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
@@ -22,6 +21,7 @@ import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -51,6 +51,9 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
     @Resource
     private HostCacheJobFactory hostCacheJobFactory;
 
+    @Resource
+    private ClusterService clusterService;
+
     public Job createJob(JobFactoryContext context) {
         ClusterDTO clusterDTO = context.getClusterDTO();
         Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
@@ -70,14 +73,11 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
         return job;
     }
 
-    @Resource
-    private ClusterPersist clusterPersist;
-
     @Override
     public void beforeStage(Stage stage) {
         if (stage.getName().equals(CACHE_STAGE_NAME)) {
             ClusterDTO clusterDTO = JsonUtils.readFromString(stage.getPayload(), ClusterDTO.class);
-            clusterPersist.persist(clusterDTO);
+            clusterService.save(clusterDTO);
         }
     }
 

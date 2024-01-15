@@ -4,11 +4,11 @@ package org.apache.bigtop.manager.server.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
+import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
-import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
+import org.apache.bigtop.manager.server.model.mapper.ConfigMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
 import org.apache.bigtop.manager.server.model.vo.ServiceComponentVO;
@@ -68,13 +68,13 @@ public class StackServiceImpl implements StackService {
     @Override
     public List<ServiceConfigVO> configurations(String stackName, String stackVersion) {
         List<ServiceConfigVO> list = new ArrayList<>();
-        Map<String, Map<String, Set<ConfigDataDTO>>> stackConfigMap = StackUtils.getStackConfigMap();
-        Map<String, Set<ConfigDataDTO>> serviceConfigMap = stackConfigMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        Map<String, Map<String, Set<TypeConfigDTO>>> stackConfigMap = StackUtils.getStackConfigMap();
+        Map<String, Set<TypeConfigDTO>> serviceConfigMap = stackConfigMap.get(StackUtils.fullStackName(stackName, stackVersion));
 
-        for (Map.Entry<String, Set<ConfigDataDTO>> entry : serviceConfigMap.entrySet()) {
+        for (Map.Entry<String, Set<TypeConfigDTO>> entry : serviceConfigMap.entrySet()) {
             ServiceConfigVO element = new ServiceConfigVO();
             element.setServiceName(entry.getKey());
-            element.setConfigs(ConfigurationMapper.INSTANCE.fromDTO2VO(entry.getValue()));
+            element.setConfigs(ConfigMapper.INSTANCE.fromDTO2VO(entry.getValue()));
             list.add(element);
         }
 

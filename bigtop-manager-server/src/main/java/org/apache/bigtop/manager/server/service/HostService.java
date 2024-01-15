@@ -17,10 +17,18 @@ public interface HostService {
 
     /**
      * Create a host
+     * TODO need to move to command service with host level command
      *
      * @return Host
      */
     CommandVO create(Long clusterId, List<String> hostnames);
+
+    /**
+     * Save a host
+     *
+     * @return Host
+     */
+    List<HostVO> batchSave(Long clusterId, List<String> hostnames);
 
     /**
      * Get a host

@@ -14,5 +14,5 @@ public class ServiceConfigDTO implements Serializable {
 
     private Integer version;
 
-    private List<ConfigDataDTO> configs;
+    private List<TypeConfigDTO> configs;
 }

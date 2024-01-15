@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
-import org.apache.bigtop.manager.server.model.mapper.ConfigurationMapper;
-import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
+import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
+import org.apache.bigtop.manager.server.model.mapper.ConfigMapper;
+import org.apache.bigtop.manager.server.model.req.ServiceConfigReq;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 import org.apache.bigtop.manager.server.service.ConfigService;
@@ -42,10 +42,10 @@ public class ConfigController {
     @Operation(summary = "update", description = "update|create|roll-back configurations")
     @PutMapping
     public ResponseEntity<CommandVO> update(@PathVariable Long clusterId,
-                                            @RequestBody List<@Valid ConfigurationReq> configurationReqs) {
-        List<ConfigurationDTO> configurationDTOList = ConfigurationMapper.INSTANCE.fromReq2DTO(configurationReqs);
-        log.info("configurationDTOList: {}", configurationDTOList);
-        CommandVO commandVO = configService.update(clusterId, configurationDTOList);
+                                            @RequestBody List<@Valid ServiceConfigReq> serviceConfigReqs) {
+        List<ServiceConfigDTO> serviceConfigDTOList = ConfigMapper.INSTANCE.fromReq2DTO(serviceConfigReqs);
+        log.info("serviceConfigDTOList: {}", serviceConfigDTOList);
+        CommandVO commandVO = configService.update(clusterId, serviceConfigDTOList);
         return ResponseEntity.success(commandVO);
     }
 

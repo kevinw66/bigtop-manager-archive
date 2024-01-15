@@ -13,5 +13,5 @@ public class ServiceConfigVO {
 
     private Integer version;
 
-    private List<ConfigDataVO> configs;
+    private List<TypeConfigVO> configs;
 }
