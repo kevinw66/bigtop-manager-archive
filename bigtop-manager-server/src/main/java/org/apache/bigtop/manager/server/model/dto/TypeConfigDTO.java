@@ -4,10 +4,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 @Data
-public class ConfigDataDTO implements Serializable {
+public class TypeConfigDTO implements Serializable {
 
     private String typeName;
 

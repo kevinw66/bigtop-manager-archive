@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.apache.bigtop.manager.server.config.CommandGroupSequenceProvider;
 import org.apache.bigtop.manager.server.model.req.ComponentHostReq;
-import org.apache.bigtop.manager.server.model.req.ConfigDataReq;
+import org.apache.bigtop.manager.server.model.req.TypeConfigReq;
 
 import java.util.List;
 
@@ -24,5 +24,5 @@ public class ServiceCommandReq {
 
     @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceInstallCommandGroup.class})
     @Schema(description = "Configs for service")
-    private List<@Valid ConfigDataReq> configs;
+    private List<@Valid TypeConfigReq> configs;
 }

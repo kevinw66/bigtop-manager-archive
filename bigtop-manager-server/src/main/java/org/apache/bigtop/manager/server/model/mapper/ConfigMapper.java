@@ -1,10 +1,10 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.model.dto.ConfigDataDTO;
-import org.apache.bigtop.manager.server.model.dto.ConfigurationDTO;
-import org.apache.bigtop.manager.server.model.req.ConfigurationReq;
-import org.apache.bigtop.manager.server.model.vo.ConfigDataVO;
+import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
+import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
+import org.apache.bigtop.manager.server.model.req.ServiceConfigReq;
+import org.apache.bigtop.manager.server.model.vo.TypeConfigVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
 import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
@@ -15,17 +15,17 @@ import org.mapstruct.factory.Mappers;
 import java.util.*;
 
 @Mapper
-public interface ConfigurationMapper {
+public interface ConfigMapper {
 
-    ConfigurationMapper INSTANCE = Mappers.getMapper(ConfigurationMapper.class);
+    ConfigMapper INSTANCE = Mappers.getMapper(ConfigMapper.class);
 
-    ConfigurationDTO fromReq2DTO(ConfigurationReq configurationReq);
+    ServiceConfigDTO fromReq2DTO(ServiceConfigReq serviceConfigReq);
 
-    List<ConfigurationDTO> fromReq2DTO(List<ConfigurationReq> configurationReqs);
+    List<ServiceConfigDTO> fromReq2DTO(List<ServiceConfigReq> serviceConfigReqs);
 
-    ConfigDataVO fromDTO2VO(ConfigDataDTO configDataDTO);
+    TypeConfigVO fromDTO2VO(TypeConfigDTO typeConfigDTO);
 
-    List<ConfigDataVO> fromDTO2VO(Collection<ConfigDataDTO> configDataDTOs);
+    List<TypeConfigVO> fromDTO2VO(Collection<TypeConfigDTO> typeConfigDTOS);
 
     default List<ServiceConfigVO> fromEntity2VO(List<ServiceConfigMapping> serviceConfigMappings) {
         Map<ServiceConfigRecord, ServiceConfigVO> map = new HashMap<>();
@@ -36,15 +36,15 @@ public interface ConfigurationMapper {
 
             ServiceConfigVO serviceConfigVO = map.getOrDefault(serviceConfigRecord, new ServiceConfigVO());
             map.put(serviceConfigRecord, serviceConfigVO);
-            List<ConfigDataVO> configDataVOList = serviceConfigVO.getConfigs() == null ? new ArrayList<>() : serviceConfigVO.getConfigs();
+            List<TypeConfigVO> typeConfigVOList = serviceConfigVO.getConfigs() == null ? new ArrayList<>() : serviceConfigVO.getConfigs();
 
-            ConfigDataVO configDataVO = new ConfigDataVO();
-            configDataVO.setProperties(JsonUtils.readFromString(serviceConfig.getPropertiesJson()));
-            configDataVO.setVersion(serviceConfig.getVersion());
-            configDataVO.setTypeName(serviceConfig.getTypeName());
-            configDataVOList.add(configDataVO);
+            TypeConfigVO typeConfigVO = new TypeConfigVO();
+            typeConfigVO.setProperties(JsonUtils.readFromString(serviceConfig.getPropertiesJson()));
+            typeConfigVO.setVersion(serviceConfig.getVersion());
+            typeConfigVO.setTypeName(serviceConfig.getTypeName());
+            typeConfigVOList.add(typeConfigVO);
 
-            serviceConfigVO.setConfigs(configDataVOList);
+            serviceConfigVO.setConfigs(typeConfigVOList);
             serviceConfigVO.setConfigDesc(serviceConfigRecord.getConfigDesc());
             serviceConfigVO.setVersion(serviceConfigRecord.getVersion());
             serviceConfigVO.setServiceName(serviceConfigRecord.getService().getServiceName());

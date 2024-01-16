@@ -9,7 +9,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ConfigDataReq {
+public class TypeConfigReq {
 
     @NotBlank
     @Schema(example = "zoo.cfg", requiredMode = Schema.RequiredMode.REQUIRED)

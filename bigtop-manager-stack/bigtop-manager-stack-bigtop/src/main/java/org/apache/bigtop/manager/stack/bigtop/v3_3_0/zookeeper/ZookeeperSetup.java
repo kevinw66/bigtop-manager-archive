@@ -72,6 +72,6 @@ public class ZookeeperSetup {
         LinuxFileUtils.toFileByTemplate(zookeeperEnv.get("content").toString(), MessageFormat.format("{0}/zookeeper-env.sh", confDir),
                 zookeeperUser, zookeeperGroup, PERMISSION_644, envMap);
 
-        return DefaultShellResult.success("ZooKeeper Server Configuration success!");
+        return DefaultShellResult.success("ZooKeeper Server Configure success!");
     }
 }

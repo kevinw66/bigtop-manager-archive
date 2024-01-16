@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ConfigDataVO {
+public class TypeConfigVO {
 
     private String typeName;
 

@@ -17,10 +17,18 @@ public interface ClusterService {
 
     /**
      * Create a cluster
+     * TODO need to move to command service with cluster level command
      *
      * @return Cluster
      */
     CommandVO create(ClusterDTO clusterDTO);
+
+    /**
+     * Save a cluster
+     *
+     * @return Cluster
+     */
+    ClusterVO save(ClusterDTO clusterDTO);
 
     /**
      * Get a cluster

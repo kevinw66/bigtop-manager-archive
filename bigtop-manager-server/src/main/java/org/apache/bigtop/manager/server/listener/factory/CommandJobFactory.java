@@ -16,7 +16,6 @@ import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
-import org.apache.bigtop.manager.server.listener.persist.ServicePersist;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
@@ -24,6 +23,8 @@ import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.service.HostComponentService;
+import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
@@ -68,6 +69,12 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private HostCacheJobFactory hostCacheJobFactory;
+
+    @Resource
+    private HostComponentService hostComponentService;
+
+    @Resource
+    private ServiceService serviceService;
 
     /**
      * create job and persist it to database
@@ -450,16 +457,13 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         return commandPayload;
     }
 
-    @Resource
-    private ServicePersist servicePersist;
-
     @Override
     public void beforeStage(Stage stage) {
         CommandDTO commandDTO = JsonUtils.readFromString(stage.getPayload(), CommandDTO.class);
         if (stage.getName().equals(CACHE_STAGE_NAME) && commandDTO.getCommand() == Command.INSTALL) {
             switch (commandDTO.getCommandLevel()) {
-                case SERVICE -> servicePersist.persistService(commandDTO);
-                case HOST -> servicePersist.persistHostComponent(commandDTO);
+                case SERVICE -> serviceService.saveByCommand(commandDTO);
+                case HOST -> hostComponentService.saveByCommand(commandDTO);
             }
         }
     }

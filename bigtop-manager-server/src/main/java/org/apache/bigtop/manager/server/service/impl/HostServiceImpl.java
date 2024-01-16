@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.service.impl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
+import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.HostAddJobFactory;
@@ -15,8 +16,10 @@ import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.validate.HostAddValidator;
@@ -24,11 +27,17 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class HostServiceImpl implements HostService {
+
+    @Resource
+    private ClusterRepository clusterRepository;
 
     @Resource
     private HostRepository hostRepository;
@@ -70,6 +79,33 @@ public class HostServiceImpl implements HostService {
         SpringContextHolder.getApplicationContext().publishEvent(hostAddEvent);
 
         return JobMapper.INSTANCE.fromEntity2CommandVO(job);
+    }
+
+    @Override
+    public List<HostVO> batchSave(Long clusterId, List<String> hostnames) {
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+
+        List<Host> hostnameIn = hostRepository.findAllByHostnameIn(hostnames);
+        List<Host> hosts = new ArrayList<>();
+
+        Map<String, Host> hostInMap = hostnameIn.stream().collect(Collectors.toMap(Host::getHostname, host -> host));
+
+        for (String hostname : hostnames) {
+            Host host = new Host();
+            host.setHostname(hostname);
+            host.setCluster(cluster);
+            host.setState(MaintainState.INSTALLED);
+
+            if (hostInMap.containsKey(hostname)) {
+                host.setId(hostInMap.get(hostname).getId());
+            }
+
+            hosts.add(host);
+        }
+
+        hostRepository.saveAll(hosts);
+
+        return HostMapper.INSTANCE.fromEntity2VO(hosts);
     }
 
     @Override

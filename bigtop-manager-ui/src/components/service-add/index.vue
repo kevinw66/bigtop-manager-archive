@@ -14,7 +14,7 @@
   import { useComponentStore } from '@/store/component'
   import { useConfigStore } from '@/store/config'
   import { HostComponentVO } from '@/api/component/types.ts'
-  import { ConfigDataVO, ServiceConfigVO } from '@/api/config/types.ts'
+  import { TypeConfigVO, ServiceConfigVO } from '@/api/config/types.ts'
 
   const open = defineModel<boolean>('open')
 
@@ -91,7 +91,7 @@
       const configs = latestConfigs.value
         .filter((sc: ServiceConfigVO) => sc.serviceName === serviceName)
         .flatMap((sc: ServiceConfigVO) => sc.configs)
-        .map((cd: ConfigDataVO) => ({
+        .map((cd: TypeConfigVO) => ({
           typeName: cd.typeName,
           properties: cd.properties
         }))

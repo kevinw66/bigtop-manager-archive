@@ -20,16 +20,25 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useServiceStore } from '@/store/service'
 import { storeToRefs } from 'pinia'
 import { ServiceVO } from '@/api/service/types.ts'
+import { useClusterStore } from '@/store/cluster'
 
 const router = createRouter({
   routes,
   history: createWebHistory(import.meta.env.VITE_APP_BASE)
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (to.name === 'services') {
+    const clusterStore = useClusterStore()
     const serviceStore = useServiceStore()
+    const { clusterId } = storeToRefs(clusterStore)
     const { installedServices } = storeToRefs(serviceStore)
+
+    if (clusterId.value === 0) {
+      await clusterStore.loadClusters()
+      await serviceStore.loadServices()
+    }
+
     const installedServiceNames = installedServices.value.map(
       (service: ServiceVO) => service.serviceName
     )

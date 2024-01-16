@@ -12,7 +12,6 @@
   const { currentStack } = storeToRefs(stackStore)
 
   const activeServiceTab = ref(serviceInfo.value.serviceCommands[0].serviceName)
-  const activeConfigTab = ref()
 
   const serviceNameToDisplayName = _.fromPairs(
     currentStack.value.services.map((v) => [v.serviceName, v.displayName])
@@ -34,6 +33,8 @@
       }, {})
   })
 
+  const activeConfigTab = ref(configs.value[activeServiceTab.value][0].typeName)
+
   const onNextStep = async () => {
     try {
       const res = await execCommand(serviceInfo.value)
@@ -54,7 +55,11 @@
 <template>
   <div class="container">
     <div class="title">{{ $t('service.configure_services') }}</div>
-    <a-tabs v-model:activeKey="activeServiceTab" class="content">
+    <a-tabs
+      v-model:activeKey="activeServiceTab"
+      class="content"
+      @change="(key: string) => (activeConfigTab = configs[key][0].typeName)"
+    >
       <a-tab-pane
         v-for="service in services"
         :key="service"

@@ -97,7 +97,7 @@ public class KafkaBrokerScript implements Script {
                 PERMISSION_644,
                 kafkaEnv);
 
-        return DefaultShellResult.success("Kafka Server Configuration success!");
+        return DefaultShellResult.success("Kafka Server Configure success!");
     }
 
     @Override

@@ -4,6 +4,10 @@ bigtop:
       host: localhost
       port: 8080
 
+spring:
+  application:
+    name: bigtop-manager-agent
+
 server:
   port: 8081
 
