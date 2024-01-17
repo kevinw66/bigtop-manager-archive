@@ -37,7 +37,6 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 
@@ -55,9 +54,6 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private ClusterRepository clusterRepository;
-
-    @Resource
-    private HostRepository hostRepository;
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -271,23 +267,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             default -> log.warn("Unknown commandType: {}", commandDTO);
         }
 
-        validateHost(componentHostMapping);
-
         return componentHostMapping;
-    }
-
-    /**
-     * Check if the host exists in the database and not in maintenance mode
-     */
-    private void validateHost(Map<String, List<String>> componentHostMapping) {
-        for (Map.Entry<String, List<String>> entry : componentHostMapping.entrySet()) {
-            List<String> hostnames = entry.getValue();
-            List<Host> hostList = hostRepository.findAllByHostnameIn(hostnames);
-            if (hostList.size() != hostnames.size()) {
-                log.info("componentHostMapping: {}, hostList: {}", componentHostMapping, hostList);
-                throw new ServerException("Can't find host in database");
-            }
-        }
     }
 
     /**
