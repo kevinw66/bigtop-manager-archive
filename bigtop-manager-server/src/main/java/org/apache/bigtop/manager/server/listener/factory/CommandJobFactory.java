@@ -37,6 +37,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 
@@ -45,6 +46,9 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 public class CommandJobFactory implements JobFactory, StageCallback {
 
     private final Random random = new Random();
+
+    @Resource
+    private ServiceRepository serviceRepository;
 
     @Resource
     private ComponentRepository componentRepository;
@@ -485,33 +489,44 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         Command command = commandDTO.getCommand();
         CommandLevel commandLevel = commandDTO.getCommandLevel();
 
-        List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
-        if (stage.getState() == JobState.SUCCESSFUL) {
-            if (command == Command.START || command == Command.STOP) {
-                if (commandLevel == CommandLevel.HOST) {
-                    String hostname = commandDTO.getHostCommands().getHostname();
-                    switch (command) {
-                        case START -> hostComponents.forEach(hostComponent -> {
+        if (stage.getState() == JobState.SUCCESSFUL && (command == Command.START || command == Command.STOP)) {
+            List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(clusterId, componentName);
+            Service service = hostComponents.get(0).getComponent().getService();
+            switch (command) {
+                case START -> {
+                    if (CommandLevel.HOST == commandLevel) {
+                        String hostname = commandDTO.getHostCommands().getHostname();
+                        hostComponents.forEach(hostComponent -> {
                             if (hostname.equals(hostComponent.getHost().getHostname())) {
                                 hostComponent.setState(MaintainState.STARTED);
                             }
                         });
-                        case STOP -> hostComponents.forEach(hostComponent -> {
+                    } else {
+                        hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STARTED));
+                    }
+                }
+                case STOP -> {
+                    if (CommandLevel.HOST == commandLevel) {
+                        String hostname = commandDTO.getHostCommands().getHostname();
+                        hostComponents.forEach(hostComponent -> {
                             if (hostname.equals(hostComponent.getHost().getHostname())) {
                                 hostComponent.setState(MaintainState.STOPPED);
                             }
                         });
-                    }
-                } else {
-                    switch (command) {
-                        case START ->
-                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STARTED));
-                        case STOP ->
-                                hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STOPPED));
+                    } else {
+                        hostComponents.forEach(hostComponent -> hostComponent.setState(MaintainState.STOPPED));
                     }
                 }
-                hostComponentRepository.saveAll(hostComponents);
             }
+
+            hostComponentRepository.saveAll(hostComponents);
+
+            if (hostComponents.stream().allMatch(x -> x.getState() == MaintainState.STARTED)) {
+                service.setState(MaintainState.STARTED);
+            } else if (hostComponents.stream().allMatch(x -> x.getState() == MaintainState.STOPPED)) {
+                service.setState(MaintainState.STOPPED);
+            }
+            serviceRepository.save(service);
         }
     }
 

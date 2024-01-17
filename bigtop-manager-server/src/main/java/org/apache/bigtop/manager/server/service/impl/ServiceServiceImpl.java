@@ -61,8 +61,6 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public void saveByCommand(CommandDTO commandDTO) {
-        log.info("Enter install method");
-
         List<ServiceCommandDTO> serviceCommands = commandDTO.getServiceCommands();
         Long clusterId = commandDTO.getClusterId();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
@@ -88,7 +86,6 @@ public class ServiceServiceImpl implements ServiceService {
 
             // 1. Persist service
             ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
-            validRequiredServices(clusterId, serviceDTO);
 
             Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
             service.setState(MaintainState.INSTALLED);
@@ -127,15 +124,4 @@ public class ServiceServiceImpl implements ServiceService {
         }
     }
 
-    private void validRequiredServices(Long clusterId, ServiceDTO serviceDTO) {
-        List<String> requiredServices = serviceDTO.getRequiredServices();
-        if (CollectionUtils.isEmpty(requiredServices)) {
-            return;
-        }
-
-        List<Service> serviceList = serviceRepository.findByClusterIdAndServiceNameIn(clusterId, requiredServices);
-        if (serviceList.size() != requiredServices.size()) {
-            throw new ApiException(ApiExceptionEnum.SERVICE_REQUIRED_NOT_FOUND, String.join(",", requiredServices));
-        }
-    }
 }
