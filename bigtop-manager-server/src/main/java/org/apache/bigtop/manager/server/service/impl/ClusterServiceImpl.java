@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.server.enums.ValidateType;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.ClusterCreateJobFactory;
@@ -26,8 +27,8 @@ import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.apache.bigtop.manager.server.validate.ClusterCreateValidator;
-import org.apache.bigtop.manager.server.validate.HostAddValidator;
+import org.apache.bigtop.manager.server.validate.ChainContext;
+import org.apache.bigtop.manager.server.validate.ChainValidatorHandler;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -42,12 +43,6 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Resource
     private RepoRepository repoRepository;
-
-    @Resource
-    private HostAddValidator hostAddValidator;
-
-    @Resource
-    private ClusterCreateValidator clusterCreateValidator;
 
     @Resource
     private StackRepository stackRepository;
@@ -72,20 +67,10 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     @Transactional
     public CommandVO create(ClusterDTO clusterDTO) {
-        String stackName = clusterDTO.getStackName();
-        String stackVersion = clusterDTO.getStackVersion();
 
-        // Check before create
-        Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion);
-        if (stack == null) {
-            throw new ApiException(ApiExceptionEnum.STACK_NOT_FOUND);
-        }
-
-        clusterCreateValidator.validate(clusterDTO.getClusterName());
-
-        // Check hosts
-        List<String> hostnames = clusterDTO.getHostnames();
-        hostAddValidator.validate(hostnames);
+        ChainContext chainContext = new ChainContext();
+        chainContext.setClusterDTO(clusterDTO);
+        ChainValidatorHandler.handleRequest(chainContext, ValidateType.CLUSTER_ADD);
 
         // Create job
         JobFactoryContext jobFactoryContext = new JobFactoryContext();

@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.server.enums.ValidateType;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.listener.factory.HostAddJobFactory;
@@ -22,7 +23,8 @@ import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
-import org.apache.bigtop.manager.server.validate.HostAddValidator;
+import org.apache.bigtop.manager.server.validate.ChainContext;
+import org.apache.bigtop.manager.server.validate.ChainValidatorHandler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +50,6 @@ public class HostServiceImpl implements HostService {
     @Resource
     private HostCacheJobFactory hostCacheJobFactory;
 
-    @Resource
-    private HostAddValidator hostAddValidator;
-
     @Override
     public List<HostVO> list(Long clusterId) {
         List<Host> hosts = hostRepository.findAllByClusterId(clusterId);
@@ -64,8 +63,9 @@ public class HostServiceImpl implements HostService {
     @Override
     @Transactional
     public CommandVO create(Long clusterId, List<String> hostnames) {
-        // Check hosts
-        hostAddValidator.validate(hostnames);
+        ChainContext chainContext = new ChainContext();
+        chainContext.setHostnames(hostnames);
+        ChainValidatorHandler.handleRequest(chainContext, ValidateType.HOST_ADD);
 
         JobFactoryContext jobFactoryContext = new JobFactoryContext();
         jobFactoryContext.setClusterId(clusterId);

@@ -18,10 +18,13 @@ package org.apache.bigtop.manager.server.holder;
 
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
+import org.apache.bigtop.manager.server.validate.ChainValidator;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 public class SpringContextHolder implements ApplicationContextAware {
@@ -36,5 +39,9 @@ public class SpringContextHolder implements ApplicationContextAware {
 
     public static ServerWebSocketHandler getServerWebSocket() {
         return applicationContext.getBean(ServerWebSocketHandler.class);
+    }
+
+    public static Map<String, ChainValidator> getValidator() {
+        return applicationContext.getBeansOfType(ChainValidator.class);
     }
 }
