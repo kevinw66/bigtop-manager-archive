@@ -5,22 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.holder.SpringContextHolder;
-import org.apache.bigtop.manager.server.listener.factory.HostCacheUtils;
-import org.apache.bigtop.manager.server.listener.factory.JobContext;
-import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
-import org.apache.bigtop.manager.server.model.event.HostCacheEvent;
+import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigMapper;
-import org.apache.bigtop.manager.server.model.mapper.JobMapper;
-import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.ConfigService;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +40,6 @@ public class ConfigServiceImpl implements ConfigService {
     @Resource
     private ServiceConfigRepository serviceConfigRepository;
 
-    @Resource
-    private HostCacheUtils hostCacheUtils;
-
     @Override
     public List<ServiceConfigVO> list(Long clusterId) {
         List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllByServiceConfigRecordClusterId(clusterId);
@@ -60,26 +50,6 @@ public class ConfigServiceImpl implements ConfigService {
     public List<ServiceConfigVO> latest(Long clusterId) {
         List<ServiceConfigMapping> resultList = serviceConfigMappingRepository.findAllGroupLastest(clusterId);
         return ConfigMapper.INSTANCE.fromEntity2VO(resultList);
-    }
-
-    @Override
-    @Transactional
-    public CommandVO update(Long clusterId, List<ServiceConfigDTO> serviceConfigDTOList) {
-        Cluster cluster = clusterRepository.getReferenceById(clusterId);
-
-        for (ServiceConfigDTO serviceConfigDTO : serviceConfigDTOList) {
-            updateConfig(cluster, serviceConfigDTO);
-        }
-
-        JobContext jobContext = new JobContext();
-        jobContext.setClusterId(clusterId);
-        Job job = hostCacheUtils.createJob(jobContext);
-
-        HostCacheEvent hostCacheEvent = new HostCacheEvent(clusterId);
-        hostCacheEvent.setJobId(job.getId());
-        SpringContextHolder.getApplicationContext().publishEvent(hostCacheEvent);
-
-        return JobMapper.INSTANCE.fromEntity2CommandVO(job);
     }
 
     @Override
@@ -104,7 +74,8 @@ public class ConfigServiceImpl implements ConfigService {
         }
     }
 
-    private void updateConfig(Cluster cluster, ServiceConfigDTO serviceConfigDTO) {
+    @Override
+    public void updateConfig(Cluster cluster, ServiceConfigDTO serviceConfigDTO) {
         String serviceName = serviceConfigDTO.getServiceName();
         Long clusterId = cluster.getId();
 
