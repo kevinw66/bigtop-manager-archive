@@ -6,8 +6,8 @@ import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
-import org.apache.bigtop.manager.server.listener.factory.HostCacheJobFactory;
-import org.apache.bigtop.manager.server.listener.factory.JobFactoryContext;
+import org.apache.bigtop.manager.server.listener.factory.HostCacheUtils;
+import org.apache.bigtop.manager.server.listener.factory.JobContext;
 import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
@@ -48,7 +48,7 @@ public class ConfigServiceImpl implements ConfigService {
     private ServiceConfigRepository serviceConfigRepository;
 
     @Resource
-    private HostCacheJobFactory hostCacheJobFactory;
+    private HostCacheUtils hostCacheUtils;
 
     @Override
     public List<ServiceConfigVO> list(Long clusterId) {
@@ -71,9 +71,9 @@ public class ConfigServiceImpl implements ConfigService {
             updateConfig(cluster, serviceConfigDTO);
         }
 
-        JobFactoryContext jobFactoryContext = new JobFactoryContext();
-        jobFactoryContext.setClusterId(clusterId);
-        Job job = hostCacheJobFactory.createJob(jobFactoryContext);
+        JobContext jobContext = new JobContext();
+        jobContext.setClusterId(clusterId);
+        Job job = hostCacheUtils.createJob(jobContext);
 
         HostCacheEvent hostCacheEvent = new HostCacheEvent(clusterId);
         hostCacheEvent.setJobId(job.getId());

@@ -57,7 +57,7 @@
   ]
 
   const initClusterInfo = () => {
-    return {
+    const clusterCommand = {
       clusterName: '',
       // 1-Physical Machine 2-Kubernetes
       // Only support physical machine right now
@@ -66,7 +66,13 @@
       stackVersion: '',
       fullStackName: '',
       repoInfoList: [],
-      hostnames: [],
+      hostnames: []
+    }
+
+    return {
+      command: 'install',
+      commandLevel: 'cluster',
+      clusterCommand: clusterCommand,
       // Related job id
       jobId: 0,
       // Job Status

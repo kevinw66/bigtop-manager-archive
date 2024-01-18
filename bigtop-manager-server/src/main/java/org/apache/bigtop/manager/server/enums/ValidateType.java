@@ -4,10 +4,10 @@ public enum ValidateType {
 
     DEFAULT,
 
-    COMMAND,
+    SERVICE_INSTALL,
 
-    CLUSTER_ADD,
+    CLUSTER_INSTALL,
 
-    HOST_ADD,
+    HOST_INSTALL,
 
 }

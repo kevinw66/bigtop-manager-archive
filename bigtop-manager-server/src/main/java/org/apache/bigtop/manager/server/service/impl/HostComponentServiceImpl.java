@@ -68,8 +68,8 @@ public class HostComponentServiceImpl implements HostComponentService {
 
     @Override
     public void saveByCommand(CommandDTO commandDTO) {
-        List<String> componentNameList = commandDTO.getHostCommands().getComponentNames();
-        String hostname = commandDTO.getHostCommands().getHostname();
+        List<String> componentNameList = commandDTO.getHostCommand().getComponentNames();
+        String hostname = commandDTO.getHostCommand().getHostname();
         Long clusterId = commandDTO.getClusterId();
 
         // Persist hostComponent to database

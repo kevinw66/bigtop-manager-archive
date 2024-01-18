@@ -7,8 +7,6 @@ bigtop:
 spring:
   application:
     name: bigtop-manager-server
-  main:
-    allow-circular-references: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: root

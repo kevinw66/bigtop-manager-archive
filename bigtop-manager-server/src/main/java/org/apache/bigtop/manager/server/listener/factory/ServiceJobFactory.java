@@ -42,7 +42,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class CommandJobFactory implements JobFactory, StageCallback {
+public class ServiceJobFactory implements JobFactory, StageCallback {
 
     private final Random random = new Random();
 
@@ -68,7 +68,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
     private TaskRepository taskRepository;
 
     @Resource
-    private HostCacheJobFactory hostCacheJobFactory;
+    private HostCacheUtils hostCacheUtils;
 
     @Resource
     private HostComponentService hostComponentService;
@@ -76,13 +76,18 @@ public class CommandJobFactory implements JobFactory, StageCallback {
     @Resource
     private ServiceService serviceService;
 
+    @Override
+    public CommandLevel getCommandLevel() {
+        return CommandLevel.SERVICE;
+    }
+
     /**
      * create job and persist it to database
      *
      * @param context command DTO
      * @return task flow queue
      */
-    public Job createJob(JobFactoryContext context) {
+    public Job createJob(JobContext context) {
         CommandDTO commandDTO = context.getCommandDTO();
         Long clusterId = commandDTO.getClusterId();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
@@ -100,7 +105,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
         // cache stage
         if (commandDTO.getCommand() == Command.INSTALL) {
             stageOrder += 1;
-            hostCacheJobFactory.createStage(job, cluster, stageOrder, this.getClass().getName(), JsonUtils.writeAsString(commandDTO));
+            hostCacheUtils.createStage(job, cluster, stageOrder, this.getClass().getName(), JsonUtils.writeAsString(commandDTO));
         }
 
         // If the cache stage is successful, start services
@@ -219,7 +224,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
 
         switch (commandDTO.getCommandLevel()) {
             case HOST -> {
-                String hostname = commandDTO.getHostCommands().getHostname();
+                String hostname = commandDTO.getHostCommand().getHostname();
                 for (ComponentCommandWrapper componentCommandWrapper : sortedRcpList) {
                     componentHostMapping.put(componentCommandWrapper.getComponentName(), List.of(hostname));
                 }
@@ -304,7 +309,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                 }
             }
             case HOST -> {
-                List<Component> components = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, commandDTO.getHostCommands().getComponentNames());
+                List<Component> components = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, commandDTO.getHostCommand().getComponentNames());
                 for (Component component : components) {
                     ComponentCommandWrapper componentCommandWrapper = new ComponentCommandWrapper(component.getComponentName(), command, component);
                     componentCommandWrappers.add(componentCommandWrapper);
@@ -455,8 +460,8 @@ public class CommandJobFactory implements JobFactory, StageCallback {
     @Override
     public String generatePayload(Task task) {
         Cluster cluster = task.getCluster();
-        hostCacheJobFactory.createCache(cluster);
-        RequestMessage requestMessage = hostCacheJobFactory.getMessage(task.getHostname());
+        hostCacheUtils.createCache(cluster);
+        RequestMessage requestMessage = hostCacheUtils.getMessage(task.getHostname());
         log.info("[generatePayload]-[HostCacheJobFactory-requestMessage]: {}", requestMessage);
         return JsonUtils.writeAsString(requestMessage);
     }
@@ -475,7 +480,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
             switch (command) {
                 case START -> {
                     if (CommandLevel.HOST == commandLevel) {
-                        String hostname = commandDTO.getHostCommands().getHostname();
+                        String hostname = commandDTO.getHostCommand().getHostname();
                         hostComponents.forEach(hostComponent -> {
                             if (hostname.equals(hostComponent.getHost().getHostname())) {
                                 hostComponent.setState(MaintainState.STARTED);
@@ -487,7 +492,7 @@ public class CommandJobFactory implements JobFactory, StageCallback {
                 }
                 case STOP -> {
                     if (CommandLevel.HOST == commandLevel) {
-                        String hostname = commandDTO.getHostCommands().getHostname();
+                        String hostname = commandDTO.getHostCommand().getHostname();
                         hostComponents.forEach(hostComponent -> {
                             if (hostname.equals(hostComponent.getHost().getHostname())) {
                                 hostComponent.setState(MaintainState.STOPPED);

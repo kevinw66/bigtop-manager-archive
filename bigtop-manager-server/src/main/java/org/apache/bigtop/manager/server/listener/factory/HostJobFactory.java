@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.server.listener.factory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
@@ -9,20 +8,23 @@ import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
+import org.apache.bigtop.manager.server.model.dto.command.HostCommandDTO;
 import org.apache.bigtop.manager.server.orm.entity.*;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostAddJobFactory implements JobFactory, StageCallback {
+public class HostJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -40,14 +42,19 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
     private TaskRepository taskRepository;
 
     @Resource
-    private HostCacheJobFactory hostCacheJobFactory;
+    private HostCacheUtils hostCacheUtils;
 
     @Resource
     private HostService hostService;
 
-    public Job createJob(JobFactoryContext context) {
-        Long clusterId = context.getClusterId();
-        List<String> hostnames = context.getHostnames();
+    @Override
+    public CommandLevel getCommandLevel() {
+        return CommandLevel.HOST;
+    }
+
+    public Job createJob(JobContext context) {
+        Long clusterId = context.getCommandDTO().getClusterId();
+        List<String> hostnames = context.getCommandDTO().getHostCommands().stream().map(HostCommandDTO::getHostname).toList();
         Job job = new Job();
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
@@ -119,12 +126,11 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
     }
 
     public void createStage(Job job, Cluster cluster, int stageOrder, String callbackClassName, String payload) {
-        hostCacheJobFactory.createCache(cluster);
+        hostCacheUtils.createCache(cluster);
 
         List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
-        List<String> hostnames = new java.util.ArrayList<>(hostList.stream().map(Host::getHostname).toList());
-        hostnames.addAll(JsonUtils.readFromString(payload, new TypeReference<List<String>>() {
-        }));
+        List<String> hostnames = new ArrayList<>(hostList.stream().map(Host::getHostname).toList());
+        hostnames.addAll(JsonUtils.readFromString(payload));
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setJob(job);
@@ -173,8 +179,7 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
     public void beforeStage(Stage stage) {
         Cluster cluster = stage.getCluster();
         if (stage.getName().equals(CACHE_STAGE_NAME)) {
-            List<String> hostnames = JsonUtils.readFromString(stage.getPayload(), new TypeReference<>() {
-            });
+            List<String> hostnames = JsonUtils.readFromString(stage.getPayload());
             hostService.batchSave(cluster.getId(), hostnames);
         }
     }
@@ -182,8 +187,8 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
     @Override
     public String generatePayload(Task task) {
         Cluster cluster = task.getCluster();
-        hostCacheJobFactory.createCache(cluster);
-        RequestMessage requestMessage = hostCacheJobFactory.getMessage(task.getHostname());
+        hostCacheUtils.createCache(cluster);
+        RequestMessage requestMessage = hostCacheUtils.getMessage(task.getHostname());
         log.info("[generatePayload]-[HostCacheJobFactory-requestMessage]: {}", requestMessage);
         return JsonUtils.writeAsString(requestMessage);
     }

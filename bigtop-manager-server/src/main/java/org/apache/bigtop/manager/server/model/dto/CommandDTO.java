@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.model.dto;
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
+import org.apache.bigtop.manager.server.model.dto.command.ClusterCommandDTO;
 import org.apache.bigtop.manager.server.model.dto.command.ComponentCommandDTO;
 import org.apache.bigtop.manager.server.model.dto.command.HostCommandDTO;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
@@ -23,11 +24,15 @@ public class CommandDTO implements Serializable {
 
     private CommandLevel commandLevel;
 
+    private ClusterCommandDTO clusterCommand;
+
+    private List<HostCommandDTO> hostCommands;
+
     private List<ServiceCommandDTO> serviceCommands;
 
     private ComponentCommandDTO componentCommands;
 
-    private HostCommandDTO hostCommands;
+    private HostCommandDTO hostCommand;
 
     public String getContext() {
         if (command == null) {

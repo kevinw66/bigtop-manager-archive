@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.listener.factory;
+package org.apache.bigtop.manager.server.validate;
 
 import lombok.Data;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
@@ -7,13 +7,11 @@ import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import java.util.List;
 
 @Data
-public class JobFactoryContext {
-
-    private ClusterDTO clusterDTO;
+public class ValidatorContext {
 
     private CommandDTO commandDTO;
 
-    private Long clusterId;
+    private ClusterDTO clusterDTO;
 
     private List<String> hostnames;
 }

@@ -7,12 +7,12 @@ import java.util.Map;
 
 public class ChainValidatorHandler {
 
-    public static void handleRequest(ChainContext context, ValidateType validateType) {
+    public static void handle(ValidatorContext context, ValidateType validateType) {
         Map<String, ChainValidator> validatorMap = SpringContextHolder.getValidator();
 
         for (ChainValidator validator : validatorMap.values()) {
             if (validator.getValidateType() == validateType || validator.getValidateType() == ValidateType.DEFAULT) {
-                validator.vaildate(context);
+                validator.validate(context);
             }
         }
     }

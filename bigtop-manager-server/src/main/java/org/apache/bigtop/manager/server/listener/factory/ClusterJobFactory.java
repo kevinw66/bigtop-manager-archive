@@ -9,11 +9,13 @@ import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.dto.command.ClusterCommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.orm.entity.*;
@@ -31,7 +33,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class ClusterCreateJobFactory implements JobFactory, StageCallback {
+public class ClusterJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private StackRepository stackRepository;
@@ -46,17 +48,22 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
     private TaskRepository taskRepository;
 
     @Resource
-    private HostAddJobFactory hostAddJobFactory;
+    private HostJobFactory hostJobFactory;
 
     @Resource
-    private HostCacheJobFactory hostCacheJobFactory;
+    private HostCacheUtils hostCacheUtils;
 
     @Resource
     private ClusterService clusterService;
 
-    public Job createJob(JobFactoryContext context) {
-        ClusterDTO clusterDTO = context.getClusterDTO();
-        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
+    @Override
+    public CommandLevel getCommandLevel() {
+        return CommandLevel.CLUSTER;
+    }
+
+    public Job createJob(JobContext context) {
+        ClusterCommandDTO clusterCommand = context.getCommandDTO().getClusterCommand();
+        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterCommand.getStackName(), clusterCommand.getStackVersion());
         Cluster cluster = new Cluster();
         cluster.setStack(stack);
         // Create job
@@ -66,9 +73,9 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
         job.setCluster(cluster);
         job = jobRepository.save(job);
 
-        hostAddJobFactory.createHostCheckStage(job, cluster, clusterDTO.getHostnames(), 1);
+        hostJobFactory.createHostCheckStage(job, cluster, clusterCommand.getHostnames(), 1);
 
-        createCacheStage(job, clusterDTO, 2, this.getClass().getName(), JsonUtils.writeAsString(clusterDTO));
+        createCacheStage(job, clusterCommand, 2, this.getClass().getName(), JsonUtils.writeAsString(clusterCommand));
 
         return job;
     }
@@ -81,27 +88,28 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
         }
     }
 
-    public void createCacheStage(Job job, ClusterDTO clusterDTO, int stageOrder, String callbackClassName, String payload) {
+    public void createCacheStage(Job job, ClusterCommandDTO clusterCommand, int stageOrder, String callbackClassName, String payload) {
         Map<String, ComponentInfo> componentInfoMap = new HashMap<>();
         Map<String, Map<String, Object>> serviceConfigMap = new HashMap<>();
         Map<String, Set<String>> hostMap = new HashMap<>();
         Map<String, Set<String>> userMap = new HashMap<>();
         Map<String, Object> settingsMap = new HashMap<>();
 
-        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion()));
+        String fullStackName = StackUtils.fullStackName(clusterCommand.getStackName(), clusterCommand.getStackVersion());
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = StackUtils.getStackKeyMap().get(fullStackName);
         StackDTO stackDTO = immutablePair.getLeft();
         List<ServiceDTO> serviceDTOList = immutablePair.getRight();
 
-        List<RepoInfo> repoList = RepoMapper.INSTANCE.fromDTO2Message(clusterDTO.getRepoInfoList());
+        List<RepoInfo> repoList = RepoMapper.INSTANCE.fromDTO2Message(clusterCommand.getRepoInfoList());
         ClusterInfo clusterInfo = new ClusterInfo();
-        clusterInfo.setClusterName(clusterDTO.getClusterName());
-        clusterInfo.setStackName(clusterDTO.getStackName());
-        clusterInfo.setStackVersion(clusterDTO.getStackVersion());
+        clusterInfo.setClusterName(clusterCommand.getClusterName());
+        clusterInfo.setStackName(clusterCommand.getStackName());
+        clusterInfo.setStackVersion(clusterCommand.getStackVersion());
         clusterInfo.setUserGroup(stackDTO.getUserGroup());
         clusterInfo.setRepoTemplate(stackDTO.getRepoTemplate());
         clusterInfo.setRoot(stackDTO.getRoot());
 
-        List<String> hostnames = clusterDTO.getHostnames();
+        List<String> hostnames = clusterCommand.getHostnames();
         hostMap.put(Constants.ALL_HOST_KEY, new HashSet<>(hostnames));
 
         for (ServiceDTO serviceDTO : serviceDTOList) {
@@ -122,8 +130,8 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
             task.setName("Cache host for " + hostname);
             task.setJob(job);
             task.setStage(hostCacheStage);
-            task.setStackName(clusterDTO.getStackName());
-            task.setStackVersion(clusterDTO.getStackVersion());
+            task.setStackName(clusterCommand.getStackName());
+            task.setStackVersion(clusterCommand.getStackVersion());
             task.setHostname(hostname);
             task.setServiceName("cluster");
             task.setServiceUser("root");
@@ -133,7 +141,7 @@ public class ClusterCreateJobFactory implements JobFactory, StageCallback {
             task.setCustomCommand("cache_host");
             task.setState(JobState.PENDING);
 
-            RequestMessage requestMessage = hostCacheJobFactory.getMessage(
+            RequestMessage requestMessage = hostCacheUtils.getMessage(
                     hostname,
                     settingsMap,
                     clusterInfo,

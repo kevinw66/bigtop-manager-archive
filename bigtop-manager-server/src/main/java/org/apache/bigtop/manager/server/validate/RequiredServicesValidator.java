@@ -1,9 +1,7 @@
 package org.apache.bigtop.manager.server.validate;
 
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
-import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.ValidateType;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
@@ -25,7 +23,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class RequiredServicesValidator extends AbstractChainValidator {
+public class RequiredServicesValidator implements ChainValidator {
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -34,44 +32,42 @@ public class RequiredServicesValidator extends AbstractChainValidator {
     private ServiceRepository serviceRepository;
 
     @Override
-    public void setValidateType() {
-        this.validateType = ValidateType.COMMAND;
+    public ValidateType getValidateType() {
+        return ValidateType.SERVICE_INSTALL;
     }
 
     @Override
-    public void vaildate(ChainContext context) {
+    public void validate(ValidatorContext context) {
         CommandDTO commandDTO = context.getCommandDTO();
-        if (commandDTO.getCommandLevel() == CommandLevel.SERVICE && commandDTO.getCommand() == Command.INSTALL) {
-            List<ServiceCommandDTO> serviceCommands = commandDTO.getServiceCommands();
+        List<ServiceCommandDTO> serviceCommands = commandDTO.getServiceCommands();
 
-            Long clusterId = commandDTO.getClusterId();
-            Cluster cluster = clusterRepository.getReferenceById(clusterId);
-            String stackName = cluster.getStack().getStackName();
-            String stackVersion = cluster.getStack().getStackVersion();
-            Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
-            ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-            Map<String, ServiceDTO> serviceNameToDTO = immutablePair.getRight()
-                    .stream()
-                    .collect(Collectors.toMap(ServiceDTO::getServiceName, Function.identity()));
+        Long clusterId = commandDTO.getClusterId();
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
+        String stackName = cluster.getStack().getStackName();
+        String stackVersion = cluster.getStack().getStackVersion();
+        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        Map<String, ServiceDTO> serviceNameToDTO = immutablePair.getRight()
+                .stream()
+                .collect(Collectors.toMap(ServiceDTO::getServiceName, Function.identity()));
 
-            List<String> serviceNames = serviceCommands.stream().map(ServiceCommandDTO::getServiceName).toList();
-            for (ServiceCommandDTO serviceCommand : serviceCommands) {
-                String serviceName = serviceCommand.getServiceName();
-                ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
-                List<String> requiredServices = serviceDTO.getRequiredServices();
-                if (CollectionUtils.isEmpty(requiredServices)) {
-                    return;
-                }
-                List<Service> serviceList = serviceRepository.findByClusterIdAndServiceNameIn(clusterId, requiredServices);
-                List<String> list = serviceList.stream().map(Service::getServiceName).toList();
-
-                requiredServices.removeAll(list);
-
-                if (!serviceNames.containsAll(requiredServices)) {
-                    throw new ApiException(ApiExceptionEnum.SERVICE_REQUIRED_NOT_FOUND, String.join(",", requiredServices));
-                }
+        List<String> serviceNames = serviceCommands.stream().map(ServiceCommandDTO::getServiceName).toList();
+        for (ServiceCommandDTO serviceCommand : serviceCommands) {
+            String serviceName = serviceCommand.getServiceName();
+            ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
+            List<String> requiredServices = serviceDTO.getRequiredServices();
+            if (CollectionUtils.isEmpty(requiredServices)) {
+                return;
             }
+            List<Service> serviceList = serviceRepository.findByClusterIdAndServiceNameIn(clusterId, requiredServices);
+            List<String> list = serviceList.stream().map(Service::getServiceName).toList();
 
+            requiredServices.removeAll(list);
+
+            if (!serviceNames.containsAll(requiredServices)) {
+                throw new ApiException(ApiExceptionEnum.SERVICE_REQUIRED_NOT_FOUND, String.join(",", requiredServices));
+            }
         }
+
     }
 }

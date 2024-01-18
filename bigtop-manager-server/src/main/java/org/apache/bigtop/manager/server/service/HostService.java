@@ -16,14 +16,6 @@ public interface HostService {
     List<HostVO> list(Long clusterId);
 
     /**
-     * Create a host
-     * TODO need to move to command service with host level command
-     *
-     * @return Host
-     */
-    CommandVO create(Long clusterId, List<String> hostnames);
-
-    /**
      * Save a host
      *
      * @return Host
@@ -50,13 +42,4 @@ public interface HostService {
      * @return Host
      */
     Boolean delete(Long id);
-
-    /**
-     * Cache a host
-     *
-     * @param clusterId cluster id
-     * @return boolean
-     */
-    Boolean cache(Long clusterId);
-
 }

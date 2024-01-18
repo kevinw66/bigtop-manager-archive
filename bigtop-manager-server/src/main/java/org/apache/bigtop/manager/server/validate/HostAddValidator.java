@@ -12,18 +12,18 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class HostAddValidator extends AbstractChainValidator {
+public class HostAddValidator implements ChainValidator {
 
     @Resource
     private HostRepository hostRepository;
 
     @Override
-    public void setValidateType() {
-        this.validateType = ValidateType.HOST_ADD;
+    public ValidateType getValidateType() {
+        return ValidateType.HOST_INSTALL;
     }
 
     @Override
-    public void vaildate(ChainContext context) {
+    public void validate(ValidatorContext context) {
         List<String> hostnames = context.getHostnames();
 
         List<Host> hosts = hostRepository.findAllByHostnameIn(hostnames);

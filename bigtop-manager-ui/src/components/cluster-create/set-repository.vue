@@ -16,7 +16,7 @@
   const { stackRepos } = storeToRefs(stackStore)
 
   const repositoryData: RepoVO[] = _.cloneDeep(
-    stackRepos.value[clusterInfo.value.fullStackName]
+    stackRepos.value[clusterInfo.value.clusterCommand.fullStackName]
   )
 
   const repositoryColumns = [
@@ -51,7 +51,7 @@
   }
 
   const onNextStep = async () => {
-    Object.assign(clusterInfo.value.repoInfoList, repositoryData)
+    Object.assign(clusterInfo.value.clusterCommand.repoInfoList, repositoryData)
 
     return Promise.resolve(true)
   }

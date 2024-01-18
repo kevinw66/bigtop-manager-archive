@@ -4,27 +4,27 @@ import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.ValidateType;
 import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.command.ClusterCommandDTO;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StackValidator extends AbstractChainValidator {
+public class StackValidator implements ChainValidator {
 
     @Resource
     private StackRepository stackRepository;
 
     @Override
-    public void setValidateType() {
-        this.validateType = ValidateType.CLUSTER_ADD;
+    public ValidateType getValidateType() {
+        return ValidateType.CLUSTER_INSTALL;
     }
 
     @Override
-    public void vaildate(ChainContext context) {
-        ClusterDTO clusterDTO = context.getClusterDTO();
-        String stackName = clusterDTO.getStackName();
-        String stackVersion = clusterDTO.getStackVersion();
+    public void validate(ValidatorContext context) {
+        ClusterCommandDTO clusterCommand = context.getCommandDTO().getClusterCommand();
+        String stackName = clusterCommand.getStackName();
+        String stackVersion = clusterCommand.getStackVersion();
 
         Stack stack = stackRepository.findByStackNameAndStackVersion(stackName, stackVersion);
         if (stack == null) {

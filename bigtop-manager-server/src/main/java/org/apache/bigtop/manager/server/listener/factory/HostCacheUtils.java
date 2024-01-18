@@ -13,7 +13,6 @@ import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.listener.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
@@ -29,7 +28,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostCacheJobFactory implements JobFactory, StageCallback {
+public class HostCacheUtils {
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -64,7 +63,7 @@ public class HostCacheJobFactory implements JobFactory, StageCallback {
     @Resource
     private TaskRepository taskRepository;
 
-    public Job createJob(JobFactoryContext context) {
+    public Job createJob(JobContext context) {
         Long clusterId = context.getClusterId();
         Job job = new Job();
 

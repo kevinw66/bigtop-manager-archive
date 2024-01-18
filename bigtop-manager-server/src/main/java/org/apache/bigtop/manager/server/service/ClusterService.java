@@ -16,14 +16,6 @@ public interface ClusterService {
     List<ClusterVO> list();
 
     /**
-     * Create a cluster
-     * TODO need to move to command service with cluster level command
-     *
-     * @return Cluster
-     */
-    CommandVO create(ClusterDTO clusterDTO);
-
-    /**
      * Save a cluster
      *
      * @return Cluster
