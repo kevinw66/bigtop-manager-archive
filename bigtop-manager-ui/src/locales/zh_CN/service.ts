@@ -31,5 +31,9 @@ export default {
   create_success_title: '新增成功',
   create_success_sub_title: '组件新增成功，快点开始使用吧',
   create_fail_title: '新增失败',
-  create_fail_sub_title: '组件新增失败，请重试'
+  create_fail_sub_title: '组件新增失败，请重试',
+  summary: '总览',
+  config: '配置',
+  components: '组件',
+  quicklinks: '快速链接'
 }

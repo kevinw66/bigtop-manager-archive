@@ -1,15 +1,14 @@
 <script setup lang="ts">
-  import { computed, onMounted, ref, watch } from 'vue'
+  import { onMounted, ref, watch } from 'vue'
   import { useRoute } from 'vue-router'
-  import { useServiceStore } from '@/store/service'
-  import { ServiceVO } from '@/api/service/types.ts'
-  import type { SelectProps } from 'ant-design-vue'
-  import { MergedServiceVO } from '@/store/service/types.ts'
+  import type { SelectProps, MenuProps } from 'ant-design-vue'
   import {
     CheckCircleTwoTone,
     CloseCircleTwoTone,
     MinusCircleTwoTone,
-    QuestionCircleOutlined
+    QuestionCircleOutlined,
+    DownOutlined,
+    UserOutlined
   } from '@ant-design/icons-vue'
   import { useConfigStore } from '@/store/config'
   import { storeToRefs } from 'pinia'
@@ -18,7 +17,6 @@
   import { HostComponentVO } from '@/api/component/types.ts'
 
   const route = useRoute()
-  const serviceStore = useServiceStore()
   const configStore = useConfigStore()
   const { allConfigs } = storeToRefs(configStore)
   const componentStore = useComponentStore()
@@ -26,41 +24,21 @@
 
   const serviceName = ref<string>(route.params.serviceName as string)
 
-  const currentService = computed(() => {
-    let currentService: ServiceVO
-    serviceStore.mergedServices.forEach((mergedService: MergedServiceVO) => {
-      if (mergedService.serviceName === serviceName.value) {
-        currentService = mergedService
-      }
-    })
-    return currentService
-  })
-
   // summary model start
-  let currentHostComponent = ref([])
-  let masterHostComponent = ref([])
+  const currentHostComponent = ref<HostComponentVO[]>([])
   watch(hostComponents, (newVal) => {
     currentHostComponent.value = newVal.filter(
       (hc: HostComponentVO) => hc.serviceName === serviceName.value
     )
-
-    masterHostComponent.value = currentHostComponent.value
-      .filter((hc: HostComponentVO) => hc.category === 'master')
-      .map((hc: HostComponentVO) => ({
-        title: hc.displayName,
-        hostname: hc.hostname,
-        category: hc.category,
-        state: hc.state
-      }))
   })
   // summary model end
 
   // config model start
   const serviceConfigDesc = ref<SelectProps['options']>([])
-  let value = ref()
-  let currentConfigs = ref([])
-  let currentConfigVersion = ref<number>()
-  let initConfigVersion = ref<number>()
+  const activeSelect = ref()
+  const currentConfigs = ref<TypeConfigVO[]>([])
+  const currentConfigVersion = ref<number>()
+  const initConfigVersion = ref<number>()
 
   watch(allConfigs, (newVal) => {
     serviceConfigDesc.value = newVal
@@ -75,29 +53,30 @@
   })
 
   const loadCurrentConfigs = () => {
-    if (!currentConfigVersion.value) {
-      currentConfigVersion.value = serviceConfigDesc.value[0].value
-    }
+    currentConfigVersion.value = serviceConfigDesc.value?.[0].value as number
 
     currentConfigs.value = allConfigs.value
       .filter(
         (sc: ServiceConfigVO) =>
-          (sc.serviceName === serviceName.value) &
-          (currentConfigVersion.value === sc.version)
+          sc.serviceName === serviceName.value &&
+          currentConfigVersion.value === sc.version
       )
       .flatMap((sc: ServiceConfigVO) => sc.configs)
       .map((cd: TypeConfigVO) => ({
         typeName: cd.typeName,
+        version: cd.version,
         properties: cd.properties
       }))
   }
 
   const handleChange: SelectProps['onChange'] = (value) => {
-    currentConfigVersion.value = value.key
+    if (typeof value === 'object' && 'key' in value) {
+      currentConfigVersion.value = Number(value.key)
+    }
     loadCurrentConfigs()
   }
 
-  const activeConfig = ref(null)
+  const activeConfig = ref()
 
   watch(currentConfigs, (newVal) => {
     activeConfig.value = newVal.length > 0 ? newVal[0].typeName : null
@@ -108,12 +87,16 @@
   onMounted(async () => {
     await configStore.loadLatestConfigs()
     await configStore.loadAllConfigs()
-    value.value = serviceConfigDesc.value[0]
-    currentConfigVersion.value = initConfigVersion.value =
-      serviceConfigDesc.value[0].value
+    activeSelect.value = serviceConfigDesc.value?.[0]
+    currentConfigVersion.value = serviceConfigDesc.value?.[0].value as number
+    initConfigVersion.value = serviceConfigDesc.value?.[0].value as number
 
     await componentStore.loadHostComponents()
   })
+
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click', e)
+  }
 
   watch(
     () => route.params,
@@ -125,32 +108,81 @@
 
 <template>
   <a-tabs>
-    <a-tab-pane key="summary" tab="Summary">
-      <template v-if="masterHostComponent.length > 0">
-        <div class="summary">
-          <template v-for="(item, index) in masterHostComponent" :key="index">
-            <a-card :title="item.title" class="card" :bordered="false">
-              <p>{{ item.hostname }}</p>
-              <p>{{ item.state }}</p>
-              <CheckCircleTwoTone
-                v-if="item.state === 'STARTED'"
-                two-tone-color="#52c41a"
-              />
-              <MinusCircleTwoTone
-                v-else-if="item.state === 'MAINTAINED'"
-                two-tone-color="orange"
-              />
-              <CloseCircleTwoTone v-else two-tone-color="red" />
-            </a-card>
-          </template>
+    <template #rightExtra>
+      <a-dropdown>
+        <template #overlay>
+          <a-menu @click="handleMenuClick">
+            <a-menu-item key="1">
+              <UserOutlined />
+              Start
+            </a-menu-item>
+            <a-menu-item key="2">
+              <UserOutlined />
+              Stop
+            </a-menu-item>
+            <a-menu-item key="3">
+              <UserOutlined />
+              Restart
+            </a-menu-item>
+          </a-menu>
+        </template>
+        <a-button type="primary">
+          {{ $t('common.action') }}
+          <DownOutlined />
+        </a-button>
+      </a-dropdown>
+    </template>
+    <a-tab-pane key="summary">
+      <template #tab>{{ $t('service.summary') }}</template>
+      <a-layout-content class="summary-layout">
+        <div class="left-div">
+          <a-card>
+            <template #title>{{ $t('service.components') }}</template>
+            <template v-if="currentHostComponent.length > 0">
+              <div class="summary-div">
+                <template v-for="item in currentHostComponent">
+                  <a-card class="card" :bordered="false" size="small">
+                    <template #title>
+                      <router-link :to="'/services/' + serviceName">
+                        {{ item.displayName }}
+                      </router-link>
+                    </template>
+                    <template #extra>
+                      <a-tag>{{ item.category }}</a-tag>
+                    </template>
+                    <p>{{ item.hostname }}</p>
+                    <p>
+                      <CheckCircleTwoTone
+                        v-if="item.state === 'STARTED'"
+                        two-tone-color="#52c41a"
+                      />
+                      <MinusCircleTwoTone
+                        v-else-if="item.state === 'MAINTAINED'"
+                        two-tone-color="orange"
+                      />
+                      <CloseCircleTwoTone v-else two-tone-color="red" />
+                      {{ item.state }}
+                    </p>
+                  </a-card>
+                </template>
+              </div>
+            </template>
+          </a-card>
         </div>
-      </template>
+        <div class="middle-div"></div>
+        <div class="right-div">
+          <a-card>
+            <template #title>{{ $t('service.quicklinks') }}</template>
+            <a-empty /> </a-card
+        ></div>
+      </a-layout-content>
     </a-tab-pane>
 
-    <a-tab-pane key="config" tab="Config" force-render>
+    <a-tab-pane key="config" force-render>
+      <template #tab>{{ $t('service.config') }}</template>
       <a-space>
         <a-select
-          v-model:value="value"
+          v-model:value="activeSelect"
           label-in-value
           :options="serviceConfigDesc"
           @change="handleChange"
@@ -193,13 +225,33 @@
 </template>
 
 <style scoped lang="scss">
-  .summary {
+  .summary-layout {
     display: flex;
-    flex-direction: row;
-    justify-content: space-around;
+    margin: 3px;
 
-    .card {
-      width: 30%;
+    .left-div {
+      width: 74%;
+    }
+
+    .middle-div {
+      width: 2%;
+    }
+
+    .right-div {
+      width: 24%;
+    }
+
+    .summary-div {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      flex-wrap: wrap;
+
+      .card {
+        width: 30%;
+        margin: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
     }
   }
 

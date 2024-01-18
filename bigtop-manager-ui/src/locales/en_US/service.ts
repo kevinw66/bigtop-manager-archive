@@ -31,5 +31,9 @@ export default {
   add_success_title: 'Congratulations!',
   add_success_sub_title: 'Service added successfully, please enjoy it.',
   add_fail_title: 'Oh no!',
-  add_fail_sub_title: 'Service added failed, please retry it.'
+  add_fail_sub_title: 'Service added failed, please retry it.',
+  summary: 'Summary',
+  config: 'Config',
+  components: 'Components',
+  quicklinks: 'Quick Links'
 }
