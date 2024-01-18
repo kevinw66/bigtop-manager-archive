@@ -26,3 +26,12 @@ export const getLatestConfigs = (
     url: '/clusters/' + clusterId + '/configurations/latest'
   })
 }
+
+export const getAllConfigs = (
+  clusterId: number
+): Promise<ServiceConfigVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/configurations'
+  })
+}

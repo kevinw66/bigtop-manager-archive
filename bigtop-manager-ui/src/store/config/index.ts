@@ -19,7 +19,7 @@ import { defineStore, storeToRefs } from 'pinia'
 import { shallowRef, watch } from 'vue'
 import { useClusterStore } from '@/store/cluster'
 import { ServiceConfigVO } from '@/api/config/types.ts'
-import { getLatestConfigs } from '@/api/config'
+import { getAllConfigs, getLatestConfigs } from '@/api/config'
 
 export const useConfigStore = defineStore(
   'config',
@@ -27,6 +27,7 @@ export const useConfigStore = defineStore(
     const clusterStore = useClusterStore()
     const { clusterId } = storeToRefs(clusterStore)
     const latestConfigs = shallowRef<ServiceConfigVO[]>([])
+    const allConfigs = shallowRef<ServiceConfigVO[]>([])
 
     watch(clusterId, async () => {
       await loadLatestConfigs()
@@ -36,7 +37,15 @@ export const useConfigStore = defineStore(
       latestConfigs.value = await getLatestConfigs(clusterId.value)
     }
 
-    return { latestConfigs, loadLatestConfigs }
+    watch(clusterId, async () => {
+      await loadAllConfigs()
+    })
+
+    const loadAllConfigs = async () => {
+      allConfigs.value = await getAllConfigs(clusterId.value)
+    }
+
+    return { latestConfigs, loadLatestConfigs, allConfigs, loadAllConfigs }
   },
   { persist: false }
 )
