@@ -5,11 +5,11 @@ import org.apache.bigtop.manager.server.job.CommandIdentifier;
 
 import java.util.List;
 
-public class ChainedCommandValidator {
+public class ValidatorExecutionChain {
 
     private static final List<CommandValidator> CHAIN = SpringContextHolder.getCommandValidators().values().stream().toList();
 
-    public static void validate(ValidatorContext context, CommandIdentifier commandIdentifier) {
+    public static void execute(ValidatorContext context, CommandIdentifier commandIdentifier) {
         for (CommandValidator validator : CHAIN) {
             if (validator.getCommandIdentifiers().contains(commandIdentifier)) {
                 validator.validate(context);

@@ -23,7 +23,7 @@ public class JobFactories {
         return JOB_FACTORIES.get(identifier);
     }
 
-    private static void load() {
+    private static synchronized void load() {
         if (LOADED.get()) {
             return;
         }

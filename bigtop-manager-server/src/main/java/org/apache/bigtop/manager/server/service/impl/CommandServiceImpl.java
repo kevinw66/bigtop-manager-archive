@@ -7,7 +7,7 @@ import org.apache.bigtop.manager.server.job.event.CommandEvent;
 import org.apache.bigtop.manager.server.job.factory.JobContext;
 import org.apache.bigtop.manager.server.job.factory.JobFactories;
 import org.apache.bigtop.manager.server.job.factory.JobFactory;
-import org.apache.bigtop.manager.server.job.validator.ChainedCommandValidator;
+import org.apache.bigtop.manager.server.job.validator.ValidatorExecutionChain;
 import org.apache.bigtop.manager.server.job.validator.ValidatorContext;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
@@ -28,7 +28,7 @@ public class CommandServiceImpl implements CommandService {
         // Validate command params
         ValidatorContext validatorContext = new ValidatorContext();
         validatorContext.setCommandDTO(commandDTO);
-        ChainedCommandValidator.validate(validatorContext, commandIdentifier);
+        ValidatorExecutionChain.execute(validatorContext, commandIdentifier);
 
         // Create job
         JobContext jobContext = new JobContext();
