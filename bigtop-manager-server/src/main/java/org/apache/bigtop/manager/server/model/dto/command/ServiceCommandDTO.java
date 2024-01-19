@@ -12,6 +12,10 @@ public class ServiceCommandDTO implements Serializable {
 
     private String serviceName;
 
+    private String configDesc;
+
+    private Integer version;
+
     private List<ComponentHostDTO> componentHosts;
 
     private List<TypeConfigDTO> configs;

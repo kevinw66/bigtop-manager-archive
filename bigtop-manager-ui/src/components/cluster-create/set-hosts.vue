@@ -1,24 +1,24 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
-  import { createCluster } from '@/api/cluster'
+  import { execCommand } from '@/api/command'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
   const hosts = ref<string>('')
 
   onMounted(async () => {
-    if (clusterInfo.value.hostnames) {
-      hosts.value = clusterInfo.value.hostnames.join('\n')
+    if (clusterInfo.value.clusterCommand.hostnames) {
+      hosts.value = clusterInfo.value.clusterCommand.hostnames.join('\n')
     }
   })
 
   const onNextStep = async () => {
-    clusterInfo.value.hostnames = hosts.value
+    clusterInfo.value.clusterCommand.hostnames = hosts.value
       .split('\n')
       .filter((item) => item !== '')
 
     try {
-      const res = await createCluster(clusterInfo.value)
+      const res = await execCommand(clusterInfo.value)
       clusterInfo.value.jobId = res.id
     } catch (e) {
       console.log(e)

@@ -8,6 +8,7 @@ import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.config.CommandGroupSequenceProvider;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
+import org.apache.bigtop.manager.server.model.req.command.ClusterCommandReq;
 import org.apache.bigtop.manager.server.model.req.command.ComponentCommandReq;
 import org.apache.bigtop.manager.server.model.req.command.HostCommandReq;
 import org.apache.bigtop.manager.server.model.req.command.ServiceCommandReq;
@@ -26,13 +27,19 @@ public class CommandReq {
     @Schema(example = "custom_command")
     private String customCommand;
 
-    @NotNull
     @Schema(example = "1")
     private Long clusterId;
 
     @NotNull
     @Schema(example = "cluster")
     private CommandLevel commandLevel;
+
+    @Schema(description = "Command details for cluster level command")
+    private ClusterCommandReq clusterCommand;
+
+    @NotNull(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
+    @Schema(description = "Command details for host level command")
+    private List<HostCommandReq> hostCommands;
 
     @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceCommandGroup.class})
     @Schema(description = "Command details for service level command")
@@ -42,7 +49,7 @@ public class CommandReq {
     @Schema(description = "Command details for component level command")
     private ComponentCommandReq componentCommands;
 
-    @NotNull(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
-    @Schema(description = "Command details for host level command")
-    private HostCommandReq hostCommands;
+    // TODO need to delete this
+    @Schema(description = "(deprecated) Command details for host level command")
+    private HostCommandReq hostCommand;
 }

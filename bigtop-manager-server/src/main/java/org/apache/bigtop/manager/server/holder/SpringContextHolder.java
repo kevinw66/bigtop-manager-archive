@@ -18,7 +18,8 @@ package org.apache.bigtop.manager.server.holder;
 
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
-import org.apache.bigtop.manager.server.validate.ChainValidator;
+import org.apache.bigtop.manager.server.job.factory.JobFactory;
+import org.apache.bigtop.manager.server.job.validator.CommandValidator;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -41,7 +42,11 @@ public class SpringContextHolder implements ApplicationContextAware {
         return applicationContext.getBean(ServerWebSocketHandler.class);
     }
 
-    public static Map<String, ChainValidator> getValidator() {
-        return applicationContext.getBeansOfType(ChainValidator.class);
+    public static Map<String, CommandValidator> getCommandValidators() {
+        return applicationContext.getBeansOfType(CommandValidator.class);
+    }
+
+    public static Map<String, JobFactory> getJobFactories() {
+        return applicationContext.getBeansOfType(JobFactory.class);
     }
 }

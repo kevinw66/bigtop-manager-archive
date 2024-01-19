@@ -3,12 +3,10 @@ package org.apache.bigtop.manager.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
 import org.apache.bigtop.manager.server.model.req.ClusterReq;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
-import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,14 +26,6 @@ public class ClusterController {
     @GetMapping
     public ResponseEntity<List<ClusterVO>> list() {
         return ResponseEntity.success(clusterService.list());
-    }
-
-    @Audit
-    @Operation(summary = "create", description = "Create a cluster")
-    @PostMapping
-    public ResponseEntity<CommandVO> create(@RequestBody @Validated ClusterReq clusterReq) {
-        ClusterDTO clusterDTO = ClusterMapper.INSTANCE.fromReq2DTO(clusterReq);
-        return ResponseEntity.success(clusterService.create(clusterDTO));
     }
 
     @Operation(summary = "get", description = "Get a cluster")

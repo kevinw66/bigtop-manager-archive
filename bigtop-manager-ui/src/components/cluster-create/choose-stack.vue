@@ -15,11 +15,12 @@
   const { stackOptions, stackServices } = storeToRefs(stackStore)
 
   watch(selectedOption, (val) => {
-    clusterInfo.value.stackName = val[0]
-    clusterInfo.value.stackVersion = val[1]
-    clusterInfo.value.fullStackName = val[0] + '-' + val[1]
+    clusterInfo.value.clusterCommand.stackName = val[0]
+    clusterInfo.value.clusterCommand.stackVersion = val[1]
+    clusterInfo.value.clusterCommand.fullStackName = val[0] + '-' + val[1]
 
-    serviceData.value = stackServices.value[clusterInfo.value.fullStackName]
+    serviceData.value =
+      stackServices.value[clusterInfo.value.clusterCommand.fullStackName]
   })
 
   const serviceColumns = [
@@ -43,10 +44,10 @@
   ]
 
   onMounted(async () => {
-    if (clusterInfo.value.fullStackName) {
+    if (clusterInfo.value.clusterCommand.fullStackName) {
       selectedOption.value = [
-        clusterInfo.value.stackName,
-        clusterInfo.value.stackVersion
+        clusterInfo.value.clusterCommand.stackName,
+        clusterInfo.value.clusterCommand.stackVersion
       ]
     } else {
       selectedOption.value = [

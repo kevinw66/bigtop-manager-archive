@@ -1,19 +1,12 @@
 package org.apache.bigtop.manager.server.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.server.annotations.Audit;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostMapper;
 import org.apache.bigtop.manager.server.model.req.HostReq;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
-import org.apache.bigtop.manager.server.model.vo.PageVO;
-import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -35,13 +28,6 @@ public class HostController {
         return ResponseEntity.success(hostService.list(clusterId));
     }
 
-    @Audit
-    @Operation(summary = "create", description = "Create a host")
-    @PostMapping
-    public ResponseEntity<CommandVO> create(@PathVariable Long clusterId, @RequestBody List<String> hostnames) {
-        return ResponseEntity.success(hostService.create(clusterId, hostnames));
-    }
-
     @Operation(summary = "get", description = "Get a host")
 //    @GetMapping("/{id}")
     public ResponseEntity<HostVO> get(@PathVariable Long id) {
@@ -59,12 +45,6 @@ public class HostController {
 //    @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> delete(@PathVariable Long id) {
         return ResponseEntity.success(hostService.delete(id));
-    }
-
-    @Operation(summary = "cache", description = "distribute cache")
-    @GetMapping("/cache")
-    public Boolean cache(@PathVariable Long clusterId) {
-        return hostService.cache(clusterId);
     }
 
 }

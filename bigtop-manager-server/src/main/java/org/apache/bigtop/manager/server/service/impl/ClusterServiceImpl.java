@@ -4,21 +4,13 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.MaintainState;
-import org.apache.bigtop.manager.server.enums.ValidateType;
 import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.holder.SpringContextHolder;
-import org.apache.bigtop.manager.server.listener.factory.ClusterCreateJobFactory;
-import org.apache.bigtop.manager.server.listener.factory.JobFactoryContext;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.event.ClusterCreateEvent;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
-import org.apache.bigtop.manager.server.model.vo.CommandVO;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.entity.Repo;
 import org.apache.bigtop.manager.server.orm.entity.Stack;
 import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
@@ -27,9 +19,6 @@ import org.apache.bigtop.manager.server.orm.repository.StackRepository;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.apache.bigtop.manager.server.validate.ChainContext;
-import org.apache.bigtop.manager.server.validate.ChainValidatorHandler;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,9 +37,6 @@ public class ClusterServiceImpl implements ClusterService {
     private StackRepository stackRepository;
 
     @Resource
-    private ClusterCreateJobFactory clusterCreateJobFactory;
-
-    @Resource
     private HostService hostService;
 
     @Override
@@ -63,26 +49,6 @@ public class ClusterServiceImpl implements ClusterService {
 
         return clusterVOList;
     }
-
-    @Override
-    @Transactional
-    public CommandVO create(ClusterDTO clusterDTO) {
-
-        ChainContext chainContext = new ChainContext();
-        chainContext.setClusterDTO(clusterDTO);
-        ChainValidatorHandler.handleRequest(chainContext, ValidateType.CLUSTER_ADD);
-
-        // Create job
-        JobFactoryContext jobFactoryContext = new JobFactoryContext();
-        jobFactoryContext.setClusterDTO(clusterDTO);
-        Job job = clusterCreateJobFactory.createJob(jobFactoryContext);
-
-        ClusterCreateEvent event = new ClusterCreateEvent(clusterDTO);
-        event.setJobId(job.getId());
-        SpringContextHolder.getApplicationContext().publishEvent(event);
-        return JobMapper.INSTANCE.fromEntity2CommandVO(job);
-    }
-
 
     @Override
     public ClusterVO save(ClusterDTO clusterDTO) {
