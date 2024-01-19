@@ -43,7 +43,7 @@ public class ServiceConfigureJobFactory implements JobFactory, StageCallback {
 
     @Override
     public Job createJob(JobContext context) {
-        Long clusterId = context.getClusterId();
+        Long clusterId = context.getCommandDTO().getClusterId();
         Job job = new Job();
 
         Cluster cluster = clusterRepository.getReferenceById(clusterId);

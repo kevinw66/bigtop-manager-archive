@@ -1,7 +1,6 @@
 package org.apache.bigtop.manager.server.job.validator;
 
 import lombok.Data;
-import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 
 import java.util.List;
@@ -10,8 +9,4 @@ import java.util.List;
 public class ValidatorContext {
 
     private CommandDTO commandDTO;
-
-    private ClusterDTO clusterDTO;
-
-    private List<String> hostnames;
 }
