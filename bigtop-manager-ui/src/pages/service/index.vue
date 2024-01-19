@@ -106,7 +106,6 @@
     () => route.params,
     (params) => {
       serviceName.value = params.serviceName as string
-      console.log('test' + serviceName.value)
       initServiceMeta()
     }
   )
