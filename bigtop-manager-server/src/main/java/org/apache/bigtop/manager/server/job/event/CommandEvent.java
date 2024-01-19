@@ -1,17 +1,16 @@
-package org.apache.bigtop.manager.server.model.event;
+package org.apache.bigtop.manager.server.job.event;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationEvent;
 
-
 @Getter
 @Setter
-public class HostCacheEvent extends ApplicationEvent {
+public class CommandEvent extends ApplicationEvent {
 
     private Long jobId;
 
-    public HostCacheEvent(Object source) {
+    public CommandEvent(Object source) {
         super(source);
     }
 }

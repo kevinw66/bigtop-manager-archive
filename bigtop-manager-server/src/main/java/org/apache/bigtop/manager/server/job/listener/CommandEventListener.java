@@ -18,14 +18,22 @@ package org.apache.bigtop.manager.server.job.listener;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.JobStrategyType;
+import org.apache.bigtop.manager.server.job.event.CommandEvent;
 import org.apache.bigtop.manager.server.job.strategy.AsyncJobStrategy;
-import org.apache.bigtop.manager.server.model.event.CommandEvent;
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.server.orm.entity.Stage;
+import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.JobRepository;
+import org.apache.bigtop.manager.server.orm.repository.StageRepository;
+import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
@@ -36,18 +44,52 @@ public class CommandEventListener {
     private JobRepository jobRepository;
 
     @Resource
+    private StageRepository stageRepository;
+
+    @Resource
+    private TaskRepository taskRepository;
+
+    @Resource
+    private ClusterRepository clusterRepository;
+
+    @Resource
     private AsyncJobStrategy asyncJobStrategy;
 
     @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleCommand(CommandEvent event) {
+    @TransactionalEventListener
+    public void listen(CommandEvent event) {
         log.info("listen CommandEvent: {}", event);
+        CommandDTO commandDTO = (CommandDTO) event.getSource();
         Long jobId = event.getJobId();
         Job job = jobRepository.getReferenceById(jobId);
 
         Boolean failed = asyncJobStrategy.handle(job, JobStrategyType.OVER_ON_FAIL);
         log.info("[CommandEventListener] failed: {}", failed);
+
+        if (!failed) {
+            afterJobSuccess(job, commandDTO);
+        }
     }
 
+    private void afterJobSuccess(Job job, CommandDTO commandDTO) {
+        CommandLevel commandLevel = commandDTO.getCommandLevel();
+        Command command = commandDTO.getCommand();
+        if (commandLevel == CommandLevel.CLUSTER && command == Command.INSTALL) {
+            // Link job to cluster after cluster successfully added
+            Cluster cluster = clusterRepository.findByClusterName(commandDTO.getClusterCommand().getClusterName()).orElse(new Cluster());
+            job.setCluster(cluster);
 
+            for (Stage stage : job.getStages()) {
+                stage.setCluster(cluster);
+                for (Task task : stage.getTasks()) {
+                    task.setCluster(cluster);
+                }
+
+                taskRepository.saveAll(stage.getTasks());
+            }
+
+            stageRepository.saveAll(job.getStages());
+            jobRepository.save(job);
+        }
+    }
 }
