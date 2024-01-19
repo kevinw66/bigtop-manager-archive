@@ -39,6 +39,7 @@
   const currentConfigs = ref<TypeConfigVO[]>([])
   const currentConfigVersion = ref<number>()
   const initConfigVersion = ref<number>()
+  const showConfigTip = ref<boolean>(false)
 
   watch(allConfigs, (newVal) => {
     serviceConfigDesc.value = newVal
@@ -73,6 +74,8 @@
     if (typeof value === 'object' && 'key' in value) {
       currentConfigVersion.value = Number(value.key)
     }
+    showConfigTip.value = currentConfigVersion.value !== initConfigVersion.value
+
     loadCurrentConfigs()
   }
 
@@ -81,27 +84,30 @@
   watch(currentConfigs, (newVal) => {
     activeConfig.value = newVal.length > 0 ? newVal[0].typeName : null
   })
-
   // config model end
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    console.log('click', e)
+  }
 
-  onMounted(async () => {
+  const initServiceMeta = async () => {
     await configStore.loadLatestConfigs()
     await configStore.loadAllConfigs()
     activeSelect.value = serviceConfigDesc.value?.[0]
     currentConfigVersion.value = serviceConfigDesc.value?.[0].value as number
     initConfigVersion.value = serviceConfigDesc.value?.[0].value as number
-
     await componentStore.loadHostComponents()
-  })
-
-  const handleMenuClick: MenuProps['onClick'] = (e) => {
-    console.log('click', e)
   }
+
+  onMounted(() => {
+    initServiceMeta()
+  })
 
   watch(
     () => route.params,
     (params) => {
       serviceName.value = params.serviceName as string
+      console.log('test' + serviceName.value)
+      initServiceMeta()
     }
   )
 </script>
@@ -140,7 +146,10 @@
             <template #title>{{ $t('service.components') }}</template>
             <template v-if="currentHostComponent.length > 0">
               <div class="summary-div">
-                <template v-for="item in currentHostComponent">
+                <template
+                  v-for="item in currentHostComponent"
+                  :key="`${item.id}`"
+                >
                   <a-card class="card" :bordered="false" size="small">
                     <template #title>
                       <router-link :to="'/services/' + serviceName">
@@ -187,7 +196,7 @@
           :options="serviceConfigDesc"
           @change="handleChange"
         ></a-select>
-        <template v-if="initConfigVersion != currentConfigVersion">
+        <template v-if="showConfigTip">
           <a-button type="primary">Not Current Config</a-button></template
         >
       </a-space>
