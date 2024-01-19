@@ -50,7 +50,6 @@ public class CommandReq {
     private ComponentCommandReq componentCommands;
 
     // TODO need to delete this
-    @NotNull(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
-    @Schema(description = "Command details for host level command")
+    @Schema(description = "(deprecated) Command details for host level command")
     private HostCommandReq hostCommand;
 }
