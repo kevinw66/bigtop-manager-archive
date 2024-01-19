@@ -2,7 +2,6 @@ package org.apache.bigtop.manager.server.service;
 
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
-import org.apache.bigtop.manager.server.model.vo.CommandVO;
 
 import java.util.List;
 
