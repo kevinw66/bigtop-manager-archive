@@ -23,6 +23,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -53,7 +54,12 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public List<ServiceConfigVO> list(Long clusterId) {
         List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllByServiceConfigRecordClusterId(clusterId);
-        return ConfigMapper.INSTANCE.fromEntity2VO(serviceConfigMappingList);
+        List<ServiceConfigVO> serviceConfigVOs = ConfigMapper.INSTANCE.fromEntity2VO(serviceConfigMappingList);
+        serviceConfigVOs.sort(
+                Comparator.comparing(ServiceConfigVO::getServiceName)
+                        .thenComparing(ServiceConfigVO::getVersion).reversed()
+        );
+        return serviceConfigVOs;
     }
 
     @Override
