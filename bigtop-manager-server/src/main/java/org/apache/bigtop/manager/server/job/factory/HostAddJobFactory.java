@@ -68,7 +68,7 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
         job = jobRepository.save(job);
 
         // Create stages
-        hostCheckStageHelper.createStage(job, cluster, hostnames, 1);
+        hostCheckStageHelper.createStage(job, cluster, hostnames, 1, this.getClass().getName());
 
         createStage(job, cluster, 2, this.getClass().getName(), JsonUtils.writeAsString(hostnames));
 

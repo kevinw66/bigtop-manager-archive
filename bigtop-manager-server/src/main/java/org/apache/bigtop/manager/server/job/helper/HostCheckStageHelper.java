@@ -28,7 +28,7 @@ public class HostCheckStageHelper {
     @Resource
     private TaskRepository taskRepository;
 
-    public void createStage(Job job, Cluster cluster, List<String> hostnames, int stageOrder) {
+    public void createStage(Job job, Cluster cluster, List<String> hostnames, int stageOrder, String callbackClassName) {
         // Create stages
         Stage hostCheckStage = new Stage();
         hostCheckStage.setJob(job);
@@ -36,6 +36,7 @@ public class HostCheckStageHelper {
         hostCheckStage.setState(JobState.PENDING);
         hostCheckStage.setStageOrder(stageOrder);
         hostCheckStage.setCluster(cluster);
+        hostCheckStage.setCallbackClassName(callbackClassName);
         hostCheckStage = stageRepository.save(hostCheckStage);
 
         for (String hostname : hostnames) {

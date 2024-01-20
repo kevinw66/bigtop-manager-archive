@@ -37,7 +37,7 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class ClusterAddJobFactory implements JobFactory, StageCallback {
+public class ClusterCreateJobFactory implements JobFactory, StageCallback {
 
     @Resource
     private StackRepository stackRepository;
@@ -62,7 +62,7 @@ public class ClusterAddJobFactory implements JobFactory, StageCallback {
 
     @Override
     public CommandIdentifier getCommandIdentifier() {
-        return new CommandIdentifier(CommandLevel.CLUSTER, Command.INSTALL);
+        return new CommandIdentifier(CommandLevel.CLUSTER, Command.CREATE);
     }
 
     public Job createJob(JobContext context) {
@@ -77,7 +77,7 @@ public class ClusterAddJobFactory implements JobFactory, StageCallback {
         job.setCluster(cluster);
         job = jobRepository.save(job);
 
-        hostCheckStageHelper.createStage(job, cluster, clusterCommand.getHostnames(), 1);
+        hostCheckStageHelper.createStage(job, cluster, clusterCommand.getHostnames(), 1, this.getClass().getName());
 
         createCacheStage(job, clusterCommand, 2, this.getClass().getName(), JsonUtils.writeAsString(clusterCommand));
 

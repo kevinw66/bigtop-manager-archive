@@ -10,7 +10,11 @@ import java.util.List;
 @Data
 public class ComponentCommandReq {
 
+    @NotBlank
+    @Schema(description = "Component Name", example = "zookeeper_server")
+    private String componentName;
+
     @NotEmpty
-    @Schema(description = "Component name", example = "[zookeeper_server]")
-    private List<String> componentNames;
+    @Schema(description = "Host Name List", example = "[bigtop-manager-server, bigtop-manager-agent]")
+    private List<String> hostnames;
 }

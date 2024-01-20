@@ -70,7 +70,7 @@
     }
 
     return {
-      command: 'install',
+      command: 'create',
       commandLevel: 'cluster',
       clusterCommand: clusterCommand,
       // Related job id

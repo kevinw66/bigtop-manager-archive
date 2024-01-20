@@ -30,9 +30,7 @@ public class CommandDTO implements Serializable {
 
     private List<ServiceCommandDTO> serviceCommands;
 
-    private ComponentCommandDTO componentCommands;
-
-    private HostCommandDTO hostCommand;
+    private List<ComponentCommandDTO> componentCommands;
 
     public String getContext() {
         if (command == null) {

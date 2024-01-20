@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
+import org.apache.bigtop.manager.server.model.dto.command.ComponentCommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
 import org.apache.bigtop.manager.server.orm.entity.Component;
@@ -50,29 +51,33 @@ public class HostComponentServiceImpl implements HostComponentService {
     }
 
     @Override
-    public void batchSave(Long clusterId, String hostname, List<String> componentNames) {
+    public void batchSave(Long clusterId, List<ComponentCommandDTO> componentCommandDTOs) {
         // Persist hostComponent to database
-        List<Component> componentList = componentRepository.findAllByClusterIdAndComponentNameIn(clusterId, componentNames);
-        Host host = hostRepository.findByHostname(hostname);
-        for (Component component : componentList) {
-            HostComponent hostComponent = new HostComponent();
-            hostComponent.setHost(host);
-            hostComponent.setComponent(component);
-            hostComponent.setState(MaintainState.INSTALLED);
+        for (ComponentCommandDTO componentCommandDTO : componentCommandDTOs) {
+            String componentName = componentCommandDTO.getComponentName();
+            List<String> hostnames = componentCommandDTO.getHostnames();
 
-            Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
-            hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
-            hostComponentRepository.save(hostComponent);
+            Component component = componentRepository.findByClusterIdAndComponentName(clusterId, componentName).orElse(new Component());
+            List<Host> hosts = hostRepository.findAllByHostnameIn(hostnames);
+            for (Host host : hosts) {
+                HostComponent hostComponent = new HostComponent();
+                hostComponent.setHost(host);
+                hostComponent.setComponent(component);
+                hostComponent.setState(MaintainState.INSTALLED);
+
+                Optional<HostComponent> hostComponentOptional = hostComponentRepository.findByComponentComponentNameAndHostHostname(component.getComponentName(), host.getHostname());
+                hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
+                hostComponentRepository.save(hostComponent);
+            }
         }
     }
 
     @Override
     public void saveByCommand(CommandDTO commandDTO) {
-        List<String> componentNameList = commandDTO.getHostCommand().getComponentNames();
-        String hostname = commandDTO.getHostCommand().getHostname();
         Long clusterId = commandDTO.getClusterId();
+        List<ComponentCommandDTO> componentCommands = commandDTO.getComponentCommands();
 
         // Persist hostComponent to database
-        batchSave(clusterId, hostname, componentNameList);
+        batchSave(clusterId, componentCommands);
     }
 }

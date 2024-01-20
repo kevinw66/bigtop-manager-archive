@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Command {
 
+    CREATE,
+
     INSTALL,
 
     UNINSTALL,
