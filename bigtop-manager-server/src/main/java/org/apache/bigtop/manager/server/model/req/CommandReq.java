@@ -40,7 +40,7 @@ public class CommandReq {
 
     @NotNull(groups = {CommandGroupSequenceProvider.HostCommandGroup.class})
     @Schema(description = "Command details for host level command")
-    private List<HostCommandReq> hostCommands;
+    private List<@Valid HostCommandReq> hostCommands;
 
     @NotEmpty(groups = {CommandGroupSequenceProvider.ServiceCommandGroup.class})
     @Schema(description = "Command details for service level command")
@@ -50,7 +50,4 @@ public class CommandReq {
     @Schema(description = "Command details for component level command")
     private List<@Valid ComponentCommandReq> componentCommands;
 
-    // TODO need to delete this
-    @Schema(description = "(deprecated) Command details for host level command")
-    private HostCommandReq hostCommand;
 }

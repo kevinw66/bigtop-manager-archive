@@ -51,6 +51,9 @@ public class ServiceComponentStageHelper {
     private HostRepository hostRepository;
 
     @Resource
+    private ServiceRepository serviceRepository;
+
+    @Resource
     private HostComponentRepository hostComponentRepository;
 
     @Resource
@@ -177,7 +180,7 @@ public class ServiceComponentStageHelper {
                 }
             }
             case SERVICE -> {
-                if (commandDTO.getCommand() == Command.INSTALL && commandDTO.getCommandLevel() == CommandLevel.SERVICE) {
+                if (commandDTO.getCommand() == Command.INSTALL) {
                     componentHostMapping = commandDTO.getServiceCommands()
                             .stream()
                             .flatMap(x -> x.getComponentHosts().stream())
@@ -284,7 +287,14 @@ public class ServiceComponentStageHelper {
 
         // Persist service, component and hostComponent metadata to database
         for (ServiceCommandDTO serviceCommand : commandDTO.getServiceCommands()) {
-            ServiceDTO serviceDTO = serviceNameToDTO.get(serviceCommand.getServiceName());
+            String serviceName = serviceCommand.getServiceName();
+            Optional<Service> serviceOptional = serviceRepository.findByClusterIdAndServiceName(clusterId, serviceName);
+            if (serviceOptional.isPresent()) {
+                // Service already installed, update config if changed
+                continue;
+            }
+
+            ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
             Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
             List<ComponentDTO> componentDTOList = serviceDTO.getComponents();
             for (ComponentDTO componentDTO : componentDTOList) {

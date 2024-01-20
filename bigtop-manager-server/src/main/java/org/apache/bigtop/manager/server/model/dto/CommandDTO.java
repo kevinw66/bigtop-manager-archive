@@ -32,8 +32,6 @@ public class CommandDTO implements Serializable {
 
     private List<ComponentCommandDTO> componentCommands;
 
-    private HostCommandDTO hostCommand;
-
     public String getContext() {
         if (command == null) {
             return MessageFormat.format("{0} for {1}", customCommand, commandLevel.toLowerCase());
