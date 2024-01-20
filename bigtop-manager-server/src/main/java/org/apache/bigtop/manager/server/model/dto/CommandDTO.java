@@ -30,7 +30,7 @@ public class CommandDTO implements Serializable {
 
     private List<ServiceCommandDTO> serviceCommands;
 
-    private ComponentCommandDTO componentCommands;
+    private List<ComponentCommandDTO> componentCommands;
 
     private HostCommandDTO hostCommand;
 

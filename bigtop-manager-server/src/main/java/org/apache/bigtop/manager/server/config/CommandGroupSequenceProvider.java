@@ -31,6 +31,9 @@ public class CommandGroupSequenceProvider implements DefaultGroupSequenceProvide
                 case COMPONENT:
                     defaultGroupSequence.add(ComponentCommandGroup.class);
                     break;
+                case CLUSTER:
+                    defaultGroupSequence.add(ClusterCommandGroup.class);
+                    break;
             }
 
         }
@@ -47,5 +50,8 @@ public class CommandGroupSequenceProvider implements DefaultGroupSequenceProvide
     }
 
     public interface ServiceInstallCommandGroup {
+    }
+
+    public interface ClusterCommandGroup {
     }
 }

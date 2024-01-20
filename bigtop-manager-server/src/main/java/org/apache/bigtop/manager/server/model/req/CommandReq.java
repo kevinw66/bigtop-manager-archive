@@ -34,6 +34,7 @@ public class CommandReq {
     @Schema(example = "cluster")
     private CommandLevel commandLevel;
 
+    @NotNull(groups = {CommandGroupSequenceProvider.ClusterCommandGroup.class})
     @Schema(description = "Command details for cluster level command")
     private ClusterCommandReq clusterCommand;
 
@@ -47,7 +48,7 @@ public class CommandReq {
 
     @NotNull(groups = {CommandGroupSequenceProvider.ComponentCommandGroup.class})
     @Schema(description = "Command details for component level command")
-    private ComponentCommandReq componentCommands;
+    private List<@Valid ComponentCommandReq> componentCommands;
 
     // TODO need to delete this
     @Schema(description = "(deprecated) Command details for host level command")

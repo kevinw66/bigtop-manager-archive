@@ -8,6 +8,8 @@ import java.util.List;
 @Data
 public class ComponentCommandDTO implements Serializable {
 
-    private List<String> componentNames;
+    private String componentName;
+
+    private List<String> hostnames;
 
 }
