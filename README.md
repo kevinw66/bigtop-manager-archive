@@ -1,6 +1,6 @@
 # Bigtop-Manager
 
-Bigtop-Manager is a platform for managing Bigtop components. Provide similar functions with Ambari
+Bigtop-Manager is a platform for managing Bigtop components. Inspired by Apache Ambari.
 
 ## Prerequisites
 
