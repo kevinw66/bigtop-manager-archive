@@ -22,7 +22,7 @@ public class ClusterCreateValidator implements CommandValidator {
 
     @Override
     public List<CommandIdentifier> getCommandIdentifiers() {
-        return List.of(new CommandIdentifier(CommandLevel.CLUSTER, Command.INSTALL));
+        return List.of(new CommandIdentifier(CommandLevel.CLUSTER, Command.CREATE));
     }
 
     @Override

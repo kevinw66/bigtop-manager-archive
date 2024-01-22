@@ -1,6 +1,8 @@
 package org.apache.bigtop.manager.server.job.factory;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
+import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.job.CommandIdentifier;
 
@@ -19,8 +21,12 @@ public class JobFactories {
         if (!LOADED.get()) {
             load();
         }
-
-        return JOB_FACTORIES.get(identifier);
+        JobFactory jobFactory = JOB_FACTORIES.get(identifier);
+        if (jobFactory == null) {
+            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED,
+                    identifier.getCommand().toLowerCase(), identifier.getCommandLevel().toLowerCase());
+        }
+        return jobFactory;
     }
 
     private static synchronized void load() {
