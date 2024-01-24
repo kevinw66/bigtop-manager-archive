@@ -14,7 +14,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper
+@Mapper(uses = {StageMapper.class, TaskMapper.class})
 public interface JobMapper {
 
     JobMapper INSTANCE = Mappers.getMapper(JobMapper.class);
@@ -27,6 +27,8 @@ public interface JobMapper {
     @Mapping(target = "state", expression = "java(initState())")
     Job fromDTO2Entity(HostDTO hostDTO, @Context Cluster cluster);
 
+    @Mapping(target = "createTime", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @Mapping(target = "updateTime", dateFormat = "yyyy-MM-dd HH:mm:ss")
     JobVO fromEntity2VO(Job job);
 
     List<JobVO> fromEntity2VO(List<Job> job);

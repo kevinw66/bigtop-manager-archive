@@ -33,4 +33,6 @@ export interface ServiceConfigVO {
   configDesc: string
   version: number
   configs: TypeConfigVO[]
+  createTime: string
+  updateTime: string
 }

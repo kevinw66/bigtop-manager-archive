@@ -42,18 +42,20 @@
   const showConfigTip = ref<boolean>(false)
 
   watch(allConfigs, (newVal) => {
-    serviceConfigDesc.value = newVal
-      .filter((sc: ServiceConfigVO) => sc.serviceName === serviceName.value)
-      .map((sc: ServiceConfigVO) => ({
-        value: sc.version,
-        label: `Version: ${sc.version}`,
-        title: `${sc.configDesc}`
-      }))
-    initConfigVersion
+    allConfigs.value = newVal
     loadCurrentConfigs()
   })
 
   const loadCurrentConfigs = () => {
+    serviceConfigDesc.value = allConfigs.value
+      .filter((sc: ServiceConfigVO) => sc.serviceName === serviceName.value)
+      .map((sc: ServiceConfigVO) => ({
+        value: sc.version,
+        label: `Version: ${sc.version}`,
+        title: `${sc.configDesc}
+        \n${sc.createTime}`
+      }))
+
     currentConfigVersion.value = serviceConfigDesc.value?.[0].value as number
 
     currentConfigs.value = allConfigs.value

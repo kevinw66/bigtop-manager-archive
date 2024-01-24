@@ -24,3 +24,10 @@ export const getJob = (id: number, clusterId: number): Promise<JobVO> => {
     url: '/clusters/' + clusterId + '/jobs/' + id
   })
 }
+
+export const getJobs = (clusterId: number): Promise<JobVO[]> => {
+  return request({
+    method: 'get',
+    url: '/clusters/' + clusterId + '/jobs'
+  })
+}

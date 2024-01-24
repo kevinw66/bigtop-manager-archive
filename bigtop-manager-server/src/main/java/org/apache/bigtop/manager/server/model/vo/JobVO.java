@@ -15,4 +15,9 @@ public class JobVO {
     private JobState state;
 
     private String name;
+
+    private String createTime;
+
+    private String updateTime;
+
 }

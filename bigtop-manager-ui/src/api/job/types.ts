@@ -35,4 +35,6 @@ export interface TaskVO {
   name: string
   state: string
   hostname: string
+  createTime: string
+  updateTime: string
 }
