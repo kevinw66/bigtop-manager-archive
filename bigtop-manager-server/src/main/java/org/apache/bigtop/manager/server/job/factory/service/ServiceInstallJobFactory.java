@@ -60,10 +60,10 @@ public class ServiceInstallJobFactory extends AbstractServiceJobFactory implemen
      */
     @Override
     protected List<Stage> createStagesAndTasks() {
-        String callbackClassName = this.getClass().getName();
-
         // Install all required components in service
-        List<Stage> stages = new ArrayList<>(createStages(callbackClassName));
+        List<Stage> stages = super.createStagesAndTasks();
+
+        String callbackClassName = this.getClass().getName();
 
         // cache stage
         String payload = JsonUtils.writeAsString(jobContext.getCommandDTO());

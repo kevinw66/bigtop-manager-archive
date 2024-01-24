@@ -11,7 +11,6 @@ import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class AbstractJobFactory implements JobFactory {
@@ -60,7 +59,6 @@ public abstract class AbstractJobFactory implements JobFactory {
         job.setName(jobContext.getCommandDTO().getContext());
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
-        job.setStages(new ArrayList<>());
     }
 
     protected void saveJob() {
