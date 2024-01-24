@@ -7,5 +7,5 @@ public interface JobFactory {
 
     CommandIdentifier getCommandIdentifier();
 
-    Job createJob(JobContext context);
+    Job createJob(JobContext jobContext);
 }

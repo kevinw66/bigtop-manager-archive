@@ -18,6 +18,7 @@ import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -40,6 +41,9 @@ public class SyncJobStrategy extends AbstractJobStrategy {
     public Boolean handle(Job job, JobStrategyType strategyType) {
         AtomicBoolean failed = new AtomicBoolean(false);
         List<Stage> stages = job.getStages();
+
+        // Sort stage
+        stages.sort(Comparator.comparingInt(Stage::getStageOrder));
 
         job.setState(JobState.PROCESSING);
         jobRepository.save(job);

@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.job.factory;
+package org.apache.bigtop.manager.server.job.factory.host;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +12,15 @@ import org.apache.bigtop.manager.server.job.helper.HostCacheStageHelper;
 import org.apache.bigtop.manager.server.job.helper.HostCheckStageHelper;
 import org.apache.bigtop.manager.server.job.strategy.StageCallback;
 import org.apache.bigtop.manager.server.model.dto.command.HostCommandDTO;
-import org.apache.bigtop.manager.server.orm.entity.*;
+import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.apache.bigtop.manager.server.orm.entity.Stage;
+import org.apache.bigtop.manager.server.orm.entity.Task;
 import org.apache.bigtop.manager.server.orm.repository.*;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,22 +29,11 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class HostAddJobFactory implements JobFactory, StageCallback {
-
-    @Resource
-    private ClusterRepository clusterRepository;
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class HostAddJobFactory extends AbstractHostJobFactory implements StageCallback {
 
     @Resource
     private HostRepository hostRepository;
-
-    @Resource
-    private JobRepository jobRepository;
-
-    @Resource
-    private StageRepository stageRepository;
-
-    @Resource
-    private TaskRepository taskRepository;
 
     @Resource
     private HostCacheStageHelper hostCacheStageHelper;
@@ -55,27 +49,21 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
         return new CommandIdentifier(CommandLevel.HOST, Command.INSTALL);
     }
 
-    public Job createJob(JobContext context) {
-        Long clusterId = context.getCommandDTO().getClusterId();
-        List<String> hostnames = context.getCommandDTO().getHostCommands().stream().map(HostCommandDTO::getHostname).toList();
-        Job job = new Job();
-        Cluster cluster = clusterRepository.getReferenceById(clusterId);
-
-        // Create job
-        job.setName("Add Hosts");
-        job.setState(JobState.PENDING);
-        job.setCluster(cluster);
-        job = jobRepository.save(job);
+    @Override
+    public List<Stage> createStagesAndTasks() {
+        List<Stage> stages = new ArrayList<>();
+        String callbackClassName = this.getClass().getName();
+        Long clusterId = jobContext.getCommandDTO().getClusterId();
+        List<String> hostnames = jobContext.getCommandDTO().getHostCommands().stream().map(HostCommandDTO::getHostname).toList();
 
         // Create stages
-        hostCheckStageHelper.createStage(job, cluster, hostnames, 1, this.getClass().getName());
+        stages.add(hostCheckStageHelper.createStage(clusterId, hostnames, callbackClassName));
+        stages.add(createStage(callbackClassName, JsonUtils.writeAsString(hostnames)));
 
-        createStage(job, cluster, 2, this.getClass().getName(), JsonUtils.writeAsString(hostnames));
-
-        return job;
+        return stages;
     }
 
-    public void createStage(Job job, Cluster cluster, int stageOrder, String callbackClassName, String payload) {
+    public Stage createStage(String callbackClassName, String payload) {
         hostCacheStageHelper.createCache(cluster);
 
         List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
@@ -83,28 +71,23 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
         hostnames.addAll(JsonUtils.readFromString(payload));
 
         Stage hostCacheStage = new Stage();
-        hostCacheStage.setJob(job);
         hostCacheStage.setName(CACHE_STAGE_NAME);
         hostCacheStage.setState(JobState.PENDING);
-        hostCacheStage.setStageOrder(stageOrder);
-        hostCacheStage.setCluster(cluster);
 
         if (StringUtils.isNotEmpty(callbackClassName)) {
             hostCacheStage.setCallbackClassName(callbackClassName);
         } else {
             hostCacheStage.setCallbackClassName(this.getClass().getName());
         }
+
         if (StringUtils.isNotEmpty(callbackClassName)) {
             hostCacheStage.setPayload(payload);
         }
-        hostCacheStage = stageRepository.save(hostCacheStage);
 
+        List<Task> tasks = new ArrayList<>();
         for (String hostname : hostnames) {
             Task task = new Task();
             task.setName("Cache host for " + hostname);
-            task.setJob(job);
-            task.setStage(hostCacheStage);
-            task.setCluster(cluster);
             task.setStackName(cluster.getStack().getStackName());
             task.setStackVersion(cluster.getStack().getStackVersion());
             task.setHostname(hostname);
@@ -119,10 +102,13 @@ public class HostAddJobFactory implements JobFactory, StageCallback {
             RequestMessage requestMessage = hostCheckStageHelper.createMessage(hostname);
             log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
             task.setContent(JsonUtils.writeAsString(requestMessage));
-
             task.setMessageId(requestMessage.getMessageId());
-            taskRepository.save(task);
+
+            tasks.add(task);
         }
+
+        hostCacheStage.setTasks(tasks);
+        return hostCacheStage;
     }
 
     @Override

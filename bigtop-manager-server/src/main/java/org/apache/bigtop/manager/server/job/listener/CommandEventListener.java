@@ -74,7 +74,7 @@ public class CommandEventListener {
     private void afterJobSuccess(Job job, CommandDTO commandDTO) {
         CommandLevel commandLevel = commandDTO.getCommandLevel();
         Command command = commandDTO.getCommand();
-        if (commandLevel == CommandLevel.CLUSTER && command == Command.INSTALL) {
+        if (commandLevel == CommandLevel.CLUSTER && command == Command.CREATE) {
             // Link job to cluster after cluster successfully added
             Cluster cluster = clusterRepository.findByClusterName(commandDTO.getClusterCommand().getClusterName()).orElse(new Cluster());
             job.setCluster(cluster);

@@ -13,9 +13,11 @@ import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Job;
 import org.apache.bigtop.manager.server.orm.entity.Stage;
 import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
 import org.apache.bigtop.manager.server.orm.repository.StageRepository;
 import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -23,30 +25,29 @@ import java.util.List;
 public class HostCheckStageHelper {
 
     @Resource
-    private StageRepository stageRepository;
+    private ClusterRepository clusterRepository;
 
-    @Resource
-    private TaskRepository taskRepository;
+    public Stage createStage(Long clusterId, List<String> hostnames, String callbackClassName) {
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
 
-    public void createStage(Job job, Cluster cluster, List<String> hostnames, int stageOrder, String callbackClassName) {
+        String stackName = cluster.getStack().getStackName();
+        String stackVersion = cluster.getStack().getStackVersion();
+        return createStage(stackName, stackVersion, hostnames, callbackClassName);
+    }
+
+    public Stage createStage(String stackName, String stackVersion, List<String> hostnames, String callbackClassName) {
         // Create stages
         Stage hostCheckStage = new Stage();
-        hostCheckStage.setJob(job);
         hostCheckStage.setName("Check Hosts");
         hostCheckStage.setState(JobState.PENDING);
-        hostCheckStage.setStageOrder(stageOrder);
-        hostCheckStage.setCluster(cluster);
         hostCheckStage.setCallbackClassName(callbackClassName);
-        hostCheckStage = stageRepository.save(hostCheckStage);
 
+        List<Task> tasks = new ArrayList<>();
         for (String hostname : hostnames) {
             Task task = new Task();
             task.setName("Check host for " + hostname);
-            task.setJob(job);
-            task.setStage(hostCheckStage);
-            task.setCluster(cluster);
-            task.setStackName(cluster.getStack().getStackName());
-            task.setStackVersion(cluster.getStack().getStackVersion());
+            task.setStackName(stackName);
+            task.setStackVersion(stackVersion);
             task.setHostname(hostname);
             task.setServiceName("cluster");
             task.setServiceUser("root");
@@ -58,10 +59,13 @@ public class HostCheckStageHelper {
 
             RequestMessage requestMessage = createMessage(hostname);
             task.setContent(JsonUtils.writeAsString(requestMessage));
-
             task.setMessageId(requestMessage.getMessageId());
-            taskRepository.save(task);
+
+            tasks.add(task);
         }
+
+        hostCheckStage.setTasks(tasks);
+        return hostCheckStage;
     }
 
     public RequestMessage createMessage(String hostname) {

@@ -21,6 +21,7 @@ import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -59,7 +60,10 @@ public class AsyncJobStrategy extends AbstractJobStrategy {
         job.setState(JobState.PROCESSING);
         jobRepository.save(job);
 
+        // Sort stage
         List<Stage> stages = job.getStages();
+        stages.sort(Comparator.comparingInt(Stage::getStageOrder));
+
         LinkedBlockingQueue<Stage> pipeLineQueue = new LinkedBlockingQueue<>(stages);
         while (!pipeLineQueue.isEmpty()) {
             Stage stage = pipeLineQueue.poll();
