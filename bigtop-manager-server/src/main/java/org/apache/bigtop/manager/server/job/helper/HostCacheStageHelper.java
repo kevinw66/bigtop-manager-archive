@@ -13,7 +13,6 @@ import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.job.factory.JobContext;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.orm.entity.*;
@@ -30,6 +29,9 @@ import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_N
 @Slf4j
 @org.springframework.stereotype.Component
 public class HostCacheStageHelper {
+
+    @Resource
+    private ClusterRepository clusterRepository;
 
     @Resource
     private HostComponentRepository hostComponentRepository;
@@ -52,41 +54,31 @@ public class HostCacheStageHelper {
     @Resource
     private ComponentRepository componentRepository;
 
-    @Resource
-    private StageRepository stageRepository;
-
-    @Resource
-    private TaskRepository taskRepository;
-
-    public void createStage(Job job, Cluster cluster, int stageOrder, String callbackClassName, String payload) {
+    public Stage createStage(Long clusterId, String callbackClassName, String payload) {
+        Cluster cluster = clusterRepository.getReferenceById(clusterId);
         createCache(cluster);
 
-        List<Host> hostList = hostRepository.findAllByClusterId(cluster.getId());
+        List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
         List<String> hostnames = hostList.stream().map(Host::getHostname).toList();
 
         Stage hostCacheStage = new Stage();
-        hostCacheStage.setJob(job);
         hostCacheStage.setName(CACHE_STAGE_NAME);
         hostCacheStage.setState(JobState.PENDING);
-        hostCacheStage.setStageOrder(stageOrder);
-        hostCacheStage.setCluster(cluster);
 
         if (StringUtils.isNotEmpty(callbackClassName)) {
             hostCacheStage.setCallbackClassName(callbackClassName);
         } else {
             hostCacheStage.setCallbackClassName(this.getClass().getName());
         }
+
         if (StringUtils.isNotEmpty(callbackClassName)) {
             hostCacheStage.setPayload(payload);
         }
-        hostCacheStage = stageRepository.save(hostCacheStage);
 
+        List<Task> tasks = new ArrayList<>();
         for (String hostname : hostnames) {
             Task task = new Task();
             task.setName("Cache host for " + hostname);
-            task.setJob(job);
-            task.setStage(hostCacheStage);
-            task.setCluster(cluster);
             task.setStackName(cluster.getStack().getStackName());
             task.setStackVersion(cluster.getStack().getStackVersion());
             task.setHostname(hostname);
@@ -101,10 +93,13 @@ public class HostCacheStageHelper {
             RequestMessage requestMessage = getMessage(hostname);
             log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
             task.setContent(JsonUtils.writeAsString(requestMessage));
-
             task.setMessageId(requestMessage.getMessageId());
-            taskRepository.save(task);
+
+            tasks.add(task);
         }
+
+        hostCacheStage.setTasks(tasks);
+        return hostCacheStage;
     }
 
     private ClusterInfo clusterInfo;

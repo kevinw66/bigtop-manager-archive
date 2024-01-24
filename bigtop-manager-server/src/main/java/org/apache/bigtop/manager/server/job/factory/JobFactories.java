@@ -15,18 +15,19 @@ public class JobFactories {
 
     private static final AtomicBoolean LOADED = new AtomicBoolean(false);
 
-    private static final Map<CommandIdentifier, JobFactory> JOB_FACTORIES = new HashMap<>();
+    private static final Map<CommandIdentifier, String> JOB_FACTORIES = new HashMap<>();
 
     public static JobFactory getJobFactory(CommandIdentifier identifier) {
         if (!LOADED.get()) {
             load();
         }
-        JobFactory jobFactory = JOB_FACTORIES.get(identifier);
-        if (jobFactory == null) {
-            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED,
-                    identifier.getCommand().toLowerCase(), identifier.getCommandLevel().toLowerCase());
+
+        if (!JOB_FACTORIES.containsKey(identifier)) {
+            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED, identifier.getCommand().toLowerCase(), identifier.getCommandLevel().toLowerCase());
         }
-        return jobFactory;
+
+        String beanName = JOB_FACTORIES.get(identifier);
+        return SpringContextHolder.getApplicationContext().getBean(beanName, JobFactory.class);
     }
 
     private static synchronized void load() {
@@ -34,8 +35,15 @@ public class JobFactories {
             return;
         }
 
-        for (JobFactory jobFactory : SpringContextHolder.getJobFactories().values()) {
-            JOB_FACTORIES.put(jobFactory.getCommandIdentifier(), jobFactory);
+        for (Map.Entry<String, JobFactory> entry : SpringContextHolder.getJobFactories().entrySet()) {
+            String beanName = entry.getKey();
+            JobFactory jobFactory = entry.getValue();
+            if (JOB_FACTORIES.containsKey(jobFactory.getCommandIdentifier())) {
+                log.error("Duplicate JobFactory with identifier: {}", jobFactory.getCommandIdentifier());
+                continue;
+            }
+
+            JOB_FACTORIES.put(jobFactory.getCommandIdentifier(), beanName);
             log.info("Load JobFactory: {} with identifier: {}", jobFactory.getClass().getName(), jobFactory.getCommandIdentifier());
         }
 

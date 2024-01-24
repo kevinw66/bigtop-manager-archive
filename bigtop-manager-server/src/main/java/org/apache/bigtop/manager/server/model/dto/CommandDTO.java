@@ -33,6 +33,10 @@ public class CommandDTO implements Serializable {
     private List<ComponentCommandDTO> componentCommands;
 
     public String getContext() {
+        if (clusterId == null) {
+            return "Create Cluster";
+        }
+
         if (command == null) {
             return MessageFormat.format("{0} for {1}", customCommand, commandLevel.toLowerCase());
         } else {

@@ -30,7 +30,7 @@
         <rocket-outlined />
       </template>
       <template #extra>
-        <a-form ref="formRef" :model="clusterInfo">
+        <a-form ref="formRef" :model="clusterInfo.clusterCommand">
           <a-form-item
             name="clusterName"
             :rules="[
@@ -41,7 +41,7 @@
             ]"
           >
             <a-input
-              v-model:value="clusterInfo.clusterName"
+              v-model:value="clusterInfo.clusterCommand.clusterName"
               allow-clear
               :placeholder="$t('cluster.set_cluster_name_input')"
             />

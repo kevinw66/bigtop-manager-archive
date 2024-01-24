@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.job.factory;
+package org.apache.bigtop.manager.server.job.factory.service;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -7,63 +7,31 @@ import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.enums.MaintainState;
 import org.apache.bigtop.manager.server.job.CommandIdentifier;
-import org.apache.bigtop.manager.server.job.helper.ServiceComponentStageHelper;
 import org.apache.bigtop.manager.server.job.strategy.StageCallback;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
+import org.apache.bigtop.manager.server.orm.entity.HostComponent;
+import org.apache.bigtop.manager.server.orm.entity.Service;
+import org.apache.bigtop.manager.server.orm.entity.Stage;
 import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
 import org.apache.bigtop.manager.server.orm.repository.ServiceRepository;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 
 import java.util.List;
 
 @Slf4j
 @org.springframework.stereotype.Component
-public class ServiceStopJobFactory implements JobFactory, StageCallback {
+@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+public class ServiceStopJobFactory extends AbstractServiceJobFactory implements StageCallback {
 
     @Resource
     private ServiceRepository serviceRepository;
 
     @Resource
-    private ClusterRepository clusterRepository;
-
-    @Resource
     private HostComponentRepository hostComponentRepository;
-
-    @Resource
-    private JobRepository jobRepository;
-
-    @Resource
-    private ServiceComponentStageHelper serviceComponentStageHelper;
 
     @Override
     public CommandIdentifier getCommandIdentifier() {
         return new CommandIdentifier(CommandLevel.SERVICE, Command.STOP);
-    }
-
-    /**
-     * create job and persist it to database
-     *
-     * @param context command DTO
-     * @return task flow queue
-     */
-    @Override
-    public Job createJob(JobContext context) {
-        CommandDTO commandDTO = context.getCommandDTO();
-        Long clusterId = commandDTO.getClusterId();
-        Cluster cluster = clusterRepository.getReferenceById(clusterId);
-
-        Job job = new Job();
-        job.setState(JobState.PENDING);
-        job.setName(commandDTO.getContext());
-        job.setCluster(cluster);
-        job = jobRepository.save(job);
-        log.info("CommandOperator-job: {}", job);
-
-        serviceComponentStageHelper.createStage(job, commandDTO, 0, this.getClass().getName());
-
-        return job;
     }
 
     @Override
