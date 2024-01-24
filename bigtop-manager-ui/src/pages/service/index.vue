@@ -92,8 +92,8 @@
   }
 
   const initServiceMeta = async () => {
-    await configStore.loadLatestConfigs()
     await configStore.loadAllConfigs()
+    showConfigTip.value = false
     activeSelect.value = serviceConfigDesc.value?.[0]
     currentConfigVersion.value = serviceConfigDesc.value?.[0].value as number
     initConfigVersion.value = serviceConfigDesc.value?.[0].value as number
