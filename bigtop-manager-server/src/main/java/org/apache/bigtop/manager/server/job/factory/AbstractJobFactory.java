@@ -62,8 +62,6 @@ public abstract class AbstractJobFactory implements JobFactory {
     }
 
     protected void saveJob() {
-        jobRepository.save(job);
-
         for (int i = 0; i < job.getStages().size(); i++) {
             Stage stage = job.getStages().get(i);
             stage.setCluster(cluster);
@@ -80,5 +78,6 @@ public abstract class AbstractJobFactory implements JobFactory {
         }
 
         stageRepository.saveAll(job.getStages());
+        jobRepository.save(job);
     }
 }
