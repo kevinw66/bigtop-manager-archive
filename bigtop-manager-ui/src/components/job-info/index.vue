@@ -2,6 +2,7 @@
   import {
     CheckCircleTwoTone,
     MinusCircleTwoTone,
+    CloseCircleTwoTone,
     LoadingOutlined,
     SettingOutlined
   } from '@ant-design/icons-vue'
@@ -135,7 +136,7 @@
             v-if="text === 'SUCCESSFUL'"
             two-tone-color="#52c41a"
           />
-          <MinusCircleTwoTone
+          <CloseCircleTwoTone
             v-else-if="text === 'FAILED'"
             two-tone-color="red"
           />
@@ -162,7 +163,7 @@
             v-if="text === 'SUCCESSFUL'"
             two-tone-color="#52c41a"
           />
-          <MinusCircleTwoTone
+          <CloseCircleTwoTone
             v-else-if="text === 'FAILED'"
             two-tone-color="red"
           />
@@ -189,7 +190,7 @@
             v-if="text === 'SUCCESSFUL'"
             two-tone-color="#52c41a"
           />
-          <MinusCircleTwoTone
+          <CloseCircleTwoTone
             v-else-if="text === 'FAILED'"
             two-tone-color="red"
           />
