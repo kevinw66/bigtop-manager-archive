@@ -12,7 +12,7 @@
   import { message } from 'ant-design-vue'
 
   const jobStore = useJobStore()
-  const { jobs } = storeToRefs(jobStore)
+  const { jobs, processJobNum } = storeToRefs(jobStore)
 
   const jobWindowOpened = ref(false)
   const isStageTable = ref(false)
@@ -93,7 +93,7 @@
 
 <template>
   <div class="icon">
-    <a-badge size="small" color="blue" count="1" @click="jobOpen">
+    <a-badge size="small" color="blue" :count="processJobNum" @click="jobOpen">
       <setting-outlined />
     </a-badge>
   </div>
@@ -139,6 +139,10 @@
             v-else-if="text === 'FAILED'"
             two-tone-color="red"
           />
+          <MinusCircleTwoTone
+            v-else-if="text === 'CANCELED'"
+            two-tone-color="orange"
+          />
           <LoadingOutlined v-else />
         </template>
       </template>
@@ -162,6 +166,10 @@
             v-else-if="text === 'FAILED'"
             two-tone-color="red"
           />
+          <MinusCircleTwoTone
+            v-else-if="text === 'CANCELED'"
+            two-tone-color="orange"
+          />
           <LoadingOutlined v-else />
         </template>
       </template>
@@ -184,6 +192,10 @@
           <MinusCircleTwoTone
             v-else-if="text === 'FAILED'"
             two-tone-color="red"
+          />
+          <MinusCircleTwoTone
+            v-else-if="text === 'CANCELED'"
+            two-tone-color="orange"
           />
           <LoadingOutlined v-else />
         </template>

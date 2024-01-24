@@ -16,7 +16,7 @@
  */
 
 import { defineStore, storeToRefs } from 'pinia'
-import { ref, shallowRef, watch } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { useClusterStore } from '@/store/cluster'
 import { JobVO } from '@/api/job/types.ts'
 import { getJobs } from '@/api/job'
@@ -31,6 +31,13 @@ export const useJobStore = defineStore(
     const jobs = shallowRef<JobVO[]>([])
     const loadingJobs = ref<boolean>(true)
     const intervalFn = ref<Pausable | undefined>()
+
+    const processJobNum = computed(() => {
+      return jobs.value.filter(
+        (job: JobVO) => job.state === 'PROCESSING' || job.state === 'PENDING'
+      ).length
+    })
+
     const loadJobs = async () => {
       jobs.value = await getJobs(clusterId.value)
     }
@@ -52,7 +59,14 @@ export const useJobStore = defineStore(
     const resumeIntervalFn = () => intervalFn.value?.resume()
     const pauseIntervalFn = () => intervalFn.value?.pause()
 
-    return { jobs, loadingJobs, loadJobs, resumeIntervalFn, pauseIntervalFn }
+    return {
+      jobs,
+      processJobNum,
+      loadingJobs,
+      loadJobs,
+      resumeIntervalFn,
+      pauseIntervalFn
+    }
   },
   { persist: false }
 )
