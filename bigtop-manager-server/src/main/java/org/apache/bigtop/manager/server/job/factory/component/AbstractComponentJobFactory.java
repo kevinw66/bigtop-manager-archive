@@ -40,11 +40,11 @@ public abstract class AbstractComponentJobFactory extends AbstractJobFactory {
 
     @Override
     protected List<Stage> createStagesAndTasks() {
-        return createStages(this.getClass().getName());
+        return createStages(getClass().getName());
     }
 
     protected List<Stage> createStages(String callbackClassName) {
-        return this.createStages(callbackClassName, jobContext.getCommandDTO().getCommand());
+        return createStages(callbackClassName, jobContext.getCommandDTO().getCommand());
     }
 
     protected List<Stage> createStages(String callbackClassName, Command command) {
