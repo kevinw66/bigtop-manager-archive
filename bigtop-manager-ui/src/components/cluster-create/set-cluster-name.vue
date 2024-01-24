@@ -30,7 +30,7 @@
         <rocket-outlined />
       </template>
       <template #extra>
-        <a-form ref="formRef" :model="clusterInfo">
+        <a-form ref="formRef" :model="clusterInfo.clusterCommand">
           <a-form-item
             name="clusterName"
             :rules="[
