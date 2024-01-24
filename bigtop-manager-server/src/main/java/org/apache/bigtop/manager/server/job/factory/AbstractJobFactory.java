@@ -62,22 +62,21 @@ public abstract class AbstractJobFactory implements JobFactory {
     }
 
     protected void saveJob() {
+        jobRepository.save(job);
+
         for (int i = 0; i < job.getStages().size(); i++) {
             Stage stage = job.getStages().get(i);
             stage.setCluster(cluster);
             stage.setJob(job);
             stage.setStageOrder(i + 1);
+            stageRepository.save(stage);
 
             for (Task task : stage.getTasks()) {
                 task.setCluster(cluster);
                 task.setJob(job);
                 task.setStage(stage);
+                taskRepository.save(task);
             }
-
-            taskRepository.saveAll(stage.getTasks());
         }
-
-        stageRepository.saveAll(job.getStages());
-        jobRepository.save(job);
     }
 }

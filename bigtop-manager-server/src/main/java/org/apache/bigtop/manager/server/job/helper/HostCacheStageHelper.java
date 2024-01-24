@@ -93,8 +93,9 @@ public class HostCacheStageHelper {
             RequestMessage requestMessage = getMessage(hostname);
             log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
             task.setContent(JsonUtils.writeAsString(requestMessage));
-
             task.setMessageId(requestMessage.getMessageId());
+
+            tasks.add(task);
         }
 
         hostCacheStage.setTasks(tasks);

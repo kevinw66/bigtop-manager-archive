@@ -55,7 +55,6 @@ public abstract class AbstractComponentJobFactory extends AbstractJobFactory {
         Map<String, List<String>> componentHostMapping = getComponentHostMapping(command);
 
         List<Stage> stages = new ArrayList<>();
-        List<Task> tasks = new ArrayList<>();
         for (ComponentCommandWrapper componentCommandWrapper : sortedCommandWrappers) {
             String componentName = componentCommandWrapper.getComponentName();
             Component component = componentCommandWrapper.getComponent();
@@ -67,6 +66,7 @@ public abstract class AbstractComponentJobFactory extends AbstractJobFactory {
             stages.add(stage);
 
             // Generate task list
+            List<Task> tasks = new ArrayList<>();
             List<String> hostnames = componentHostMapping.get(componentName);
             for (String hostname : hostnames) {
                 Task task = createTask(component, hostname, command, customCommand);
