@@ -1,5 +1,6 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
+import org.apache.bigtop.manager.common.utils.DateUtils;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
@@ -48,6 +49,8 @@ public interface ConfigMapper {
             serviceConfigVO.setConfigDesc(serviceConfigRecord.getConfigDesc());
             serviceConfigVO.setVersion(serviceConfigRecord.getVersion());
             serviceConfigVO.setServiceName(serviceConfigRecord.getService().getServiceName());
+            serviceConfigVO.setCreateTime(DateUtils.format(serviceConfigRecord.getCreateTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
+            serviceConfigVO.setUpdateTime(DateUtils.format(serviceConfigRecord.getUpdateTime(), DateUtils.YYYY_MM_DD_HH_MM_SS));
         }
 
         return new ArrayList<>(map.values());

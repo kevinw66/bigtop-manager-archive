@@ -64,10 +64,10 @@
     <a-descriptions-item :label="$t('user.nickname')" span="3">
       {{ userVO?.nickname }}
     </a-descriptions-item>
-    <a-descriptions-item :label="$t('user.create_time')" span="3">
+    <a-descriptions-item :label="$t('common.create_time')" span="3">
       {{ userVO?.createTime }}
     </a-descriptions-item>
-    <a-descriptions-item :label="$t('user.update_time')" span="3">
+    <a-descriptions-item :label="$t('common.update_time')" span="3">
       {{ userVO?.updateTime }}
     </a-descriptions-item>
     <a-descriptions-item :label="$t('common.status')" span="3">

@@ -14,4 +14,8 @@ public class TaskVO {
 
     private String hostname;
 
+    private String createTime;
+
+    private String updateTime;
+
 }

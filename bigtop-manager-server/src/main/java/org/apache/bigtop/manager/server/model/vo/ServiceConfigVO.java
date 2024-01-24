@@ -14,4 +14,9 @@ public class ServiceConfigVO {
     private Integer version;
 
     private List<TypeConfigVO> configs;
+
+    private String createTime;
+
+    private String updateTime;
+
 }

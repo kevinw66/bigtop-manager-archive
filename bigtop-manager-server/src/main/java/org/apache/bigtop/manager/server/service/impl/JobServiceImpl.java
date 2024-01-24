@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class JobServiceImpl implements JobService {
 
@@ -22,17 +24,19 @@ public class JobServiceImpl implements JobService {
     private JobRepository jobRepository;
 
     @Override
-    public PageVO<JobVO> list(Long clusterId) {
-        PageQuery pageQuery = PageUtils.getPageQuery();
-        Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
-        Page<Job> page;
-        if (ClusterUtils.isNoneCluster(clusterId)) {
-            page = jobRepository.findAllByClusterIsNull(pageable);
-        } else {
-            page = jobRepository.findAllByClusterId(clusterId, pageable);
-        }
+    public List<JobVO> list(Long clusterId) {
+//        PageQuery pageQuery = PageUtils.getPageQuery();
+//        Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
+//        Page<Job> page;
+//        if (ClusterUtils.isNoneCluster(clusterId)) {
+//            page = jobRepository.findAllByClusterIsNull(pageable);
+//        } else {
+//            page = jobRepository.findAllByClusterId(clusterId, pageable);
+//        }
 
-        return PageVO.of(page);
+        List<Job> jobs = jobRepository.findAllByClusterId(clusterId);
+
+        return JobMapper.INSTANCE.fromEntity2VO(jobs);
     }
 
     @Override
