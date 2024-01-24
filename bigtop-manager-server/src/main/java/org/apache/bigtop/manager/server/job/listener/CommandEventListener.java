@@ -66,6 +66,9 @@ public class CommandEventListener {
         Boolean failed = asyncJobStrategy.handle(job, JobStrategyType.OVER_ON_FAIL);
         log.info("[CommandEventListener] failed: {}", failed);
 
+        // Reload job
+        job = jobRepository.getReferenceById(jobId);
+
         if (!failed) {
             afterJobSuccess(job, commandDTO);
         }
