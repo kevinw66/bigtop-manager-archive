@@ -5,6 +5,8 @@ bigtop:
       port: 8080
 
 spring:
+  banner:
+    charset: utf-8
   application:
     name: bigtop-manager-agent
 

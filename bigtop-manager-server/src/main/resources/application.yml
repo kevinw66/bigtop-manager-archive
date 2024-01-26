@@ -5,6 +5,8 @@ bigtop:
       type: eclipselink
 
 spring:
+  banner:
+    charset: utf-8
   application:
     name: bigtop-manager-server
   datasource:
