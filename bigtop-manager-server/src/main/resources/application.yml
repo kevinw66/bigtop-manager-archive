@@ -58,6 +58,8 @@ spring:
 
   thymeleaf:
     cache: false
+  main:
+    banner-mode: log
 
 springdoc:
   packages-to-scan: org.apache.bigtop.manager.server
