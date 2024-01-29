@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.job.factory;
 
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Job;
@@ -59,6 +60,7 @@ public abstract class AbstractJobFactory implements JobFactory {
         job.setName(jobContext.getCommandDTO().getContext());
         job.setState(JobState.PENDING);
         job.setCluster(cluster);
+        job.setPayload(JsonUtils.writeAsString(jobContext.getCommandDTO()));
     }
 
     protected void saveJob() {
@@ -69,12 +71,14 @@ public abstract class AbstractJobFactory implements JobFactory {
             stage.setCluster(cluster);
             stage.setJob(job);
             stage.setStageOrder(i + 1);
+            stage.setState(JobState.PENDING);
             stageRepository.save(stage);
 
             for (Task task : stage.getTasks()) {
                 task.setCluster(cluster);
                 task.setJob(job);
                 task.setStage(stage);
+                task.setState(JobState.PENDING);
                 taskRepository.save(task);
             }
         }

@@ -10,7 +10,6 @@ import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
-import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.job.CommandIdentifier;
 import org.apache.bigtop.manager.server.job.helper.HostCacheStageHelper;
 import org.apache.bigtop.manager.server.job.helper.HostCheckStageHelper;
@@ -106,7 +105,6 @@ public class ClusterCreateJobFactory extends AbstractClusterJobFactory implement
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setName(CACHE_STAGE_NAME);
-        hostCacheStage.setState(JobState.PENDING);
         hostCacheStage.setCallbackClassName(callbackClassName);
         hostCacheStage.setPayload(payload);
 
@@ -123,7 +121,6 @@ public class ClusterCreateJobFactory extends AbstractClusterJobFactory implement
             task.setComponentName("bigtop-manager-agent");
             task.setCommand(Command.CUSTOM_COMMAND);
             task.setCustomCommand("cache_host");
-            task.setState(JobState.PENDING);
 
             RequestMessage requestMessage = hostCacheStageHelper.getMessage(
                     hostname,

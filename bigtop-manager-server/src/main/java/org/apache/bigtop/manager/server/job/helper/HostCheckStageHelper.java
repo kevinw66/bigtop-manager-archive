@@ -39,7 +39,6 @@ public class HostCheckStageHelper {
         // Create stages
         Stage hostCheckStage = new Stage();
         hostCheckStage.setName("Check Hosts");
-        hostCheckStage.setState(JobState.PENDING);
         hostCheckStage.setCallbackClassName(callbackClassName);
 
         List<Task> tasks = new ArrayList<>();
@@ -55,7 +54,6 @@ public class HostCheckStageHelper {
             task.setComponentName("bigtop-manager-agent");
             task.setCommand(Command.CUSTOM_COMMAND);
             task.setCustomCommand("check_host");
-            task.setState(JobState.PENDING);
 
             RequestMessage requestMessage = createMessage(hostname);
             task.setContent(JsonUtils.writeAsString(requestMessage));

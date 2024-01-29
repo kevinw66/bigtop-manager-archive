@@ -122,7 +122,6 @@ public abstract class AbstractComponentJobFactory extends AbstractJobFactory {
 
     private Stage createStage(String callbackClassName, ComponentCommandWrapper componentCommandWrapper, Component component, Command command) {
         Stage stage = new Stage();
-        stage.setState(JobState.PENDING);
         stage.setName(componentCommandWrapper.toDisplayString());
         stage.setServiceName(component.getService().getServiceName());
         stage.setComponentName(component.getComponentName());
@@ -162,9 +161,6 @@ public abstract class AbstractComponentJobFactory extends AbstractJobFactory {
         task.setCustomCommands(component.getCustomCommands());
         task.setCustomCommand(customCommand);
         task.setCommandScript(component.getCommandScript());
-
-        // extra fields
-        task.setState(JobState.PENDING);
 
         RequestMessage requestMessage = getMessage(component, hostname, command, customCommand);
         task.setContent(JsonUtils.writeAsString(requestMessage));

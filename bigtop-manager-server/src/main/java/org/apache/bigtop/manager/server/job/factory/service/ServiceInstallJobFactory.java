@@ -75,6 +75,11 @@ public class ServiceInstallJobFactory extends AbstractServiceJobFactory implemen
         // Check all required components in service
         stages.addAll(createStages(callbackClassName, Command.CHECK));
 
+        // StageLifecycles.getStageLifecycle(StageType.COMPONENT_INSTALL).createStage(stageLifecycleContext);
+        // StageLifecycles.getStageLifecycle(StageType.COMPONENT_INSTALL).beforeStage(stageLifecycleContext);
+        // StageLifecycles.getStageLifecycle(StageType.COMPONENT_INSTALL).onStageSuccess(stageLifecycleContext);
+        // StageLifecycles.getStageLifecycle(StageType.COMPONENT_INSTALL).onStageFailed(stageLifecycleContext);
+
         return stages;
     }
 

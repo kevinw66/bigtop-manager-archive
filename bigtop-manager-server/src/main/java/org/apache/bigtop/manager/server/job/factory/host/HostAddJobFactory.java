@@ -6,7 +6,6 @@ import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.RequestMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
-import org.apache.bigtop.manager.server.enums.JobState;
 import org.apache.bigtop.manager.server.job.CommandIdentifier;
 import org.apache.bigtop.manager.server.job.helper.HostCacheStageHelper;
 import org.apache.bigtop.manager.server.job.helper.HostCheckStageHelper;
@@ -16,7 +15,7 @@ import org.apache.bigtop.manager.server.orm.entity.Cluster;
 import org.apache.bigtop.manager.server.orm.entity.Host;
 import org.apache.bigtop.manager.server.orm.entity.Stage;
 import org.apache.bigtop.manager.server.orm.entity.Task;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.server.orm.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -72,7 +71,6 @@ public class HostAddJobFactory extends AbstractHostJobFactory implements StageCa
 
         Stage hostCacheStage = new Stage();
         hostCacheStage.setName(CACHE_STAGE_NAME);
-        hostCacheStage.setState(JobState.PENDING);
 
         if (StringUtils.isNotEmpty(callbackClassName)) {
             hostCacheStage.setCallbackClassName(callbackClassName);
@@ -97,7 +95,6 @@ public class HostAddJobFactory extends AbstractHostJobFactory implements StageCa
             task.setComponentName("bigtop-manager-agent");
             task.setCommand(Command.CUSTOM_COMMAND);
             task.setCustomCommand("cache_host");
-            task.setState(JobState.PENDING);
 
             RequestMessage requestMessage = hostCheckStageHelper.createMessage(hostname);
             log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
