@@ -2,9 +2,9 @@ package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Component;
-import org.apache.bigtop.manager.server.orm.entity.Service;
+import org.apache.bigtop.manager.dao.entity.Cluster;
+import org.apache.bigtop.manager.dao.entity.Component;
+import org.apache.bigtop.manager.dao.entity.Service;
 import org.apache.bigtop.manager.server.stack.pojo.ComponentModel;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;

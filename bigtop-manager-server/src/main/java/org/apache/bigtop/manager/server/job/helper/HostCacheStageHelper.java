@@ -12,11 +12,11 @@ import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.enums.JobState;
+import org.apache.bigtop.manager.common.enums.JobState;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.dao.entity.*;
+import org.apache.bigtop.manager.dao.repository.*;
 import org.apache.bigtop.manager.server.utils.StackConfigUtils;
 import org.apache.commons.lang3.StringUtils;
 

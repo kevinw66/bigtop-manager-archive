@@ -6,8 +6,8 @@ import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
 import org.apache.bigtop.manager.server.model.vo.ComponentVO;
-import org.apache.bigtop.manager.server.orm.entity.Component;
-import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
+import org.apache.bigtop.manager.dao.entity.Component;
+import org.apache.bigtop.manager.dao.repository.ComponentRepository;
 import org.apache.bigtop.manager.server.service.ComponentService;
 import org.springframework.stereotype.Service;
 

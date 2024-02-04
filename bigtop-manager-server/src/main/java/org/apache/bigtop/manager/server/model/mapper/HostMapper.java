@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.server.model.mapper;
 import org.apache.bigtop.manager.server.model.dto.HostDTO;
 import org.apache.bigtop.manager.server.model.req.HostReq;
 import org.apache.bigtop.manager.server.model.vo.HostVO;
-import org.apache.bigtop.manager.server.orm.entity.Host;
+import org.apache.bigtop.manager.dao.entity.Host;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

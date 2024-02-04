@@ -38,6 +38,7 @@
         <module>bigtop-manager-server</module>
         <module>bigtop-manager-stack</module>
         <module>bigtop-manager-ui</module>
+        <module>bigtop-manager-dao</module>
     </modules>
 
     <dependencyManagement>

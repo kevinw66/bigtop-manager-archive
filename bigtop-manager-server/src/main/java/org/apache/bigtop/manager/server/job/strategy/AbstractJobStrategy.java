@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.server.job.strategy;
 
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.exception.ServerException;
-import org.apache.bigtop.manager.server.orm.entity.Stage;
+import org.apache.bigtop.manager.dao.entity.Stage;
 import org.springframework.context.ApplicationContext;
 
 public abstract class AbstractJobStrategy implements JobStrategy {

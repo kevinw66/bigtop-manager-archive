@@ -23,8 +23,8 @@ import org.apache.bigtop.manager.server.holder.SessionUserHolder;
 import org.apache.bigtop.manager.server.model.dto.UserDTO;
 import org.apache.bigtop.manager.server.model.mapper.UserMapper;
 import org.apache.bigtop.manager.server.model.vo.UserVO;
-import org.apache.bigtop.manager.server.orm.entity.User;
-import org.apache.bigtop.manager.server.orm.repository.UserRepository;
+import org.apache.bigtop.manager.dao.entity.User;
+import org.apache.bigtop.manager.dao.repository.UserRepository;
 import org.apache.bigtop.manager.server.service.UserService;
 import org.springframework.stereotype.Service;
 

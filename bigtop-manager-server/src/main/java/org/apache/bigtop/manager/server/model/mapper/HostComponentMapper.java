@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
-import org.apache.bigtop.manager.server.orm.entity.HostComponent;
+import org.apache.bigtop.manager.dao.entity.HostComponent;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

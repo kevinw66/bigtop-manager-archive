@@ -12,7 +12,7 @@ import org.apache.bigtop.manager.server.job.validator.ValidatorContext;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;
-import org.apache.bigtop.manager.server.orm.entity.Job;
+import org.apache.bigtop.manager.dao.entity.Job;
 import org.apache.bigtop.manager.server.service.CommandService;
 import org.springframework.transaction.annotation.Transactional;
 

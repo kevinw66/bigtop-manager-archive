@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.server.stack.dag;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.server.orm.entity.Component;
+import org.apache.bigtop.manager.dao.entity.Component;
 import org.apache.commons.text.CaseUtils;
 
 import java.util.Objects;
