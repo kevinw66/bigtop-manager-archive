@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.server.service;
 import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
+import org.apache.bigtop.manager.dao.entity.Cluster;
 
 import java.util.List;
 

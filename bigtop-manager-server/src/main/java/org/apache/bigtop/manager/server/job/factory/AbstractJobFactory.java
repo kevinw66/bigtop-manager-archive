@@ -1,15 +1,15 @@
 package org.apache.bigtop.manager.server.job.factory;
 
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.server.enums.JobState;
-import org.apache.bigtop.manager.server.orm.entity.Cluster;
-import org.apache.bigtop.manager.server.orm.entity.Job;
-import org.apache.bigtop.manager.server.orm.entity.Stage;
-import org.apache.bigtop.manager.server.orm.entity.Task;
-import org.apache.bigtop.manager.server.orm.repository.ClusterRepository;
-import org.apache.bigtop.manager.server.orm.repository.JobRepository;
-import org.apache.bigtop.manager.server.orm.repository.StageRepository;
-import org.apache.bigtop.manager.server.orm.repository.TaskRepository;
+import org.apache.bigtop.manager.common.enums.JobState;
+import org.apache.bigtop.manager.dao.entity.Cluster;
+import org.apache.bigtop.manager.dao.entity.Job;
+import org.apache.bigtop.manager.dao.entity.Stage;
+import org.apache.bigtop.manager.dao.entity.Task;
+import org.apache.bigtop.manager.dao.repository.ClusterRepository;
+import org.apache.bigtop.manager.dao.repository.JobRepository;
+import org.apache.bigtop.manager.dao.repository.StageRepository;
+import org.apache.bigtop.manager.dao.repository.TaskRepository;
 
 import java.util.List;
 

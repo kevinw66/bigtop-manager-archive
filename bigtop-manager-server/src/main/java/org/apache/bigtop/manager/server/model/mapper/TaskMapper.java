@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.vo.TaskVO;
-import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.dao.entity.Task;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;

@@ -7,9 +7,9 @@ import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
 import org.apache.bigtop.manager.server.model.req.ServiceConfigReq;
 import org.apache.bigtop.manager.server.model.vo.TypeConfigVO;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
-import org.apache.bigtop.manager.server.orm.entity.ServiceConfig;
-import org.apache.bigtop.manager.server.orm.entity.ServiceConfigMapping;
-import org.apache.bigtop.manager.server.orm.entity.ServiceConfigRecord;
+import org.apache.bigtop.manager.dao.entity.ServiceConfig;
+import org.apache.bigtop.manager.dao.entity.ServiceConfigMapping;
+import org.apache.bigtop.manager.dao.entity.ServiceConfigRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

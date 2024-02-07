@@ -2,17 +2,17 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.common.enums.MaintainState;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.command.ComponentCommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.HostComponentMapper;
 import org.apache.bigtop.manager.server.model.vo.HostComponentVO;
-import org.apache.bigtop.manager.server.orm.entity.Component;
-import org.apache.bigtop.manager.server.orm.entity.Host;
-import org.apache.bigtop.manager.server.orm.entity.HostComponent;
-import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostRepository;
+import org.apache.bigtop.manager.dao.entity.Component;
+import org.apache.bigtop.manager.dao.entity.Host;
+import org.apache.bigtop.manager.dao.entity.HostComponent;
+import org.apache.bigtop.manager.dao.repository.ComponentRepository;
+import org.apache.bigtop.manager.dao.repository.HostComponentRepository;
+import org.apache.bigtop.manager.dao.repository.HostRepository;
 import org.apache.bigtop.manager.server.service.HostComponentService;
 import org.springframework.stereotype.Service;
 

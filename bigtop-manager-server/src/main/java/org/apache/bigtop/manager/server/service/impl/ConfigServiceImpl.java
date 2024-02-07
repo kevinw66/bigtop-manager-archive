@@ -10,8 +10,8 @@ import org.apache.bigtop.manager.server.model.dto.ServiceConfigDTO;
 import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.mapper.ConfigMapper;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
-import org.apache.bigtop.manager.server.orm.entity.*;
-import org.apache.bigtop.manager.server.orm.repository.*;
+import org.apache.bigtop.manager.dao.entity.*;
+import org.apache.bigtop.manager.dao.repository.*;
 import org.apache.bigtop.manager.server.service.ConfigService;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 

@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.job.strategy;
 
-import org.apache.bigtop.manager.server.orm.entity.Stage;
-import org.apache.bigtop.manager.server.orm.entity.Task;
+import org.apache.bigtop.manager.dao.entity.Stage;
+import org.apache.bigtop.manager.dao.entity.Task;
 
 public interface StageCallback {
 

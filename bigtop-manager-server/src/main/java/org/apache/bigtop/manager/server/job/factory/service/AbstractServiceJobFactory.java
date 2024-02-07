@@ -4,10 +4,10 @@ import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.server.job.factory.component.AbstractComponentJobFactory;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
-import org.apache.bigtop.manager.server.orm.entity.Component;
-import org.apache.bigtop.manager.server.orm.entity.HostComponent;
-import org.apache.bigtop.manager.server.orm.repository.ComponentRepository;
-import org.apache.bigtop.manager.server.orm.repository.HostComponentRepository;
+import org.apache.bigtop.manager.dao.entity.Component;
+import org.apache.bigtop.manager.dao.entity.HostComponent;
+import org.apache.bigtop.manager.dao.repository.ComponentRepository;
+import org.apache.bigtop.manager.dao.repository.HostComponentRepository;
 
 import java.util.HashMap;
 import java.util.List;

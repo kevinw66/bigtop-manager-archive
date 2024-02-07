@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.server.model.vo;
 
 import lombok.Data;
-import org.apache.bigtop.manager.server.enums.MaintainState;
+import org.apache.bigtop.manager.common.enums.MaintainState;
 
 @Data
 public class ClusterVO {

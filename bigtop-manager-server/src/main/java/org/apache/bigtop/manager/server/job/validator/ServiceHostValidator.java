@@ -8,8 +8,8 @@ import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.job.CommandIdentifier;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
-import org.apache.bigtop.manager.server.orm.entity.Host;
-import org.apache.bigtop.manager.server.orm.repository.HostRepository;
+import org.apache.bigtop.manager.dao.entity.Host;
+import org.apache.bigtop.manager.dao.repository.HostRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
