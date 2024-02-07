@@ -34,7 +34,7 @@ public class InstallHookImpl implements Hook {
             }
         }
 
-        Set<String> packages = LocalSettings.packages();
+        List<String> packages = LocalSettings.packages();
         PackageUtils.install(packages);
     }
 

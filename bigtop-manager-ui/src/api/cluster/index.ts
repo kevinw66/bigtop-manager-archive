@@ -16,20 +16,11 @@
  */
 
 import request from '@/api/request.ts'
-import { ClusterReq, ClusterVO } from '@/api/cluster/types.ts'
-import { CommandVO } from '@/api/command/types.ts'
+import { ClusterVO } from '@/api/cluster/types.ts'
 
 export const getClusters = (): Promise<ClusterVO[]> => {
   return request({
     method: 'get',
     url: '/clusters'
-  })
-}
-
-export const createCluster = (data: ClusterReq): Promise<CommandVO> => {
-  return request({
-    method: 'post',
-    url: '/clusters',
-    data
   })
 }

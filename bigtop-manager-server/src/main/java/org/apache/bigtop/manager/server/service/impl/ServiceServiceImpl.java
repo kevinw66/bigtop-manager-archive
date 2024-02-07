@@ -2,9 +2,7 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.common.enums.MaintainState;
-import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ComponentMapper;
@@ -15,7 +13,6 @@ import org.apache.bigtop.manager.dao.repository.*;
 import org.apache.bigtop.manager.server.service.ConfigService;
 import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.List;
@@ -88,7 +85,6 @@ public class ServiceServiceImpl implements ServiceService {
             ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
 
             Service service = ServiceMapper.INSTANCE.fromDTO2Entity(serviceDTO, cluster);
-            service.setState(MaintainState.INSTALLED);
             service = serviceRepository.save(service);
 
             // Init config for new installed service
@@ -117,7 +113,7 @@ public class ServiceServiceImpl implements ServiceService {
                     hostComponentOptional.ifPresent(value -> hostComponent.setId(value.getId()));
                     hostComponent.setHost(host);
                     hostComponent.setComponent(component);
-                    hostComponent.setState(MaintainState.INSTALLED);
+                    hostComponent.setState(MaintainState.UNINSTALLED);
                     hostComponentRepository.save(hostComponent);
                 }
             }

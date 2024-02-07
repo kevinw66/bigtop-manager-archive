@@ -38,8 +38,8 @@ public class Stage extends BaseEntity {
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "payload", length = 16777216)
-    private String payload;
+    @Column(name = "context", length = 16777216)
+    private String context;
 
     @ManyToOne
     @JoinColumn(name = "job_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
@@ -52,8 +52,4 @@ public class Stage extends BaseEntity {
     @ToString.Exclude
     @OneToMany(mappedBy = "stage")
     private List<Task> tasks;
-
-    @Column(name = "callback_class_name")
-    private String callbackClassName;
-
 }

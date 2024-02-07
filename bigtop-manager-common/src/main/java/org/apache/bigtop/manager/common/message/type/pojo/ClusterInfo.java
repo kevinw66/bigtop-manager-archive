@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.common.message.type.pojo;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
 public class ClusterInfo {
@@ -20,5 +19,5 @@ public class ClusterInfo {
 
     private String repoTemplate;
 
-    private Set<String> packages;
+    private List<String> packages;
 }

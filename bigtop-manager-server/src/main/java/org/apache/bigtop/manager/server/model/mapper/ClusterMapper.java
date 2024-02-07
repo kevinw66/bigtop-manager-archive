@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.model.mapper;
 
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.dto.command.ClusterCommandDTO;
 import org.apache.bigtop.manager.server.model.req.ClusterReq;
 import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.dao.entity.Cluster;
@@ -17,6 +18,8 @@ public interface ClusterMapper {
     ClusterMapper INSTANCE = Mappers.getMapper(ClusterMapper.class);
 
     ClusterDTO fromReq2DTO(ClusterReq clusterReq);
+
+    ClusterDTO fromCommand2DTO(ClusterCommandDTO clusterCommandDTO);
 
     Cluster fromDTO2Entity(ClusterDTO clusterDTO);
 

@@ -18,8 +18,11 @@ package org.apache.bigtop.manager.server.holder;
 
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
-import org.apache.bigtop.manager.server.job.factory.JobFactory;
-import org.apache.bigtop.manager.server.job.validator.CommandValidator;
+import org.apache.bigtop.manager.server.command.job.factory.JobFactory;
+import org.apache.bigtop.manager.server.command.job.runner.JobRunner;
+import org.apache.bigtop.manager.server.command.stage.factory.StageFactory;
+import org.apache.bigtop.manager.server.command.job.validator.CommandValidator;
+import org.apache.bigtop.manager.server.command.stage.runner.StageRunner;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -48,5 +51,17 @@ public class SpringContextHolder implements ApplicationContextAware {
 
     public static Map<String, JobFactory> getJobFactories() {
         return applicationContext.getBeansOfType(JobFactory.class);
+    }
+
+    public static Map<String, JobRunner> getJobRunners() {
+        return applicationContext.getBeansOfType(JobRunner.class);
+    }
+
+    public static Map<String, StageFactory> getStageFactories() {
+        return applicationContext.getBeansOfType(StageFactory.class);
+    }
+
+    public static Map<String, StageRunner> getStageRunners() {
+        return applicationContext.getBeansOfType(StageRunner.class);
     }
 }

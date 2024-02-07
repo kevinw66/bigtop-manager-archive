@@ -26,6 +26,11 @@ public class Job extends BaseEntity {
     @Column(name = "name")
     private String name;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "payload", length = 16777216)
+    private String payload;
+
     @ManyToOne
     @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private Cluster cluster;

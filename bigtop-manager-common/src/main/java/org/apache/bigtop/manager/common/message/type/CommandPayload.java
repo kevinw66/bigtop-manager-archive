@@ -1,13 +1,14 @@
 package org.apache.bigtop.manager.common.message.type;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @ToString(callSuper = true)

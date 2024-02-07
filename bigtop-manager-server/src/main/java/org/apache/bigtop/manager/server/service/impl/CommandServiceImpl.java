@@ -1,14 +1,14 @@
 package org.apache.bigtop.manager.server.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.server.command.CommandIdentifier;
+import org.apache.bigtop.manager.server.command.event.CommandEvent;
+import org.apache.bigtop.manager.server.command.job.factory.JobContext;
+import org.apache.bigtop.manager.server.command.job.factory.JobFactories;
+import org.apache.bigtop.manager.server.command.job.factory.JobFactory;
+import org.apache.bigtop.manager.server.command.job.validator.ValidatorContext;
+import org.apache.bigtop.manager.server.command.job.validator.ValidatorExecutionChain;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
-import org.apache.bigtop.manager.server.job.CommandIdentifier;
-import org.apache.bigtop.manager.server.job.event.CommandEvent;
-import org.apache.bigtop.manager.server.job.factory.JobContext;
-import org.apache.bigtop.manager.server.job.factory.JobFactories;
-import org.apache.bigtop.manager.server.job.factory.JobFactory;
-import org.apache.bigtop.manager.server.job.validator.ValidatorExecutionChain;
-import org.apache.bigtop.manager.server.job.validator.ValidatorContext;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.CommandVO;

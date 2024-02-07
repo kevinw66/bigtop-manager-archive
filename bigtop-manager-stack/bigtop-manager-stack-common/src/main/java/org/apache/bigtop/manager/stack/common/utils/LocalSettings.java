@@ -80,9 +80,9 @@ public class LocalSettings {
         return userMap;
     }
 
-    public static Set<String> packages() {
+    public static List<String> packages() {
         ClusterInfo cluster = cluster();
-        return Optional.ofNullable(cluster.getPackages()).orElse(Set.of());
+        return Optional.ofNullable(cluster.getPackages()).orElse(List.of());
     }
 
     public static List<RepoInfo> repos() {
