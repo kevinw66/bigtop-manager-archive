@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.agent.enums;
 public enum AgentExceptionStatus {
 
     AAA(10000, "aaa"),
+    AGENT_MONITORING_ERROR(10001,"get agent host monitoring info failed")
     ;
 
     private final Integer code;
