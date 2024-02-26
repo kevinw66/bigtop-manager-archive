@@ -59,6 +59,13 @@ module.exports = {
         varsIgnorePattern: '^(unused|ignored).*$'
       }
     ],
+    // resolve "[eslint] Delete `CR` [prettier/prettier]"?  https://stackoverflow.com/questions/53516594/why-do-i-keep-getting-eslint-delete-cr-prettier-prettier
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto'
+      }
+    ],
     'space-before-function-paren': 'off',
     quotes: ['error', 'single', { avoidEscape: true }],
     'comma-dangle': ['error', 'never'],

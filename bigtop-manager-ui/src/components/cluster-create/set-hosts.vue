@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
   import { execCommand } from '@/api/command'
+  import { parseHostNamesAsPatternExpression } from '@/utils/array'
 
   const clusterInfo = defineModel<any>('clusterInfo')
 
@@ -13,9 +14,11 @@
   })
 
   const onNextStep = async () => {
-    clusterInfo.value.clusterCommand.hostnames = hosts.value
-      .split('\n')
-      .filter((item) => item !== '')
+    // clusterInfo.value.clusterCommand.hostnames = hosts.value
+    //   .split('\n')
+    //   .filter((item) => item !== '')
+    const hostList = parseHostNamesAsPatternExpression(hosts.value)
+    clusterInfo.value.clusterCommand.hostnames = hostList
 
     try {
       const res = await execCommand(clusterInfo.value)
