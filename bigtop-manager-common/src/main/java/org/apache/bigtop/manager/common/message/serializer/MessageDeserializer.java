@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.common.message.serializer;
 
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
+import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 
 public interface MessageDeserializer {
 

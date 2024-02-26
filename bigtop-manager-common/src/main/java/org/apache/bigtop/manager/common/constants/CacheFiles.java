@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.common.constants;
 
-public class HostCacheConstants {
+public class CacheFiles {
 
     /**
      * cluster settings

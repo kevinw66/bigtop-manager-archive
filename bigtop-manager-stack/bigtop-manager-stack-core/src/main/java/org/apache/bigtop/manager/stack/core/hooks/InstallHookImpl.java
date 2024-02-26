@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.stack.core.hooks;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
@@ -13,7 +13,6 @@ import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
 import org.apache.bigtop.manager.stack.spi.Hook;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * obtain agent execute command

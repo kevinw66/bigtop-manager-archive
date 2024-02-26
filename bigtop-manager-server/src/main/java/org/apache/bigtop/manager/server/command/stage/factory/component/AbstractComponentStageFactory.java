@@ -3,11 +3,11 @@ package org.apache.bigtop.manager.server.command.stage.factory.component;
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
-import org.apache.bigtop.manager.common.message.type.RequestMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.ScriptInfo;
+import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
+import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
+import org.apache.bigtop.manager.common.message.entity.pojo.CustomCommandInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.ScriptInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.stage.factory.AbstractStageFactory;
 import org.apache.bigtop.manager.server.model.dto.*;
@@ -57,9 +57,9 @@ public abstract class AbstractComponentStageFactory extends AbstractStageFactory
             task.setCustomCommands(JsonUtils.writeAsString(componentDTO.getCustomCommands()));
             task.setCommandScript(JsonUtils.writeAsString(componentDTO.getCommandScript()));
 
-            RequestMessage requestMessage = getMessage(serviceDTO, componentDTO, hostname, command);
-            task.setContent(JsonUtils.writeAsString(requestMessage));
-            task.setMessageId(requestMessage.getMessageId());
+            CommandRequestMessage commandRequestMessage = getMessage(serviceDTO, componentDTO, hostname, command);
+            task.setContent(JsonUtils.writeAsString(commandRequestMessage));
+            task.setMessageId(commandRequestMessage.getMessageId());
 
             tasks.add(task);
         }
@@ -69,7 +69,7 @@ public abstract class AbstractComponentStageFactory extends AbstractStageFactory
 
     protected abstract Command getCommand();
 
-    private RequestMessage getMessage(ServiceDTO serviceDTO, ComponentDTO componentDTO, String hostname, Command command) {
+    private CommandRequestMessage getMessage(ServiceDTO serviceDTO, ComponentDTO componentDTO, String hostname, Command command) {
         CommandPayload commandPayload = new CommandPayload();
         commandPayload.setServiceName(serviceDTO.getServiceName());
         commandPayload.setCommand(command);
@@ -86,12 +86,12 @@ public abstract class AbstractComponentStageFactory extends AbstractStageFactory
         commandPayload.setCommandScript(convertScriptInfo(componentDTO.getCommandScript()));
 
 
-        RequestMessage requestMessage = new RequestMessage();
-        requestMessage.setMessageType(MessageType.COMMAND);
-        requestMessage.setHostname(hostname);
-        requestMessage.setMessagePayload(JsonUtils.writeAsString(commandPayload));
+        CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
+        commandRequestMessage.setMessageType(MessageType.COMMAND);
+        commandRequestMessage.setHostname(hostname);
+        commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(commandPayload));
 
-        return requestMessage;
+        return commandRequestMessage;
     }
 
     private ScriptInfo convertScriptInfo(ScriptDTO scriptDTO) {

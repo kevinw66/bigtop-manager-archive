@@ -1,10 +1,10 @@
-package org.apache.bigtop.manager.common.message.type;
+package org.apache.bigtop.manager.common.message.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 
 @Data
 @EqualsAndHashCode(callSuper = true)

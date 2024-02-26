@@ -1,23 +1,18 @@
 package org.apache.bigtop.manager.server.ws;
 
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
-import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
-import org.apache.bigtop.manager.common.message.type.ComponentHeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.ResultMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
+import org.apache.bigtop.manager.common.message.entity.BaseMessage;
+import org.apache.bigtop.manager.common.message.entity.ComponentHeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
+import org.apache.bigtop.manager.common.ws.AbstractBinaryWebSocketHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,53 +21,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-public class ServerWebSocketHandler extends BinaryWebSocketHandler {
+public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
 
     public static final Map<String, WebSocketSession> SESSIONS = new ConcurrentHashMap<>();
 
     public static final Map<String, HeartbeatMessage> HEARTBEAT_MESSAGE_MAP = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<String, ResultMessage> resMap = new ConcurrentHashMap<>();
-
-    private final ConcurrentHashMap<String, Callback> callbackMap = new ConcurrentHashMap<>();
-
-    @Resource
-    private MessageDeserializer deserializer;
-
-    @Resource
-    private MessageSerializer serializer;
-
-    public ResultMessage sendMessage(String hostname, BaseMessage message) {
+    public CommandResponseMessage sendMessage(String hostname, BaseMessage message) {
         WebSocketSession session = SESSIONS.get(hostname);
         if (session == null) {
             return null;
-        }
-
-        try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
-            for (int i = 0; i <= 300; i++) {
-                ResultMessage result = resMap.get(message.getMessageId());
-                if (result == null) {
-                    Thread.sleep(1000);
-                } else {
-                    resMap.remove(message.getMessageId());
-                    return result;
-                }
-            }
-        } catch (Exception e) {
-            log.error("Error sending message to agent", e);
-        }
-
-        return null;
-    }
-
-    public void sendMessage(String hostname, BaseMessage message, Callback callback) {
-        WebSocketSession session = SESSIONS.get(hostname);
-        try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
-            callbackMap.put(message.getMessageId(), callback);
-        } catch (IOException e) {
-            log.error(MessageFormat.format("Error sending message to agent: {0}", e.getMessage()), e);
+        } else {
+            return (CommandResponseMessage) super.sendMessage(session, message);
         }
     }
 
@@ -91,21 +51,10 @@ public class ServerWebSocketHandler extends BinaryWebSocketHandler {
             handleHeartbeatMessage(session, heartbeatMessage);
         } else if (baseMessage instanceof ComponentHeartbeatMessage heartbeatMessage) {
             handleComponentHeartbeatMessage(heartbeatMessage);
-        } else if (baseMessage instanceof ResultMessage resultMessage) {
-            handleResultMessage(resultMessage);
+        } else if (baseMessage instanceof CommandResponseMessage commandResponseMessage) {
+            super.handleResponseMessage(commandResponseMessage);
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
-        }
-    }
-
-    private void handleResultMessage(ResultMessage resultMessage) {
-        String messageId = resultMessage.getMessageId();
-        Callback callback = callbackMap.get(messageId);
-        if (callback == null) {
-            resMap.put(messageId, resultMessage);
-        } else {
-            callback.call(resultMessage);
-            callbackMap.remove(messageId);
         }
     }
 

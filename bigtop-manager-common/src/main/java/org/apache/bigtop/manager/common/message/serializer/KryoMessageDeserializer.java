@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.common.message.serializer;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
+import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 
 public class KryoMessageDeserializer implements MessageDeserializer {
 

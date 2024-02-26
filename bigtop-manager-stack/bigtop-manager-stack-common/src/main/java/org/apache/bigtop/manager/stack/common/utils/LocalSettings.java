@@ -3,16 +3,16 @@ package org.apache.bigtop.manager.stack.common.utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 
 import java.io.File;
 import java.util.*;
 
 import static org.apache.bigtop.manager.common.constants.Constants.STACK_CACHE_DIR;
-import static org.apache.bigtop.manager.common.constants.HostCacheConstants.*;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.*;
 
 @Slf4j
 public class LocalSettings {

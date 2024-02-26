@@ -4,7 +4,7 @@ public enum StageType {
 
     HOST_CHECK,
 
-    HOST_CACHE,
+    CACHE_DISTRIBUTE,
 
     COMPONENT_INSTALL,
 

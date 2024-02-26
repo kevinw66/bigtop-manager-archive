@@ -6,5 +6,5 @@ public enum MessageType {
 
     HOST_CHECK,
 
-    HOST_CACHE,
+    CACHE_DISTRIBUTE,
 }

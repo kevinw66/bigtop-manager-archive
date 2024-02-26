@@ -62,7 +62,7 @@ public abstract class AbstractJobFactory implements JobFactory {
         this.job = new Job();
         job.setName(jobContext.getCommandDTO().getContext());
         job.setState(JobState.PENDING);
-        job.setCluster(cluster);
+        job.setCluster(cluster.getId() == null ? null : cluster);
         job.setPayload(JsonUtils.writeAsString(jobContext.getCommandDTO()));
         job.setStages(stages);
     }
@@ -72,14 +72,14 @@ public abstract class AbstractJobFactory implements JobFactory {
 
         for (int i = 0; i < job.getStages().size(); i++) {
             Stage stage = job.getStages().get(i);
-            stage.setCluster(cluster);
+            stage.setCluster(cluster.getId() == null ? null : cluster);
             stage.setJob(job);
             stage.setStageOrder(i + 1);
             stage.setState(JobState.PENDING);
             stageRepository.save(stage);
 
             for (Task task : stage.getTasks()) {
-                task.setCluster(cluster);
+                task.setCluster(cluster.getId() == null ? null : cluster);
                 task.setJob(job);
                 task.setStage(stage);
                 task.setState(JobState.PENDING);

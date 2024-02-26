@@ -2,8 +2,8 @@ package org.apache.bigtop.manager.stack.core.executor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
-import org.apache.bigtop.manager.common.message.type.pojo.CustomCommandInfo;
+import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
+import org.apache.bigtop.manager.common.message.entity.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;

@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.message.type;
+package org.apache.bigtop.manager.common.message.entity.command;
 
 import lombok.*;
 import org.apache.bigtop.manager.common.enums.MessageType;
@@ -8,7 +8,7 @@ import org.apache.bigtop.manager.common.enums.MessageType;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResultMessage extends BaseCommandMessage {
+public class CommandResponseMessage extends BaseCommandMessage {
 
     private Integer code;
 

@@ -1,25 +1,25 @@
-package org.apache.bigtop.manager.server.command.stage.factory.host;
+package org.apache.bigtop.manager.server.command.stage.runner.config;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
-import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.type.HostCachePayload;
-import org.apache.bigtop.manager.common.message.type.RequestMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.ComponentInfo;
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
+import org.apache.bigtop.manager.common.message.entity.payload.CacheMessagePayload;
+import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.command.stage.factory.AbstractStageFactory;
+import org.apache.bigtop.manager.dao.entity.*;
+import org.apache.bigtop.manager.dao.repository.*;
+import org.apache.bigtop.manager.server.command.stage.factory.StageContext;
 import org.apache.bigtop.manager.server.command.stage.factory.StageType;
+import org.apache.bigtop.manager.server.command.stage.runner.AbstractStageRunner;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
 import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.dao.entity.*;
-import org.apache.bigtop.manager.dao.repository.*;
 import org.apache.bigtop.manager.server.utils.StackConfigUtils;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -30,12 +30,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
-import static org.apache.bigtop.manager.common.constants.Constants.CACHE_STAGE_NAME;
 
 @Slf4j
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class HostCacheStageFactory extends AbstractStageFactory {
+public class CacheDistributeStageRunner extends AbstractStageRunner {
 
     @Resource
     private ClusterRepository clusterRepository;
@@ -77,50 +76,33 @@ public class HostCacheStageFactory extends AbstractStageFactory {
 
     @Override
     public StageType getStageType() {
-        return StageType.HOST_CACHE;
+        return StageType.CACHE_DISTRIBUTE;
     }
 
     @Override
-    public void doCreateStage() {
-        List<String> hostnames = new ArrayList<>();
-        if (context.getClusterId() == null) {
-            genEmptyCaches();
-            hostnames.addAll(context.getHostnames());
-        } else {
-            genCaches();
-            hostnames.addAll(context.getHostnames() == null ? List.of() : context.getHostnames());
-            hostnames.addAll(hostRepository.findAllByClusterId(context.getClusterId()).stream().map(Host::getHostname).toList());
-        }
+    public void beforeRunTask(Task task) {
+        super.beforeRunTask(task);
 
-        stage.setName(CACHE_STAGE_NAME);
-
-        List<Task> tasks = new ArrayList<>();
-        hostnames = hostnames.stream().distinct().toList();
-        for (String hostname : hostnames) {
-            Task task = new Task();
-            task.setName("Cache host for " + hostname);
-            task.setStackName(context.getStackName());
-            task.setStackVersion(context.getStackVersion());
-            task.setHostname(hostname);
-            task.setServiceName("cluster");
-            task.setServiceUser("root");
-            task.setServiceGroup("root");
-            task.setComponentName("bigtop-manager-agent");
-            task.setCommand(Command.CUSTOM_COMMAND);
-            task.setCustomCommand("cache_host");
-
-            RequestMessage requestMessage = getMessage(hostname);
-
-            log.info("[HostCacheJobFactory-requestMessage]: {}", requestMessage);
-            task.setContent(JsonUtils.writeAsString(requestMessage));
-            task.setMessageId(requestMessage.getMessageId());
-            tasks.add(task);
-        }
-
-        stage.setTasks(tasks);
+        // Generate task content before execute
+        updateTask(task);
     }
 
-    private void genCaches() {
+    private void updateTask(Task task) {
+        StageContext context = JsonUtils.readFromString(stage.getContext(), StageContext.class);
+        if (context.getClusterId() == null) {
+            genEmptyCaches(context);
+        } else {
+            genCaches(context);
+        }
+
+        CommandRequestMessage commandRequestMessage = getMessage(task.getHostname());
+        task.setContent(JsonUtils.writeAsString(commandRequestMessage));
+        task.setMessageId(commandRequestMessage.getMessageId());
+
+        taskRepository.save(task);
+    }
+
+    private void genCaches(StageContext context) {
         Cluster cluster = clusterRepository.getReferenceById(context.getClusterId());
 
         Long clusterId = cluster.getId();
@@ -135,7 +117,6 @@ public class HostCacheStageFactory extends AbstractStageFactory {
         Iterable<Setting> settings = settingRepository.findAll();
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
 
-        // Wrapper clusterInfo for HostCacheMessage
         clusterInfo = new ClusterInfo();
         clusterInfo.setClusterName(clusterName);
         clusterInfo.setStackName(stackName);
@@ -145,7 +126,6 @@ public class HostCacheStageFactory extends AbstractStageFactory {
         clusterInfo.setRoot(cluster.getRoot());
         clusterInfo.setPackages(List.of(cluster.getPackages().split(",")));
 
-        // Wrapper serviceConfigMap for HostCacheMessage
         serviceConfigMap = new HashMap<>();
         serviceConfigMappingList.forEach(scm -> {
             ServiceConfig sc = scm.getServiceConfig();
@@ -161,7 +141,6 @@ public class HostCacheStageFactory extends AbstractStageFactory {
             }
         });
 
-        // Wrapper hostMap for HostCacheMessage
         hostMap = new HashMap<>();
         hostComponents.forEach(x -> {
             if (hostMap.containsKey(x.getComponent().getComponentName())) {
@@ -177,22 +156,18 @@ public class HostCacheStageFactory extends AbstractStageFactory {
         Set<String> hostNameSet = hostList.stream().map(Host::getHostname).collect(Collectors.toSet());
         hostMap.put(ALL_HOST_KEY, hostNameSet);
 
-        // Wrapper repoList for HostCacheMessage
         repoList = new ArrayList<>();
         repos.forEach(repo -> {
             RepoInfo repoInfo = RepoMapper.INSTANCE.fromEntity2Message(repo);
             repoList.add(repoInfo);
         });
 
-        // Wrapper userMap for HostCacheMessage
         userMap = new HashMap<>();
         services.forEach(x -> userMap.put(x.getServiceUser(), Set.of(x.getServiceGroup())));
 
-        // Wrapper settings for HostCacheMessage
         settingsMap = new HashMap<>();
         settings.forEach(x -> settingsMap.put(x.getTypeName(), x.getConfigData()));
 
-        // Wrapper componentInfoList for HostCacheMessage
         componentInfoMap = new HashMap<>();
         List<Component> componentList = componentRepository.findAll();
         componentList.forEach(c -> {
@@ -207,7 +182,7 @@ public class HostCacheStageFactory extends AbstractStageFactory {
         });
     }
 
-    private void genEmptyCaches() {
+    private void genEmptyCaches(StageContext context) {
         componentInfoMap = new HashMap<>();
         serviceConfigMap = new HashMap<>();
         hostMap = new HashMap<>();
@@ -236,8 +211,8 @@ public class HostCacheStageFactory extends AbstractStageFactory {
         }
     }
 
-    private RequestMessage getMessage(String hostname) {
-        HostCachePayload messagePayload = new HostCachePayload();
+    private CommandRequestMessage getMessage(String hostname) {
+        CacheMessagePayload messagePayload = new CacheMessagePayload();
         messagePayload.setHostname(hostname);
         messagePayload.setClusterInfo(clusterInfo);
         messagePayload.setConfigurations(serviceConfigMap);
@@ -247,11 +222,11 @@ public class HostCacheStageFactory extends AbstractStageFactory {
         messagePayload.setUserInfo(userMap);
         messagePayload.setComponentInfo(componentInfoMap);
 
-        RequestMessage requestMessage = new RequestMessage();
-        requestMessage.setMessageType(MessageType.HOST_CACHE);
-        requestMessage.setHostname(hostname);
-        requestMessage.setMessagePayload(JsonUtils.writeAsString(messagePayload));
+        CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
+        commandRequestMessage.setMessageType(MessageType.CACHE_DISTRIBUTE);
+        commandRequestMessage.setHostname(hostname);
+        commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(messagePayload));
 
-        return requestMessage;
+        return commandRequestMessage;
     }
 }

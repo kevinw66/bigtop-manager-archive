@@ -57,7 +57,7 @@ public class ClusterServiceImpl implements ClusterService {
         StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
         Cluster cluster = ClusterMapper.INSTANCE.fromDTO2Entity(clusterDTO, stackDTO, stack);
         cluster.setSelected(clusterRepository.count() == 0);
-        cluster.setState(MaintainState.INSTALLED);
+        cluster.setState(MaintainState.UNINSTALLED);
 
         Cluster oldCluster = clusterRepository.findByClusterName(clusterDTO.getClusterName()).orElse(new Cluster());
         if (oldCluster.getId() != null) {

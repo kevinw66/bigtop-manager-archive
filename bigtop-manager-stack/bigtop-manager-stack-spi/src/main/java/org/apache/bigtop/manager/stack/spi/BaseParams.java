@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.stack.spi;
 
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
-import org.apache.bigtop.manager.common.message.type.pojo.OSSpecificInfo;
+import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
+import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.commons.lang3.StringUtils;
 

@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.command.job.runner.cluster;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
+import org.apache.bigtop.manager.common.enums.MaintainState;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.CommandIdentifier;
 import org.apache.bigtop.manager.server.command.job.runner.AbstractJobRunner;
@@ -44,16 +45,27 @@ public class ClusterCreateJobRunner extends AbstractJobRunner {
     }
 
     @Override
-    public void onSuccess() {
-        super.onSuccess();
+    public void beforeRun() {
+        super.beforeRun();
 
-        // Save Cluster
+        // Save cluster
         CommandDTO commandDTO = JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.fromCommand2DTO(commandDTO.getClusterCommand());
         clusterService.save(clusterDTO);
+    }
+
+    @Override
+    public void onSuccess() {
+        super.onSuccess();
+
+        CommandDTO commandDTO = JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
+        Cluster cluster = clusterRepository.findByClusterName(commandDTO.getClusterCommand().getClusterName()).orElse(new Cluster());
+
+        // Update cluster state to installed
+        cluster.setState(MaintainState.INSTALLED);
+        clusterRepository.save(cluster);
 
         // Link job to cluster after cluster successfully added
-        Cluster cluster = clusterRepository.findByClusterName(commandDTO.getClusterCommand().getClusterName()).orElse(new Cluster());
         job.setCluster(cluster);
         jobRepository.save(job);
 

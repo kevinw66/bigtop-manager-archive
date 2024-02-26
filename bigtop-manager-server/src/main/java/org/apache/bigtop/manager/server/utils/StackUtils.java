@@ -223,7 +223,7 @@ public class StackUtils {
             throw new ServerException("Unsupported command: " + command);
         }
 
-        ComponentCommandWrapper commandWrapper = new ComponentCommandWrapper(role, Command.valueOf(command), null);
+        ComponentCommandWrapper commandWrapper = new ComponentCommandWrapper(role, Command.valueOf(command));
         dag.addNodeIfAbsent(roleCommand, commandWrapper);
     }
 

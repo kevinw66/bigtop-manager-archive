@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.message.type.pojo;
+package org.apache.bigtop.manager.common.message.entity.pojo;
 
 import lombok.Data;
 

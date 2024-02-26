@@ -2,8 +2,8 @@ package org.apache.bigtop.manager.server.scheduled;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 import org.apache.bigtop.manager.dao.entity.Host;
 import org.apache.bigtop.manager.dao.repository.HostRepository;
 import org.apache.bigtop.manager.server.ws.ServerWebSocketHandler;

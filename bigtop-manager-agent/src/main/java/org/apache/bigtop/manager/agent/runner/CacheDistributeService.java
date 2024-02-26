@@ -5,24 +5,28 @@ import jakarta.annotation.PreDestroy;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.ws.AgentWsTools;
-import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
+import org.apache.bigtop.manager.common.constants.Constants;
+import org.apache.bigtop.manager.common.constants.MessageConstants;
+import org.apache.bigtop.manager.common.message.entity.payload.CacheMessagePayload;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
+import org.apache.bigtop.manager.common.utils.Environments;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
-import org.apache.bigtop.manager.stack.core.executor.Executor;
+import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.springframework.stereotype.Component;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static org.apache.bigtop.manager.common.constants.CacheFiles.*;
+
 @Slf4j
 @Component
-public class CommandService {
+public class CacheDistributeService {
 
     /**
      * attemptQueue
@@ -36,7 +40,7 @@ public class CommandService {
 
     @PostConstruct
     public void start() {
-        this.taskEventThread = new CommandDispatchThread();
+        this.taskEventThread = new CacheDistributeDispatchThread();
         log.info("TaskEvent dispatch thread starting");
         this.taskEventThread.start();
         log.info("TaskEvent dispatch thread started");
@@ -49,8 +53,8 @@ public class CommandService {
             if (!eventQueue.isEmpty()) {
                 List<CommandRequestMessage> remainEvents = new ArrayList<>(eventQueue.size());
                 eventQueue.drainTo(remainEvents);
-                for (CommandRequestMessage commandContext : remainEvents) {
-                    executeTask(commandContext);
+                for (CommandRequestMessage context : remainEvents) {
+                    executeTask(context);
                 }
             }
         } catch (Exception e) {
@@ -61,15 +65,10 @@ public class CommandService {
 
     /**
      * add event
-     *
-     * @param context commandContext
      */
     public void addEvent(CommandRequestMessage context) {
         eventQueue.add(context);
     }
-
-    @Resource
-    private Executor stackExecutor;
 
     @Resource
     private AgentWsTools agentWsTools;
@@ -77,10 +76,10 @@ public class CommandService {
     /**
      * Dispatch event to target task runnable.
      */
-    class CommandDispatchThread extends BaseDaemonThread {
+    class CacheDistributeDispatchThread extends BaseDaemonThread {
 
-        protected CommandDispatchThread() {
-            super("CommandThread");
+        protected CacheDistributeDispatchThread() {
+            super("CacheDistributeThread");
         }
 
         @Override
@@ -88,8 +87,8 @@ public class CommandService {
             while (true) {
                 try {
                     // if not task event, blocking here
-                    CommandRequestMessage context = eventQueue.take();
-                    executeTask(context);
+                    CommandRequestMessage message = eventQueue.take();
+                    executeTask(message);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     break;
@@ -106,28 +105,33 @@ public class CommandService {
      * @param commandRequestMessage {@link CommandRequestMessage}
      */
     public void executeTask(CommandRequestMessage commandRequestMessage) {
+        CacheMessagePayload cacheMessagePayload = JsonUtils.readFromString(commandRequestMessage.getMessagePayload(), CacheMessagePayload.class);
+        log.info("[agent executeTask] taskEvent is: {}", commandRequestMessage);
+        String cacheDir = Constants.STACK_CACHE_DIR;
+
+        if (!Environments.isDevMode()) {
+            LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
+
+            JsonUtils.writeToFile(cacheDir + SETTINGS_INFO, cacheMessagePayload.getSettings());
+            JsonUtils.writeToFile(cacheDir + CONFIGURATIONS_INFO, cacheMessagePayload.getConfigurations());
+            JsonUtils.writeToFile(cacheDir + HOSTS_INFO, cacheMessagePayload.getClusterHostInfo());
+            JsonUtils.writeToFile(cacheDir + USERS_INFO, cacheMessagePayload.getUserInfo());
+            JsonUtils.writeToFile(cacheDir + COMPONENTS_INFO, cacheMessagePayload.getComponentInfo());
+            JsonUtils.writeToFile(cacheDir + REPOS_INFO, cacheMessagePayload.getRepoInfo());
+            JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, cacheMessagePayload.getClusterInfo());
+        }
+
         CommandResponseMessage commandResponseMessage = new CommandResponseMessage();
+        commandResponseMessage.setCode(MessageConstants.SUCCESS_CODE);
+        commandResponseMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", commandRequestMessage.getHostname()));
+
+        commandResponseMessage.setMessageType(commandRequestMessage.getMessageType());
         commandResponseMessage.setMessageId(commandRequestMessage.getMessageId());
         commandResponseMessage.setHostname(commandRequestMessage.getHostname());
-        commandResponseMessage.setMessageType(commandRequestMessage.getMessageType());
-
-        commandResponseMessage.setJobId(commandRequestMessage.getJobId());
-        commandResponseMessage.setStageId(commandRequestMessage.getStageId());
         commandResponseMessage.setTaskId(commandRequestMessage.getTaskId());
-        try {
-            CommandPayload commandPayload = JsonUtils.readFromString(commandRequestMessage.getMessagePayload(), CommandPayload.class);
-            log.info("[agent executeTask] taskEvent is: {}", commandRequestMessage);
-            ShellResult shellResult = stackExecutor.execute(commandPayload);
+        commandResponseMessage.setStageId(commandRequestMessage.getStageId());
+        commandResponseMessage.setJobId(commandRequestMessage.getJobId());
 
-            commandResponseMessage.setCode(shellResult.getExitCode());
-            commandResponseMessage.setResult(shellResult.getResult());
-            agentWsTools.sendMessage(commandResponseMessage);
-        } catch (Exception e) {
-            log.error("execute error: ", e);
-            ShellResult fail = DefaultShellResult.FAIL;
-            commandResponseMessage.setCode(fail.getExitCode());
-            commandResponseMessage.setResult(fail.getResult());
-            agentWsTools.sendMessage(commandResponseMessage);
-        }
+        agentWsTools.sendMessage(commandResponseMessage);
     }
 }

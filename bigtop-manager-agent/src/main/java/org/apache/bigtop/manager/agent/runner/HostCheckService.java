@@ -6,16 +6,15 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
-import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
-import org.apache.bigtop.manager.common.message.type.RequestMessage;
-import org.apache.bigtop.manager.common.message.type.ResultMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
+import org.apache.bigtop.manager.common.message.entity.payload.HostCheckPayload;
+import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
+import org.apache.bigtop.manager.common.message.entity.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.Environments;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.thread.BaseDaemonThread;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class HostCheckService {
     /**
      * attemptQueue
      */
-    private final BlockingQueue<RequestMessage> eventQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<CommandRequestMessage> eventQueue = new LinkedBlockingQueue<>();
 
     /**
      * task event worker
@@ -39,7 +38,7 @@ public class HostCheckService {
 
     @PostConstruct
     public void start() {
-        this.taskEventThread = new HostCacheDispatchThread();
+        this.taskEventThread = new HostCheckDispatchThread();
         log.info("TaskEvent dispatch thread starting");
         this.taskEventThread.start();
         log.info("TaskEvent dispatch thread started");
@@ -50,9 +49,9 @@ public class HostCheckService {
         try {
             this.taskEventThread.interrupt();
             if (!eventQueue.isEmpty()) {
-                List<RequestMessage> remainEvents = new ArrayList<>(eventQueue.size());
+                List<CommandRequestMessage> remainEvents = new ArrayList<>(eventQueue.size());
                 eventQueue.drainTo(remainEvents);
-                for (RequestMessage context : remainEvents) {
+                for (CommandRequestMessage context : remainEvents) {
                     executeTask(context);
                 }
             }
@@ -65,10 +64,10 @@ public class HostCheckService {
     /**
      * add event
      *
-     * @param requestMessage hostCheckContext
+     * @param commandRequestMessage hostCheckContext
      */
-    public void addEvent(RequestMessage requestMessage) {
-        eventQueue.add(requestMessage);
+    public void addEvent(CommandRequestMessage commandRequestMessage) {
+        eventQueue.add(commandRequestMessage);
     }
 
     @Resource
@@ -77,10 +76,10 @@ public class HostCheckService {
     /**
      * Dispatch event to target task runnable.
      */
-    class HostCacheDispatchThread extends BaseDaemonThread {
+    class HostCheckDispatchThread extends BaseDaemonThread {
 
-        protected HostCacheDispatchThread() {
-            super("HostCacheThread");
+        protected HostCheckDispatchThread() {
+            super("HostCheckThread");
         }
 
         @Override
@@ -88,7 +87,7 @@ public class HostCheckService {
             while (true) {
                 try {
                     // if not task event, blocking here
-                    RequestMessage context = eventQueue.take();
+                    CommandRequestMessage context = eventQueue.take();
                     executeTask(context);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -103,13 +102,13 @@ public class HostCheckService {
     /**
      * execute task
      *
-     * @param requestMessage {@link RequestMessage}
+     * @param commandRequestMessage {@link CommandRequestMessage}
      */
-    public void executeTask(RequestMessage requestMessage) {
-        HostCheckPayload hostCheckMessage = JsonUtils.readFromString(requestMessage.getMessagePayload(), HostCheckPayload.class);
+    public void executeTask(CommandRequestMessage commandRequestMessage) {
+        HostCheckPayload hostCheckMessage = JsonUtils.readFromString(commandRequestMessage.getMessagePayload(), HostCheckPayload.class);
 
         HostCheckType[] hostCheckTypes = hostCheckMessage.getHostCheckTypes();
-        ResultMessage resultMessage = new ResultMessage();
+        CommandResponseMessage commandResponseMessage = new CommandResponseMessage();
 
         if (!Environments.isDevMode()) {
             for (HostCheckType hostCheckType : hostCheckTypes) {
@@ -117,25 +116,25 @@ public class HostCheckService {
                     case TIME_SYNC -> {
                         ShellResult shellResult = TimeSyncDetection.checkTimeSync();
 
-                        resultMessage.setCode(shellResult.getExitCode());
-                        resultMessage.setResult(shellResult.getResult());
+                        commandResponseMessage.setCode(shellResult.getExitCode());
+                        commandResponseMessage.setResult(shellResult.getResult());
 
                     }
                     default -> log.warn("unknown hostCheckType");
                 }
             }
         } else {
-            resultMessage.setCode(MessageConstants.SUCCESS_CODE);
-            resultMessage.setResult("Success on dev mode");
+            commandResponseMessage.setCode(MessageConstants.SUCCESS_CODE);
+            commandResponseMessage.setResult("Success on dev mode");
         }
 
-        resultMessage.setMessageId(requestMessage.getMessageId());
-        resultMessage.setHostname(requestMessage.getHostname());
-        resultMessage.setMessageType(requestMessage.getMessageType());
-        resultMessage.setJobId(requestMessage.getJobId());
-        resultMessage.setStageId(requestMessage.getStageId());
-        resultMessage.setTaskId(requestMessage.getTaskId());
+        commandResponseMessage.setMessageId(commandRequestMessage.getMessageId());
+        commandResponseMessage.setHostname(commandRequestMessage.getHostname());
+        commandResponseMessage.setMessageType(commandRequestMessage.getMessageType());
+        commandResponseMessage.setJobId(commandRequestMessage.getJobId());
+        commandResponseMessage.setStageId(commandRequestMessage.getStageId());
+        commandResponseMessage.setTaskId(commandRequestMessage.getTaskId());
 
-        agentWsTools.sendMessage(resultMessage);
+        agentWsTools.sendMessage(commandResponseMessage);
     }
 }

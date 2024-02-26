@@ -1,7 +1,7 @@
 package org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper;
 
 import lombok.Getter;
-import org.apache.bigtop.manager.common.message.type.CommandPayload;
+import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.stack.spi.BaseParams;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 

@@ -4,17 +4,17 @@ import com.sun.management.OperatingSystemMXBean;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.runner.CommandService;
-import org.apache.bigtop.manager.agent.runner.HostCacheService;
+import org.apache.bigtop.manager.agent.runner.CacheDistributeService;
 import org.apache.bigtop.manager.agent.runner.HostCheckService;
 import org.apache.bigtop.manager.common.config.ApplicationConfig;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-import org.apache.bigtop.manager.common.message.type.BaseMessage;
-import org.apache.bigtop.manager.common.message.type.HeartbeatMessage;
-import org.apache.bigtop.manager.common.message.type.RequestMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostInfo;
+import org.apache.bigtop.manager.common.message.entity.BaseMessage;
+import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
+import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
@@ -53,7 +53,7 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     private CommandService commandService;
 
     @Resource
-    private HostCacheService hostCacheService;
+    private CacheDistributeService cacheDistributeService;
 
     @Resource
     private HostCheckService hostCheckService;
@@ -76,12 +76,12 @@ public class AgentWebSocketHandler extends BinaryWebSocketHandler implements App
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
         log.info("Received message type: {}, session: {}", baseMessage.getClass().getSimpleName(), session);
 
-        if (baseMessage instanceof RequestMessage requestMessage) {
-            MessageType messageType = requestMessage.getMessageType();
+        if (baseMessage instanceof CommandRequestMessage commandRequestMessage) {
+            MessageType messageType = commandRequestMessage.getMessageType();
             switch (messageType) {
-                case COMMAND -> commandService.addEvent(requestMessage);
-                case HOST_CHECK -> hostCheckService.addEvent(requestMessage);
-                case HOST_CACHE -> hostCacheService.addEvent(requestMessage);
+                case COMMAND -> commandService.addEvent(commandRequestMessage);
+                case HOST_CHECK -> hostCheckService.addEvent(commandRequestMessage);
+                case CACHE_DISTRIBUTE -> cacheDistributeService.addEvent(commandRequestMessage);
             }
 
         } else {

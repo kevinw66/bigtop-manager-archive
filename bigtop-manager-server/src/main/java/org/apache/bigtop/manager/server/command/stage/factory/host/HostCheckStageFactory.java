@@ -4,9 +4,9 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.type.HostCheckPayload;
-import org.apache.bigtop.manager.common.message.type.RequestMessage;
-import org.apache.bigtop.manager.common.message.type.pojo.HostCheckType;
+import org.apache.bigtop.manager.common.message.entity.payload.HostCheckPayload;
+import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
+import org.apache.bigtop.manager.common.message.entity.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.stage.factory.AbstractStageFactory;
 import org.apache.bigtop.manager.server.command.stage.factory.StageType;
@@ -46,7 +46,7 @@ public class HostCheckStageFactory extends AbstractStageFactory {
         List<Task> tasks = new ArrayList<>();
         for (String hostname : context.getHostnames()) {
             Task task = new Task();
-            task.setName("Check host for " + hostname);
+            task.setName(stage.getName() + " on " + hostname);
             task.setStackName(context.getStackName());
             task.setStackVersion(context.getStackVersion());
             task.setHostname(hostname);
@@ -57,9 +57,9 @@ public class HostCheckStageFactory extends AbstractStageFactory {
             task.setCommand(Command.CUSTOM_COMMAND);
             task.setCustomCommand("check_host");
 
-            RequestMessage requestMessage = createMessage(hostname);
-            task.setContent(JsonUtils.writeAsString(requestMessage));
-            task.setMessageId(requestMessage.getMessageId());
+            CommandRequestMessage commandRequestMessage = createMessage(hostname);
+            task.setContent(JsonUtils.writeAsString(commandRequestMessage));
+            task.setMessageId(commandRequestMessage.getMessageId());
 
             tasks.add(task);
         }
@@ -67,16 +67,16 @@ public class HostCheckStageFactory extends AbstractStageFactory {
         stage.setTasks(tasks);
     }
 
-    private RequestMessage createMessage(String hostname) {
+    private CommandRequestMessage createMessage(String hostname) {
         HostCheckPayload messagePayload = new HostCheckPayload();
         messagePayload.setHostCheckTypes(HostCheckType.values());
         messagePayload.setHostname(hostname);
 
-        RequestMessage requestMessage = new RequestMessage();
-        requestMessage.setMessageType(MessageType.HOST_CHECK);
-        requestMessage.setHostname(hostname);
-        requestMessage.setMessagePayload(JsonUtils.writeAsString(messagePayload));
+        CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
+        commandRequestMessage.setMessageType(MessageType.HOST_CHECK);
+        commandRequestMessage.setHostname(hostname);
+        commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(messagePayload));
 
-        return requestMessage;
+        return commandRequestMessage;
     }
 }

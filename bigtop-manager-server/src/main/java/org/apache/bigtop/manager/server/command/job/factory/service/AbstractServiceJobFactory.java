@@ -141,7 +141,7 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
         StageContext stageContext = StageContext.fromPayload(JsonUtils.writeAsString(jobContext.getCommandDTO()));
         stageContext.setStackName(stackName);
         stageContext.setStackVersion(stackVersion);
-        stages.add(StageFactories.getStageFactory(StageType.HOST_CACHE).createStage(stageContext));
+        stages.add(StageFactories.getStageFactory(StageType.CACHE_DISTRIBUTE).createStage(stageContext));
     }
 
     protected void createInstallStages() {

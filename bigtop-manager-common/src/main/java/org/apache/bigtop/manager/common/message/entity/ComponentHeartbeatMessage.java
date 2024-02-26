@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.common.message.type;
+package org.apache.bigtop.manager.common.message.entity;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -24,6 +24,6 @@ public class HostAddJobFactory extends AbstractHostJobFactory {
     public void createStagesAndTasks() {
         StageContext stageContext = StageContext.fromPayload(JsonUtils.writeAsString(jobContext.getCommandDTO()));
         stages.add(StageFactories.getStageFactory(StageType.HOST_CHECK).createStage(stageContext));
-        stages.add(StageFactories.getStageFactory(StageType.HOST_CACHE).createStage(stageContext));
+        stages.add(StageFactories.getStageFactory(StageType.CACHE_DISTRIBUTE).createStage(stageContext));
     }
 }

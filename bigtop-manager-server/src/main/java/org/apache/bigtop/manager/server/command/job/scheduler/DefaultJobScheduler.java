@@ -2,9 +2,10 @@ package org.apache.bigtop.manager.server.command.job.scheduler;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.dao.entity.Job;
 import org.apache.bigtop.manager.server.command.job.runner.JobRunner;
 import org.apache.bigtop.manager.server.command.job.runner.JobRunners;
-import org.apache.bigtop.manager.dao.entity.Job;
+import org.apache.bigtop.manager.server.holder.SessionUserHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executor;
@@ -15,7 +16,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Component
 public class DefaultJobScheduler implements JobScheduler {
 
-    private final LinkedBlockingQueue<Job> queue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
 
     private final Executor executor = Executors.newSingleThreadExecutor();
 
@@ -23,7 +24,16 @@ public class DefaultJobScheduler implements JobScheduler {
 
     @Override
     public void submit(Job job) {
-        queue.offer(job);
+        Long userId = SessionUserHolder.getUserId();
+        queue.offer(() -> {
+            try {
+                SessionUserHolder.setUserId(userId);
+                JobRunner runner = JobRunners.getJobRunner(job);
+                runner.run();
+            } finally {
+                SessionUserHolder.clear();
+            }
+        });
     }
 
     @Override
@@ -41,9 +51,8 @@ public class DefaultJobScheduler implements JobScheduler {
         executor.execute(() -> {
             while (running) {
                 try {
-                    Job job = queue.take();
-                    JobRunner runner = JobRunners.getJobRunner(job);
-                    runner.run();
+                    Runnable runnable = queue.take();
+                    runnable.run();
                 } catch (InterruptedException e) {
                     log.warn("Error when polling new job", e);
                 }

@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.server.model.mapper;
 
-import org.apache.bigtop.manager.common.message.type.pojo.RepoInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.server.model.dto.RepoDTO;
 import org.apache.bigtop.manager.dao.entity.Cluster;
 import org.apache.bigtop.manager.dao.entity.Repo;
