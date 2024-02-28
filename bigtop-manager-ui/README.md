@@ -1,18 +1,35 @@
-# Vue 3 + TypeScript + Vite
+# Bigtop-Manager-ui
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Bigtop-Manager-ui is the front-end UI of the Manager platform, which stores code about the interaction between the platform and users, interface display, control styles, etc.
 
-## Recommended IDE Setup
+## Prerequisites
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+Vite: Version 4.4.5
 
-## Type Support For `.vue` Imports in TS
+Typescript: Version 5.0.2
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+Vue: Version 3.3.4
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+Editor: VsCode
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## Project Structure
+
+```
+—————————————————— public           static resources
+—————————————————— src              project source code
+——————————— API                     calls the backend interface
+——————————— assets                  static assets
+——————————— components              customize components
+——————————— layouts                 vue pages
+——————————— locales                 internationalization
+——————————— pages                   components
+——————————— router                  router
+———————————store                    global persistence
+———————————types                    data type
+——————————— utils                   utility function
+——————————— App.vue                 project root component
+———————————main.ts                  Project packaging portal
+——————————————————index.html        Project page
+——————————————————package.json      Package management profile for your project
+——————————————————vite.config.ts    Project configuration file
+```
