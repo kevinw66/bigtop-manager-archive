@@ -27,6 +27,8 @@ export default {
   set_repository: '设置源',
   set_hosts: '设置节点',
   set_hosts_placeholder: '请输入主机名，每行一个。',
+  set_hosts_valid: '主机名不能为空。',
+  show_hosts_resolved: '解析后的主机名列表',
   not_exist_title: '集群不存在',
   not_exist_sub_title: '集群不存在，请先创建',
   create_success_title: '创建成功',

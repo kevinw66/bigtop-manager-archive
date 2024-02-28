@@ -66,6 +66,7 @@
       stackVersion: '',
       fullStackName: '',
       repoInfoList: [],
+      hosts: '', // save hostsMetaStr
       hostnames: []
     }
 

@@ -27,6 +27,8 @@ export default {
   set_repository: 'Set Repository',
   set_hosts: 'Set Hosts',
   set_hosts_placeholder: 'Enter a list of hosts, one per line.',
+  set_hosts_valid: 'Input at least one host name.',
+  show_hosts_resolved: 'Hostnames after resolved',
   not_exist_title: 'Cluster not exist',
   not_exist_sub_title: 'Cluster not exist, please create one first.',
   create_success_title: 'Congratulations!',

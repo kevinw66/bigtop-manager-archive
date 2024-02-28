@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
+      hmr: true,
       proxy: {
         [env.VITE_APP_BASE_API]: {
           target: env.VITE_APP_BASE_URL,
