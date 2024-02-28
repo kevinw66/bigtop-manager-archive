@@ -5,7 +5,7 @@ import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
-import org.apache.bigtop.manager.stack.spi.Hook;
+import org.apache.bigtop.manager.spi.stack.Hook;
 
 /**
  * obtain agent execute command

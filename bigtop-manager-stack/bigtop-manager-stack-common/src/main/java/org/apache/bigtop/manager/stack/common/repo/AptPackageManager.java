@@ -6,7 +6,7 @@ import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.enums.PackageManagerType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
-import org.apache.bigtop.manager.stack.spi.PackageManager;
+import org.apache.bigtop.manager.spi.stack.PackageManager;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -4,11 +4,11 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.zookeeper;
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxOSUtils;
-import org.apache.bigtop.manager.stack.spi.BaseParams;
-import org.apache.bigtop.manager.stack.spi.Script;
+import org.apache.bigtop.manager.spi.stack.Script;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -18,19 +18,19 @@ import java.text.MessageFormat;
 public class ZookeeperServerScript implements Script {
 
     @Override
-    public ShellResult install(BaseParams baseParams) {
-        return PackageUtils.install(baseParams.getPackageList());
+    public ShellResult install(Params params) {
+        return PackageUtils.install(params.getPackageList());
     }
 
     @Override
-    public ShellResult configure(BaseParams baseParams) {
-        return ZookeeperSetup.config(baseParams);
+    public ShellResult configure(Params params) {
+        return ZookeeperSetup.config(params);
     }
 
     @Override
-    public ShellResult start(BaseParams baseParams) {
-        configure(baseParams);
-        ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
+    public ShellResult start(Params params) {
+        configure(params);
+        ZookeeperParams zookeeperParams = (ZookeeperParams) params;
 
         String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh start", zookeeperParams.serviceHome());
         try {
@@ -41,8 +41,8 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult stop(BaseParams baseParams) {
-        ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
+    public ShellResult stop(Params params) {
+        ZookeeperParams zookeeperParams = (ZookeeperParams) params;
         String cmd = MessageFormat.format("sh {0}/bin/zkServer.sh stop", zookeeperParams.serviceHome());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, zookeeperParams.user());
@@ -52,8 +52,8 @@ public class ZookeeperServerScript implements Script {
     }
 
     @Override
-    public ShellResult status(BaseParams baseParams) {
-        ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
+    public ShellResult status(Params params) {
+        ZookeeperParams zookeeperParams = (ZookeeperParams) params;
         return LinuxOSUtils.checkProcess(zookeeperParams.getZookeeperPidFile());
     }
 

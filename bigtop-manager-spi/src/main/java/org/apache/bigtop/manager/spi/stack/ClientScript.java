@@ -1,20 +1,20 @@
-package org.apache.bigtop.manager.stack.spi;
+package org.apache.bigtop.manager.spi.stack;
 
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 
 public interface ClientScript extends Script {
 
-    default ShellResult start(BaseParams baseParams) {
-        configure(baseParams);
+    default ShellResult start(Params params) {
+        configure(params);
         return DefaultShellResult.success();
     }
 
-    default ShellResult stop(BaseParams baseParams) {
+    default ShellResult stop(Params params) {
         return DefaultShellResult.success();
     }
 
-    default ShellResult status(BaseParams baseParams) {
+    default ShellResult status(Params params) {
         return DefaultShellResult.success();
     }
 }

@@ -7,14 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxOSUtils;
-import org.apache.bigtop.manager.stack.spi.BaseParams;
-import org.apache.bigtop.manager.stack.spi.Script;
+import org.apache.bigtop.manager.spi.stack.Script;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -30,13 +30,13 @@ import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_75
 public class KafkaBrokerScript implements Script {
 
     @Override
-    public ShellResult install(BaseParams baseParams) {
-        return PackageUtils.install(baseParams.getPackageList());
+    public ShellResult install(Params params) {
+        return PackageUtils.install(params.getPackageList());
     }
 
     @Override
-    public ShellResult configure(BaseParams baseParams) {
-        KafkaParams kafkaParams = (KafkaParams) baseParams;
+    public ShellResult configure(Params params) {
+        KafkaParams kafkaParams = (KafkaParams) params;
 
         String confDir = kafkaParams.confDir();
         String kafkaUser = kafkaParams.user();
@@ -101,9 +101,9 @@ public class KafkaBrokerScript implements Script {
     }
 
     @Override
-    public ShellResult start(BaseParams baseParams) {
-        configure(baseParams);
-        KafkaParams kafkaParams = (KafkaParams) baseParams;
+    public ShellResult start(Params params) {
+        configure(params);
+        KafkaParams kafkaParams = (KafkaParams) params;
 
         String cmd = MessageFormat.format("sh {0}/bin/kafka-server-start.sh {0}/config/server.properties > /dev/null 2>&1 & echo -n $!>{1}",
                 kafkaParams.serviceHome(), kafkaParams.getKafkaPidFile());
@@ -115,8 +115,8 @@ public class KafkaBrokerScript implements Script {
     }
 
     @Override
-    public ShellResult stop(BaseParams baseParams) {
-        KafkaParams kafkaParams = (KafkaParams) baseParams;
+    public ShellResult stop(Params params) {
+        KafkaParams kafkaParams = (KafkaParams) params;
         String cmd = MessageFormat.format("sh {0}/bin/kafka-server-stop.sh", kafkaParams.serviceHome());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, kafkaParams.user());
@@ -126,13 +126,13 @@ public class KafkaBrokerScript implements Script {
     }
 
     @Override
-    public ShellResult status(BaseParams baseParams) {
-        KafkaParams kafkaParams = (KafkaParams) baseParams;
+    public ShellResult status(Params params) {
+        KafkaParams kafkaParams = (KafkaParams) params;
         return LinuxOSUtils.checkProcess(kafkaParams.getKafkaPidFile());
     }
 
-    public ShellResult test(BaseParams baseParams) {
-        KafkaParams kafkaParams = (KafkaParams) baseParams;
+    public ShellResult test(Params params) {
+        KafkaParams kafkaParams = (KafkaParams) params;
         try {
             return LinuxOSUtils.sudoExecCmd("date", kafkaParams.user());
         } catch (IOException e) {

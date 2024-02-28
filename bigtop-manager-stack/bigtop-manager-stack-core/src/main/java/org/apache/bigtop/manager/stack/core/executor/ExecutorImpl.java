@@ -6,14 +6,14 @@ import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.plugin.PrioritySPIFactory;
+import org.apache.bigtop.manager.spi.stack.Hook;
+import org.apache.bigtop.manager.spi.stack.Params;
+import org.apache.bigtop.manager.spi.stack.Script;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
-import org.apache.bigtop.manager.stack.spi.BaseParams;
-import org.apache.bigtop.manager.stack.spi.Hook;
-import org.apache.bigtop.manager.stack.spi.SPIFactory;
-import org.apache.bigtop.manager.stack.spi.Script;
 import org.apache.commons.text.CaseUtils;
 
 import java.lang.reflect.Method;
@@ -26,11 +26,11 @@ public class ExecutorImpl implements Executor {
     private final Map<String, Hook> hookMap;
 
     public ExecutorImpl() {
-        SPIFactory<Script> spiFactory = new SPIFactory<>(Script.class);
+        PrioritySPIFactory<Script> spiFactory = new PrioritySPIFactory<>(Script.class);
         scriptMap = spiFactory.getSPIMap();
         log.info("scriptMap initialized: {}", scriptMap);
 
-        SPIFactory<Hook> hookSPIFactory = new SPIFactory<>(Hook.class);
+        PrioritySPIFactory<Hook> hookSPIFactory = new PrioritySPIFactory<>(Hook.class);
         hookMap = hookSPIFactory.getSPIMap();
     }
 
@@ -72,20 +72,20 @@ public class ExecutorImpl implements Executor {
 
             String paramsPackageName = script.getClass().getPackageName() + "." + CaseUtils.toCamelCase(commandPayload.getServiceName(), true) + "Params";
             Class<?> paramsClass = Class.forName(paramsPackageName);
-            BaseParams baseParams = (BaseParams) paramsClass.getDeclaredConstructor(CommandPayload.class).newInstance(commandPayload);
+            Params params = (Params) paramsClass.getDeclaredConstructor(CommandPayload.class).newInstance(commandPayload);
 
             Method method;
             if (command.equals(Command.CUSTOM_COMMAND.name())) {
                 String customCommand = commandPayload.getCustomCommand();
                 script = getCustomScript(customCommand, commandPayload.getCustomCommands());
-                method = script.getClass().getMethod(customCommand.toLowerCase(), BaseParams.class);
+                method = script.getClass().getMethod(customCommand.toLowerCase(), Params.class);
             } else {
-                method = script.getClass().getMethod(command.toLowerCase(), BaseParams.class);
+                method = script.getClass().getMethod(command.toLowerCase(), Params.class);
             }
             if (!command.equals(Command.STATUS.name())) {
                 log.info("start execute [{}] : [{}]", script.getName(), method.getName());
             }
-            ShellResult result = (ShellResult) method.invoke(script, baseParams);
+            ShellResult result = (ShellResult) method.invoke(script, params);
             if (!command.equals(Command.STATUS.name())) {
                 log.info("execute [{}] : [{}] complete, result: [{}]", script.getName(), method.getName(), result);
             }

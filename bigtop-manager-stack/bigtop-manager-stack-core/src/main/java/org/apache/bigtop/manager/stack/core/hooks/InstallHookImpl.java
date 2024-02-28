@@ -10,7 +10,7 @@ import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
 import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
-import org.apache.bigtop.manager.stack.spi.Hook;
+import org.apache.bigtop.manager.spi.stack.Hook;
 
 import java.util.List;
 

@@ -3,10 +3,10 @@ package org.apache.bigtop.manager.stack.common.utils;
 import org.apache.bigtop.manager.common.enums.OSType;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.plugin.PrioritySPIFactory;
 import org.apache.bigtop.manager.stack.common.enums.PackageManagerType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
-import org.apache.bigtop.manager.stack.spi.PackageManager;
-import org.apache.bigtop.manager.stack.spi.SPIFactory;
+import org.apache.bigtop.manager.spi.stack.PackageManager;
 import org.apache.commons.lang3.EnumUtils;
 
 import java.util.Collection;
@@ -17,7 +17,7 @@ public class PackageUtils {
     private static final Map<String, PackageManager> PACKAGE_MANAGER_MAP;
 
     static {
-        SPIFactory<PackageManager> spiFactory = new SPIFactory<>(PackageManager.class);
+        PrioritySPIFactory<PackageManager> spiFactory = new PrioritySPIFactory<>(PackageManager.class);
         PACKAGE_MANAGER_MAP = spiFactory.getSPIMap();
     }
 

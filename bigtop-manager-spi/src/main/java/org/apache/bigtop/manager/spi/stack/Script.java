@@ -1,25 +1,26 @@
-package org.apache.bigtop.manager.stack.spi;
+package org.apache.bigtop.manager.spi.stack;
 
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.plugin.PrioritySPI;
 import org.apache.commons.lang3.StringUtils;
 
-public interface Script extends SPIIdentify {
+public interface Script extends PrioritySPI {
 
-    ShellResult install(BaseParams baseParams);
+    ShellResult install(Params params);
 
-    ShellResult configure(BaseParams baseParams);
+    ShellResult configure(Params params);
 
-    ShellResult start(BaseParams baseParams);
+    ShellResult start(Params params);
 
-    ShellResult stop(BaseParams baseParams);
+    ShellResult stop(Params params);
 
-    default ShellResult restart(BaseParams baseParams) {
-        ShellResult shellResult = stop(baseParams);
+    default ShellResult restart(Params params) {
+        ShellResult shellResult = stop(params);
         if (shellResult.getExitCode() != 0) {
             return shellResult;
         }
-        ShellResult shellResult1 = start(baseParams);
+        ShellResult shellResult1 = start(params);
         if (shellResult1.getExitCode() != 0) {
             return shellResult1;
         }
@@ -29,9 +30,9 @@ public interface Script extends SPIIdentify {
                 StringUtils.join(shellResult.getErrMsg(), shellResult1.getErrMsg()));
     }
 
-    ShellResult status(BaseParams baseParams);
+    ShellResult status(Params params);
 
-    default ShellResult check(BaseParams baseParams) {
+    default ShellResult check(Params params) {
         return DefaultShellResult.success();
     }
 }

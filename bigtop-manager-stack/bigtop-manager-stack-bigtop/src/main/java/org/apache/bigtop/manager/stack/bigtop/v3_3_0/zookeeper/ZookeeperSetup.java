@@ -6,10 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
-import org.apache.bigtop.manager.stack.spi.BaseParams;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -23,9 +23,9 @@ import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_75
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ZookeeperSetup {
 
-    public static ShellResult config(BaseParams baseParams) {
+    public static ShellResult config(Params params) {
         log.info("ZookeeperSetup config");
-        ZookeeperParams zookeeperParams = (ZookeeperParams) baseParams;
+        ZookeeperParams zookeeperParams = (ZookeeperParams) params;
 
         String confDir = zookeeperParams.confDir();
         String zookeeperUser = zookeeperParams.user();

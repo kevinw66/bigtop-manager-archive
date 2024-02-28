@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxAccountUtils;
-import org.apache.bigtop.manager.stack.spi.Hook;
+import org.apache.bigtop.manager.spi.stack.Hook;
 
 import java.util.Map;
 import java.util.Set;

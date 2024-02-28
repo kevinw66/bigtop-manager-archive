@@ -20,18 +20,6 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.bigtop</groupId>
-            <artifactId>bigtop-manager-stack-spi</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.bigtop</groupId>
-            <artifactId>bigtop-manager-stack-common</artifactId>
-            <version>${revision}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.bigtop</groupId>
             <artifactId>bigtop-manager-stack-nop</artifactId>
             <version>${revision}</version>
         </dependency>

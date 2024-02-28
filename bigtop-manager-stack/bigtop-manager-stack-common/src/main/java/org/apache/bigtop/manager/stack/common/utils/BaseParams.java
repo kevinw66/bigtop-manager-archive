@@ -1,13 +1,14 @@
-package org.apache.bigtop.manager.stack.spi;
+package org.apache.bigtop.manager.stack.common.utils;
 
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-public abstract class BaseParams {
+public abstract class BaseParams implements Params {
 
     public static final String LIMITS_CONF_DIR = "/etc/security/limits.d";
 

@@ -1,11 +1,11 @@
-package org.apache.bigtop.manager.stack.spi;
+package org.apache.bigtop.manager.spi.stack;
 
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.spi.plugin.PrioritySPI;
 
 import java.util.Collection;
-import java.util.List;
 
-public interface PackageManager extends SPIIdentify {
+public interface PackageManager extends PrioritySPI {
 
     ShellResult installPackage(Collection<String> packages);
 

@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka;
 
 import lombok.Getter;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
-import org.apache.bigtop.manager.stack.spi.BaseParams;
+import org.apache.bigtop.manager.stack.common.utils.BaseParams;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 
 import java.util.Map;
