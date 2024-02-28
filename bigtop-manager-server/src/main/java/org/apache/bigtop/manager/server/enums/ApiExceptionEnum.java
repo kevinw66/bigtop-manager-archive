@@ -19,6 +19,7 @@ public enum ApiExceptionEnum {
     // Host Exceptions -- 12000 ~ 12999
     HOST_NOT_FOUND(12000, LocaleKeys.HOST_NOT_FOUND),
     HOST_ASSIGNED(12001, LocaleKeys.HOST_ASSIGNED),
+    HOST_NOT_CONNECTED(12002, LocaleKeys.HOST_NOT_FOUND),
 
     // Stack Exceptions -- 13000 ~ 13999
     STACK_NOT_FOUND(13000, LocaleKeys.STACK_NOT_FOUND),

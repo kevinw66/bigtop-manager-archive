@@ -87,7 +87,7 @@ public abstract class AbstractComponentStageFactory extends AbstractStageFactory
 
 
         CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
-        commandRequestMessage.setMessageType(MessageType.COMMAND);
+        commandRequestMessage.setMessageType(MessageType.COMPONENT);
         commandRequestMessage.setHostname(hostname);
         commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(commandPayload));
 

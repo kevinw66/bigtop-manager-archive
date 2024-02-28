@@ -69,7 +69,6 @@ public class HostCheckStageFactory extends AbstractStageFactory {
 
     private CommandRequestMessage createMessage(String hostname) {
         HostCheckPayload messagePayload = new HostCheckPayload();
-        messagePayload.setHostCheckTypes(HostCheckType.values());
         messagePayload.setHostname(hostname);
 
         CommandRequestMessage commandRequestMessage = new CommandRequestMessage();

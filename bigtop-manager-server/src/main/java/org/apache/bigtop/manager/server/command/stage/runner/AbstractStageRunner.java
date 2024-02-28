@@ -4,7 +4,6 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.enums.JobState;
-import org.apache.bigtop.manager.common.message.entity.command.BaseCommandMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -12,6 +11,7 @@ import org.apache.bigtop.manager.dao.entity.Stage;
 import org.apache.bigtop.manager.dao.entity.Task;
 import org.apache.bigtop.manager.dao.repository.StageRepository;
 import org.apache.bigtop.manager.dao.repository.TaskRepository;
+import org.apache.bigtop.manager.server.command.stage.factory.StageContext;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 
 import java.util.ArrayList;
@@ -32,9 +32,16 @@ public abstract class AbstractStageRunner implements StageRunner {
 
     protected Stage stage;
 
+    protected StageContext context;
+
     @Override
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    @Override
+    public void setStageContext(StageContext context) {
+        this.context = context;
     }
 
     @Override
@@ -45,13 +52,13 @@ public abstract class AbstractStageRunner implements StageRunner {
         for (Task task : stage.getTasks()) {
             beforeRunTask(task);
 
-            BaseCommandMessage message = JsonUtils.readFromString(task.getContent(), CommandRequestMessage.class);
+            CommandRequestMessage message = JsonUtils.readFromString(task.getContent(), CommandRequestMessage.class);
             message.setTaskId(task.getId());
             message.setStageId(stage.getId());
             message.setJobId(stage.getJob().getId());
 
             futures.add(CompletableFuture.supplyAsync(() -> {
-                CommandResponseMessage res = SpringContextHolder.getServerWebSocket().sendMessage(task.getHostname(), message);
+                CommandResponseMessage res = SpringContextHolder.getServerWebSocket().sendRequestMessage(task.getHostname(), message);
 
                 log.info("Execute task {} completed: {}", task.getId(), res);
                 boolean taskSuccess = res.getCode() == MessageConstants.SUCCESS_CODE;

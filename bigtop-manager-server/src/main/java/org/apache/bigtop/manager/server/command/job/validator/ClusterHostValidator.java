@@ -6,6 +6,7 @@ import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.command.CommandIdentifier;
+import org.apache.bigtop.manager.server.holder.SpringContextHolder;
 import org.apache.bigtop.manager.server.model.dto.command.ClusterCommandDTO;
 import org.apache.bigtop.manager.dao.entity.Host;
 import org.apache.bigtop.manager.dao.repository.HostRepository;
@@ -29,6 +30,14 @@ public class ClusterHostValidator implements CommandValidator {
     public void validate(ValidatorContext context) {
         ClusterCommandDTO clusterCommand = context.getCommandDTO().getClusterCommand();
         List<String> hostnames = clusterCommand.getHostnames();
+
+        List<String> connectedHosts = SpringContextHolder.getServerWebSocket().getConnectedHosts();
+        if (CollectionUtils.isNotEmpty(connectedHosts)) {
+            List<String> notConnectedHostnames = hostnames.stream().filter(hostname -> !connectedHosts.contains(hostname)).toList();
+            if (CollectionUtils.isNotEmpty(notConnectedHostnames)) {
+                throw new ApiException(ApiExceptionEnum.HOST_NOT_CONNECTED, String.join(",", notConnectedHostnames));
+            }
+        }
 
         List<Host> hosts = hostRepository.findAllByHostnameIn(hostnames);
         if (CollectionUtils.isNotEmpty(hosts)) {

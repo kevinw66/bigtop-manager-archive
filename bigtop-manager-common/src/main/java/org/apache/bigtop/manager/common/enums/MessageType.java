@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.common.enums;
 
 public enum MessageType {
 
-    COMMAND,
+    COMPONENT,
 
     HOST_CHECK,
 

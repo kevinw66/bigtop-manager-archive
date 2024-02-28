@@ -29,6 +29,7 @@ public class StageRunners {
         String beanName = STAGE_RUNNERS.get(stageType);
         StageRunner runner = SpringContextHolder.getApplicationContext().getBean(beanName, StageRunner.class);
         runner.setStage(stage);
+        runner.setStageContext(context);
 
         return runner;
     }

@@ -1,21 +1,20 @@
 package org.apache.bigtop.manager.agent.ws;
 
 import com.sun.management.OperatingSystemMXBean;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Resource;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.agent.runner.CommandService;
-import org.apache.bigtop.manager.agent.runner.CacheDistributeService;
-import org.apache.bigtop.manager.agent.runner.HostCheckService;
+import org.apache.bigtop.manager.agent.scheduler.CommandScheduler;
 import org.apache.bigtop.manager.common.config.ApplicationConfig;
 import org.apache.bigtop.manager.common.constants.Constants;
-import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
-import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
 import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
+import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
+import org.apache.bigtop.manager.common.ws.AbstractBinaryWebSocketHandler;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -23,9 +22,7 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
 import java.net.InetAddress;
@@ -38,82 +35,80 @@ import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MES
 
 @Slf4j
 @Component
-public class AgentWebSocketHandler extends BinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
+public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
 
     @Resource
     private ApplicationConfig applicationConfig;
 
     @Resource
-    private MessageSerializer serializer;
-
-    @Resource
     private MessageDeserializer deserializer;
 
     @Resource
-    private CommandService commandService;
+    private CommandScheduler commandScheduler;
 
-    @Resource
-    private CacheDistributeService cacheDistributeService;
-
-    @Resource
-    private HostCheckService hostCheckService;
-
-    @Resource
-    private AgentWsTools agentWsTools;
+    @Getter
+    private WebSocketSession session = null;
 
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(5);
 
     private HostInfo hostInfo;
 
+    public void sendMessage(BaseMessage message) {
+        log.info("send message to server: {}", message);
+        if (session == null) {
+            log.warn("session is null, can't send message to server");
+            return;
+        }
+
+        try {
+            super.sendMessage(session, message);
+        } catch (Exception e) {
+            log.error("Error sending message to server: {}", message, e);
+        }
+    }
+
     @Override
-    protected void handleBinaryMessage(WebSocketSession session, BinaryMessage message) throws Exception {
+    protected void handleBinaryMessage(@Nonnull WebSocketSession session, BinaryMessage message) throws Exception {
         BaseMessage baseMessage = deserializer.deserialize(message.getPayload().array());
 
         handleMessage(session, baseMessage);
-
     }
 
     private void handleMessage(WebSocketSession session, BaseMessage baseMessage) {
         log.info("Received message type: {}, session: {}", baseMessage.getClass().getSimpleName(), session);
 
         if (baseMessage instanceof CommandRequestMessage commandRequestMessage) {
-            MessageType messageType = commandRequestMessage.getMessageType();
-            switch (messageType) {
-                case COMMAND -> commandService.addEvent(commandRequestMessage);
-                case HOST_CHECK -> hostCheckService.addEvent(commandRequestMessage);
-                case CACHE_DISTRIBUTE -> cacheDistributeService.addEvent(commandRequestMessage);
-            }
-
+            commandScheduler.submit(commandRequestMessage);
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
         }
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        agentWsTools.setSession(session);
-
+    public void afterConnectionEstablished(@Nonnull WebSocketSession session) throws Exception {
+        this.session = session;
         executor.scheduleAtFixedRate(() -> {
             try {
                 HeartbeatMessage heartbeatMessage = new HeartbeatMessage();
                 heartbeatMessage.setHostInfo(hostInfo);
 
-                session.sendMessage(new BinaryMessage(serializer.serialize(heartbeatMessage)));
-            } catch (IOException e) {
+                super.sendMessage(session, heartbeatMessage);
+            } catch (Exception e) {
                 log.error(MessageFormat.format("Error sending heartbeat to server: {0}", e.getMessage()));
             }
         }, 3, 5, TimeUnit.SECONDS);
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+    public void afterConnectionClosed(@Nonnull WebSocketSession session, @Nonnull CloseStatus status) throws Exception {
         log.info("WebSocket connection closed unexpectedly, reconnecting...");
-        agentWsTools.setSession(null);
+
+        this.session = null;
         connectToServer();
     }
 
     @Override
-    public void onApplicationEvent(ApplicationStartedEvent event) {
+    public void onApplicationEvent(@Nonnull ApplicationStartedEvent event) {
         executor.scheduleAtFixedRate(this::readHostInfo, 0, 30, TimeUnit.SECONDS);
 
         log.info("Bootstrap successfully, connecting to server websocket endpoint...");

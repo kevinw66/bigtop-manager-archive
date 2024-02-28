@@ -2,10 +2,11 @@ package org.apache.bigtop.manager.server.ws;
 
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.message.entity.BaseMessage;
+import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.ComponentHeartbeatMessage;
 import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 import org.apache.bigtop.manager.common.ws.AbstractBinaryWebSocketHandler;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,8 @@ import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,16 +26,30 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
 
-    public static final Map<String, WebSocketSession> SESSIONS = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
 
     public static final Map<String, HeartbeatMessage> HEARTBEAT_MESSAGE_MAP = new ConcurrentHashMap<>();
 
-    public CommandResponseMessage sendMessage(String hostname, BaseMessage message) {
-        WebSocketSession session = SESSIONS.get(hostname);
+    public void sendMessage(String hostname, BaseMessage message) {
+        WebSocketSession session = sessions.get(hostname);
+        if (session == null) {
+            log.warn("host: {}, is not connected, can't send message: {}", hostname, message);
+            return;
+        }
+
+        try {
+            super.sendMessage(session, message);
+        } catch (Exception e) {
+            log.error("Error sending message {} to host: {}", message, hostname, e);
+        }
+    }
+
+    public CommandResponseMessage sendRequestMessage(String hostname, BaseRequestMessage message) {
+        WebSocketSession session = sessions.get(hostname);
         if (session == null) {
             return null;
         } else {
-            return (CommandResponseMessage) super.sendMessage(session, message);
+            return (CommandResponseMessage) super.sendRequestMessage(session, message);
         }
     }
 
@@ -60,7 +77,7 @@ public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
 
     private void handleHeartbeatMessage(WebSocketSession session, HeartbeatMessage heartbeatMessage) {
         HostInfo hostInfo = heartbeatMessage.getHostInfo();
-        SESSIONS.putIfAbsent(hostInfo.getHostname(), session);
+        sessions.putIfAbsent(hostInfo.getHostname(), session);
         HEARTBEAT_MESSAGE_MAP.put(hostInfo.getHostname(), heartbeatMessage);
     }
 
@@ -72,8 +89,12 @@ public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, @Nonnull CloseStatus status) throws Exception {
         log.error("session closed: {}, remove it!!!", session.getId());
-        SESSIONS.values().removeIf(value -> value.getId().equals(session.getId()));
+        sessions.values().removeIf(value -> value.getId().equals(session.getId()));
         HEARTBEAT_MESSAGE_MAP.clear();
-        log.info("latest ServerWebSocketSessionManager.SESSIONS: {}", SESSIONS);
+        log.info("latest ServerWebSocketSessionManager.sessions: {}", sessions);
+    }
+
+    public List<String> getConnectedHosts() {
+        return new ArrayList<>(sessions.keySet());
     }
 }

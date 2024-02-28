@@ -32,7 +32,7 @@ public class ServiceInstallJobFactory extends AbstractServiceJobFactory {
         // Install components
         super.createInstallStages();
 
-        // Cache configs when after installed
+        // Distribute caches after installed
         super.createCacheStage();
 
         // Start all master components

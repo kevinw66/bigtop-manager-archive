@@ -1,4 +1,4 @@
-package org.apache.bigtop.manager.server.command.job.scheduler;
+package org.apache.bigtop.manager.server.command.scheduler;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;

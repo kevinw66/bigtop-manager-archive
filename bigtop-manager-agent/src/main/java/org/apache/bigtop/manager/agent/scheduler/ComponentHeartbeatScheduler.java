@@ -1,15 +1,15 @@
-package org.apache.bigtop.manager.agent.scheduled;
+package org.apache.bigtop.manager.agent.scheduler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.prometheus.metrics.core.metrics.Gauge;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.holder.SpringContextHolder;
 import org.apache.bigtop.manager.agent.hostmonitoring.AgentHostMonitoring;
-import org.apache.bigtop.manager.agent.ws.AgentWsTools;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.ComponentHeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.ScriptInfo;
@@ -37,13 +37,10 @@ import java.util.Map;
 @Component
 @EnableScheduling
 @EnableAsync
-public class ComponentHeartbeatScheduled {
+public class ComponentHeartbeatScheduler {
 
     @Resource
     private Executor executor;
-
-    @Resource
-    private AgentWsTools agentWsTools;
 
     @Resource
     private Gauge gauge;
@@ -97,7 +94,7 @@ public class ComponentHeartbeatScheduled {
                 resultMessage.setComponentName(componentName);
                 resultMessage.setServiceName(components.get(componentName).getServiceName());
 
-                agentWsTools.sendMessage(resultMessage);
+                SpringContextHolder.getAgentWebSocket().sendMessage(resultMessage);
             }
         }
 

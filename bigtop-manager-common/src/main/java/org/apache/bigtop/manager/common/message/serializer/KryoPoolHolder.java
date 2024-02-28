@@ -4,13 +4,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.util.Pool;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.entity.command.BaseCommandMessage;
+import org.apache.bigtop.manager.common.message.entity.*;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
-import org.apache.bigtop.manager.common.message.entity.*;
 import org.apache.bigtop.manager.common.message.entity.pojo.*;
-import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -29,7 +26,8 @@ public class KryoPoolHolder {
 
             // message types
             kryo.register(BaseMessage.class);
-            kryo.register(BaseCommandMessage.class);
+            kryo.register(BaseRequestMessage.class);
+            kryo.register(BaseResponseMessage.class);
             kryo.register(HeartbeatMessage.class);
             kryo.register(ComponentHeartbeatMessage.class);
             kryo.register(CommandResponseMessage.class);

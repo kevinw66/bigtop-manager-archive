@@ -13,7 +13,6 @@ import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.dao.entity.*;
 import org.apache.bigtop.manager.dao.repository.*;
-import org.apache.bigtop.manager.server.command.stage.factory.StageContext;
 import org.apache.bigtop.manager.server.command.stage.factory.StageType;
 import org.apache.bigtop.manager.server.command.stage.runner.AbstractStageRunner;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
@@ -88,11 +87,10 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
     }
 
     private void updateTask(Task task) {
-        StageContext context = JsonUtils.readFromString(stage.getContext(), StageContext.class);
         if (context.getClusterId() == null) {
-            genEmptyCaches(context);
+            genEmptyCaches();
         } else {
-            genCaches(context);
+            genCaches();
         }
 
         CommandRequestMessage commandRequestMessage = getMessage(task.getHostname());
@@ -102,7 +100,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         taskRepository.save(task);
     }
 
-    private void genCaches(StageContext context) {
+    private void genCaches() {
         Cluster cluster = clusterRepository.getReferenceById(context.getClusterId());
 
         Long clusterId = cluster.getId();
@@ -182,7 +180,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         });
     }
 
-    private void genEmptyCaches(StageContext context) {
+    private void genEmptyCaches() {
         componentInfoMap = new HashMap<>();
         serviceConfigMap = new HashMap<>();
         hostMap = new HashMap<>();

@@ -12,5 +12,4 @@ import org.apache.bigtop.manager.common.message.entity.pojo.HostCheckType;
 @NoArgsConstructor
 public class HostCheckPayload extends BasePayload {
 
-    private HostCheckType[] hostCheckTypes;
 }
