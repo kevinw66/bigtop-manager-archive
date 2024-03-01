@@ -23,13 +23,13 @@ public class StageRunners {
             load();
         }
 
-        StageContext context = JsonUtils.readFromString(stage.getContext(), StageContext.class);
-        StageType stageType = context.getStageType();
+        StageContext stageContext = JsonUtils.readFromString(stage.getContext(), StageContext.class);
+        StageType stageType = stageContext.getStageType();
 
         String beanName = STAGE_RUNNERS.get(stageType);
         StageRunner runner = SpringContextHolder.getApplicationContext().getBean(beanName, StageRunner.class);
         runner.setStage(stage);
-        runner.setStageContext(context);
+        runner.setStageContext(stageContext);
 
         return runner;
     }

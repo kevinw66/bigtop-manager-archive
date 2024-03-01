@@ -75,7 +75,7 @@ public class ExecutorImpl implements Executor {
             Params params = (Params) paramsClass.getDeclaredConstructor(CommandPayload.class).newInstance(commandPayload);
 
             Method method;
-            if (command.equals(Command.CUSTOM_COMMAND.name())) {
+            if (command.equals(Command.CUSTOM.name())) {
                 String customCommand = commandPayload.getCustomCommand();
                 script = getCustomScript(customCommand, commandPayload.getCustomCommands());
                 method = script.getClass().getMethod(customCommand.toLowerCase(), Params.class);

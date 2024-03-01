@@ -1,10 +1,12 @@
 package org.apache.bigtop.manager.dao.entity;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.bigtop.manager.common.enums.JobState;
-import jakarta.persistence.*;
+import org.apache.bigtop.manager.dao.converter.JobStateConverter;
+
 import java.util.List;
 
 @Data
@@ -19,7 +21,6 @@ public class Job extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private JobState state;
 
@@ -28,8 +29,8 @@ public class Job extends BaseEntity {
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "payload", length = 16777216)
-    private String payload;
+    @Column(name = "context", length = 16777216)
+    private String context;
 
     @ManyToOne
     @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

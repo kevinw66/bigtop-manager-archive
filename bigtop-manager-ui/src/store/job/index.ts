@@ -34,7 +34,7 @@ export const useJobStore = defineStore(
 
     const processJobNum = computed(() => {
       return jobs.value.filter(
-        (job: JobVO) => job.state === 'PROCESSING' || job.state === 'PENDING'
+        (job: JobVO) => job.state === 'Processing' || job.state === 'Pending'
       ).length
     })
 

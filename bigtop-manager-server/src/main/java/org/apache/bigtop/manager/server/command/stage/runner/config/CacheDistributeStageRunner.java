@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
-import org.apache.bigtop.manager.common.enums.MessageType;
+import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.payload.CacheMessagePayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
@@ -87,7 +87,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
     }
 
     private void updateTask(Task task) {
-        if (context.getClusterId() == null) {
+        if (stageContext.getClusterId() == null) {
             genEmptyCaches();
         } else {
             genCaches();
@@ -101,7 +101,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
     }
 
     private void genCaches() {
-        Cluster cluster = clusterRepository.getReferenceById(context.getClusterId());
+        Cluster cluster = clusterRepository.getReferenceById(stageContext.getClusterId());
 
         Long clusterId = cluster.getId();
         String clusterName = cluster.getClusterName();
@@ -187,21 +187,21 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         userMap = new HashMap<>();
         settingsMap = new HashMap<>();
 
-        String fullStackName = StackUtils.fullStackName(context.getStackName(), context.getStackVersion());
+        String fullStackName = StackUtils.fullStackName(stageContext.getStackName(), stageContext.getStackVersion());
         ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = StackUtils.getStackKeyMap().get(fullStackName);
         StackDTO stackDTO = immutablePair.getLeft();
         List<ServiceDTO> serviceDTOList = immutablePair.getRight();
 
-        repoList = RepoMapper.INSTANCE.fromDTO2Message(context.getRepoInfoList());
+        repoList = RepoMapper.INSTANCE.fromDTO2Message(stageContext.getRepoInfoList());
         clusterInfo = new ClusterInfo();
-        clusterInfo.setClusterName(context.getClusterName());
-        clusterInfo.setStackName(context.getStackName());
-        clusterInfo.setStackVersion(context.getStackVersion());
+        clusterInfo.setClusterName(stageContext.getClusterName());
+        clusterInfo.setStackName(stageContext.getStackName());
+        clusterInfo.setStackVersion(stageContext.getStackVersion());
         clusterInfo.setUserGroup(stackDTO.getUserGroup());
         clusterInfo.setRepoTemplate(stackDTO.getRepoTemplate());
         clusterInfo.setRoot(stackDTO.getRoot());
 
-        List<String> hostnames = context.getHostnames();
+        List<String> hostnames = stageContext.getHostnames();
         hostMap.put(Constants.ALL_HOST_KEY, new HashSet<>(hostnames));
 
         for (ServiceDTO serviceDTO : serviceDTOList) {
@@ -221,7 +221,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         messagePayload.setComponentInfo(componentInfoMap);
 
         CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
-        commandRequestMessage.setMessageType(MessageType.CACHE_DISTRIBUTE);
+        commandRequestMessage.setCommandMessageType(CommandMessageType.CACHE_DISTRIBUTE);
         commandRequestMessage.setHostname(hostname);
         commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(messagePayload));
 

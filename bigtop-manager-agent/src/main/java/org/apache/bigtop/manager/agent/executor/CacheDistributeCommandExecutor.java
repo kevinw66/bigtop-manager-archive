@@ -3,9 +3,7 @@ package org.apache.bigtop.manager.agent.executor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
-import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
-import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.payload.CacheMessagePayload;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
@@ -22,14 +20,14 @@ import static org.apache.bigtop.manager.common.constants.CacheFiles.*;
 public class CacheDistributeCommandExecutor extends AbstractCommandExecutor {
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.CACHE_DISTRIBUTE;
+    public CommandMessageType getCommandMessageType() {
+        return CommandMessageType.CACHE_DISTRIBUTE;
     }
 
     @Override
-    public CommandResponseMessage doExecute(CommandRequestMessage message) {
-        CacheMessagePayload cacheMessagePayload = JsonUtils.readFromString(message.getMessagePayload(), CacheMessagePayload.class);
-        log.info("[agent executeTask] taskEvent is: {}", message);
+    public void doExecute() {
+        CacheMessagePayload cacheMessagePayload = JsonUtils.readFromString(commandRequestMessage.getMessagePayload(), CacheMessagePayload.class);
+        log.info("[agent executeTask] taskEvent is: {}", commandRequestMessage);
         String cacheDir = Constants.STACK_CACHE_DIR;
 
         LinuxFileUtils.createDirectories(cacheDir, "root", "root", "rwxr-xr-x", false);
@@ -42,10 +40,7 @@ public class CacheDistributeCommandExecutor extends AbstractCommandExecutor {
         JsonUtils.writeToFile(cacheDir + REPOS_INFO, cacheMessagePayload.getRepoInfo());
         JsonUtils.writeToFile(cacheDir + CLUSTER_INFO, cacheMessagePayload.getClusterInfo());
 
-        CommandResponseMessage commandResponseMessage = new CommandResponseMessage();
         commandResponseMessage.setCode(MessageConstants.SUCCESS_CODE);
-        commandResponseMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", message.getHostname()));
-
-        return commandResponseMessage;
+        commandResponseMessage.setResult(MessageFormat.format("Host [{0}] cached successful!!!", commandRequestMessage.getHostname()));
     }
 }

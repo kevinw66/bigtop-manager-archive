@@ -23,7 +23,7 @@ public class JobFactories {
         }
 
         if (!JOB_FACTORIES.containsKey(identifier)) {
-            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED, identifier.getCommand().toLowerCase(), identifier.getCommandLevel().toLowerCase());
+            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED, identifier.getCommand().name().toLowerCase(), identifier.getCommandLevel().toLowerCase());
         }
 
         String beanName = JOB_FACTORIES.get(identifier);

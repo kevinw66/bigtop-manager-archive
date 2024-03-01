@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.command.job.runner;
 
 import org.apache.bigtop.manager.server.command.CommandIdentifier;
 import org.apache.bigtop.manager.dao.entity.Job;
+import org.apache.bigtop.manager.server.command.job.factory.JobContext;
 
 /**
  * Interface for running jobs in the application.
@@ -22,6 +23,13 @@ public interface JobRunner {
      * @param job The job to be managed by this runner.
      */
     void setJob(Job job);
+
+    /**
+     * Set the context for the job. The context may contain additional information necessary for running the job.
+     *
+     * @param jobContext The context for the job.
+     */
+    void setJobContext(JobContext jobContext);
 
     /**
      * Method to be called before running the job. Can be used for setup and preparation.

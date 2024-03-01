@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.server.command.job.runner.host;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.CommandIdentifier;
 import org.apache.bigtop.manager.server.command.job.runner.AbstractJobRunner;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
@@ -32,7 +31,7 @@ public class HostAddJobRunner extends AbstractJobRunner {
     public void onSuccess() {
         super.onSuccess();
 
-        CommandDTO commandDTO = JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
+        CommandDTO commandDTO = getCommandDTO();
         List<HostCommandDTO> hostCommands = commandDTO.getHostCommands();
 
         List<String> hostnames = hostCommands.stream().map(HostCommandDTO::getHostname).toList();

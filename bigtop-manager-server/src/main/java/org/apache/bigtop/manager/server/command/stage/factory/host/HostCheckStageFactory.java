@@ -3,10 +3,9 @@ package org.apache.bigtop.manager.server.command.stage.factory.host;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.enums.MessageType;
+import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.payload.HostCheckPayload;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
-import org.apache.bigtop.manager.common.message.entity.pojo.HostCheckType;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.stage.factory.AbstractStageFactory;
 import org.apache.bigtop.manager.server.command.stage.factory.StageType;
@@ -54,7 +53,7 @@ public class HostCheckStageFactory extends AbstractStageFactory {
             task.setServiceUser("root");
             task.setServiceGroup("root");
             task.setComponentName("bigtop-manager-agent");
-            task.setCommand(Command.CUSTOM_COMMAND);
+            task.setCommand(Command.CUSTOM);
             task.setCustomCommand("check_host");
 
             CommandRequestMessage commandRequestMessage = createMessage(hostname);
@@ -72,7 +71,7 @@ public class HostCheckStageFactory extends AbstractStageFactory {
         messagePayload.setHostname(hostname);
 
         CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
-        commandRequestMessage.setMessageType(MessageType.HOST_CHECK);
+        commandRequestMessage.setCommandMessageType(CommandMessageType.HOST_CHECK);
         commandRequestMessage.setHostname(hostname);
         commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(messagePayload));
 

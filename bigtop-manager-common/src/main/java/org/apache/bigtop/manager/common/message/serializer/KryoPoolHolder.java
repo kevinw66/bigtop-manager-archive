@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.common.message.serializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.util.Pool;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.enums.MessageType;
+import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.*;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
@@ -29,7 +29,6 @@ public class KryoPoolHolder {
             kryo.register(BaseRequestMessage.class);
             kryo.register(BaseResponseMessage.class);
             kryo.register(HeartbeatMessage.class);
-            kryo.register(ComponentHeartbeatMessage.class);
             kryo.register(CommandResponseMessage.class);
             kryo.register(CommandRequestMessage.class);
 
@@ -40,7 +39,7 @@ public class KryoPoolHolder {
             kryo.register(RepoInfo.class);
             kryo.register(HostCheckType.class);
             kryo.register(HostCheckType[].class);
-            kryo.register(MessageType.class);
+            kryo.register(CommandMessageType.class);
             kryo.register(Command.class);
             kryo.register(ScriptInfo.class);
             kryo.register(ComponentInfo.class);

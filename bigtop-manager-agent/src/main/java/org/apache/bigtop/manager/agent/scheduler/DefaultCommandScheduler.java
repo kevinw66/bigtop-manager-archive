@@ -25,7 +25,7 @@ public class DefaultCommandScheduler implements CommandScheduler {
     public void submit(CommandRequestMessage message) {
         queue.offer(() -> {
             try {
-                CommandExecutor commandExecutor = CommandExecutors.getCommandExecutor(message.getMessageType());
+                CommandExecutor commandExecutor = CommandExecutors.getCommandExecutor(message.getCommandMessageType());
                 commandExecutor.execute(message);
             } catch (Exception e) {
                 log.error("Error when running command", e);

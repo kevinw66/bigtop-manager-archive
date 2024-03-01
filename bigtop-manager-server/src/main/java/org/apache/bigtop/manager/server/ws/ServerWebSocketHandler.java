@@ -4,7 +4,6 @@ import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
-import org.apache.bigtop.manager.common.message.entity.ComponentHeartbeatMessage;
 import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
@@ -66,8 +65,6 @@ public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
         log.info("Received message type: {}", baseMessage.getClass().getSimpleName());
         if (baseMessage instanceof HeartbeatMessage heartbeatMessage) {
             handleHeartbeatMessage(session, heartbeatMessage);
-        } else if (baseMessage instanceof ComponentHeartbeatMessage heartbeatMessage) {
-            handleComponentHeartbeatMessage(heartbeatMessage);
         } else if (baseMessage instanceof CommandResponseMessage commandResponseMessage) {
             super.handleResponseMessage(commandResponseMessage);
         } else {
@@ -79,11 +76,6 @@ public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
         HostInfo hostInfo = heartbeatMessage.getHostInfo();
         sessions.putIfAbsent(hostInfo.getHostname(), session);
         HEARTBEAT_MESSAGE_MAP.put(hostInfo.getHostname(), heartbeatMessage);
-    }
-
-    private void handleComponentHeartbeatMessage(ComponentHeartbeatMessage heartbeatMessage) {
-        log.info("received component heartbeat message: {}", heartbeatMessage);
-        // if code is 0, it means the component is running, otherwise it is not running.
     }
 
     @Override

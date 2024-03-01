@@ -1,9 +1,11 @@
 package org.apache.bigtop.manager.dao.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.bigtop.manager.common.enums.JobState;
+import org.apache.bigtop.manager.dao.converter.JobStateConverter;
 
 import java.util.List;
 
@@ -23,7 +25,6 @@ public class Stage extends BaseEntity {
     @Column(name = "name")
     private String name;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private JobState state;
 

@@ -3,6 +3,7 @@ package org.apache.bigtop.manager.server.command.job.runner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.CommandIdentifier;
+import org.apache.bigtop.manager.server.command.job.factory.JobContext;
 import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
@@ -25,15 +26,17 @@ public class JobRunners {
             load();
         }
 
-        CommandDTO commandDTO = JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
+        JobContext jobContext = JsonUtils.readFromString(job.getContext(), JobContext.class);
+        CommandDTO commandDTO = jobContext.getCommandDTO();
         CommandIdentifier identifier = new CommandIdentifier(commandDTO.getCommandLevel(), commandDTO.getCommand());
         if (!JOB_RUNNERS.containsKey(identifier)) {
-            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED, identifier.getCommand().toLowerCase(), identifier.getCommandLevel().toLowerCase());
+            throw new ApiException(ApiExceptionEnum.COMMAND_NOT_SUPPORTED, identifier.getCommand().name().toLowerCase(), identifier.getCommandLevel().toLowerCase());
         }
 
         String beanName = JOB_RUNNERS.get(identifier);
         JobRunner runner = SpringContextHolder.getApplicationContext().getBean(beanName, JobRunner.class);
         runner.setJob(job);
+        runner.setJobContext(jobContext);
 
         return runner;
     }

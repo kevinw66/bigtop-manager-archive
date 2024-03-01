@@ -63,7 +63,7 @@ public abstract class AbstractJobFactory implements JobFactory {
         job.setName(jobContext.getCommandDTO().getContext());
         job.setState(JobState.PENDING);
         job.setCluster(cluster.getId() == null ? null : cluster);
-        job.setPayload(JsonUtils.writeAsString(jobContext.getCommandDTO()));
+        job.setContext(JsonUtils.writeAsString(jobContext));
         job.setStages(stages);
     }
 

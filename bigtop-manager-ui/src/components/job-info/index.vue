@@ -133,15 +133,15 @@
         </template>
         <template v-if="column.dataIndex === 'state'">
           <CheckCircleTwoTone
-            v-if="text === 'SUCCESSFUL'"
+            v-if="text === 'Successful'"
             two-tone-color="#52c41a"
           />
           <CloseCircleTwoTone
-            v-else-if="text === 'FAILED'"
+            v-else-if="text === 'Failed'"
             two-tone-color="red"
           />
           <MinusCircleTwoTone
-            v-else-if="text === 'CANCELED'"
+            v-else-if="text === 'Canceled'"
             two-tone-color="orange"
           />
           <LoadingOutlined v-else />
@@ -160,15 +160,15 @@
         </template>
         <template v-if="column.dataIndex === 'state'">
           <CheckCircleTwoTone
-            v-if="text === 'SUCCESSFUL'"
+            v-if="text === 'Successful'"
             two-tone-color="#52c41a"
           />
           <CloseCircleTwoTone
-            v-else-if="text === 'FAILED'"
+            v-else-if="text === 'Failed'"
             two-tone-color="red"
           />
           <MinusCircleTwoTone
-            v-else-if="text === 'CANCELED'"
+            v-else-if="text === 'Canceled'"
             two-tone-color="orange"
           />
           <LoadingOutlined v-else />
@@ -187,15 +187,15 @@
         </template>
         <template v-if="column.dataIndex === 'state'">
           <CheckCircleTwoTone
-            v-if="text === 'SUCCESSFUL'"
+            v-if="text === 'Successful'"
             two-tone-color="#52c41a"
           />
           <CloseCircleTwoTone
-            v-else-if="text === 'FAILED'"
+            v-else-if="text === 'Failed'"
             two-tone-color="red"
           />
           <MinusCircleTwoTone
-            v-else-if="text === 'CANCELED'"
+            v-else-if="text === 'Canceled'"
             two-tone-color="orange"
           />
           <LoadingOutlined v-else />

@@ -1,9 +1,12 @@
 package org.apache.bigtop.manager.dao.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.JobState;
+import org.apache.bigtop.manager.dao.converter.CommandConverter;
+import org.apache.bigtop.manager.dao.converter.JobStateConverter;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -25,7 +28,6 @@ public class Task extends BaseEntity {
     @Column(name = "message_id")
     private String messageId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private JobState state;
 
@@ -35,7 +37,6 @@ public class Task extends BaseEntity {
     @Column(name = "component_name")
     private String componentName;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "command")
     private Command command;
 

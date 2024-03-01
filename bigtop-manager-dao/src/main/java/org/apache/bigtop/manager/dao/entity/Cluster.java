@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.bigtop.manager.common.enums.MaintainState;
+import org.apache.bigtop.manager.dao.converter.MaintainStateConverter;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -36,7 +37,6 @@ public class Cluster extends BaseEntity {
     @Column(name = "repo_template")
     private String repoTemplate;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private MaintainState state;
 

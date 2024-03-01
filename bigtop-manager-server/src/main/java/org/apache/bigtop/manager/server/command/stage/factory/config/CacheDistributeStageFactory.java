@@ -51,7 +51,7 @@ public class CacheDistributeStageFactory extends AbstractStageFactory {
             task.setServiceUser("root");
             task.setServiceGroup("root");
             task.setComponentName("bigtop-manager-agent");
-            task.setCommand(Command.CUSTOM_COMMAND);
+            task.setCommand(Command.CUSTOM);
             task.setCustomCommand("cache_host");
             tasks.add(task);
         }

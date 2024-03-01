@@ -32,7 +32,7 @@ public abstract class AbstractStageRunner implements StageRunner {
 
     protected Stage stage;
 
-    protected StageContext context;
+    protected StageContext stageContext;
 
     @Override
     public void setStage(Stage stage) {
@@ -40,8 +40,8 @@ public abstract class AbstractStageRunner implements StageRunner {
     }
 
     @Override
-    public void setStageContext(StageContext context) {
-        this.context = context;
+    public void setStageContext(StageContext stageContext) {
+        this.stageContext = stageContext;
     }
 
     @Override

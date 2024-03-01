@@ -2,19 +2,18 @@ package org.apache.bigtop.manager.server.command.stage.factory.component;
 
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.common.enums.Command;
-import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
+import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
+import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.ScriptInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.command.stage.factory.AbstractStageFactory;
-import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.dao.entity.Cluster;
 import org.apache.bigtop.manager.dao.entity.Task;
 import org.apache.bigtop.manager.dao.repository.ClusterRepository;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.bigtop.manager.server.command.stage.factory.AbstractStageFactory;
+import org.apache.bigtop.manager.server.model.dto.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public abstract class AbstractComponentStageFactory extends AbstractStageFactory
         ServiceDTO serviceDTO = context.getServiceDTO();
         ComponentDTO componentDTO = context.getComponentDTO();
 
-        stage.setName(StringUtils.capitalize(command.toLowerCase()) + " " + componentDTO.getDisplayName());
+        stage.setName(command.toCamelCase() + " " + componentDTO.getDisplayName());
         stage.setServiceName(serviceDTO.getServiceName());
         stage.setComponentName(componentDTO.getComponentName());
 
@@ -87,7 +86,7 @@ public abstract class AbstractComponentStageFactory extends AbstractStageFactory
 
 
         CommandRequestMessage commandRequestMessage = new CommandRequestMessage();
-        commandRequestMessage.setMessageType(MessageType.COMPONENT);
+        commandRequestMessage.setCommandMessageType(CommandMessageType.COMPONENT);
         commandRequestMessage.setHostname(hostname);
         commandRequestMessage.setMessagePayload(JsonUtils.writeAsString(commandPayload));
 

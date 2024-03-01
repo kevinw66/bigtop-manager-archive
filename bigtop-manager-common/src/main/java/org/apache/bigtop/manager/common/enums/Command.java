@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.common.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import org.apache.bigtop.manager.common.utils.CaseUtils;
 
 public enum Command {
 
@@ -23,7 +24,7 @@ public enum Command {
 
     CHECK,
 
-    CUSTOM_COMMAND,
+    CUSTOM,
     ;
 
     @JsonCreator
@@ -32,7 +33,7 @@ public enum Command {
     }
 
     @JsonValue
-    public String toLowerCase() {
-        return name().toLowerCase();
+    public String toCamelCase() {
+        return CaseUtils.toCamelCase(name());
     }
 }

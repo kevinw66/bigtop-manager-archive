@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.dao.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.apache.bigtop.manager.common.enums.MaintainState;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -41,10 +40,6 @@ public class Service extends BaseEntity {
 
     @Column(name = "required_service")
     private String requiredServices;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "state")
-    private MaintainState state;
 
     @ManyToOne
     @JoinColumn(name = "cluster_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

@@ -28,9 +28,9 @@ public interface StageRunner {
     /**
      * Set the context for the stage. The context may contain additional information necessary for running the stage.
      *
-     * @param context The context for the stage.
+     * @param stageContext The context for the stage.
      */
-    void setStageContext(StageContext context);
+    void setStageContext(StageContext stageContext);
 
     /**
      * Method to be called before running the stage. Can be used for setup and preparation.

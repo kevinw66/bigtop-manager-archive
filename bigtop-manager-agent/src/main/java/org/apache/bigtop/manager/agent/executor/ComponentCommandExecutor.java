@@ -2,9 +2,7 @@ package org.apache.bigtop.manager.agent.executor;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.enums.MessageType;
-import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
-import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
@@ -21,19 +19,22 @@ public class ComponentCommandExecutor extends AbstractCommandExecutor {
     private Executor stackExecutor;
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.COMPONENT;
+    public CommandMessageType getCommandMessageType() {
+        return CommandMessageType.COMPONENT;
     }
 
     @Override
-    public CommandResponseMessage doExecute(CommandRequestMessage message) {
-        CommandResponseMessage commandResponseMessage = new CommandResponseMessage();
-        CommandPayload commandPayload = JsonUtils.readFromString(message.getMessagePayload(), CommandPayload.class);
-        log.info("[agent executeTask] taskEvent is: {}", message);
+    protected void doExecuteOnDevMode() {
+        doExecute();
+    }
+
+    @Override
+    public void doExecute() {
+        CommandPayload commandPayload = JsonUtils.readFromString(commandRequestMessage.getMessagePayload(), CommandPayload.class);
+        log.info("[agent executeTask] taskEvent is: {}", commandRequestMessage);
         ShellResult shellResult = stackExecutor.execute(commandPayload);
 
         commandResponseMessage.setCode(shellResult.getExitCode());
         commandResponseMessage.setResult(shellResult.getResult());
-        return commandResponseMessage;
     }
 }

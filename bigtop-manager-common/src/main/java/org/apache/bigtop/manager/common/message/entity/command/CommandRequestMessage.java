@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.common.message.entity.command;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
 
 
@@ -12,7 +11,7 @@ import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
 @Data
 public class CommandRequestMessage extends BaseRequestMessage {
 
-    private MessageType messageType;
+    private CommandMessageType commandMessageType;
 
     private String hostname;
 

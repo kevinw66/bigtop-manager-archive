@@ -4,17 +4,19 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.enums.MaintainState;
-import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.dao.entity.Cluster;
+import org.apache.bigtop.manager.dao.entity.Stage;
+import org.apache.bigtop.manager.dao.entity.Task;
+import org.apache.bigtop.manager.dao.repository.ClusterRepository;
+import org.apache.bigtop.manager.dao.repository.JobRepository;
+import org.apache.bigtop.manager.dao.repository.StageRepository;
+import org.apache.bigtop.manager.dao.repository.TaskRepository;
 import org.apache.bigtop.manager.server.command.CommandIdentifier;
 import org.apache.bigtop.manager.server.command.job.runner.AbstractJobRunner;
 import org.apache.bigtop.manager.server.enums.CommandLevel;
 import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
 import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.dao.entity.Cluster;
-import org.apache.bigtop.manager.dao.entity.Stage;
-import org.apache.bigtop.manager.dao.entity.Task;
-import org.apache.bigtop.manager.dao.repository.*;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -49,7 +51,7 @@ public class ClusterCreateJobRunner extends AbstractJobRunner {
         super.beforeRun();
 
         // Save cluster
-        CommandDTO commandDTO = JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
+        CommandDTO commandDTO = getCommandDTO();
         ClusterDTO clusterDTO = ClusterMapper.INSTANCE.fromCommand2DTO(commandDTO.getClusterCommand());
         clusterService.save(clusterDTO);
     }
@@ -58,7 +60,7 @@ public class ClusterCreateJobRunner extends AbstractJobRunner {
     public void onSuccess() {
         super.onSuccess();
 
-        CommandDTO commandDTO = JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
+        CommandDTO commandDTO = getCommandDTO();
         Cluster cluster = clusterRepository.findByClusterName(commandDTO.getClusterCommand().getClusterName()).orElse(new Cluster());
 
         // Update cluster state to installed

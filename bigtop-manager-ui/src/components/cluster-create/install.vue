@@ -23,9 +23,9 @@
     console.log(res)
     jobState.value = res.state
 
-    if (jobState.value !== 'PENDING' && jobState.value !== 'PROCESSING') {
+    if (jobState.value !== 'Pending' && jobState.value !== 'Processing') {
       disableButton.value = false
-      clusterInfo.value.success = jobState.value === 'SUCCESSFUL'
+      clusterInfo.value.success = jobState.value === 'Successful'
     }
 
     const arr: any[] = []
@@ -40,23 +40,23 @@
           color: ''
         }
 
-        if (stage.state === 'PENDING') {
+        if (stage.state === 'Pending') {
           data.progress = 0
           data.status = 'normal'
           data.color = '#1677ff'
-        } else if (stage.state === 'PROCESSING') {
+        } else if (stage.state === 'Processing') {
           data.progress = Math.round(
-            (stage.tasks.filter((task) => task.state === 'SUCCESSFUL').length /
+            (stage.tasks.filter((task) => task.state === 'Successful').length /
               stage.tasks.length) *
               100
           )
           data.status = 'active'
           data.color = '#1677ff'
-        } else if (stage.state === 'SUCCESSFUL') {
+        } else if (stage.state === 'Successful') {
           data.progress = 100
           data.status = 'success'
           data.color = '#52c41a'
-        } else if (stage.state === 'CANCELED') {
+        } else if (stage.state === 'Canceled') {
           data.progress = 0
           data.status = 'normal'
           data.color = '#8c908b'
@@ -91,7 +91,7 @@
       async () => {
         Object.assign(installData, await initData())
         loading.value = false
-        if (jobState.value !== 'PENDING' && jobState.value !== 'PROCESSING') {
+        if (jobState.value !== 'Pending' && jobState.value !== 'Processing') {
           pause()
         }
       },

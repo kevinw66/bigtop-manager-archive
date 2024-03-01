@@ -11,16 +11,20 @@ import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 @Slf4j
 public abstract class AbstractCommandExecutor implements CommandExecutor {
 
+    protected CommandRequestMessage commandRequestMessage;
+
+    protected CommandResponseMessage commandResponseMessage;
+
     @Override
     public void execute(CommandRequestMessage message) {
-        CommandResponseMessage commandResponseMessage = new CommandResponseMessage();
+        commandRequestMessage = message;
+        commandResponseMessage = new CommandResponseMessage();
 
         try {
-            if (!Environments.isDevMode()) {
-                commandResponseMessage = doExecute(message);
+            if (Environments.isDevMode()) {
+                doExecuteOnDevMode();
             } else {
-                commandResponseMessage.setCode(MessageConstants.SUCCESS_CODE);
-                commandResponseMessage.setResult(DefaultShellResult.success().getResult());
+                doExecute();
             }
         } catch (Exception e) {
             commandResponseMessage.setCode(MessageConstants.DEFAULT_FAIL_CODE);
@@ -29,7 +33,7 @@ public abstract class AbstractCommandExecutor implements CommandExecutor {
             log.error("Run command failed, {}", message, e);
         }
 
-        commandResponseMessage.setMessageType(message.getMessageType());
+        commandResponseMessage.setCommandMessageType(message.getCommandMessageType());
         commandResponseMessage.setMessageId(message.getMessageId());
         commandResponseMessage.setHostname(message.getHostname());
         commandResponseMessage.setTaskId(message.getTaskId());
@@ -38,5 +42,10 @@ public abstract class AbstractCommandExecutor implements CommandExecutor {
         SpringContextHolder.getAgentWebSocket().sendMessage(commandResponseMessage);
     }
 
-    protected abstract CommandResponseMessage doExecute(CommandRequestMessage message);
+    protected void doExecuteOnDevMode() {
+        commandResponseMessage.setCode(MessageConstants.SUCCESS_CODE);
+        commandResponseMessage.setResult(DefaultShellResult.success().getResult());
+    }
+
+    protected abstract void doExecute();
 }

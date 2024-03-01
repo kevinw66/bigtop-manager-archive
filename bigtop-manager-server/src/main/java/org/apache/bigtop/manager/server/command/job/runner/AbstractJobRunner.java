@@ -1,17 +1,17 @@
 package org.apache.bigtop.manager.server.command.job.runner;
 
 import jakarta.annotation.Resource;
-import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.server.command.stage.runner.StageRunner;
-import org.apache.bigtop.manager.server.command.stage.runner.StageRunners;
 import org.apache.bigtop.manager.common.enums.JobState;
-import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 import org.apache.bigtop.manager.dao.entity.Job;
 import org.apache.bigtop.manager.dao.entity.Stage;
 import org.apache.bigtop.manager.dao.entity.Task;
 import org.apache.bigtop.manager.dao.repository.JobRepository;
 import org.apache.bigtop.manager.dao.repository.StageRepository;
 import org.apache.bigtop.manager.dao.repository.TaskRepository;
+import org.apache.bigtop.manager.server.command.job.factory.JobContext;
+import org.apache.bigtop.manager.server.command.stage.runner.StageRunner;
+import org.apache.bigtop.manager.server.command.stage.runner.StageRunners;
+import org.apache.bigtop.manager.server.model.dto.CommandDTO;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,9 +30,16 @@ public abstract class AbstractJobRunner implements JobRunner {
 
     protected Job job;
 
+    protected JobContext jobContext;
+
     @Override
     public void setJob(Job job) {
         this.job = job;
+    }
+
+    @Override
+    public void setJobContext(JobContext jobContext) {
+        this.jobContext = jobContext;
     }
 
     @Override
@@ -94,6 +101,6 @@ public abstract class AbstractJobRunner implements JobRunner {
     }
 
     protected CommandDTO getCommandDTO() {
-        return JsonUtils.readFromString(job.getPayload(), CommandDTO.class);
+        return jobContext.getCommandDTO();
     }
 }

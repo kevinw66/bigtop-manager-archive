@@ -24,7 +24,5 @@ public class ServiceVO {
 
     private String serviceGroup;
 
-    private MaintainState state;
-
     private List<String> requiredServices;
 }

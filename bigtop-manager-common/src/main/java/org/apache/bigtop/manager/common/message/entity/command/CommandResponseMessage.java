@@ -1,7 +1,6 @@
 package org.apache.bigtop.manager.common.message.entity.command;
 
 import lombok.*;
-import org.apache.bigtop.manager.common.enums.MessageType;
 import org.apache.bigtop.manager.common.message.entity.BaseResponseMessage;
 
 @Data
@@ -17,7 +16,7 @@ public class CommandResponseMessage extends BaseResponseMessage {
 
     private String hostname;
 
-    private MessageType messageType;
+    private CommandMessageType commandMessageType;
 
     private Long jobId;
 

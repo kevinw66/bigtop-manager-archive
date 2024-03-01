@@ -48,7 +48,6 @@ public class Host extends BaseEntity {
     @Column(name = "total_disk")
     private Long totalDisk;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "state")
     private MaintainState state;
 
