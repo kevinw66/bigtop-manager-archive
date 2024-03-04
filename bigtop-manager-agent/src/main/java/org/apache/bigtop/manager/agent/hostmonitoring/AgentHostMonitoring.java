@@ -2,7 +2,9 @@ package org.apache.bigtop.manager.agent.hostmonitoring;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.Getter;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -16,15 +18,22 @@ import oshi.util.Util;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.UnknownHostException;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class AgentHostMonitoring {
+
+    public final static String AGENT_BASE_INFO = "agentBaseInfo";
+    public final static String BOOT_TIME = "bootTime";
+    public final static String MEM_IDLE = "memIdle";
+    public final static String MEM_TOTAL = "memTotal";
+    public final static String DISKS_BASE_INFO = "disksBaseInfo";
+    public final static String DISK_NAME = "diskName";
+    public final static String DISK_IDLE = "diskFreeSpace";
+    public final static String DISK_TOTAL = "diskTotalSpace";
+    public final static String CPU_LOAD_AVG_MIN_1 = "cpuLoadAvgMin_1";
+    public final static String CPU_LOAD_AVG_MIN_5 = "cpuLoadAvgMin_5";
+    public final static String CPU_LOAD_AVG_MIN_15 = "cpuLoadAvgMin_15";
+    public final static String CPU_USAGE = "cpuUsage";
 
     private static boolean sameSubnet(String ipAddress, String subnetMask, String gateway) throws UnknownHostException {
         InetAddress inetAddress = InetAddress.getByName(ipAddress);
@@ -57,12 +66,52 @@ public class AgentHostMonitoring {
         NetworkParams networkParams = operatingSystem.getNetworkParams();
         String hostName = networkParams.getHostName();
         String ipv4DefaultGateway = networkParams.getIpv4DefaultGateway();
-        objectNode.put("hostname", hostName)
+
+        // Agent Host Base Info
+        ObjectNode hostInfoNode = json.createObjectNode();
+        hostInfoNode.put("hostname", hostName)
                 .put("os", operatingSystem.toString())
                 .put("ipv4Gateway", ipv4DefaultGateway)
-                .put("upTimeHours", operatingSystem.getSystemUptime() / 3600)
-                .put("bootTime", LocalDateTime.ofEpochSecond(operatingSystem.getSystemBootTime(), 0, ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                .put("cpu_info", hal.getProcessor().getProcessorIdentifier().getMicroarchitecture())
+                .put("logical_cores", hal.getProcessor().getLogicalProcessorCount())
+                .put("physical_cores", hal.getProcessor().getPhysicalProcessorCount())
+                .put("iPv4addr", getAgentHostIPv4addr(hal, ipv4DefaultGateway));
+        objectNode.set(AGENT_BASE_INFO, hostInfoNode);
 
+        objectNode.put(BOOT_TIME, operatingSystem.getSystemBootTime());
+        //.put("upTimeSeconds", operatingSystem.getSystemUptime())
+
+        // MEM
+        GlobalMemory memory = hal.getMemory();
+        objectNode.put(MEM_IDLE, memory.getAvailable())
+                .put(MEM_TOTAL, memory.getTotal());
+        // DISK
+        List<OSFileStore> fileStores = operatingSystem.getFileSystem().getFileStores(true);
+        ArrayNode diskArrayNode = json.createArrayNode();
+        for (OSFileStore fileStore : fileStores) {
+            if (fileStore.getTotalSpace() <= 1024 * 1024 * 1024) {
+                continue;
+            }
+            ObjectNode disk = json.createObjectNode();
+            disk.put(DISK_NAME, fileStore.getVolume());
+            disk.put(DISK_TOTAL, fileStore.getTotalSpace());
+            disk.put(DISK_IDLE, fileStore.getFreeSpace());
+            diskArrayNode.add(disk);
+        }
+        objectNode.set(DISKS_BASE_INFO, diskArrayNode);
+        // CPU
+        CentralProcessor cpu = hal.getProcessor();
+        double[] systemLoadAverage = cpu.getSystemLoadAverage(3);
+        long[] systemCpuLoadTicks1 = cpu.getSystemCpuLoadTicks();
+        Util.sleep(3000);
+        objectNode.put(CPU_LOAD_AVG_MIN_1, systemLoadAverage[0])
+                .put(CPU_LOAD_AVG_MIN_5, systemLoadAverage[1])
+                .put(CPU_LOAD_AVG_MIN_15, systemLoadAverage[2])
+                .put(CPU_USAGE, cpu.getSystemCpuLoadBetweenTicks(systemCpuLoadTicks1));
+        return objectNode;
+    }
+
+    private static String getAgentHostIPv4addr(HardwareAbstractionLayer hal, String ipv4DefaultGateway) throws UnknownHostException {
         for (NetworkIF networkIF : hal.getNetworkIFs()) {
             String[] iPv4addr = networkIF.getIPv4addr();
             if (null == iPv4addr || iPv4addr.length == 0) {
@@ -78,39 +127,101 @@ public class AgentHostMonitoring {
             List<InterfaceAddress> interfaceAddresses = networkIF.queryNetworkInterface().getInterfaceAddresses();
             for (InterfaceAddress ifaddr : interfaceAddresses) {
                 if (null != ifaddr.getBroadcast() && sameSubnet(iPv4addr[0], subnetMask, ipv4DefaultGateway)) {
-                    objectNode.put("iPv4addr", iPv4addr[0]);
+                    return iPv4addr[0];
                 }
             }
         }
-        // MEM
-        GlobalMemory memory = hal.getMemory();
-        objectNode.put("idle_mem", memory.getAvailable())
-                .put("total_mem", memory.getTotal());
-        // DISK
-        List<OSFileStore> fileStores = operatingSystem.getFileSystem().getFileStores(true);
-        for (OSFileStore fileStore : fileStores) {
-            if (fileStore.getTotalSpace() <= 1024 * 1024 * 1024) {
-                continue;
-            }
-            objectNode.put("total_space", fileStore.getTotalSpace());
-            objectNode.put("free_space", fileStore.getFreeSpace());
-        }
-        // CPU
-        CentralProcessor cpu = hal.getProcessor();
-        double[] systemLoadAverage = cpu.getSystemLoadAverage(3);
-        String loadAvg = Arrays.stream(systemLoadAverage)
-                .mapToObj(v -> new DecimalFormat("#.00").format(v))
-                .collect(Collectors.joining(","));
-
-        long[] systemCpuLoadTicks1 = cpu.getSystemCpuLoadTicks();
-        Util.sleep(3000);
-        objectNode.put("cpu_info", cpu.getProcessorIdentifier().getMicroarchitecture())
-                .put("logical_cores", cpu.getLogicalProcessorCount())
-                .put("physical_cores", cpu.getPhysicalProcessorCount())
-                .put("load_avg", loadAvg)
-                .put("cpu_usage", cpu.getSystemCpuLoadBetweenTicks(systemCpuLoadTicks1));
-        return objectNode;
+        return "0.0.0.0";
     }
 
+    @Getter
+    private static class BaseAgentGauge {
+        private final ArrayList<String> labels;
+        private final ArrayList<String> labelsValues;
 
+        public BaseAgentGauge(JsonNode agentMonitoring) {
+            JsonNode agentHostInfo = agentMonitoring.get(AgentHostMonitoring.AGENT_BASE_INFO);
+            this.labels = new ArrayList<>();
+            this.labelsValues = new ArrayList<>();
+            Iterator<String> fieldNames = agentHostInfo.fieldNames();
+            while (fieldNames.hasNext()) {
+                String field = fieldNames.next();
+                this.labels.add(field);
+                this.labelsValues.add(agentHostInfo.get(field).asText());
+            }
+        }
+    }
+
+    public static Map<ArrayList<String>, Map<ArrayList<String>, Double>> getDiskGauge(JsonNode agentMonitoring) {
+        BaseAgentGauge gaugeBaseInfo = new BaseAgentGauge(agentMonitoring);
+        ArrayList<String> diskGaugeLabels = gaugeBaseInfo.getLabels();
+        ArrayList<String> diskGaugeLabelsValues = gaugeBaseInfo.getLabelsValues();
+        diskGaugeLabels.add(AgentHostMonitoring.DISK_NAME);
+        diskGaugeLabels.add("diskUsage");
+
+        Map<ArrayList<String>, Double> labelValues = new HashMap<>();
+        ArrayNode disksInfo = (ArrayNode) agentMonitoring.get(AgentHostMonitoring.DISKS_BASE_INFO);
+        disksInfo.forEach(diskJsonNode -> {
+            // Disk Idle
+            ArrayList<String> diskIdleLabelValues = new ArrayList<>(diskGaugeLabelsValues);
+            diskIdleLabelValues.add(diskJsonNode.get(AgentHostMonitoring.DISK_NAME).asText());
+            diskIdleLabelValues.add(AgentHostMonitoring.DISK_IDLE);
+            labelValues.put(diskIdleLabelValues, diskJsonNode.get(AgentHostMonitoring.DISK_IDLE).asDouble());
+
+            // Disk Total
+            ArrayList<String> diskTotalLabelValues = new ArrayList<>(diskGaugeLabelsValues);
+            diskTotalLabelValues.add(diskJsonNode.get(AgentHostMonitoring.DISK_NAME).asText());
+            diskTotalLabelValues.add(AgentHostMonitoring.DISK_TOTAL);
+            labelValues.put(diskTotalLabelValues, diskJsonNode.get(AgentHostMonitoring.DISK_TOTAL).asDouble());
+        });
+
+        Map<ArrayList<String>, Map<ArrayList<String>, Double>> diskGauge = new HashMap<>();
+        diskGauge.put(diskGaugeLabels, labelValues);
+        return diskGauge;
+    }
+
+    public static Map<ArrayList<String>, Map<ArrayList<String>, Double>> getCPUGauge(JsonNode agentMonitoring) {
+        BaseAgentGauge gaugeBaseInfo = new BaseAgentGauge(agentMonitoring);
+        ArrayList<String> cpuGaugeLabels = gaugeBaseInfo.getLabels();
+        ArrayList<String> cpuGaugeLabelsValues = gaugeBaseInfo.getLabelsValues();
+
+        cpuGaugeLabels.add(AgentHostMonitoring.CPU_USAGE);
+        Map<ArrayList<String>, Double> labelValues = new HashMap<>();
+        ArrayList<String> cpuUsageLabelValues = new ArrayList<>(cpuGaugeLabelsValues);
+        cpuUsageLabelValues.add(AgentHostMonitoring.CPU_USAGE);
+        ArrayList<String> cpuLoadAvgMin_1_LabelValues = new ArrayList<>(cpuGaugeLabelsValues);
+        cpuLoadAvgMin_1_LabelValues.add(AgentHostMonitoring.CPU_LOAD_AVG_MIN_1);
+        ArrayList<String> cpuLoadAvgMin_5_LabelValues = new ArrayList<>(cpuGaugeLabelsValues);
+        cpuLoadAvgMin_5_LabelValues.add(AgentHostMonitoring.CPU_LOAD_AVG_MIN_5);
+        ArrayList<String> cpuLoadAvgMin_15_LabelValues = new ArrayList<>(cpuGaugeLabelsValues);
+        cpuLoadAvgMin_15_LabelValues.add(AgentHostMonitoring.CPU_LOAD_AVG_MIN_15);
+
+        labelValues.put(cpuUsageLabelValues, agentMonitoring.get(AgentHostMonitoring.CPU_USAGE).asDouble());
+        labelValues.put(cpuLoadAvgMin_1_LabelValues, agentMonitoring.get(AgentHostMonitoring.CPU_LOAD_AVG_MIN_1).asDouble());
+        labelValues.put(cpuLoadAvgMin_5_LabelValues, agentMonitoring.get(AgentHostMonitoring.CPU_LOAD_AVG_MIN_5).asDouble());
+        labelValues.put(cpuLoadAvgMin_15_LabelValues, agentMonitoring.get(AgentHostMonitoring.CPU_LOAD_AVG_MIN_15).asDouble());
+        Map<ArrayList<String>, Map<ArrayList<String>, Double>> cpuGauge = new HashMap<>();
+        cpuGauge.put(cpuGaugeLabels, labelValues);
+        return cpuGauge;
+    }
+
+    public static Map<ArrayList<String>, Map<ArrayList<String>, Double>> getMEMGauge(JsonNode agentMonitoring) {
+        BaseAgentGauge gaugeBaseInfo = new BaseAgentGauge(agentMonitoring);
+        ArrayList<String> memGaugeLabels = gaugeBaseInfo.getLabels();
+        ArrayList<String> memGaugeLabelsValues = gaugeBaseInfo.getLabelsValues();
+        memGaugeLabels.add("memUsage");
+
+        Map<ArrayList<String>, Double> labelValues = new HashMap<>();
+        ArrayList<String> memIdleLabelValues = new ArrayList<>(memGaugeLabelsValues);
+        memIdleLabelValues.add(AgentHostMonitoring.MEM_IDLE);
+
+        ArrayList<String> memTotalLabelValues = new ArrayList<>(memGaugeLabelsValues);
+        memTotalLabelValues.add(AgentHostMonitoring.MEM_TOTAL);
+
+        labelValues.put(memIdleLabelValues, agentMonitoring.get(AgentHostMonitoring.MEM_IDLE).asDouble());
+        labelValues.put(memTotalLabelValues, agentMonitoring.get(AgentHostMonitoring.MEM_TOTAL).asDouble());
+        Map<ArrayList<String>, Map<ArrayList<String>, Double>> memGauge = new HashMap<>();
+        memGauge.put(memGaugeLabels, labelValues);
+        return memGauge;
+    }
 }
