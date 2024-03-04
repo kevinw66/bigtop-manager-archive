@@ -2,19 +2,17 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka;
 
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
+import org.apache.bigtop.manager.spi.stack.Script;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxOSUtils;
-import org.apache.bigtop.manager.spi.stack.Script;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -22,8 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_644;
-import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_755;
+import static org.apache.bigtop.manager.common.constants.Constants.*;
 
 @Slf4j
 @AutoService(Script.class)
@@ -41,9 +38,6 @@ public class KafkaBrokerScript implements Script {
         String confDir = kafkaParams.confDir();
         String kafkaUser = kafkaParams.user();
         String kafkaGroup = kafkaParams.group();
-        Map<String, Object> kafkaEnv = kafkaParams.kafkaEnv();
-        Map<String, Object> kafkaBroker = kafkaParams.kafkaBroker();
-        Map<String, Object> kafkaLog4j = kafkaParams.kafkaLog4j();
 
         LinuxFileUtils.createDirectories(kafkaParams.getKafkaDataDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
         LinuxFileUtils.createDirectories(kafkaParams.getKafkaLogDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
@@ -52,50 +46,39 @@ public class KafkaBrokerScript implements Script {
         // server.properties
         List<String> zookeeperServerHosts = LocalSettings.hosts("zookeeper_server");
         Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("zkHostList", zookeeperServerHosts);
-        paramMap.put("host", NetUtils.getHostname());
+        paramMap.put("zk_server_list", zookeeperServerHosts);
+        paramMap.put("host", kafkaParams.hostname());
         LinuxFileUtils.toFile(ConfigType.PROPERTIES,
                 MessageFormat.format("{0}/server.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
                 PERMISSION_644,
-                kafkaBroker,
+                kafkaParams.getGlobalParamsMap(),
                 paramMap);
 
-        // env
-        Map<String, Object> modelMap = new HashMap<>();
-        modelMap.put("JAVA_HOME", "/usr/local/java");
-        modelMap.put("LOG_DIR", kafkaParams.getKafkaLogDir());
-        modelMap.put("PID_DIR", kafkaParams.getKafkaPidDir());
-        modelMap.put("CONF_DIR", confDir);
-        modelMap.put("securityEnabled", false);
-
+        // kafka-env
         LinuxFileUtils.toFileByTemplate(kafkaParams.getKafkaEnvContent(),
                 MessageFormat.format("{0}/kafka-env.sh", confDir),
                 kafkaUser,
                 kafkaGroup,
                 PERMISSION_644,
-                modelMap);
+                kafkaParams.getGlobalParamsMap());
 
         // log4j
-        Map<String, Object> log4jMap = Maps.newHashMap(kafkaLog4j);
-        log4jMap.remove("content");
         LinuxFileUtils.toFileByTemplate(kafkaParams.getKafkaLog4jContent(),
                 MessageFormat.format("{0}/log4j.properties", confDir),
                 kafkaUser,
                 kafkaGroup,
                 PERMISSION_644,
-                log4jMap);
+                kafkaParams.getGlobalParamsMap());
 
         // kafka.limits
-        kafkaEnv.put("kafkaUser", kafkaUser);
-        kafkaEnv.put("kafkaGroup", kafkaGroup);
-        LinuxFileUtils.toFileByTemplate(kafkaParams.getKafkaLimitsContent(),
+        LinuxFileUtils.toFileByTemplate(kafkaParams.kafkaLimits(),
                 MessageFormat.format("{0}/kafka.conf", KafkaParams.LIMITS_CONF_DIR),
-                "root",
-                "root",
+                ROOT_USER,
+                ROOT_USER,
                 PERMISSION_644,
-                kafkaEnv);
+                kafkaParams.getGlobalParamsMap());
 
         return DefaultShellResult.success("Kafka Server Configure success!");
     }

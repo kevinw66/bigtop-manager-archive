@@ -43,7 +43,9 @@ public class Task extends BaseEntity {
     @Column(name = "custom_command")
     private String customCommand;
 
-    @Column(name = "custom_commands")
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "custom_commands", length = 16777216)
     private String customCommands;
 
     @Column(name = "command_script")

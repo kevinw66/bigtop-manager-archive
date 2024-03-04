@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
+
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LinuxOSUtils {
@@ -38,7 +40,7 @@ public class LinuxOSUtils {
      */
     public static String getTenant(String tenant) {
         if (StringUtils.isBlank(tenant) || !LinuxAccountUtils.isUserExists(tenant)) {
-            return "root";
+            return ROOT_USER;
         }
 
         return tenant;
@@ -82,16 +84,15 @@ public class LinuxOSUtils {
         }
         int pid;
         try {
-            pid = Integer.parseInt(FileUtils.readFile2Str(file));
+            pid = Integer.parseInt(FileUtils.readFile2Str(file).replaceAll("\r|\n", ""));
         } catch (Exception e) {
-            log.error("a", e);
-            log.warn("Pid file {} does not exist or does not contain a process id number", filepath);
+            log.warn("Pid file {} does not exist or does not contain a process id number", filepath, e);
             return new ShellResult(-1, "", "Component is not running");
         }
         try {
             return execCmd("kill -0 " + pid);
         } catch (IOException e) {
-            log.warn("Process with pid {} is not running. Stale pid file at {}", pid, filepath);
+            log.warn("Process with pid {} is not running. Stale pid file at {}", pid, filepath, e);
             return new ShellResult(-1, "", "Component is not running");
         }
     }

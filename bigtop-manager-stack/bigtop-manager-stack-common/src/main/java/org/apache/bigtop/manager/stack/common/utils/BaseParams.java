@@ -1,21 +1,57 @@
 package org.apache.bigtop.manager.stack.common.utils;
 
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
+import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.spi.stack.Params;
+import org.apache.bigtop.manager.stack.common.annotations.GlobalParams;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Method;
+import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
+
+
+@Slf4j
 public abstract class BaseParams implements Params {
+
+    @Getter
+    protected final Map<String, Object> globalParamsMap = new HashMap<>();
 
     public static final String LIMITS_CONF_DIR = "/etc/security/limits.d";
 
-    private final CommandPayload commandPayload;
+    protected final CommandPayload commandPayload;
 
+    @SuppressWarnings("unchecked")
     protected BaseParams(CommandPayload commandPayload) {
         this.commandPayload = commandPayload;
+
+        Command command = commandPayload.getCommand();
+        if (command == Command.INSTALL) {
+            return;
+        }
+        // Global Parameters Injection
+        Method[] declaredMethods = this.getClass().getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            try {
+                if (declaredMethod.isAnnotationPresent(GlobalParams.class) && declaredMethod.getParameterCount() == 0) {
+                    Map<String, Object> invoke = (Map<String, Object>) declaredMethod.invoke(this);
+                    log.debug("[Global Parameters Injection] Method Name: {}, Return Object: {}", declaredMethod.getName(), invoke);
+                    globalParamsMap.putAll(invoke);
+                }
+            } catch (Exception e) {
+                log.warn("Get {} Params Error!!!", declaredMethod, e);
+            }
+        }
+        globalParamsMap.remove("content");
     }
 
     /**
@@ -40,16 +76,31 @@ public abstract class BaseParams implements Params {
         return List.of();
     }
 
+    public String hostname() {
+        return NetUtils.getHostname();
+    }
+
+
+    public String stackBinDir() {
+        String stackName = this.commandPayload.getStackName();
+        String stackVersion = this.commandPayload.getStackVersion();
+        String root = this.commandPayload.getRoot();
+        return MessageFormat.format("{0}/{1}/{2}/usr/bin", root, stackName.toLowerCase(), stackVersion);
+    }
+
+    public String stackLibDir() {
+        String stackName = this.commandPayload.getStackName();
+        String stackVersion = this.commandPayload.getStackVersion();
+        String root = this.commandPayload.getRoot();
+        return MessageFormat.format("{0}/{1}/{2}/usr/lib", root, stackName.toLowerCase(), stackVersion);
+    }
+
     /**
      * service home dir
      */
     public String serviceHome() {
-        String stackName = this.commandPayload.getStackName();
-        String stackVersion = this.commandPayload.getStackVersion();
         String service = this.commandPayload.getServiceName();
-        String root = this.commandPayload.getRoot();
-
-        return root + "/" + stackName.toLowerCase() + "/" + stackVersion + "/usr/lib/" + service.toLowerCase();
+        return stackLibDir() + "/" + service.toLowerCase();
     }
 
     /**
@@ -60,11 +111,11 @@ public abstract class BaseParams implements Params {
     }
 
     public String user() {
-        return StringUtils.isNotBlank(this.commandPayload.getServiceUser()) ? this.commandPayload.getServiceUser() : "root";
+        return StringUtils.isNotBlank(this.commandPayload.getServiceUser()) ? this.commandPayload.getServiceUser() : ROOT_USER;
     }
 
     public String group() {
-        return StringUtils.isNotBlank(this.commandPayload.getServiceGroup()) ? this.commandPayload.getServiceGroup() : "root";
+        return StringUtils.isNotBlank(this.commandPayload.getServiceGroup()) ? this.commandPayload.getServiceGroup() : ROOT_USER;
     }
 
     public String serviceName() {

@@ -9,7 +9,7 @@ import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
-import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
+import org.apache.bigtop.manager.stack.common.annotations.HookGuard;
 import org.apache.bigtop.manager.spi.stack.Hook;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 public class InstallHookImpl implements Hook {
 
     @Override
-    @HookAnnotation(before = HookType.ANY)
+    @HookGuard(before = HookType.ANY)
     public void before() {
         List<RepoInfo> repos = LocalSettings.repos();
         String repoTemplate = LocalSettings.cluster().getRepoTemplate();
@@ -38,7 +38,7 @@ public class InstallHookImpl implements Hook {
     }
 
     @Override
-    @HookAnnotation(after = HookType.ANY)
+    @HookGuard(after = HookType.ANY)
     public void after() {
     }
 

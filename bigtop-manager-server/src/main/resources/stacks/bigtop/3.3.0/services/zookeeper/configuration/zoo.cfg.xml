@@ -91,7 +91,7 @@
         <description>The port the embedded Jetty server listens on. Defaults to 8080.</description>
     </property>
     <property>
-        <name>templateContent</name>
+        <name>content</name>
         <description>The port the embedded Jetty server listens on. Defaults to 8080.</description>
         <value><![CDATA[
 <#compress>
@@ -109,11 +109,11 @@
 </#compress>
 
 <#noparse>
-<#if zkServerStr?? >
-${zkServerStr}
+<#if zk_server_str?? >
+${zk_server_str}
 </#if>
 
-<#if securityEnabled?? && securityEnabled >
+<#if security_enabled?? && security_enabled >
 authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider
 jaasLoginRenew=3600000
 kerberos.removeHostFromPrincipal=true

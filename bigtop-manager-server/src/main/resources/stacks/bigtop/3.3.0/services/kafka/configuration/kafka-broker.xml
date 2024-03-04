@@ -31,7 +31,7 @@
     </property>
     <property>
         <name>zookeeper.connect</name>
-        <value><![CDATA[<#if zkHostList?? ><#list zkHostList as host>${host}:2181<#sep>,</#sep></#list><#else>localhost:2181</#if>]]></value>
+        <value><![CDATA[<#if zk_server_list?? ><#list zk_server_list as host>${host}:2181<#sep>,</#sep></#list><#else>localhost:2181</#if>]]></value>
         <description>
             Zookeeper also allows you to add a "chroot" path which will make all kafka data for this cluster appear
             under a particular path.

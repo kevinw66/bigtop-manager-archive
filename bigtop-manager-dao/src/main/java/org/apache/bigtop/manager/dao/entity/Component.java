@@ -27,7 +27,9 @@ public class Component extends BaseEntity {
     @Column(name = "command_script")
     private String commandScript;
 
-    @Column(name = "custom_commands")
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "custom_commands", length = 16777216)
     private String customCommands;
 
     @Column(name = "category")

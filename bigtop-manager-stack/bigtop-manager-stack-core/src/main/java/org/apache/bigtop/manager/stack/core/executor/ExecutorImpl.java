@@ -13,7 +13,7 @@ import org.apache.bigtop.manager.spi.stack.Script;
 import org.apache.bigtop.manager.stack.common.enums.HookAroundType;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
-import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
+import org.apache.bigtop.manager.stack.common.annotations.HookGuard;
 import org.apache.commons.text.CaseUtils;
 
 import java.lang.reflect.Method;
@@ -105,8 +105,8 @@ public class ExecutorImpl implements Executor {
 
         try {
             Method method = hook.getClass().getMethod(type);
-            if (method.isAnnotationPresent(HookAnnotation.class)) {
-                HookAnnotation annotation = method.getAnnotation(HookAnnotation.class);
+            if (method.isAnnotationPresent(HookGuard.class)) {
+                HookGuard annotation = method.getAnnotation(HookGuard.class);
                 HookType before = annotation.before();
                 Hook hookBefore = hookMap.get(before.name());
                 if (hookBefore != null) {

@@ -128,6 +128,11 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
         return componentDTO.getCategory().equalsIgnoreCase("master");
     }
 
+    protected Boolean isSlaveComponent(String componentName) {
+        ComponentDTO componentDTO = componentNameToDTO.get(componentName);
+        return componentDTO.getCategory().equalsIgnoreCase("slave");
+    }
+
     protected List<String> findHostnamesByComponentName(String componentName) {
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(cluster.getId(), componentName);
         if (hostComponents == null) {
@@ -165,7 +170,7 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
             String componentName = split[0];
             String serviceName = findServiceNameByComponentName(componentName);
 
-            if (!isMasterComponent(componentName)) {
+            if (!(isMasterComponent(componentName) || isSlaveComponent(componentName))) {
                 continue;
             }
 
@@ -182,7 +187,7 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
             String componentName = split[0];
             String serviceName = findServiceNameByComponentName(componentName);
 
-            if (!isMasterComponent(componentName)) {
+            if (!(isMasterComponent(componentName) || isSlaveComponent(componentName))) {
                 continue;
             }
 

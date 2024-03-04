@@ -4,7 +4,7 @@ package org.apache.bigtop.manager.stack.core.hooks;
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.common.enums.HookType;
-import org.apache.bigtop.manager.stack.core.annotations.HookAnnotation;
+import org.apache.bigtop.manager.stack.common.annotations.HookGuard;
 import org.apache.bigtop.manager.spi.stack.Hook;
 
 /**
@@ -15,12 +15,12 @@ import org.apache.bigtop.manager.spi.stack.Hook;
 public class RestartHookImpl implements Hook {
 
     @Override
-    @HookAnnotation(before = HookType.START)
+    @HookGuard(before = HookType.START)
     public void before() {
     }
 
     @Override
-    @HookAnnotation(after = HookType.START)
+    @HookGuard(after = HookType.START)
     public void after() {
     }
 

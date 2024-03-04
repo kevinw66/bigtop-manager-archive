@@ -51,26 +51,17 @@ public class ZookeeperSetup {
                 zookeeperUser, zookeeperGroup, PERMISSION_644,
                 zkHostList.indexOf(NetUtils.getHostname()) + 1 + "");
 
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("zkServerStr", zkServerStr.toString());
-        paramMap.put("securityEnabled", false);
-        String templateContent = zooCfg.get("templateContent").toString();
-        zooCfg.remove("templateContent");
-        Map<String, Object> modelMap = new HashMap<>();
-        modelMap.put("model", zooCfg);
+        Map<String, Object> paramMap = Map.of(
+                "zk_server_str", zkServerStr.toString(),
+                "security_enabled", false);
 
-        LinuxFileUtils.toFileByTemplate(templateContent, MessageFormat.format("{0}/zoo.cfg", confDir),
-                zookeeperUser, zookeeperGroup, PERMISSION_644, modelMap, paramMap);
+        // zoo.cfg
+        LinuxFileUtils.toFileByTemplate(zooCfg.get("content").toString(), MessageFormat.format("{0}/zoo.cfg", confDir),
+                zookeeperUser, zookeeperGroup, PERMISSION_644, Map.of("model", zookeeperParams.getGlobalParamsMap()), paramMap);
 
-        Map<String, Object> envMap = new HashMap<>();
-        envMap.put("JAVA_HOME", "/usr/local/java");
-        envMap.put("ZOOKEEPER_HOME", zookeeperParams.serviceHome());
-        envMap.put("ZOO_LOG_DIR", zookeeperParams.getZookeeperLogDir());
-        envMap.put("ZOOPIDFILE", zookeeperParams.getZookeeperPidFile());
-        envMap.put("securityEnabled", false);
-
+        // zookeeper-env
         LinuxFileUtils.toFileByTemplate(zookeeperEnv.get("content").toString(), MessageFormat.format("{0}/zookeeper-env.sh", confDir),
-                zookeeperUser, zookeeperGroup, PERMISSION_644, envMap);
+                zookeeperUser, zookeeperGroup, PERMISSION_644, zookeeperParams.getGlobalParamsMap());
 
         return DefaultShellResult.success("ZooKeeper Server Configure success!");
     }

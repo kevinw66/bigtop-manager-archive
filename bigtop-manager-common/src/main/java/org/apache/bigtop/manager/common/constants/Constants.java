@@ -46,4 +46,13 @@ public final class Constants {
      * permission 644
      */
     public static final String PERMISSION_644 = "rw-r--r--";
+    /**
+     * permission 777
+     */
+    public static final String PERMISSION_777 = "rwwrwxrwx";
+
+    /**
+     * root user
+     */
+    public static final String ROOT_USER = "root";
 }

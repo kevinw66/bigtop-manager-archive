@@ -22,8 +22,8 @@
 <configuration>
     <property>
         <name>content</name>
-        <display-name>kafka.conf template</display-name>
-        <description>This is the freemarker template for kafka-env.sh file</description>
+        <display-name>hdfs.conf template</display-name>
+        <description>This is the freemarker template for hdfs file</description>
         <value><![CDATA[
 #
 # Licensed to the Apache Software Foundation (ASF) under one
@@ -43,8 +43,8 @@
 # limitations under the License.
 #
 
-${kafka_user}    - nofile   ${kafka_user_nofile_limit}
-${kafka_group}   - nproc    ${kafka_user_nproc_limit}
+${hdfs_user}    - nofile   ${hdfs_user_nofile_limit}
+${hdfs_group}   - nproc    ${hdfs_user_nproc_limit}
 
 ]]>
         </value>
