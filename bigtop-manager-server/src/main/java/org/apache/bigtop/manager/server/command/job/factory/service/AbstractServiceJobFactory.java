@@ -1,6 +1,7 @@
 package org.apache.bigtop.manager.server.command.job.factory.service;
 
 import jakarta.annotation.Resource;
+import org.apache.bigtop.manager.common.constants.ComponentCategories;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.command.job.factory.AbstractJobFactory;
@@ -125,12 +126,12 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
 
     protected Boolean isMasterComponent(String componentName) {
         ComponentDTO componentDTO = componentNameToDTO.get(componentName);
-        return componentDTO.getCategory().equalsIgnoreCase("master");
+        return componentDTO.getCategory().equalsIgnoreCase(ComponentCategories.MASTER);
     }
 
     protected Boolean isSlaveComponent(String componentName) {
         ComponentDTO componentDTO = componentNameToDTO.get(componentName);
-        return componentDTO.getCategory().equalsIgnoreCase("slave");
+        return componentDTO.getCategory().equalsIgnoreCase(ComponentCategories.SLAVE);
     }
 
     protected List<String> findHostnamesByComponentName(String componentName) {

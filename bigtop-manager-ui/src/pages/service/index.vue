@@ -100,6 +100,14 @@
     await componentStore.loadHostComponents()
   }
 
+  const isHealthy = (item: HostComponentVO) => {
+    if (item.category === 'client') {
+      return item.state === 'Installed'
+    } else {
+      return item.state === 'Started'
+    }
+  }
+
   onMounted(() => {
     initServiceMeta()
   })
@@ -163,11 +171,11 @@
                     <p>{{ item.hostname }}</p>
                     <p>
                       <CheckCircleTwoTone
-                        v-if="item.state === 'STARTED'"
+                        v-if="isHealthy(item)"
                         two-tone-color="#52c41a"
                       />
                       <MinusCircleTwoTone
-                        v-else-if="item.state === 'MAINTAINED'"
+                        v-else-if="item.state === 'Maintained'"
                         two-tone-color="orange"
                       />
                       <CloseCircleTwoTone v-else two-tone-color="red" />

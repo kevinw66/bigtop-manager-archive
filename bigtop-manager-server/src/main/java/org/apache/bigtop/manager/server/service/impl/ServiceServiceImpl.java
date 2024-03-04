@@ -2,6 +2,7 @@ package org.apache.bigtop.manager.server.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.common.constants.ComponentCategories;
 import org.apache.bigtop.manager.common.enums.MaintainState;
 import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
@@ -15,9 +16,7 @@ import org.apache.bigtop.manager.server.service.ServiceService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,9 +44,37 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public List<ServiceVO> list(Long clusterId) {
-        List<Service> serviceList = serviceRepository.findAllByClusterId(clusterId);
+        List<ServiceVO> res = new ArrayList<>();
+        List<HostComponent> hostComponentList = hostComponentRepository.findAllByComponentClusterId(clusterId);
+        Map<Long, List<HostComponent>> serviceIdToHostComponent = hostComponentList
+                .stream()
+                .collect(Collectors.groupingBy(hostComponent -> hostComponent.getComponent().getService().getId()));
 
-        return ServiceMapper.INSTANCE.fromEntity2VO(serviceList);
+        for (Map.Entry<Long, List<HostComponent>> entry : serviceIdToHostComponent.entrySet()) {
+            List<HostComponent> hostComponents = entry.getValue();
+            Service service = hostComponents.get(0).getComponent().getService();
+            ServiceVO serviceVO = ServiceMapper.INSTANCE.fromEntity2VO(service);
+
+            boolean isHealthy = true;
+            boolean isClient = true;
+            for (HostComponent hostComponent : hostComponents) {
+                String category = hostComponent.getComponent().getCategory();
+                if (!category.equalsIgnoreCase(ComponentCategories.CLIENT)) {
+                    isClient = false;
+                }
+
+                MaintainState expectedState = category.equalsIgnoreCase(ComponentCategories.CLIENT) ? MaintainState.INSTALLED : MaintainState.STARTED;
+                if (!hostComponent.getState().equals(expectedState)) {
+                    isHealthy = false;
+                }
+            }
+
+            serviceVO.setIsClient(isClient);
+            serviceVO.setIsHealthy(isHealthy);
+            res.add(serviceVO);
+        }
+
+        return res;
     }
 
     @Override

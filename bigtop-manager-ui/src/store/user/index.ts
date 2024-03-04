@@ -49,7 +49,7 @@ export const useUserStore = defineStore(
         if (route.meta?.title === 'Services') {
           menuItem.children = []
           installedServices.value.forEach((service) => {
-            const color = service.state === 'STARTED' ? '#52c41a' : '#f5222d'
+            const color = service.isHealthy ? '#52c41a' : '#f5222d'
             menuItem.children?.push({
               key: service.serviceName,
               to: '/services/' + service.serviceName,

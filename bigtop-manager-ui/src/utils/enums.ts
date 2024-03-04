@@ -16,8 +16,8 @@
  */
 
 export type MaintainState =
-  | 'UNINSTALLED'
-  | 'INSTALLED'
-  | 'MAINTAINED'
-  | 'STARTED'
-  | 'STOPPED'
+  | 'Uninstalled'
+  | 'Installed'
+  | 'Maintained'
+  | 'Started'
+  | 'Stopped'
