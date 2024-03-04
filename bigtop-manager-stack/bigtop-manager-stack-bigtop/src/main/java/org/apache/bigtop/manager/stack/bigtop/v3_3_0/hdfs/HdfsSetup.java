@@ -80,7 +80,7 @@ public class HdfsSetup {
                 hdfsUser, hdfsGroup, PERMISSION_644, hdfsParams.hadoopPolicy());
 
         // hdfs-policy.xml
-        LinuxFileUtils.toFileByTemplate(hdfsParams.slaves(), MessageFormat.format("{0}/slaves", confDir),
+        LinuxFileUtils.toFileByTemplate(hdfsParams.workers(), MessageFormat.format("{0}/workers", confDir),
                 hdfsUser, hdfsGroup, PERMISSION_644, hdfsParams.getGlobalParamsMap());
 
         // log4j
@@ -96,8 +96,8 @@ public class HdfsSetup {
 
     public static void formatNameNode(HdfsParams hdfsParams) {
         if (!isNameNodeFormatted(hdfsParams)) {
-            String formatCmd = MessageFormat.format("sh {0}/hdfs --config {1} namenode -format -nonInteractive",
-                    hdfsParams.stackBinDir(), hdfsParams.confDir());
+            String formatCmd = MessageFormat.format("{0} --config {1} namenode -format -nonInteractive",
+                    hdfsParams.hdfsExec(), hdfsParams.confDir());
             try {
                 LinuxOSUtils.sudoExecCmd(formatCmd, hdfsParams.user());
             } catch (Exception e) {

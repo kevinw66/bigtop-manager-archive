@@ -31,7 +31,7 @@ public class DataNodeScript implements Script {
         configure(params);
         HdfsParams hdfsParams = (HdfsParams) params;
 
-        String cmd = MessageFormat.format("sh {0}/hdfs --daemon start datanode", hdfsParams.stackBinDir());
+        String cmd = MessageFormat.format("{0} --daemon start datanode", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class DataNodeScript implements Script {
     @Override
     public ShellResult stop(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
-        String cmd = MessageFormat.format("sh {0}/hdfs --daemon stop datanode", hdfsParams.stackBinDir());
+        String cmd = MessageFormat.format("{0} --daemon stop datanode", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {

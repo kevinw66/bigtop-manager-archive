@@ -32,7 +32,7 @@ public class SNameNodeScript implements Script {
         configure(params);
         HdfsParams hdfsParams = (HdfsParams) params;
 
-        String cmd = MessageFormat.format("sh {0}/hdfs --daemon start secondarynamenode", hdfsParams.stackBinDir());
+        String cmd = MessageFormat.format("{0} --daemon start secondarynamenode", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {
@@ -43,7 +43,7 @@ public class SNameNodeScript implements Script {
     @Override
     public ShellResult stop(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
-        String cmd = MessageFormat.format("sh {0}/hdfs --daemon stop secondarynamenode", hdfsParams.stackBinDir());
+        String cmd = MessageFormat.format("{0} --daemon stop secondarynamenode", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {

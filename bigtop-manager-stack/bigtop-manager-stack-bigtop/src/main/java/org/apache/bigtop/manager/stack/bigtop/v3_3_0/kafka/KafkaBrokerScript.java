@@ -53,7 +53,7 @@ public class KafkaBrokerScript implements Script {
                 kafkaUser,
                 kafkaGroup,
                 PERMISSION_644,
-                kafkaParams.getGlobalParamsMap(),
+                kafkaParams.kafkaBroker(),
                 paramMap);
 
         // kafka-env

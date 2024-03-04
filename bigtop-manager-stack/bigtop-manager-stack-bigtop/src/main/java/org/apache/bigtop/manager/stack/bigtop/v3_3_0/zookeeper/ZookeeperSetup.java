@@ -47,17 +47,19 @@ public class ZookeeperSetup {
                     .append("\n");
         }
 
+        // myid
         LinuxFileUtils.toFile(ConfigType.CONTENT, MessageFormat.format("{0}/myid", zookeeperParams.getZookeeperDataDir()),
                 zookeeperUser, zookeeperGroup, PERMISSION_644,
                 zkHostList.indexOf(NetUtils.getHostname()) + 1 + "");
 
+        // zoo.cfg
+        HashMap<String, Object> map = new HashMap<>(zooCfg);
+        map.remove("content");
         Map<String, Object> paramMap = Map.of(
                 "zk_server_str", zkServerStr.toString(),
                 "security_enabled", false);
-
-        // zoo.cfg
         LinuxFileUtils.toFileByTemplate(zooCfg.get("content").toString(), MessageFormat.format("{0}/zoo.cfg", confDir),
-                zookeeperUser, zookeeperGroup, PERMISSION_644, Map.of("model", zookeeperParams.getGlobalParamsMap()), paramMap);
+                zookeeperUser, zookeeperGroup, PERMISSION_644, Map.of("model", map), paramMap);
 
         // zookeeper-env
         LinuxFileUtils.toFileByTemplate(zookeeperEnv.get("content").toString(), MessageFormat.format("{0}/zookeeper-env.sh", confDir),

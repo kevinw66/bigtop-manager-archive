@@ -157,13 +157,6 @@
         </description>
     </property>
     <property>
-        <name>net.topology.script.file.name</name>
-        <value>/etc/hadoop/conf/topology_script.py</value>
-        <description>
-            Location of topology script used by Hadoop to determine the rack location of nodes.
-        </description>
-    </property>
-    <property>
         <name>hadoop.proxyuser</name>
         <value/>
         <description>

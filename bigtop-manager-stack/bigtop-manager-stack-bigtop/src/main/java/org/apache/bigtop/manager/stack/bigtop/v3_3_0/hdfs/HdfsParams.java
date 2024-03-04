@@ -53,8 +53,8 @@ public class HdfsParams extends BaseParams {
         return (String) hdfsConf.get("content");
     }
 
-    public String slaves() {
-        Map<String, Object> hdfsConf = LocalSettings.configurations(serviceName(), "slaves");
+    public String workers() {
+        Map<String, Object> hdfsConf = LocalSettings.configurations(serviceName(), "workers");
         return (String) hdfsConf.get("content");
     }
 
@@ -114,6 +114,10 @@ public class HdfsParams extends BaseParams {
 
     public String hdfsHome() {
         return stackLibDir() + "/hadoop-hdfs";
+    }
+
+    public String hdfsExec() {
+        return stackBinDir() + "/hdfs";
     }
 
 }

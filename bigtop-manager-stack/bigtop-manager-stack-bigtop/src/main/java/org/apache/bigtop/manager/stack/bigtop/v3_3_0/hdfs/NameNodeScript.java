@@ -34,7 +34,7 @@ public class NameNodeScript implements Script {
 
         HdfsSetup.formatNameNode(hdfsParams);
 
-        String cmd = MessageFormat.format("sh {0}/hdfs --daemon start namenode", hdfsParams.stackBinDir());
+        String cmd = MessageFormat.format("{0} --daemon start namenode", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {
@@ -45,7 +45,7 @@ public class NameNodeScript implements Script {
     @Override
     public ShellResult stop(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
-        String cmd = MessageFormat.format("sh {0}/hdfs --daemon stop namenode", hdfsParams.stackBinDir());
+        String cmd = MessageFormat.format("{0} --daemon stop namenode", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {
@@ -62,7 +62,7 @@ public class NameNodeScript implements Script {
 
     public ShellResult rebalance_hdfs(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
-        String cmd = MessageFormat.format("sh {0}/bin/hdfs balancer", hdfsParams.hdfsHome());
+        String cmd = MessageFormat.format("{0} balancer", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {
@@ -72,7 +72,7 @@ public class NameNodeScript implements Script {
 
     public ShellResult print_topology(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
-        String cmd = MessageFormat.format("sh {0}/bin/hdfs dfsadmin -printTopology", hdfsParams.hdfsHome());
+        String cmd = MessageFormat.format("{0} dfsadmin -printTopology", hdfsParams.hdfsExec());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, hdfsParams.user());
         } catch (Exception e) {
