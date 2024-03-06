@@ -61,3 +61,6 @@ springdoc:
   packages-to-scan: org.apache.bigtop.manager.server
   swagger-ui:
     defaultModelsExpandDepth: -1
+
+monitoring:
+  prometheus-host: "http://192.168.64.7:9090"
