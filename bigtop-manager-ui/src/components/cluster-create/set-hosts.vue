@@ -141,14 +141,6 @@
     </a-form>
   </div>
 </template>
-<style>
-  :deep(.content) {
-    margin-inline-start: 34px;
-    width: 100%;
-    max-height: 31.25rem;
-    overflow: auto;
-  }
-</style>
 <style scoped lang="scss">
   .container {
     display: flex;

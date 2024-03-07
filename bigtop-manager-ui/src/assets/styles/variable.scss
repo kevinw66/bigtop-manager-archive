@@ -1,0 +1,12 @@
+@mixin dot($width, $height, $color) {
+  width: $width;
+  height: $height;
+  background: $color;
+  border-radius: 50%;
+}
+
+@mixin flex($row: null, $col: null) {
+  display: flex;
+  justify-content: $row;
+  align-items: $col;
+}

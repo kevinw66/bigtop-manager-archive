@@ -3,9 +3,6 @@
   import { useRoute } from 'vue-router'
   import type { SelectProps, MenuProps } from 'ant-design-vue'
   import {
-    CheckCircleTwoTone,
-    CloseCircleTwoTone,
-    MinusCircleTwoTone,
     QuestionCircleOutlined,
     DownOutlined,
     UserOutlined
@@ -15,6 +12,30 @@
   import { ServiceConfigVO, TypeConfigVO } from '@/api/config/types.ts'
   import { useComponentStore } from '@/store/component'
   import { HostComponentVO } from '@/api/component/types.ts'
+  import DotState from '@/components/dot-state/index.vue'
+
+  const menuOps = [
+    {
+      key: '1',
+      dicText: 'Start'
+    },
+    {
+      key: '2',
+      dicText: 'Stop'
+    },
+    {
+      key: '3',
+      dicText: 'Restart'
+    }
+  ]
+
+  const stateColor = {
+    Installed: '#00c0b9',
+    Started: '#00c0b9',
+    Maintained: '#c68d0d',
+    Uninstalled: '#f5222d',
+    Stopped: '#f5222d'
+  }
 
   const route = useRoute()
   const configStore = useConfigStore()
@@ -31,6 +52,7 @@
       (hc: HostComponentVO) => hc.serviceName === serviceName.value
     )
   })
+
   // summary model end
 
   // config model start
@@ -100,14 +122,6 @@
     await componentStore.loadHostComponents()
   }
 
-  const isHealthy = (item: HostComponentVO) => {
-    if (item.category === 'client') {
-      return item.state === 'Installed'
-    } else {
-      return item.state === 'Started'
-    }
-  }
-
   onMounted(() => {
     initServiceMeta()
   })
@@ -127,17 +141,9 @@
       <a-dropdown>
         <template #overlay>
           <a-menu @click="handleMenuClick">
-            <a-menu-item key="1">
+            <a-menu-item v-for="item in menuOps" :key="item.key">
               <UserOutlined />
-              Start
-            </a-menu-item>
-            <a-menu-item key="2">
-              <UserOutlined />
-              Stop
-            </a-menu-item>
-            <a-menu-item key="3">
-              <UserOutlined />
-              Restart
+              <span>{{ item.dicText }}</span>
             </a-menu-item>
           </a-menu>
         </template>
@@ -150,45 +156,36 @@
     <a-tab-pane key="summary">
       <template #tab>{{ $t('service.summary') }}</template>
       <a-layout-content class="summary-layout">
-        <div class="left-div">
-          <a-card>
-            <template #title>{{ $t('service.components') }}</template>
-            <template v-if="currentHostComponent.length > 0">
-              <div class="summary-div">
-                <template
-                  v-for="item in currentHostComponent"
-                  :key="`${item.id}`"
-                >
-                  <a-card class="card" :bordered="false" size="small">
-                    <template #title>
-                      <router-link :to="'/services/' + serviceName">
-                        {{ item.displayName }}
-                      </router-link>
-                    </template>
-                    <template #extra>
-                      <a-tag>{{ item.category }}</a-tag>
-                    </template>
-                    <p>{{ item.hostname }}</p>
-                    <p>
-                      <CheckCircleTwoTone
-                        v-if="isHealthy(item)"
-                        two-tone-color="#52c41a"
-                      />
-                      <MinusCircleTwoTone
-                        v-else-if="item.state === 'Maintained'"
-                        two-tone-color="orange"
-                      />
-                      <CloseCircleTwoTone v-else two-tone-color="red" />
-                      {{ item.state }}
-                    </p>
-                  </a-card>
-                </template>
+        <div class="left-section">
+          <h2>{{ $t('service.components') }}</h2>
+          <div v-if="currentHostComponent.length > 0" class="summary-ctx">
+            <template v-for="item in currentHostComponent" :key="`${item.id}`">
+              <div class="card">
+                <div class="service-name">
+                  <router-link :to="'/services/' + serviceName">
+                    {{ item.displayName }}
+                  </router-link>
+                </div>
+                <div class="comp-info">
+                  <div class="host-name">{{ item.hostname }}</div>
+                </div>
+                <footer>
+                  <a-tag
+                    :bordered="false"
+                    style="color: rgb(145 134 134 / 90%)"
+                  >
+                    {{ item.category }}
+                  </a-tag>
+                  <div class="comp-state">
+                    <dot-state :color="stateColor[item.state]" />
+                  </div>
+                </footer>
               </div>
             </template>
-          </a-card>
+          </div>
         </div>
-        <div class="middle-div"></div>
-        <div class="right-div">
+        <div class="middle-section"></div>
+        <div class="right-section">
           <a-card>
             <template #title>{{ $t('service.quicklinks') }}</template>
             <a-empty /> </a-card
@@ -247,28 +244,62 @@
     display: flex;
     margin: 3px;
 
-    .left-div {
+    .left-section {
       width: 74%;
+      .a-card {
+        background-color: rgb(128, 171, 209);
+      }
     }
 
-    .middle-div {
+    .middle-section {
       width: 2%;
     }
 
-    .right-div {
+    .right-section {
       width: 24%;
     }
 
-    .summary-div {
+    .summary-ctx {
       display: flex;
-      flex-direction: row;
-      justify-content: space-around;
       flex-wrap: wrap;
+      box-sizing: border-box;
 
       .card {
-        width: 30%;
-        margin: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        position: relative;
+        flex: 0 1 calc((100% / 3) - 24px);
+        min-width: calc((100% / 3) - 24px);
+        border: 1px solid rgb(211 211 211 / 23%);
+        &:hover {
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          transform: scale(1.1);
+          transition: all 0.4s;
+        }
+        .service-name {
+          font-size: 1.06rem;
+          font-weight: 600;
+          margin-bottom: 6px;
+        }
+        .comp-info {
+          @include flex(center);
+          margin-bottom: 20px;
+          .host-name {
+            width: 80%;
+            font-size: 0.8rem;
+            color: #797878d0;
+            font-weight: 500;
+            flex: 1;
+          }
+        }
+        footer {
+          @include flex(space-between, center);
+          .comp-state {
+            font-size: 1rem;
+            align-items: flex-end;
+          }
+        }
       }
     }
   }

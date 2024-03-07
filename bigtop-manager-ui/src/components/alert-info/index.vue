@@ -1,28 +1,125 @@
 <script setup lang="ts">
   import { BellOutlined } from '@ant-design/icons-vue'
+  import { computed, ref } from 'vue'
+  import DotState from '@/components/dot-state/index.vue'
+  import dayjs from 'dayjs'
+  import customParseFormat from 'dayjs/plugin/customParseFormat'
+  const visible = ref(false)
+  const overlayInnerStyle = {
+    padding: '12px 0',
+    width: '400px'
+  }
+
+  // now Date
+  const getAlertTrigger = computed(() => {
+    dayjs.extend(customParseFormat)
+    return dayjs(new Date())
+  })
 </script>
 
 <template>
-  <div class="icon">
-    <a-badge size="small" color="red" count="1">
-      <bell-outlined />
-    </a-badge>
+  <div class="alert">
+    <a-popover
+      v-model:open="visible"
+      placement="bottomRight"
+      trigger="click"
+      :arrow-point-at-center="true"
+      :auto-adjust-overflow="true"
+      :overlay-inner-style="overlayInnerStyle"
+    >
+      <template #title>
+        <div class="alert-title">{{ $t('common.notification') }}</div>
+      </template>
+      <template #content>
+        <ul class="alert-list">
+          <li v-for="idx in 100" :key="idx">
+            <dot-state
+              width="0.6rem"
+              height="0.6rem"
+              style="margin-right: 10px; line-height: 28px"
+              color="#f5222d"
+            />
+            <div>
+              <div class="alert-list-ctx">
+                <div>DataNode Process</div>
+                <p>
+                  Ulimit for open files (-n)is 1048576 which is higher orequal
+                  than critical value of 800000
+                </p>
+              </div>
+              <div class="alert-list-state">{{ getAlertTrigger }}</div>
+            </div>
+          </li>
+        </ul>
+        <footer>
+          <a>{{ $t('common.view_all') }}</a>
+        </footer>
+      </template>
+      <a-badge size="small" color="red" count="100">
+        <bell-outlined />
+      </a-badge>
+    </a-popover>
   </div>
 </template>
 
 <style lang="scss" scoped>
-  .icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .alert {
+    height: 36px;
+    width: 36px;
     font-size: 16px;
     cursor: pointer;
     border-radius: 50%;
-    height: 36px;
-    width: 36px;
+    @include flex(center, center);
 
     &:hover {
       background-color: var(--hover-color);
     }
+  }
+  .alert-title {
+    font-size: 1rem;
+    color: #333333;
+    font-weight: normal;
+    padding-left: 10px;
+  }
+  .alert-list {
+    padding: 0;
+    list-style: none;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 0;
+
+    li {
+      padding: 10px;
+      cursor: pointer;
+      @include flex(center, null);
+      &:hover {
+        background-color: var(--hover-color);
+      }
+
+      &:not(:last-child) {
+        border-bottom: 1px solid #eeeeee;
+      }
+    }
+
+    &-ctx {
+      div {
+        font-weight: 700;
+        color: #333333;
+        font-size: 1rem;
+      }
+      p {
+        color: #666666;
+      }
+    }
+    &-state {
+      text-align: end;
+      color: #999999;
+      font-size: 0.8rem;
+    }
+  }
+  footer {
+    border-top: 1px solid #eeeeee;
+    text-align: end;
+    padding: 10px 28px 0 10px;
   }
 </style>

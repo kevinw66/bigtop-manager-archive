@@ -51,5 +51,6 @@ export default {
   back_home: 'Back Home',
   websocket_disconnected: 'WebSocket disconnected, please reload the page',
   create_time: 'Create Time',
-  update_time: 'Update Time'
+  update_time: 'Update Time',
+  notification: 'Notification'
 }

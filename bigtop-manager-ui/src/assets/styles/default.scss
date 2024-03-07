@@ -20,12 +20,12 @@
 }
 
 html {
-  --text-color: rgba(0, 0, 0, .85);
-  --text-color-desc: rgba(0, 0, 0, .45);
+  --text-color: rgba(0, 0, 0, 0.85);
+  --text-color-desc: rgba(0, 0, 0, 0.45);
   --bg-color: #fff;
   --hover-color: rgba(0, 0, 0, 0.05);
   --bg-color-container: #f0f2f5;
-  --c-shadow: 2px 0 8px 0 rgba(29, 35, 41,.05);
+  --c-shadow: 2px 0 8px 0 rgba(29, 35, 41, 0.05);
 }
 
 .m-0 {
@@ -42,4 +42,32 @@ html {
 
 .ant-table-body {
   overflow-y: auto !important;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  display: none;
+  -webkit-box-shadow: inset 0 0 2px #b18933;
+}
+::scrollbar-track {
+  display: none;
+  -webkit-box-shadow: inset 0 0 2px #98f165;
+  border-radius: 1px;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: #c1c1c1;
+  -webkit-box-shadow: inset 0 0 1px rgba(0, 102, 102, 0.144);
+}
+::scrollbar-thumb {
+  border-radius: 10px;
+  background: #c1c1c1;
+  -webkit-box-shadow: inset 0 0 1px rgba(0, 102, 102, 0.144);
 }

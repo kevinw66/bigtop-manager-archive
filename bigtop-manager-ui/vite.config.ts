@@ -20,6 +20,13 @@ export default defineConfig(({ mode }) => {
         '@': path.resolve(__dirname, 'src')
       }
     },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: '@import "@/assets/styles/variable.scss";'
+        }
+      }
+    },
     server: {
       hmr: true,
       proxy: {
