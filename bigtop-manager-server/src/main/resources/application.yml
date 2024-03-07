@@ -63,4 +63,5 @@ springdoc:
     defaultModelsExpandDepth: -1
 
 monitoring:
-  prometheus-host: "http://192.168.64.7:9090"
+  prometheus-host: "http://localhost:9090"
+  agent-host-job-name: "bm-agent-host"
