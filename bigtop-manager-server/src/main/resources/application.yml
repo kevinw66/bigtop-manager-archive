@@ -8,11 +8,11 @@ spring:
   application:
     name: bigtop-manager-server
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    password: root
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://172.16.22.86:5432/bigtop_manager
+    username: postgres
+    password: postgres
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/bigtop_manager
-    username: root
     hikari:
       auto-commit: true
       connection-test-query: select 1
@@ -24,6 +24,7 @@ spring:
       minimum-idle: 5
       pool-name: BigtopManagerHikariCP
       validation-timeout: 3000
+
 
   jackson:
     default-property-inclusion: non-null
