@@ -29,13 +29,24 @@
     }
   ]
 
+  // #52c41a   green
+  // #ff4d4f   red
+  // #d9d9d9   gray
+  // #f0f964   yellow
   const stateColor = {
-    Installed: '#00c0b9',
-    Started: '#00c0b9',
-    Maintained: '#c68d0d',
-    Uninstalled: '#f5222d',
-    Stopped: '#f5222d'
+    Installed: '#52c41a',
+    Started: '#52c41a',
+    Maintained: '#d9d9d9',
+    Uninstalled: '#f0f964',
+    Stopped: 'ff4d4f'
   }
+
+  const links = [
+    'NameNode UINameNode UINameNode',
+    'NameNode Logs',
+    'NameNode JMX',
+    'Thread Stacks'
+  ]
 
   const route = useRoute()
   const configStore = useConfigStore()
@@ -165,31 +176,36 @@
                   <router-link :to="'/services/' + serviceName">
                     {{ item.displayName }}
                   </router-link>
-                </div>
-                <div class="comp-info">
-                  <div class="host-name">{{ item.hostname }}</div>
-                </div>
-                <footer>
                   <a-tag
                     :bordered="false"
                     style="color: rgb(145 134 134 / 90%)"
                   >
                     {{ item.category }}
                   </a-tag>
+                </div>
+                <div class="comp-info">
+                  <div class="host-name">{{ item.hostname }}</div>
+                </div>
+                <footer>
                   <div class="comp-state">
-                    <dot-state :color="stateColor[item.state]" />
+                    <dot-state :color="stateColor[item.state]" class="dot-rest">
+                      <span class="comp-state-text">{{ item.state }}</span>
+                    </dot-state>
                   </div>
                 </footer>
               </div>
             </template>
           </div>
         </div>
-        <div class="middle-section"></div>
         <div class="right-section">
-          <a-card>
-            <template #title>{{ $t('service.quicklinks') }}</template>
-            <a-empty /> </a-card
-        ></div>
+          <h2>{{ $t('service.quicklinks') }}</h2>
+          <ul v-if="links.length > 0">
+            <li v-for="link in links" :key="link">
+              <a>{{ link }}</a>
+            </li>
+          </ul>
+          <a-empty v-else />
+        </div>
       </a-layout-content>
     </a-tab-pane>
 
@@ -240,23 +256,39 @@
 </template>
 
 <style scoped lang="scss">
+  .dot-rest {
+    @include flex(center, center);
+  }
   .summary-layout {
     display: flex;
-    margin: 3px;
 
     .left-section {
-      width: 74%;
+      width: 82%;
       .a-card {
         background-color: rgb(128, 171, 209);
       }
-    }
-
-    .middle-section {
-      width: 2%;
+      border-right: 2px solid #eee;
     }
 
     .right-section {
-      width: 24%;
+      width: 18%;
+      min-width: 13rem;
+      height: 100%;
+      padding: 0 1rem;
+      box-sizing: border-box;
+      min-height: 33.75rem;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li {
+          a {
+            display: flex;
+            padding: 0.25rem;
+          }
+        }
+      }
     }
 
     .summary-ctx {
@@ -265,26 +297,27 @@
       box-sizing: border-box;
 
       .card {
-        margin: 12px;
-        padding: 12px;
-        border-radius: 8px;
+        margin: 0.75rem;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
         position: relative;
-        flex: 0 1 calc((100% / 3) - 24px);
-        min-width: calc((100% / 3) - 24px);
-        border: 1px solid rgb(211 211 211 / 23%);
+        flex: 0 1 calc((100% / 3) - 1.5rem);
+        min-width: calc((100% / 3) - 1.5rem);
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
         &:hover {
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-          transform: scale(1.1);
-          transition: all 0.4s;
+          box-shadow: 0 0 6px rgba(0, 0, 0, 0.16);
+          transform: scale(1.002);
+          transition: all 0.3s;
         }
         .service-name {
           font-size: 1.06rem;
           font-weight: 600;
-          margin-bottom: 6px;
+          margin-bottom: 0.375rem;
+          @include flex(space-between, center);
         }
         .comp-info {
           @include flex(center);
-          margin-bottom: 20px;
+          margin-bottom: 1.25rem;
           .host-name {
             width: 80%;
             font-size: 0.8rem;
@@ -298,6 +331,9 @@
           .comp-state {
             font-size: 1rem;
             align-items: flex-end;
+            &-text {
+              color: #888;
+            }
           }
         }
       }

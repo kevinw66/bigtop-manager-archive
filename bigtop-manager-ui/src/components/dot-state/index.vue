@@ -1,5 +1,5 @@
 <template>
-  <div class="dot-state" :style="config"></div>
+  <div class="dot-state" :style="config"><slot></slot></div>
 </template>
 
 <script lang="ts" setup>
@@ -36,8 +36,9 @@
 
 <style lang="scss" scoped>
   .dot-state {
-    &::after {
+    &::before {
       content: '';
+      margin: 0 0.375rem 0 0;
       display: inline-block;
       @include dot(var(--state-w), var(--state-h), var(--state-color));
     }

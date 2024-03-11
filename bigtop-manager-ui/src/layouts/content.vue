@@ -31,8 +31,9 @@
 
     .content {
       padding: 1rem;
+      border-radius: 0.5rem;
       background: #fff;
-      min-height: 540px;
+      min-height: 33.75rem;
     }
   }
 </style>
