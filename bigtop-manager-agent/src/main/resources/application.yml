@@ -17,3 +17,25 @@ logging:
       springframework:
         web:
           socket: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
+  endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    enable:
+      jvm: false
+      logback: false
+      executor: false
+      process: false
+      tomcat: false
+      http: false
+      system: false
+      disk: false
+      application: false

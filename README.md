@@ -39,6 +39,7 @@ mvn clean package -DskipTests
 2. Configure prometheus.yml, add below code into `scrape_configs`
 ```
 - job_name: "bm-agent-host"
+  metrics_path: "/actuator/prometheus"
   static_configs:
     - targets: ["agent1 ip/hostname:8081", "agent2 ip/hostname:8081", ...]
 ```

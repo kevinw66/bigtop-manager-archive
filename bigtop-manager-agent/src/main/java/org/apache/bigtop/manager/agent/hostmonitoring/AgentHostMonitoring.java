@@ -4,7 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.MultiGauge;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.Tags;
 import lombok.Getter;
+import org.apache.bigtop.manager.agent.enums.AgentExceptionStatus;
+import org.apache.bigtop.manager.agent.exception.AgentException;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
@@ -19,6 +25,7 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AgentHostMonitoring {
 
@@ -174,7 +181,6 @@ public class AgentHostMonitoring {
             diskTotalLabelValues.add(AgentHostMonitoring.DISK_TOTAL);
             labelValues.put(diskTotalLabelValues, diskJsonNode.get(AgentHostMonitoring.DISK_TOTAL).asDouble());
         });
-
         Map<ArrayList<String>, Map<ArrayList<String>, Double>> diskGauge = new HashMap<>();
         diskGauge.put(diskGaugeLabels, labelValues);
         return diskGauge;
@@ -224,4 +230,74 @@ public class AgentHostMonitoring {
         memGauge.put(memGaugeLabels, labelValues);
         return memGauge;
     }
+
+    public static MultiGauge newDiskMultiGauge(MeterRegistry registry) {
+        return MultiGauge
+                .builder("agent_host_monitoring")
+                .description("BigTop Manager Agent Host Monitoring, Disk Monitoring")
+                .baseUnit("disk").register(registry);
+    }
+
+    public static MultiGauge newMemMultiGauge(MeterRegistry registry) {
+        return MultiGauge
+                .builder("agent_host_monitoring")
+                .description("BigTop Manager Agent Host Monitoring, Memory Monitoring")
+                .baseUnit("mem").register(registry);
+    }
+
+    public static MultiGauge newCPUMultiGauge(MeterRegistry registry) {
+        return MultiGauge
+                .builder("agent_host_monitoring")
+                .description("BigTop Manager Agent Host Monitoring, CPU Monitoring")
+                .baseUnit("cpu").register(registry);
+    }
+
+    public static void multiGaugeUpdateData(MultiGauge multiGauge, Map<ArrayList<String>, Map<ArrayList<String>, Double>> gaugeData) {
+        ArrayList<String> tagKeys = null;
+        Map<ArrayList<String>, Double> tagValues = null;
+        for (Map.Entry<ArrayList<String>, Map<ArrayList<String>, Double>> entry : gaugeData.entrySet()) {
+            tagKeys = entry.getKey();
+            tagValues = entry.getValue();
+        }
+        if (null == tagKeys || null == tagValues) {
+            return;
+        }
+        ArrayList<String> finalTagKeys = tagKeys;
+        multiGauge.register(tagValues.entrySet().stream().map(item -> {
+            List<Tag> tags = new ArrayList<>();
+            ArrayList<String> labelKeyValues = item.getKey();
+            for (int i = 0; i < labelKeyValues.size(); i++) {
+                tags.add(Tag.of(finalTagKeys.get(i), labelKeyValues.get(i)));
+            }
+            return MultiGauge.Row.of(Tags.of(tags), item.getValue());
+        }).collect(Collectors.toList()), true);
+    }
+
+    public static void diskMultiGaugeUpdateData(MultiGauge diskMultiGauge) {
+        try {
+            Map<ArrayList<String>, Map<ArrayList<String>, Double>> diskGauge = getDiskGauge(getHostInfo());
+            multiGaugeUpdateData(diskMultiGauge, diskGauge);
+        } catch (UnknownHostException e) {
+            throw new AgentException(AgentExceptionStatus.AGENT_MONITORING_ERROR);
+        }
+    }
+
+    public static void memMultiGaugeUpdateData(MultiGauge memMultiGauge) {
+        try {
+            Map<ArrayList<String>, Map<ArrayList<String>, Double>> diskGauge = getMEMGauge(getHostInfo());
+            multiGaugeUpdateData(memMultiGauge, diskGauge);
+        } catch (UnknownHostException e) {
+            throw new AgentException(AgentExceptionStatus.AGENT_MONITORING_ERROR);
+        }
+    }
+
+    public static void cpuMultiGaugeUpdateData(MultiGauge cpuMultiGauge) {
+        try {
+            Map<ArrayList<String>, Map<ArrayList<String>, Double>> diskGauge = getCPUGauge(getHostInfo());
+            multiGaugeUpdateData(cpuMultiGauge, diskGauge);
+        } catch (UnknownHostException e) {
+            throw new AgentException(AgentExceptionStatus.AGENT_MONITORING_ERROR);
+        }
+    }
+
 }

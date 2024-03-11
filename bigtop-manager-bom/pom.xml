@@ -68,11 +68,11 @@
                 <version>${eclipse-link.version}</version>
             </dependency>
 
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-actuator</artifactId>-->
-<!--                <version>${spring-boot.version}</version>-->
-<!--            </dependency>-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-actuator</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.freemarker</groupId>
@@ -167,20 +167,11 @@
             </dependency>
             <dependency>
                 <groupId>io.prometheus</groupId>
-                <artifactId>prometheus-metrics-instrumentation-jvm</artifactId>
-                <version>${prometheus-java-client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
-                <artifactId>prometheus-metrics-exporter-httpserver</artifactId>
-                <version>${prometheus-java-client.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.prometheus</groupId>
                 <artifactId>prometheus-metrics-exporter-servlet-jakarta</artifactId>
                 <version>${prometheus-java-client.version}</version>
             </dependency>
 
+            <!-- micrometer -->
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>micrometer-registry-prometheus</artifactId>
