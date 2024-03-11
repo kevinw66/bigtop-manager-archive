@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableJpaAuditing
 @EntityScan("org.apache.bigtop.manager.dao")
+@EnableJpaRepositories("org.apache.bigtop.manager.dao")
 @SpringBootApplication(scanBasePackages = {"org.apache.bigtop.manager.server", "org.apache.bigtop.manager.common"})
 public class ServerApplication {
 
