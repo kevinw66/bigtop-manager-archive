@@ -9,8 +9,8 @@ import org.apache.bigtop.manager.dao.converter.MaintainStateConverter;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "host_component", indexes = {@Index(name = "idx_component_id", columnList = "component_id"),
-        @Index(name = "idx_host_id", columnList = "host_id")})
+@Table(name = "host_component", indexes = {@Index(name = "idx_hc_component_id", columnList = "component_id"),
+        @Index(name = "idx_hc_host_id", columnList = "host_id")})
 @TableGenerator(name = "host_component_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class HostComponent extends BaseEntity {
 

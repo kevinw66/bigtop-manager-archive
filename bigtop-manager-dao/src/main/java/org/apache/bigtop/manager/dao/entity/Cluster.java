@@ -9,8 +9,8 @@ import org.apache.bigtop.manager.dao.converter.MaintainStateConverter;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "cluster", uniqueConstraints = {@UniqueConstraint(name = "uk_cluster_name", columnNames = {"cluster_name"})},
-        indexes = {@Index(name = "idx_stack_id", columnList = "stack_id")})
+@Table(name = "\"cluster\"", uniqueConstraints = {@UniqueConstraint(name = "uk_cluster_name", columnNames = {"cluster_name"})},
+        indexes = {@Index(name = "idx_cluster_stack_id", columnList = "stack_id")})
 @TableGenerator(name = "cluster_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Cluster extends BaseEntity {
 
@@ -25,7 +25,7 @@ public class Cluster extends BaseEntity {
     @Column(name = "cluster_type")
     private Integer clusterType;
 
-    @Column(name = "root")
+    @Column(name = "\"root\"")
     private String root;
 
     @Column(name = "user_group")

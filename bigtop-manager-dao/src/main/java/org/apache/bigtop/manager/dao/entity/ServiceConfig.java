@@ -8,8 +8,8 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "service_config", uniqueConstraints = {
         @UniqueConstraint(name = "uk_type_name", columnNames = {"type_name", "version", "service_id", "cluster_id"})},
-        indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id"),
-                @Index(name = "idx_service_id", columnList = "service_id")})
+        indexes = {@Index(name = "idx_sc_cluster_id", columnList = "cluster_id"),
+                @Index(name = "idx_sc_service_id", columnList = "service_id")})
 @TableGenerator(name = "service_config_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class ServiceConfig extends BaseEntity {
 

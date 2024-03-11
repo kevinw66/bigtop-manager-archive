@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "job", indexes = {@Index(name = "idx_cluster_id", columnList = "cluster_id")})
+@Table(name = "\"job\"", indexes = {@Index(name = "idx_job_cluster_id", columnList = "cluster_id")})
 @TableGenerator(name = "job_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
 public class Job extends BaseEntity {
 
@@ -29,7 +29,7 @@ public class Job extends BaseEntity {
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "context", length = 16777216)
+    @Column(name = "\"context\"", length = 16777216)
     private String context;
 
     @ManyToOne

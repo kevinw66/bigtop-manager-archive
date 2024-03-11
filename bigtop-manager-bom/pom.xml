@@ -32,6 +32,7 @@
         <prometheus-java-client.version>1.0.0</prometheus-java-client.version>
         <oshi-core.version>6.4.11</oshi-core.version>
         <micrometer.version>1.12.2</micrometer.version>
+        <jdbc.dm.version>8.1.2.192</jdbc.dm.version>
     </properties>
 
     <dependencyManagement>
@@ -182,6 +183,21 @@
                 <groupId>com.github.oshi</groupId>
                 <artifactId>oshi-core</artifactId>
                 <version>${oshi-core.version}</version>
+            </dependency>
+
+            <!-- dameng -->
+            <dependency>
+                <groupId>com.dameng</groupId>
+                <artifactId>DmJdbcDriver18</artifactId>
+                <version>${jdbc.dm.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.dameng</groupId>
+                <artifactId>DmDialect-for-hibernate6.1</artifactId>
+                <version>${jdbc.dm.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
