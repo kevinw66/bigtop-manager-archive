@@ -9,7 +9,7 @@ spring:
     name: bigtop-manager-server
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://172.16.22.86:5432/bigtop_manager
+    url: jdbc:postgresql://localhost:5432/bigtop_manager
     username: postgres
     password: postgres
     type: com.zaxxer.hikari.HikariDataSource
