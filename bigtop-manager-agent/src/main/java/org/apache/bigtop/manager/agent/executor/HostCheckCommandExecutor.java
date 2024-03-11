@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.utils.os.TimeSyncDetection;
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -31,7 +30,7 @@ public class HostCheckCommandExecutor extends AbstractCommandExecutor {
     }
 
     private ShellResult runChecks(List<Supplier<ShellResult>> suppliers) {
-        ShellResult shellResult = DefaultShellResult.success();
+        ShellResult shellResult = ShellResult.success();
         for (Supplier<ShellResult> supplier : suppliers) {
             shellResult = supplier.get();
             if (shellResult.getExitCode() != MessageConstants.SUCCESS_CODE) {

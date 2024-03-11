@@ -74,7 +74,7 @@ public abstract class AbstractJobFactory implements JobFactory {
             Stage stage = job.getStages().get(i);
             stage.setCluster(cluster.getId() == null ? null : cluster);
             stage.setJob(job);
-            stage.setStageOrder(i + 1);
+            stage.setOrder(i + 1);
             stage.setState(JobState.PENDING);
             stageRepository.save(stage);
 

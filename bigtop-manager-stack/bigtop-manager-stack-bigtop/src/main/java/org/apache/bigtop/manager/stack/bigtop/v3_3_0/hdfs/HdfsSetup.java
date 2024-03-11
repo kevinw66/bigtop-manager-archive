@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.hdfs;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaParams;
@@ -91,7 +90,7 @@ public class HdfsSetup {
                 PERMISSION_644,
                 hdfsParams.getGlobalParamsMap());
 
-        return DefaultShellResult.success("HDFS Configure success!");
+        return ShellResult.success("HDFS Configure success!");
     }
 
     public static void formatNameNode(HdfsParams hdfsParams) {

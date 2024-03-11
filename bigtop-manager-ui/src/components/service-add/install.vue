@@ -30,7 +30,7 @@
 
     const arr: any[] = []
     res.stages
-      .sort((a, b) => a.stageOrder - b.stageOrder)
+      .sort((a, b) => a.order - b.order)
       .forEach((stage) => {
         const data = {
           key: stage.id,

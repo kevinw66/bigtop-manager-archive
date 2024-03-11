@@ -1,16 +1,14 @@
-package org.apache.bigtop.manager.stack.core.hooks;
+package org.apache.bigtop.manager.stack.core.hook;
 
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
-import org.apache.bigtop.manager.stack.common.enums.HookType;
+import org.apache.bigtop.manager.spi.stack.Hook;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.PackageUtils;
 import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
-import org.apache.bigtop.manager.stack.common.annotations.HookGuard;
-import org.apache.bigtop.manager.spi.stack.Hook;
 
 import java.util.List;
 
@@ -19,11 +17,12 @@ import java.util.List;
  */
 @Slf4j
 @AutoService(Hook.class)
-public class InstallHookImpl implements Hook {
+public class InstallHook extends AbstractHook {
+
+    public static final String NAME = "install";
 
     @Override
-    @HookGuard(before = HookType.ANY)
-    public void before() {
+    public void doBefore() {
         List<RepoInfo> repos = LocalSettings.repos();
         String repoTemplate = LocalSettings.cluster().getRepoTemplate();
 
@@ -38,12 +37,11 @@ public class InstallHookImpl implements Hook {
     }
 
     @Override
-    @HookGuard(after = HookType.ANY)
-    public void after() {
+    public void doAfter() {
     }
 
     @Override
     public String getName() {
-        return HookType.INSTALL.name();
+        return NAME;
     }
 }

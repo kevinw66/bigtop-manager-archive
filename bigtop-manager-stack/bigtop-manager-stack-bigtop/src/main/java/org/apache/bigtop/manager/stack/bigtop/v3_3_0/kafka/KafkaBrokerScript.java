@@ -3,7 +3,6 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka;
 
 import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.spi.stack.Script;
@@ -80,7 +79,7 @@ public class KafkaBrokerScript implements Script {
                 PERMISSION_644,
                 kafkaParams.getGlobalParamsMap());
 
-        return DefaultShellResult.success("Kafka Server Configure success!");
+        return ShellResult.success("Kafka Server Configure success!");
     }
 
     @Override

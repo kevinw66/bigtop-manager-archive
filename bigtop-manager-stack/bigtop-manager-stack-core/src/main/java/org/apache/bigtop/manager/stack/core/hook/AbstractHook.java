@@ -1,25 +1,34 @@
-package org.apache.bigtop.manager.stack.core.hooks;
+package org.apache.bigtop.manager.stack.core.hook;
 
 
-import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.stack.common.enums.HookType;
+import org.apache.bigtop.manager.spi.stack.Hook;
 import org.apache.bigtop.manager.stack.common.utils.LocalSettings;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxAccountUtils;
-import org.apache.bigtop.manager.spi.stack.Hook;
 
 import java.util.Map;
 import java.util.Set;
 
-/**
- * obtain agent execute command
- */
 @Slf4j
-@AutoService(Hook.class)
-public class AnyHookImpl implements Hook {
+public abstract class AbstractHook implements Hook {
 
     @Override
     public void before() {
+        addUserAndGroup();
+
+        doBefore();
+    }
+
+    @Override
+    public void after() {
+        doAfter();
+    }
+
+    protected abstract void doBefore();
+
+    protected abstract void doAfter();
+
+    private void addUserAndGroup() {
         Map<String, Set<String>> users = LocalSettings.users();
         String userGroup = LocalSettings.cluster().getUserGroup();
 
@@ -31,14 +40,5 @@ public class AnyHookImpl implements Hook {
             }
             LinuxAccountUtils.userAdd(user.getKey(), userGroup, groups);
         }
-    }
-
-    @Override
-    public void after() {
-    }
-
-    @Override
-    public String getName() {
-        return HookType.ANY.name();
     }
 }

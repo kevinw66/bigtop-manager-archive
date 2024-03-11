@@ -6,7 +6,7 @@ import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.utils.Environments;
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
+import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 
 @Slf4j
 public abstract class AbstractCommandExecutor implements CommandExecutor {
@@ -27,7 +27,7 @@ public abstract class AbstractCommandExecutor implements CommandExecutor {
                 doExecute();
             }
         } catch (Exception e) {
-            commandResponseMessage.setCode(MessageConstants.DEFAULT_FAIL_CODE);
+            commandResponseMessage.setCode(MessageConstants.FAIL_CODE);
             commandResponseMessage.setResult(e.getMessage());
 
             log.error("Run command failed, {}", message, e);
@@ -44,7 +44,7 @@ public abstract class AbstractCommandExecutor implements CommandExecutor {
 
     protected void doExecuteOnDevMode() {
         commandResponseMessage.setCode(MessageConstants.SUCCESS_CODE);
-        commandResponseMessage.setResult(DefaultShellResult.success().getResult());
+        commandResponseMessage.setResult(ShellResult.success().getResult());
     }
 
     protected abstract void doExecute();

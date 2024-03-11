@@ -15,7 +15,7 @@ public class StageVO {
 
     private JobState state;
 
-    private Integer stageOrder;
+    private Integer order;
 
     private String createTime;
 

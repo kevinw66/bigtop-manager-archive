@@ -61,7 +61,7 @@ public abstract class AbstractStageRunner implements StageRunner {
                 CommandResponseMessage res = SpringContextHolder.getServerWebSocket().sendRequestMessage(task.getHostname(), message);
 
                 log.info("Execute task {} completed: {}", task.getId(), res);
-                boolean taskSuccess = res.getCode() == MessageConstants.SUCCESS_CODE;
+                boolean taskSuccess = res != null && res.getCode() == MessageConstants.SUCCESS_CODE;
 
                 if (taskSuccess) {
                     onTaskSuccess(task);

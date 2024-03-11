@@ -1,5 +1,7 @@
 package org.apache.bigtop.manager.spi.plugin;
 
+import org.springframework.lang.NonNull;
+
 public interface PrioritySPI extends Comparable<Integer> {
 
     /**
@@ -17,7 +19,7 @@ public interface PrioritySPI extends Comparable<Integer> {
     }
 
     @Override
-    default int compareTo(Integer o) {
+    default int compareTo(@NonNull Integer o) {
         return Integer.compare(getPriority(), o);
     }
 

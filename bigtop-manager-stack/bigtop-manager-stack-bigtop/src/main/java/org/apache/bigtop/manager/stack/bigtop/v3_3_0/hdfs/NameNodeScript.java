@@ -60,7 +60,7 @@ public class NameNodeScript implements Script {
     }
 
 
-    public ShellResult rebalance_hdfs(Params params) {
+    public ShellResult rebalanceHdfs(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
         String cmd = MessageFormat.format("{0} balancer", hdfsParams.hdfsExec());
         try {
@@ -70,7 +70,7 @@ public class NameNodeScript implements Script {
         }
     }
 
-    public ShellResult print_topology(Params params) {
+    public ShellResult printTopology(Params params) {
         HdfsParams hdfsParams = (HdfsParams) params;
         String cmd = MessageFormat.format("{0} dfsadmin -printTopology", hdfsParams.hdfsExec());
         try {

@@ -26,7 +26,7 @@ export interface StageVO {
   id: number
   name: string
   state: string
-  stageOrder: number
+  order: number
   tasks: TaskVO[]
 }
 

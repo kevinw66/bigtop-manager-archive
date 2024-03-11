@@ -15,10 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo -e "\033[32mStopping container bigtop-manager-build-r8 and maven process\033[0m"
-if [ `docker inspect --format '{{.State.Running}}' bigtop-manager-build-r8` == true ];then
-  docker exec bigtop-manager-build-r8 bash -c "pkill -KILL -f maven"
-  docker stop bigtop-manager-build-r8
+if docker ps -a | grep -q 'bigtop-manager-build-r8'; then
+  echo -e "\033[32mStopping container bigtop-manager-build-r8 and maven process\033[0m"
+  if [ `docker inspect --format '{{.State.Running}}' bigtop-manager-build-r8` == true ];then
+    docker exec bigtop-manager-build-r8 bash -c "pkill -KILL -f maven"
+    docker stop bigtop-manager-build-r8
+  fi
 fi
 
 echo -e "\033[32mRemoving container bigtop-manager-server\033[0m"

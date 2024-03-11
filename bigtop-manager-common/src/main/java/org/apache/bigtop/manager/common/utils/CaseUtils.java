@@ -19,13 +19,21 @@ public class CaseUtils {
     }
 
     public static String toCamelCase(String input, String separator) {
+        return toCamelCase(input, separator, true);
+    }
+
+    public static String toCamelCase(String input, String separator, Boolean capitalizeFirstLetter) {
         if (input == null || input.isEmpty()) {
             return input;
         }
 
         String[] parts = input.split(separator);
         for (int i = 0; i < parts.length; i++) {
-            parts[i] = parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1).toLowerCase();
+            if (i == 0 && !capitalizeFirstLetter) {
+                parts[i] = parts[i].toLowerCase();
+            } else {
+                parts[i] = parts[i].substring(0, 1).toUpperCase() + parts[i].substring(1).toLowerCase();
+            }
         }
 
         return String.join("", parts);

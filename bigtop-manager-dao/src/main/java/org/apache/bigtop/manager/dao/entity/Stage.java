@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.bigtop.manager.common.enums.JobState;
-import org.apache.bigtop.manager.dao.converter.JobStateConverter;
 
 import java.util.List;
 
@@ -28,8 +27,8 @@ public class Stage extends BaseEntity {
     @Column(name = "state")
     private JobState state;
 
-    @Column(name = "stage_order")
-    private Integer stageOrder;
+    @Column(name = "\"order\"")
+    private Integer order;
 
     @Column(name = "service_name")
     private String serviceName;

@@ -48,7 +48,7 @@ public abstract class AbstractJobRunner implements JobRunner {
 
         // Sort stage
         List<Stage> stages = job.getStages();
-        stages.sort(Comparator.comparingInt(Stage::getStageOrder));
+        stages.sort(Comparator.comparingInt(Stage::getOrder));
 
         boolean success = true;
         LinkedBlockingQueue<Stage> queue = new LinkedBlockingQueue<>(stages);

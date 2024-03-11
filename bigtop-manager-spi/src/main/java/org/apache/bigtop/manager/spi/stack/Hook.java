@@ -8,5 +8,4 @@ public interface Hook extends PrioritySPI {
     void before();
 
     void after();
-
 }

@@ -4,7 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.NetUtils;
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
@@ -65,6 +64,6 @@ public class ZookeeperSetup {
         LinuxFileUtils.toFileByTemplate(zookeeperEnv.get("content").toString(), MessageFormat.format("{0}/zookeeper-env.sh", confDir),
                 zookeeperUser, zookeeperGroup, PERMISSION_644, zookeeperParams.getGlobalParamsMap());
 
-        return DefaultShellResult.success("ZooKeeper Server Configure success!");
+        return ShellResult.success("ZooKeeper Server Configure success!");
     }
 }

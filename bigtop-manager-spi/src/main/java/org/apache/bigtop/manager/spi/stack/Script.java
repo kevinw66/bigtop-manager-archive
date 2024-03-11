@@ -1,6 +1,5 @@
 package org.apache.bigtop.manager.spi.stack;
 
-import org.apache.bigtop.manager.common.utils.shell.DefaultShellResult;
 import org.apache.bigtop.manager.common.utils.shell.ShellResult;
 import org.apache.bigtop.manager.spi.plugin.PrioritySPI;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +32,6 @@ public interface Script extends PrioritySPI {
     ShellResult status(Params params);
 
     default ShellResult check(Params params) {
-        return DefaultShellResult.success();
+        return ShellResult.success();
     }
 }

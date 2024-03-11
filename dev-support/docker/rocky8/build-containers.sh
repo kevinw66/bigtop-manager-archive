@@ -19,16 +19,28 @@ BIN_DIR=$(dirname $0)
 cd $BIN_DIR
 echo $PWD
 
-echo -e "\033[32mStarting container bigtop-manager-build-r8\033[0m"
-if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build-r8") ]];then
-  docker run -it -d --name bigtop-manager-build-r8 -u $(id -u):$(id -g) -v $PWD/../../../:/opt/develop/bigtop-manager/ -w /opt/develop/bigtop-manager bigtop-manager/develop:trunk-rocky-8
-else
-  docker start bigtop-manager-build-r8
-fi
+SKIP_BUILD=false
 
-echo -e "\033[32mCompiling bigtop-manager\033[0m"
-docker exec bigtop-manager-build-r8 bash -c "mvn clean package -DskipTests"
-docker stop bigtop-manager-build-r8
+for arg in "$@"
+do
+  if [ "$arg" == "--skip-build" ]; then
+    SKIP_BUILD=true
+  fi
+done
+
+if ! $SKIP_BUILD; then
+  echo -e "\033[32mBuild on docker\033[0m"
+  echo -e "\033[32mStarting container bigtop-manager-build-r8\033[0m"
+  if [[ -z $(docker ps -a --format "table {{.Names}}" | grep "bigtop-manager-build-r8") ]];then
+    docker run -it -d --name bigtop-manager-build-r8 -u $(id -u):$(id -g) -v $PWD/../../../:/opt/develop/bigtop-manager/ -w /opt/develop/bigtop-manager bigtop-manager/develop:trunk-rocky-8
+  else
+    docker start bigtop-manager-build-r8
+  fi
+
+  echo -e "\033[32mCompiling bigtop-manager\033[0m"
+  docker exec bigtop-manager-build-r8 bash -c "mvn clean package -DskipTests"
+  docker stop bigtop-manager-build-r8
+fi
 
 echo -e "\033[32mCreating network bigtop-manager\033[0m"
 docker network create --driver bridge bigtop-manager
