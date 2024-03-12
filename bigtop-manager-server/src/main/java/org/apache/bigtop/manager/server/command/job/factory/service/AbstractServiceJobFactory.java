@@ -22,6 +22,7 @@ import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
@@ -37,10 +38,10 @@ import java.util.stream.Collectors;
 public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
 
     @Resource
-    private ComponentRepository componentRepository;
+    protected ComponentRepository componentRepository;
 
     @Resource
-    private HostComponentRepository hostComponentRepository;
+    protected HostComponentRepository hostComponentRepository;
 
     protected String stackName;
 
@@ -69,10 +70,6 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
                 .collect(Collectors.toMap(ComponentDTO::getComponentName, Function.identity()));
 
         dag = StackUtils.getStackDagMap().get(StackUtils.fullStackName(stackName, stackVersion));
-    }
-
-    protected StageContext createStageContext(String serviceName, String componentName) {
-        return createStageContext(serviceName, componentName, findHostnamesByComponentName(componentName));
     }
 
     protected StageContext createStageContext(String serviceName, String componentName, List<String> hostnames) {
@@ -157,8 +154,12 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
             String[] split = componentCommand.split("-");
             String componentName = split[0];
             String serviceName = findServiceNameByComponentName(componentName);
+            List<String> hostnames = findHostnamesByComponentName(componentName);
+            if (CollectionUtils.isEmpty(hostnames)) {
+                continue;
+            }
 
-            StageContext stageContext = createStageContext(serviceName, componentName);
+            StageContext stageContext = createStageContext(serviceName, componentName, hostnames);
             stages.add(StageFactories.getStageFactory(StageType.COMPONENT_INSTALL).createStage(stageContext));
         }
     }
@@ -175,7 +176,12 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
                 continue;
             }
 
-            StageContext stageContext = createStageContext(serviceName, componentName);
+            List<String> hostnames = findHostnamesByComponentName(componentName);
+            if (CollectionUtils.isEmpty(hostnames)) {
+                continue;
+            }
+
+            StageContext stageContext = createStageContext(serviceName, componentName, hostnames);
             stages.add(StageFactories.getStageFactory(StageType.COMPONENT_START).createStage(stageContext));
         }
     }
@@ -192,7 +198,12 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
                 continue;
             }
 
-            StageContext stageContext = createStageContext(serviceName, componentName);
+            List<String> hostnames = findHostnamesByComponentName(componentName);
+            if (CollectionUtils.isEmpty(hostnames)) {
+                continue;
+            }
+
+            StageContext stageContext = createStageContext(serviceName, componentName, hostnames);
             stages.add(StageFactories.getStageFactory(StageType.COMPONENT_STOP).createStage(stageContext));
         }
     }
@@ -204,9 +215,13 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
             String[] split = componentCommand.split("-");
             String componentName = split[0];
             String serviceName = findServiceNameByComponentName(componentName);
-            List<String> hostnames = findHostnamesByComponentName(componentName);
 
             if (!isMasterComponent(componentName)) {
+                continue;
+            }
+
+            List<String> hostnames = findHostnamesByComponentName(componentName);
+            if (CollectionUtils.isEmpty(hostnames)) {
                 continue;
             }
 

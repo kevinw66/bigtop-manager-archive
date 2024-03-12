@@ -26,9 +26,10 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
 
     private final ConcurrentHashMap<String, BaseResponseMessage> responses = new ConcurrentHashMap<>();
 
+
     protected void sendMessage(WebSocketSession session, BaseMessage message) {
         try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+            sendMessageWithRetry(session, message);
         } catch (Exception e) {
             log.error("Error sending message: {}", message, e);
         }
@@ -38,7 +39,7 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
         requests.put(request.getMessageId(), request);
 
         try {
-            session.sendMessage(new BinaryMessage(serializer.serialize(request)));
+            sendMessageWithRetry(session, request);
         } catch (Exception e) {
             log.error("Error sending message: {}", request, e);
         }
@@ -67,6 +68,23 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
             responses.put(response.getMessageId(), response);
         } else {
             log.warn("Message is timed out or unexpected, drop it: {}", response);
+        }
+    }
+
+    private void sendMessageWithRetry(WebSocketSession session, BaseMessage message) throws Exception {
+        int retryCount = 3;
+        int retryInterval = 1000;
+        for (int i = 0; i < retryCount; i++) {
+            try {
+                session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+            } catch (Exception e) {
+                log.error("Error sending message: {}, retry count: {}", message, i + 1, e);
+                if (i + 1 == retryCount) {
+                    throw e;
+                } else {
+                    Thread.sleep(retryInterval);
+                }
+            }
         }
     }
 }

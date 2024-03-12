@@ -62,7 +62,15 @@ public class ServiceInstallJobFactory extends AbstractServiceJobFactory {
             List<ComponentHostDTO> componentHosts = serviceCommand.getComponentHosts();
             for (ComponentHostDTO componentHost : componentHosts) {
                 if (componentHost.getComponentName().equals(componentName)) {
-                    return componentHost.getHostnames();
+                    List<String> hostnames = new ArrayList<>(componentHost.getHostnames());
+                    List<String> existHostnames = hostComponentRepository
+                            .findAllByComponentClusterIdAndComponentComponentNameAndHostHostnameIn(cluster.getId(), componentName, hostnames)
+                            .stream()
+                            .map(hostComponent -> hostComponent.getHost().getHostname())
+                            .toList();
+
+                    hostnames.removeAll(existHostnames);
+                    return hostnames;
                 }
             }
         }
