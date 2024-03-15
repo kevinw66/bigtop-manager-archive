@@ -8,10 +8,7 @@ import org.apache.bigtop.manager.common.utils.Environments;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.server.exception.ApiException;
 import org.apache.bigtop.manager.server.exception.ServerException;
-import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
-import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
-import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.dto.*;
 import org.apache.bigtop.manager.server.model.mapper.ServiceMapper;
 import org.apache.bigtop.manager.server.model.mapper.StackMapper;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
@@ -27,6 +24,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,7 +51,7 @@ public class StackUtils {
 
     private static final Map<String, Map<String, List<String>>> STACK_DEPENDENCY_MAP = new HashMap<>();
 
-    private static final Map<String, Map<String, Set<TypeConfigDTO>>> STACK_CONFIG_MAP = new HashMap<>();
+    private static final Map<String, Map<String, List<TypeConfigDTO>>> STACK_CONFIG_MAP = new HashMap<>();
 
     private static final Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> STACK_KEY_MAP = new HashMap<>();
 
@@ -62,7 +61,7 @@ public class StackUtils {
         return Collections.unmodifiableMap(STACK_DEPENDENCY_MAP);
     }
 
-    public static Map<String, Map<String, Set<TypeConfigDTO>>> getStackConfigMap() {
+    public static Map<String, Map<String, List<TypeConfigDTO>>> getStackConfigMap() {
         return Collections.unmodifiableMap(STACK_CONFIG_MAP);
     }
 
@@ -93,7 +92,7 @@ public class StackUtils {
      * @return service model {@link ServiceModel}
      */
     public static List<ServiceDTO> parseService(File versionFolder, String fullStackName) {
-        Map<String, Set<TypeConfigDTO>> mergedConfigMap = new HashMap<>();
+        Map<String, List<TypeConfigDTO>> mergedConfigMap = new HashMap<>();
         File[] files = new File(versionFolder.getAbsolutePath(), SERVICES_FOLDER_NAME).listFiles();
         List<ServiceDTO> services = new ArrayList<>();
 
@@ -108,7 +107,7 @@ public class StackUtils {
                 services.add(serviceDTO);
 
                 // configurations
-                Set<TypeConfigDTO> serviceConfigSet = new HashSet<>();
+                List<TypeConfigDTO> serviceConfigList = new ArrayList<>();
                 File configFolder = new File(file.getAbsolutePath(), CONFIGURATION_FOLDER);
                 if (configFolder.exists()) {
                     for (File configFile : Optional.ofNullable(configFolder.listFiles()).orElse(new File[0])) {
@@ -121,12 +120,12 @@ public class StackUtils {
                             TypeConfigDTO typeConfigDTO = new TypeConfigDTO();
                             typeConfigDTO.setTypeName(typeName);
                             typeConfigDTO.setProperties(properties);
-                            serviceConfigSet.add(typeConfigDTO);
+                            serviceConfigList.add(typeConfigDTO);
                         }
                     }
                 }
 
-                mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigSet);
+                mergedConfigMap.put(serviceDTO.getServiceName(), serviceConfigList);
 
                 // order.json
                 File dependencyFile = new File(file.getAbsolutePath(), DEPENDENCY_FILE_NAME);
@@ -275,4 +274,34 @@ public class StackUtils {
         return stackName + "-" + stackVersion;
     }
 
+    public static List<ServiceDTO> getServiceDTOList(String stackName, String stackVersion) {
+        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        return immutablePair.getRight()
+                .stream()
+                .toList();
+    }
+
+    public static ServiceDTO getServiceDTO(String stackName, String stackVersion, String serviceName) {
+        Map<String, ServiceDTO> serviceNameToDTO = getServiceDTOList(stackName, stackVersion)
+                .stream()
+                .collect(Collectors.toMap(ServiceDTO::getServiceName, Function.identity()));
+        return serviceNameToDTO.get(serviceName);
+    }
+
+    public static List<ComponentDTO> getComponentDTOList(String stackName, String stackVersion) {
+        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
+        return immutablePair.getRight()
+                .stream()
+                .flatMap(serviceDTO -> serviceDTO.getComponents().stream())
+                .toList();
+    }
+
+    public static ComponentDTO getComponentDTO(String stackName, String stackVersion, String componentName) {
+        Map<String, ComponentDTO> componentNameToDTO = getComponentDTOList(stackName, stackVersion)
+                .stream()
+                .collect(Collectors.toMap(ComponentDTO::getComponentName, Function.identity()));
+        return componentNameToDTO.get(componentName);
+    }
 }

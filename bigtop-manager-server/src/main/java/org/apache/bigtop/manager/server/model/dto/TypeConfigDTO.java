@@ -10,8 +10,6 @@ public class TypeConfigDTO implements Serializable {
 
     private String typeName;
 
-    private Integer version;
-
     private List<PropertyDTO> properties;
 
 }

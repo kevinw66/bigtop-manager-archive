@@ -4,7 +4,6 @@ import org.apache.bigtop.manager.dao.entity.HostComponent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface HostComponentRepository extends JpaRepository<HostComponent, Long> {
 
@@ -16,7 +15,7 @@ public interface HostComponentRepository extends JpaRepository<HostComponent, Lo
 
     List<HostComponent> findAllByComponentClusterId(Long clusterId);
 
-    Optional<HostComponent> findByComponentComponentNameAndHostHostname(String componentName, String hostName);
+    HostComponent findByComponentComponentNameAndHostHostname(String componentName, String hostName);
 
     List<HostComponent> findAllByComponentClusterIdAndHostId(Long clusterId, Long componentId);
 

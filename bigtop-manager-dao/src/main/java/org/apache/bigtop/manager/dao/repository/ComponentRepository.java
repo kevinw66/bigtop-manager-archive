@@ -4,11 +4,10 @@ import org.apache.bigtop.manager.dao.entity.Component;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ComponentRepository extends JpaRepository<Component, Long> {
 
-    Optional<Component> findByClusterIdAndComponentName(Long clusterId, String componentName);
+    Component findByClusterIdAndComponentName(Long clusterId, String componentName);
 
     List<Component> findAllByClusterIdAndComponentNameIn(Long clusterId, List<String> componentNames);
 

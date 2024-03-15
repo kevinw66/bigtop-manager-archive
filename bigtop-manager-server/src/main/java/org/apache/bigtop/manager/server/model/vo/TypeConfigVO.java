@@ -9,8 +9,6 @@ public class TypeConfigVO {
 
     private String typeName;
 
-    private Integer version;
-
     private List<PropertyVO> properties;
 
 }

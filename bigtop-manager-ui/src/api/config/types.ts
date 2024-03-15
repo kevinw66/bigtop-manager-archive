@@ -24,7 +24,6 @@ export interface PropertyVO {
 
 export interface TypeConfigVO {
   typeName: string
-  version: number
   properties: PropertyVO[]
 }
 

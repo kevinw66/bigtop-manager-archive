@@ -1,13 +1,16 @@
 package org.apache.bigtop.manager.dao.entity;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "service_config", uniqueConstraints = {
-        @UniqueConstraint(name = "uk_type_name", columnNames = {"type_name", "version", "service_id", "cluster_id"})},
+@Table(name = "service_config",
         indexes = {@Index(name = "idx_sc_cluster_id", columnList = "cluster_id"),
                 @Index(name = "idx_sc_service_id", columnList = "service_id")})
 @TableGenerator(name = "service_config_generator", table = "sequence", pkColumnName = "seq_name", valueColumnName = "seq_count")
@@ -18,16 +21,18 @@ public class ServiceConfig extends BaseEntity {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "config_desc")
+    private String configDesc;
+
     @Column(name = "version")
     private Integer version;
 
-    @Column(name = "type_name")
-    private String typeName;
+    @Column(name = "selected")
+    private Boolean selected;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "properties_json", length = 16777216)
-    private String propertiesJson;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "serviceConfig")
+    private List<TypeConfig> configs;
 
     @ManyToOne
     @JoinColumn(name = "service_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))

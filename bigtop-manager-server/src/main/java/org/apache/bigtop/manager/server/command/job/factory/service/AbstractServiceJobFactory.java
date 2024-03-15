@@ -4,6 +4,11 @@ import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.common.constants.ComponentCategories;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.dao.entity.Component;
+import org.apache.bigtop.manager.dao.entity.Host;
+import org.apache.bigtop.manager.dao.entity.HostComponent;
+import org.apache.bigtop.manager.dao.repository.ComponentRepository;
+import org.apache.bigtop.manager.dao.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.command.job.factory.AbstractJobFactory;
 import org.apache.bigtop.manager.server.command.stage.factory.StageContext;
 import org.apache.bigtop.manager.server.command.stage.factory.StageFactories;
@@ -11,25 +16,15 @@ import org.apache.bigtop.manager.server.command.stage.factory.StageType;
 import org.apache.bigtop.manager.server.exception.ServerException;
 import org.apache.bigtop.manager.server.model.dto.ComponentDTO;
 import org.apache.bigtop.manager.server.model.dto.ServiceDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.dto.command.ServiceCommandDTO;
-import org.apache.bigtop.manager.dao.entity.Component;
-import org.apache.bigtop.manager.dao.entity.Host;
-import org.apache.bigtop.manager.dao.entity.HostComponent;
-import org.apache.bigtop.manager.dao.repository.ComponentRepository;
-import org.apache.bigtop.manager.dao.repository.HostComponentRepository;
 import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * A Service Job can be seen as a collection of multiple Components and Hosts,
@@ -47,34 +42,17 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
 
     protected String stackVersion;
 
-    protected Map<String, ServiceDTO> serviceNameToDTO;
-
-    protected Map<String, ComponentDTO> componentNameToDTO;
-
     protected DAG<String, ComponentCommandWrapper, DagGraphEdge> dag;
 
     protected void initAttrs() {
         stackName = cluster.getStack().getStackName();
         stackVersion = cluster.getStack().getStackVersion();
-
-        Map<String, ImmutablePair<StackDTO, List<ServiceDTO>>> stackKeyMap = StackUtils.getStackKeyMap();
-        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = stackKeyMap.get(StackUtils.fullStackName(stackName, stackVersion));
-
-        serviceNameToDTO = immutablePair.getRight()
-                .stream()
-                .collect(Collectors.toMap(ServiceDTO::getServiceName, Function.identity()));
-
-        componentNameToDTO = immutablePair.getRight()
-                .stream()
-                .flatMap(serviceDTO -> serviceDTO.getComponents().stream())
-                .collect(Collectors.toMap(ComponentDTO::getComponentName, Function.identity()));
-
         dag = StackUtils.getStackDagMap().get(StackUtils.fullStackName(stackName, stackVersion));
     }
 
     protected StageContext createStageContext(String serviceName, String componentName, List<String> hostnames) {
-        ServiceDTO serviceDTO = serviceNameToDTO.get(serviceName);
-        ComponentDTO componentDTO = componentNameToDTO.get(componentName);
+        ServiceDTO serviceDTO = StackUtils.getServiceDTO(stackName, stackVersion, serviceName);
+        ComponentDTO componentDTO = StackUtils.getComponentDTO(stackName, stackVersion, componentName);
 
         StageContext stageContext = StageContext.fromPayload(JsonUtils.writeAsString(jobContext.getCommandDTO()));
         stageContext.setServiceDTO(serviceDTO);
@@ -110,7 +88,7 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
     }
 
     protected String findServiceNameByComponentName(String componentName) {
-        for (ServiceDTO serviceDTO : serviceNameToDTO.values()) {
+        for (ServiceDTO serviceDTO : StackUtils.getServiceDTOList(stackName, stackVersion)) {
             for (ComponentDTO componentDTO : serviceDTO.getComponents()) {
                 if (componentDTO.getComponentName().equals(componentName)) {
                     return serviceDTO.getServiceName();
@@ -122,12 +100,12 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
     }
 
     protected Boolean isMasterComponent(String componentName) {
-        ComponentDTO componentDTO = componentNameToDTO.get(componentName);
+        ComponentDTO componentDTO = StackUtils.getComponentDTO(stackName, stackVersion, componentName);
         return componentDTO.getCategory().equalsIgnoreCase(ComponentCategories.MASTER);
     }
 
     protected Boolean isSlaveComponent(String componentName) {
-        ComponentDTO componentDTO = componentNameToDTO.get(componentName);
+        ComponentDTO componentDTO = StackUtils.getComponentDTO(stackName, stackVersion, componentName);
         return componentDTO.getCategory().equalsIgnoreCase(ComponentCategories.SLAVE);
     }
 

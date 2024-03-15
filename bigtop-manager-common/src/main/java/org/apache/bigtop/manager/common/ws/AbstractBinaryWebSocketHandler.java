@@ -77,6 +77,7 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
         for (int i = 0; i < retryCount; i++) {
             try {
                 session.sendMessage(new BinaryMessage(serializer.serialize(message)));
+                break;
             } catch (Exception e) {
                 log.error("Error sending message: {}, retry count: {}", message, i + 1, e);
                 if (i + 1 == retryCount) {

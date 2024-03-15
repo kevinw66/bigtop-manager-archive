@@ -28,9 +28,4 @@ public interface HostComponentService {
      * @return host-components
      */
     List<HostComponentVO> listByService(Long clusterId, Long serviceId);
-
-    void batchSave(Long clusterId, List<ComponentCommandDTO> componentCommandDTOs);
-
-    void saveByCommand(CommandDTO commandDTO);
-
 }

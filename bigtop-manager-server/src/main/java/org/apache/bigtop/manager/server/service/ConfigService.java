@@ -24,6 +24,4 @@ public interface ConfigService {
     List<ServiceConfigVO> latest(Long clusterId);
 
     void upsert(Long clusterId, Long serviceId, List<TypeConfigDTO> configs);
-
-    void updateConfig(Cluster cluster, ServiceConfigDTO serviceConfigDTO);
 }

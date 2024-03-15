@@ -34,7 +34,9 @@ export const useConfigStore = defineStore(
     })
 
     const loadLatestConfigs = async () => {
-      latestConfigs.value = await getLatestConfigs(clusterId.value)
+      if (clusterId.value !== 0) {
+        latestConfigs.value = await getLatestConfigs(clusterId.value)
+      }
     }
 
     watch(clusterId, async () => {

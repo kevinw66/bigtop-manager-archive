@@ -100,7 +100,6 @@
       .flatMap((sc: ServiceConfigVO) => sc.configs)
       .map((cd: TypeConfigVO) => ({
         typeName: cd.typeName,
-        version: cd.version,
         properties: cd.properties
       }))
   }

@@ -45,7 +45,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
     private ServiceRepository serviceRepository;
 
     @Resource
-    private ServiceConfigMappingRepository serviceConfigMappingRepository;
+    private ServiceConfigRepository serviceConfigRepository;
 
     @Resource
     private RepoRepository repoRepository;
@@ -109,7 +109,7 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         String stackVersion = cluster.getStack().getStackVersion();
 
         List<Service> services = serviceRepository.findAllByClusterId(clusterId);
-        List<ServiceConfigMapping> serviceConfigMappingList = serviceConfigMappingRepository.findAllGroupLastest(clusterId);
+        List<ServiceConfig> serviceConfigList = serviceConfigRepository.findAllByClusterAndSelectedIsTrue(cluster);
         List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterId(clusterId);
         List<Repo> repos = repoRepository.findAllByCluster(cluster);
         Iterable<Setting> settings = settingRepository.findAll();
@@ -125,19 +125,21 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         clusterInfo.setPackages(List.of(cluster.getPackages().split(",")));
 
         serviceConfigMap = new HashMap<>();
-        serviceConfigMappingList.forEach(scm -> {
-            ServiceConfig sc = scm.getServiceConfig();
-            List<PropertyDTO> properties = JsonUtils.readFromString(sc.getPropertiesJson(), new TypeReference<>() {});
-            String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
+        for (ServiceConfig serviceConfig : serviceConfigList) {
+            for (TypeConfig typeConfig : serviceConfig.getConfigs()) {
+                List<PropertyDTO> properties = JsonUtils.readFromString(typeConfig.getPropertiesJson(), new TypeReference<>() {});
+                String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
 
-            if (serviceConfigMap.containsKey(sc.getService().getServiceName())) {
-                serviceConfigMap.get(sc.getService().getServiceName()).put(sc.getTypeName(), configMapStr);
-            } else {
-                Map<String, Object> hashMap = new HashMap<>();
-                hashMap.put(sc.getTypeName(), configMapStr);
-                serviceConfigMap.put(sc.getService().getServiceName(), hashMap);
+                if (serviceConfigMap.containsKey(serviceConfig.getService().getServiceName())) {
+                    serviceConfigMap.get(serviceConfig.getService().getServiceName()).put(typeConfig.getTypeName(), configMapStr);
+                } else {
+                    Map<String, Object> hashMap = new HashMap<>();
+                    hashMap.put(typeConfig.getTypeName(), configMapStr);
+                    serviceConfigMap.put(serviceConfig.getService().getServiceName(), hashMap);
+                }
+
             }
-        });
+        }
 
         hostMap = new HashMap<>();
         hostComponents.forEach(x -> {
