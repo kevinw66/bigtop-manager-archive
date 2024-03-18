@@ -99,13 +99,13 @@ public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implem
                     connectToServer();
                 }
                 innerSession = SpringContextHolder.getAgentWebSocket().getSession();
-                if(null != innerSession && innerSession.isOpen()){
+                if (null != innerSession && innerSession.isOpen()) {
                     super.sendMessage(innerSession, heartbeatMessage);
                 }
             } catch (Exception e) {
                 log.error(MessageFormat.format("Error sending heartbeat to server: {0}", e.getMessage()));
             }
-        }, 3, 5, TimeUnit.SECONDS);
+        }, 3, 10, TimeUnit.SECONDS);
     }
 
     @Override
@@ -119,9 +119,8 @@ public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implem
     @Override
     public void onApplicationEvent(@Nonnull ApplicationStartedEvent event) {
         executor.scheduleAtFixedRate(this::readHostInfo, 0, 30, TimeUnit.SECONDS);
-
         log.info("Bootstrap successfully, connecting to server websocket endpoint...");
-        connectToServer();
+        executor.scheduleAtFixedRate(this::connectToServer, 0, 30, TimeUnit.SECONDS);
     }
 
     private void readHostInfo() {
@@ -156,35 +155,35 @@ public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implem
         }
     }
 
-    @SuppressWarnings("BusyWait")
     private void connectToServer() {
-        executor.execute(() -> {
-            String host = applicationConfig.getServer().getHost();
-            Integer port = applicationConfig.getServer().getPort();
-            String uri = MessageFormat.format("ws://{0}:{1,number,#}/ws/server", host, port);
-            StandardWebSocketClient webSocketClient = new StandardWebSocketClient();
-            int retryTime = 0;
-            while (true) {
-                try {
-                    WebSocketSession webSocketSession = webSocketClient.execute(this, uri).get();
+        String host = applicationConfig.getServer().getHost();
+        Integer port = applicationConfig.getServer().getPort();
+        String uri = MessageFormat.format("ws://{0}:{1,number,#}/ws/server", host, port);
+        StandardWebSocketClient webSocketClient = new StandardWebSocketClient();
+        int retryTime = 0;
+        while (true) {
+            try {
+                if (retryTime >= 3) break;
+                AgentWebSocketHandler agentWebSocket = SpringContextHolder.getAgentWebSocket();
+                WebSocketSession contextSession = agentWebSocket.getSession();
+                if (null == contextSession || !contextSession.isOpen()) {
+                    WebSocketSession webSocketSession = webSocketClient
+                            .execute(this, uri).get(5, TimeUnit.SECONDS);
                     webSocketSession.setBinaryMessageSizeLimit(WS_BINARY_MESSAGE_SIZE_LIMIT);
-                    AgentWebSocketHandler agentWebSocket = SpringContextHolder.getAgentWebSocket();
-                    WebSocketSession contextSession = agentWebSocket.getSession();
-                    if(null == contextSession || !contextSession.isOpen()){
-                        agentWebSocket.setSession(webSocketSession);
-                    }
+                    agentWebSocket.setSession(webSocketSession);
                     log.info(MessageFormat.format("Connect to server: {0} successfully", uri));
-                    break;
-                } catch (Exception e) {
-                    log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));
-                    // retry after 5 seconds
-                    try {
-                        Thread.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
-                    }
+                }
+                ++retryTime;
+                break;
+            } catch (Exception e) {
+                log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));
+                // retry after 5 seconds
+                try {
+                    TimeUnit.MILLISECONDS.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
                 }
             }
-        });
+        }
     }
 }
