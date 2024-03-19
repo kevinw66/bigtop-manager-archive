@@ -6,7 +6,7 @@ import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.utils.Environments;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 
 @Slf4j
 public abstract class AbstractCommandExecutor implements CommandExecutor {

@@ -3,8 +3,8 @@ package org.apache.bigtop.manager.common.utils.os;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.OSArchType;
 import org.apache.bigtop.manager.common.enums.OSType;
-import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellExecutor;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.SystemUtils;
 

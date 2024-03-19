@@ -5,7 +5,7 @@ import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.CustomCommandInfo;
 import org.apache.bigtop.manager.common.utils.CaseUtils;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.spi.plugin.PrioritySPIFactory;
 import org.apache.bigtop.manager.spi.stack.Hook;
 import org.apache.bigtop.manager.spi.stack.Params;

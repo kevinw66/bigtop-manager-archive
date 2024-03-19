@@ -1,6 +1,6 @@
 package org.apache.bigtop.manager.spi.stack;
 
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 
 public interface ClientScript extends Script {
 

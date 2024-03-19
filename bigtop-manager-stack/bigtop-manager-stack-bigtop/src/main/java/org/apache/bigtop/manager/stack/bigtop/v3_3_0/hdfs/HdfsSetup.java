@@ -3,7 +3,7 @@ package org.apache.bigtop.manager.stack.bigtop.v3_3_0.hdfs;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaParams;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;

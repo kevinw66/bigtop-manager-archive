@@ -4,8 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.FileUtils;
-import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellExecutor;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;

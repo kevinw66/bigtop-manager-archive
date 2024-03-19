@@ -2,7 +2,7 @@ package org.apache.bigtop.manager.stack.common.utils;
 
 import org.apache.bigtop.manager.common.enums.OSType;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.spi.plugin.PrioritySPIFactory;
 import org.apache.bigtop.manager.stack.common.enums.PackageManagerType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;

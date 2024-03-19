@@ -1,8 +1,8 @@
 package org.apache.bigtop.manager.stack.common.utils.linux;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.common.utils.shell.ShellExecutor;
-import org.apache.bigtop.manager.common.utils.shell.ShellResult;
+import org.apache.bigtop.manager.common.shell.ShellExecutor;
+import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;

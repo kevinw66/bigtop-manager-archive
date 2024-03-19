@@ -1,6 +1,5 @@
-package org.apache.bigtop.manager.common.utils.shell;
+package org.apache.bigtop.manager.common.shell;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -10,7 +9,6 @@ import java.text.MessageFormat;
 
 @Data
 @ToString
-@AllArgsConstructor
 @NoArgsConstructor
 public class ShellResult {
 
@@ -19,6 +17,12 @@ public class ShellResult {
     private String output;
 
     private String errMsg;
+
+    public ShellResult(Integer exitCode, String output, String errMsg) {
+        this.exitCode = exitCode;
+        this.output = output;
+        this.errMsg = errMsg;
+    }
 
     public String getResult() {
         return MessageFormat.format("result=[output={0}, errMsg={1}]", output, errMsg);
