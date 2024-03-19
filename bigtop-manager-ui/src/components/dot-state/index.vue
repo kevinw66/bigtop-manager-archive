@@ -11,18 +11,24 @@
   }
 
   const props = withDefaults(defineProps<Dot>(), {
-    width: '1rem',
-    height: '1rem',
+    width: '16px',
+    height: '16px',
     color: '#f5222d'
   })
 
-  const checkProps = (target: string | number): string | number => {
-    if (Number.isInteger(target)) {
+  const checkProps = (target: string | number): string => {
+    if (typeof target === 'number') {
       return `${target}px`
     } else {
-      return target
+      const int = parseInt(target as string)
+      if (isNaN(int)) {
+        throw new Error('value is not NaN')
+      } else {
+        return `${int}px`
+      }
     }
   }
+
   const config = computed(() => {
     const width = checkProps(props.width)
     const height = checkProps(props.width)

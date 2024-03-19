@@ -17,5 +17,8 @@
 <style scoped lang="scss">
   .app {
     height: 100%;
+    > section {
+      height: 100%;
+    }
   }
 </style>

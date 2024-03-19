@@ -6,8 +6,8 @@
   import customParseFormat from 'dayjs/plugin/customParseFormat'
   const visible = ref(false)
   const overlayInnerStyle = {
-    padding: '0.75rem 0',
-    width: '25rem'
+    padding: '12px 0',
+    width: '400px'
   }
 
   // now Date
@@ -33,9 +33,9 @@
       <ul class="alert-list">
         <li v-for="idx in 100" :key="idx">
           <dot-state
-            width="0.6rem"
-            height="0.6rem"
-            style="margin-right: 0.625rem; line-height: 1.75rem"
+            width="10"
+            height="10"
+            style="margin-right: 10px; line-height: 28px"
             color="#f5222d"
           />
           <div>
@@ -64,9 +64,9 @@
 
 <style lang="scss" scoped>
   .alert {
-    height: 2.25rem;
-    width: 1.625rem;
-    font-size: 1rem;
+    height: 36px;
+    width: 36px;
+    font-size: 16px;
     cursor: pointer;
     border-radius: 50%;
     @include flex(center, center);
@@ -76,20 +76,20 @@
     }
   }
   .alert-title {
-    font-size: 1rem;
+    font-size: 16px;
     color: #333333;
     font-weight: normal;
-    padding-left: 0.625rem;
+    padding-left: 10px;
   }
   .alert-list {
     padding: 0;
     list-style: none;
-    max-height: 25rem;
+    max-height: 400px;
     overflow-y: auto;
     margin-bottom: 0;
 
     li {
-      padding: 0.625rem;
+      padding: 10px;
       cursor: pointer;
       @include flex(center, null);
       &:hover {
@@ -97,7 +97,7 @@
       }
 
       &:not(:last-child) {
-        border-bottom: 0.0625rem solid #eeeeee;
+        border-bottom: 1px solid #eeeeee;
       }
     }
 
@@ -105,7 +105,7 @@
       div {
         font-weight: 700;
         color: #333333;
-        font-size: 1rem;
+        font-size: 16px;
       }
       p {
         color: #666666;
@@ -114,12 +114,12 @@
     &-state {
       text-align: end;
       color: #999999;
-      font-size: 0.8rem;
+      font-size: 14px;
     }
   }
   footer {
-    border-top: 0.0625rem solid #eeeeee;
+    border-top: 1px solid #eeeeee;
     text-align: end;
-    padding: 0.625rem 1.75rem 0 0.625rem;
+    padding: 10px 28px 0 10px;
   }
 </style>

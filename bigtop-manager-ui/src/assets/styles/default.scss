@@ -44,6 +44,15 @@ html {
   overflow-y: auto !important;
 }
 
+#app {
+  width: 100%;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
