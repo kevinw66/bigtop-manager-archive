@@ -1,23 +1,53 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.stack.common.utils;
 
+import static org.apache.bigtop.manager.common.constants.CacheFiles.CLUSTER_INFO;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.COMPONENTS_INFO;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.CONFIGURATIONS_INFO;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.HOSTS_INFO;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.REPOS_INFO;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.SETTINGS_INFO;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.USERS_INFO;
+import static org.apache.bigtop.manager.common.constants.Constants.STACK_CACHE_DIR;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 
 import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.apache.bigtop.manager.common.constants.Constants.STACK_CACHE_DIR;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LocalSettings {
 
-    public static Object configurations(String service, String type, String key, Object defaultValue) {
+    public static Object configurations(String service, String type, String key,
+                                        Object defaultValue) {
         Map<String, Object> configMap = configurations(service, type);
         return configMap.getOrDefault(key, defaultValue);
     }
@@ -28,12 +58,14 @@ public class LocalSettings {
         File file = new File(STACK_CACHE_DIR + CONFIGURATIONS_INFO);
         try {
             if (file.exists()) {
-                Map<String, Map<String, Object>> configJson = JsonUtils.readFromFile(file, new TypeReference<>() {
-                });
+                Map<String, Map<String, Object>> configJson =
+                        JsonUtils.readFromFile(file, new TypeReference<>() {
+                        });
                 Object configData = configJson.getOrDefault(service, new HashMap<>()).get(type);
                 if (configData != null) {
-                    configDataMap = JsonUtils.readFromString((String) configData, new TypeReference<>() {
-                    });
+                    configDataMap =
+                            JsonUtils.readFromString((String) configData, new TypeReference<>() {
+                            });
                 }
             }
         } catch (Exception e) {

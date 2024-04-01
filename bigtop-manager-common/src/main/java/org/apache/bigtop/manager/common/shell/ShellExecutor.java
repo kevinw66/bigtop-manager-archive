@@ -1,31 +1,36 @@
 /*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *    https://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
-
 package org.apache.bigtop.manager.common.shell;
 
-import lombok.extern.slf4j.Slf4j;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * shell command executor.
@@ -86,7 +91,8 @@ public class ShellExecutor {
      *                   If 0, the command will not be timed out.
      * @param consumer   the consumer to consume the output of the executed command.
      */
-    private ShellExecutor(String[] execString, File dir, Map<String, String> env, long timeout, Consumer<String> consumer) {
+    private ShellExecutor(String[] execString, File dir, Map<String, String> env, long timeout,
+                          Consumer<String> consumer) {
         this.command = execString.clone();
         this.dir = dir;
         this.environment = env;
@@ -103,7 +109,8 @@ public class ShellExecutor {
      * @throws IOException errors
      */
     public static ShellResult execCommand(List<String> builderParameters) throws IOException {
-        return execCommand(builderParameters, s -> {});
+        return execCommand(builderParameters, s -> {
+        });
     }
 
     /**
@@ -115,7 +122,8 @@ public class ShellExecutor {
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static ShellResult execCommand(List<String> builderParameters, Consumer<String> consumer) throws IOException {
+    public static ShellResult execCommand(List<String> builderParameters,
+                                          Consumer<String> consumer) throws IOException {
         return execCommand(null, builderParameters, 0L, consumer);
     }
 
@@ -130,7 +138,8 @@ public class ShellExecutor {
      * @throws IOException errors
      */
     public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters) throws IOException {
-        return execCommand(env, builderParameters, s -> {});
+        return execCommand(env, builderParameters, s -> {
+        });
     }
 
     /**
@@ -144,7 +153,8 @@ public class ShellExecutor {
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters, Consumer<String> consumer) throws IOException {
+    public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters,
+                                          Consumer<String> consumer) throws IOException {
         return execCommand(env, builderParameters, 0L, consumer);
     }
 
@@ -159,8 +169,10 @@ public class ShellExecutor {
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters, long timeout) throws IOException {
-        return execCommand(env, builderParameters, timeout, s -> {});
+    public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters,
+                                          long timeout) throws IOException {
+        return execCommand(env, builderParameters, timeout, s -> {
+        });
     }
 
     /**
@@ -175,13 +187,13 @@ public class ShellExecutor {
      * @return the output of the executed command.
      * @throws IOException errors
      */
-    public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters, long timeout, Consumer<String> consumer) throws IOException {
+    public static ShellResult execCommand(Map<String, String> env, List<String> builderParameters, long timeout,
+                                          Consumer<String> consumer) throws IOException {
         String[] cmd = builderParameters.toArray(new String[0]);
 
         ShellExecutor shellExecutor = new ShellExecutor(cmd, null, env, timeout, consumer);
         return shellExecutor.execute();
     }
-
 
     /**
      * Execute the shell command
@@ -296,6 +308,7 @@ public class ShellExecutor {
 
     private Thread createReaderThread(BufferedReader reader, StringBuilder msg) {
         return new Thread() {
+
             @Override
             public void run() {
                 try {
@@ -316,6 +329,7 @@ public class ShellExecutor {
     private void scheduleTimeoutTimer() {
         this.timeoutTimer = new Timer();
         timeoutTimer.schedule(new TimerTask() {
+
             @Override
             public void run() {
                 try {

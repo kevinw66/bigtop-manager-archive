@@ -1,27 +1,47 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.server.service.impl;
 
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
 import org.apache.bigtop.manager.common.enums.MaintainState;
-import org.apache.bigtop.manager.server.exception.ApiException;
-import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
-import org.apache.bigtop.manager.server.model.dto.StackDTO;
-import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
-import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
-import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.dao.entity.Cluster;
 import org.apache.bigtop.manager.dao.entity.Repo;
 import org.apache.bigtop.manager.dao.entity.Stack;
 import org.apache.bigtop.manager.dao.repository.ClusterRepository;
 import org.apache.bigtop.manager.dao.repository.RepoRepository;
 import org.apache.bigtop.manager.dao.repository.StackRepository;
+import org.apache.bigtop.manager.server.enums.ApiExceptionEnum;
+import org.apache.bigtop.manager.server.exception.ApiException;
+import org.apache.bigtop.manager.server.model.dto.ClusterDTO;
+import org.apache.bigtop.manager.server.model.dto.StackDTO;
+import org.apache.bigtop.manager.server.model.mapper.ClusterMapper;
+import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
+import org.apache.bigtop.manager.server.model.vo.ClusterVO;
 import org.apache.bigtop.manager.server.service.ClusterService;
 import org.apache.bigtop.manager.server.service.HostService;
 import org.apache.bigtop.manager.server.utils.StackUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.annotation.Resource;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -53,8 +73,10 @@ public class ClusterServiceImpl implements ClusterService {
     @Override
     public ClusterVO save(ClusterDTO clusterDTO) {
         // Save cluster
-        Stack stack = stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
-        StackDTO stackDTO = StackUtils.getStackKeyMap().get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
+        Stack stack =
+                stackRepository.findByStackNameAndStackVersion(clusterDTO.getStackName(), clusterDTO.getStackVersion());
+        StackDTO stackDTO = StackUtils.getStackKeyMap()
+                .get(StackUtils.fullStackName(clusterDTO.getStackName(), clusterDTO.getStackVersion())).getLeft();
         Cluster cluster = ClusterMapper.INSTANCE.fromDTO2Entity(clusterDTO, stackDTO, stack);
         cluster.setSelected(clusterRepository.count() == 0);
         cluster.setState(MaintainState.UNINSTALLED);
@@ -85,7 +107,8 @@ public class ClusterServiceImpl implements ClusterService {
 
     @Override
     public ClusterVO get(Long id) {
-        Cluster cluster = clusterRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.CLUSTER_NOT_FOUND));
+        Cluster cluster =
+                clusterRepository.findById(id).orElseThrow(() -> new ApiException(ApiExceptionEnum.CLUSTER_NOT_FOUND));
 
         return ClusterMapper.INSTANCE.fromEntity2VO(cluster);
     }

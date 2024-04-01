@@ -1,8 +1,25 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.server.command.stage.runner.config;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
+
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
@@ -11,8 +28,24 @@ import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
-import org.apache.bigtop.manager.dao.entity.*;
-import org.apache.bigtop.manager.dao.repository.*;
+import org.apache.bigtop.manager.dao.entity.Cluster;
+import org.apache.bigtop.manager.dao.entity.Component;
+import org.apache.bigtop.manager.dao.entity.Host;
+import org.apache.bigtop.manager.dao.entity.HostComponent;
+import org.apache.bigtop.manager.dao.entity.Repo;
+import org.apache.bigtop.manager.dao.entity.Service;
+import org.apache.bigtop.manager.dao.entity.ServiceConfig;
+import org.apache.bigtop.manager.dao.entity.Setting;
+import org.apache.bigtop.manager.dao.entity.Task;
+import org.apache.bigtop.manager.dao.entity.TypeConfig;
+import org.apache.bigtop.manager.dao.repository.ClusterRepository;
+import org.apache.bigtop.manager.dao.repository.ComponentRepository;
+import org.apache.bigtop.manager.dao.repository.HostComponentRepository;
+import org.apache.bigtop.manager.dao.repository.HostRepository;
+import org.apache.bigtop.manager.dao.repository.RepoRepository;
+import org.apache.bigtop.manager.dao.repository.ServiceConfigRepository;
+import org.apache.bigtop.manager.dao.repository.ServiceRepository;
+import org.apache.bigtop.manager.dao.repository.SettingRepository;
 import org.apache.bigtop.manager.server.command.stage.factory.StageType;
 import org.apache.bigtop.manager.server.command.stage.runner.AbstractStageRunner;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
@@ -21,14 +54,25 @@ import org.apache.bigtop.manager.server.model.dto.StackDTO;
 import org.apache.bigtop.manager.server.model.mapper.RepoMapper;
 import org.apache.bigtop.manager.server.utils.StackConfigUtils;
 import org.apache.bigtop.manager.server.utils.StackUtils;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import jakarta.annotation.Resource;
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.type.TypeReference;
 
-import static org.apache.bigtop.manager.common.constants.Constants.ALL_HOST_KEY;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -109,8 +153,10 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         String stackVersion = cluster.getStack().getStackVersion();
 
         List<Service> services = serviceRepository.findAllByClusterId(clusterId);
-        List<ServiceConfig> serviceConfigList = serviceConfigRepository.findAllByClusterAndSelectedIsTrue(cluster);
-        List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterId(clusterId);
+        List<ServiceConfig> serviceConfigList =
+                serviceConfigRepository.findAllByClusterAndSelectedIsTrue(cluster);
+        List<HostComponent> hostComponents =
+                hostComponentRepository.findAllByComponentClusterId(clusterId);
         List<Repo> repos = repoRepository.findAllByCluster(cluster);
         Iterable<Setting> settings = settingRepository.findAll();
         List<Host> hostList = hostRepository.findAllByClusterId(clusterId);
@@ -127,11 +173,15 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         serviceConfigMap = new HashMap<>();
         for (ServiceConfig serviceConfig : serviceConfigList) {
             for (TypeConfig typeConfig : serviceConfig.getConfigs()) {
-                List<PropertyDTO> properties = JsonUtils.readFromString(typeConfig.getPropertiesJson(), new TypeReference<>() {});
-                String configMapStr = JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
+                List<PropertyDTO> properties =
+                        JsonUtils.readFromString(typeConfig.getPropertiesJson(), new TypeReference<>() {
+                        });
+                String configMapStr =
+                        JsonUtils.writeAsString(StackConfigUtils.extractConfigMap(properties));
 
                 if (serviceConfigMap.containsKey(serviceConfig.getService().getServiceName())) {
-                    serviceConfigMap.get(serviceConfig.getService().getServiceName()).put(typeConfig.getTypeName(), configMapStr);
+                    serviceConfigMap.get(serviceConfig.getService().getServiceName())
+                            .put(typeConfig.getTypeName(), configMapStr);
                 } else {
                     Map<String, Object> hashMap = new HashMap<>();
                     hashMap.put(typeConfig.getTypeName(), configMapStr);
@@ -153,7 +203,8 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
             hostMap.get(x.getComponent().getComponentName()).add(x.getHost().getHostname());
         });
 
-        Set<String> hostNameSet = hostList.stream().map(Host::getHostname).collect(Collectors.toSet());
+        Set<String> hostNameSet =
+                hostList.stream().map(Host::getHostname).collect(Collectors.toSet());
         hostMap.put(ALL_HOST_KEY, hostNameSet);
 
         repoList = new ArrayList<>();
@@ -189,8 +240,10 @@ public class CacheDistributeStageRunner extends AbstractStageRunner {
         userMap = new HashMap<>();
         settingsMap = new HashMap<>();
 
-        String fullStackName = StackUtils.fullStackName(stageContext.getStackName(), stageContext.getStackVersion());
-        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair = StackUtils.getStackKeyMap().get(fullStackName);
+        String fullStackName =
+                StackUtils.fullStackName(stageContext.getStackName(), stageContext.getStackVersion());
+        ImmutablePair<StackDTO, List<ServiceDTO>> immutablePair =
+                StackUtils.getStackKeyMap().get(fullStackName);
         StackDTO stackDTO = immutablePair.getLeft();
         List<ServiceDTO> serviceDTOList = immutablePair.getRight();
 

@@ -1,6 +1,23 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.server.command.job.factory.service;
 
-import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.common.constants.ComponentCategories;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
@@ -21,10 +38,13 @@ import org.apache.bigtop.manager.server.stack.dag.ComponentCommandWrapper;
 import org.apache.bigtop.manager.server.stack.dag.DAG;
 import org.apache.bigtop.manager.server.stack.dag.DagGraphEdge;
 import org.apache.bigtop.manager.server.utils.StackUtils;
+
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.annotation.Resource;
 
 /**
  * A Service Job can be seen as a collection of multiple Components and Hosts,
@@ -68,7 +88,8 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
         try {
             List<String> orderedList = dag.topologicalSort();
             List<String> componentNames = getComponentNames();
-            List<String> componentCommandNames = new ArrayList<>(componentNames.stream().map(x -> x + "-" + command.name().toUpperCase()).toList());
+            List<String> componentCommandNames =
+                    new ArrayList<>(componentNames.stream().map(x -> x + "-" + command.name().toUpperCase()).toList());
 
             orderedList.retainAll(componentCommandNames);
             componentCommandNames.removeAll(orderedList);
@@ -82,7 +103,8 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
 
     protected List<String> getComponentNames() {
         List<String> serviceNames = getServiceNames();
-        List<Component> components = componentRepository.findAllByClusterIdAndServiceServiceNameIn(cluster.getId(), serviceNames);
+        List<Component> components =
+                componentRepository.findAllByClusterIdAndServiceServiceNameIn(cluster.getId(), serviceNames);
 
         return components.stream().map(Component::getComponentName).toList();
     }
@@ -110,7 +132,8 @@ public abstract class AbstractServiceJobFactory extends AbstractJobFactory {
     }
 
     protected List<String> findHostnamesByComponentName(String componentName) {
-        List<HostComponent> hostComponents = hostComponentRepository.findAllByComponentClusterIdAndComponentComponentName(cluster.getId(), componentName);
+        List<HostComponent> hostComponents = hostComponentRepository
+                .findAllByComponentClusterIdAndComponentComponentName(cluster.getId(), componentName);
         if (hostComponents == null) {
             return new ArrayList<>();
         } else {

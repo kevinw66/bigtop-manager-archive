@@ -1,8 +1,27 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka;
 
+import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_644;
+import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_755;
+import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
 
-import com.google.auto.service.AutoService;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.spi.stack.Script;
@@ -19,7 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.bigtop.manager.common.constants.Constants.*;
+import com.google.auto.service.AutoService;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoService(Script.class)
@@ -38,9 +59,12 @@ public class KafkaBrokerScript implements Script {
         String kafkaUser = kafkaParams.user();
         String kafkaGroup = kafkaParams.group();
 
-        LinuxFileUtils.createDirectories(kafkaParams.getKafkaDataDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
-        LinuxFileUtils.createDirectories(kafkaParams.getKafkaLogDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
-        LinuxFileUtils.createDirectories(kafkaParams.getKafkaPidDir(), kafkaUser, kafkaGroup, PERMISSION_755, true);
+        LinuxFileUtils.createDirectories(kafkaParams.getKafkaDataDir(), kafkaUser, kafkaGroup,
+                PERMISSION_755, true);
+        LinuxFileUtils.createDirectories(kafkaParams.getKafkaLogDir(), kafkaUser, kafkaGroup,
+                PERMISSION_755, true);
+        LinuxFileUtils.createDirectories(kafkaParams.getKafkaPidDir(), kafkaUser, kafkaGroup,
+                PERMISSION_755, true);
 
         // server.properties
         List<String> zookeeperServerHosts = LocalSettings.hosts("zookeeper_server");
@@ -87,7 +111,8 @@ public class KafkaBrokerScript implements Script {
         configure(params);
         KafkaParams kafkaParams = (KafkaParams) params;
 
-        String cmd = MessageFormat.format("sh {0}/bin/kafka-server-start.sh {0}/config/server.properties > /dev/null 2>&1 & echo -n $!>{1}",
+        String cmd = MessageFormat.format(
+                "sh {0}/bin/kafka-server-start.sh {0}/config/server.properties > /dev/null 2>&1 & echo -n $!>{1}",
                 kafkaParams.serviceHome(), kafkaParams.getKafkaPidFile());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, kafkaParams.user());
@@ -99,7 +124,8 @@ public class KafkaBrokerScript implements Script {
     @Override
     public ShellResult stop(Params params) {
         KafkaParams kafkaParams = (KafkaParams) params;
-        String cmd = MessageFormat.format("sh {0}/bin/kafka-server-stop.sh", kafkaParams.serviceHome());
+        String cmd =
+                MessageFormat.format("sh {0}/bin/kafka-server-stop.sh", kafkaParams.serviceHome());
         try {
             return LinuxOSUtils.sudoExecCmd(cmd, kafkaParams.user());
         } catch (IOException e) {

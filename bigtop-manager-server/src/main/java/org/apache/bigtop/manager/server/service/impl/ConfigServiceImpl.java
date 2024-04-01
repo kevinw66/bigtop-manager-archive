@@ -1,22 +1,46 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.server.service.impl;
 
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.dao.entity.Cluster;
 import org.apache.bigtop.manager.dao.entity.Service;
 import org.apache.bigtop.manager.dao.entity.ServiceConfig;
 import org.apache.bigtop.manager.dao.entity.TypeConfig;
-import org.apache.bigtop.manager.dao.repository.*;
+import org.apache.bigtop.manager.dao.repository.ClusterRepository;
+import org.apache.bigtop.manager.dao.repository.ServiceConfigRepository;
+import org.apache.bigtop.manager.dao.repository.ServiceRepository;
+import org.apache.bigtop.manager.dao.repository.TypeConfigRepository;
 import org.apache.bigtop.manager.server.model.dto.PropertyDTO;
 import org.apache.bigtop.manager.server.model.dto.TypeConfigDTO;
 import org.apache.bigtop.manager.server.model.mapper.ServiceConfigMapper;
 import org.apache.bigtop.manager.server.model.mapper.TypeConfigMapper;
 import org.apache.bigtop.manager.server.model.vo.ServiceConfigVO;
 import org.apache.bigtop.manager.server.service.ConfigService;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
+
+import jakarta.annotation.Resource;
+
+import org.springframework.data.domain.Sort;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -45,7 +69,8 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public List<ServiceConfigVO> latest(Long clusterId) {
         Cluster cluster = clusterRepository.getReferenceById(clusterId);
-        List<ServiceConfig> list = serviceConfigRepository.findAllByClusterAndSelectedIsTrue(cluster);
+        List<ServiceConfig> list =
+                serviceConfigRepository.findAllByClusterAndSelectedIsTrue(cluster);
         return ServiceConfigMapper.INSTANCE.fromEntity2VO(list);
     }
 
@@ -68,8 +93,10 @@ public class ConfigServiceImpl implements ConfigService {
         return serviceConfigRepository.findByClusterAndServiceAndSelectedIsTrue(cluster, service);
     }
 
-    private void upsertServiceConfig(Cluster cluster, Service service, ServiceConfig currentConfig, List<TypeConfigDTO> configs) {
-        List<TypeConfigDTO> existConfigs = TypeConfigMapper.INSTANCE.fromEntity2DTO(currentConfig.getConfigs());
+    private void upsertServiceConfig(Cluster cluster, Service service, ServiceConfig currentConfig,
+                                     List<TypeConfigDTO> configs) {
+        List<TypeConfigDTO> existConfigs =
+                TypeConfigMapper.INSTANCE.fromEntity2DTO(currentConfig.getConfigs());
         if (shouldUpdateConfig(existConfigs, configs)) {
             // Unselect current config
             currentConfig.setSelected(false);
@@ -82,7 +109,8 @@ public class ConfigServiceImpl implements ConfigService {
         }
     }
 
-    private Boolean shouldUpdateConfig(List<TypeConfigDTO> existConfigs, List<TypeConfigDTO> newConfigs) {
+    private Boolean shouldUpdateConfig(List<TypeConfigDTO> existConfigs,
+                                       List<TypeConfigDTO> newConfigs) {
         if (existConfigs.size() != newConfigs.size()) {
             return true;
         }
@@ -106,7 +134,8 @@ public class ConfigServiceImpl implements ConfigService {
         addServiceConfig(cluster, service, configs, configDesc, version);
     }
 
-    private void addServiceConfig(Cluster cluster, Service service, List<TypeConfigDTO> configs, String configDesc, Integer version) {
+    private void addServiceConfig(Cluster cluster, Service service, List<TypeConfigDTO> configs,
+                                  String configDesc, Integer version) {
         ServiceConfig serviceConfig = new ServiceConfig();
         serviceConfig.setCluster(cluster);
         serviceConfig.setService(service);

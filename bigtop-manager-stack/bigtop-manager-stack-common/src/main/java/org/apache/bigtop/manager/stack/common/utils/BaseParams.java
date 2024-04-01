@@ -1,7 +1,25 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.stack.common.utils;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
+
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
@@ -9,6 +27,7 @@ import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.common.annotations.GlobalParams;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
@@ -17,8 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
-
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public abstract class BaseParams implements Params {
@@ -44,7 +63,8 @@ public abstract class BaseParams implements Params {
             try {
                 if (declaredMethod.isAnnotationPresent(GlobalParams.class) && declaredMethod.getParameterCount() == 0) {
                     Map<String, Object> invoke = (Map<String, Object>) declaredMethod.invoke(this);
-                    log.debug("[Global Parameters Injection] Method Name: {}, Return Object: {}", declaredMethod.getName(), invoke);
+                    log.debug("[Global Parameters Injection] Method Name: {}, Return Object: {}",
+                            declaredMethod.getName(), invoke);
                     globalParamsMap.putAll(invoke);
                 }
             } catch (Exception e) {
@@ -80,7 +100,6 @@ public abstract class BaseParams implements Params {
         return NetUtils.getHostname();
     }
 
-
     public String stackBinDir() {
         String stackName = this.commandPayload.getStackName();
         String stackVersion = this.commandPayload.getStackVersion();
@@ -111,11 +130,13 @@ public abstract class BaseParams implements Params {
     }
 
     public String user() {
-        return StringUtils.isNotBlank(this.commandPayload.getServiceUser()) ? this.commandPayload.getServiceUser() : ROOT_USER;
+        return StringUtils.isNotBlank(this.commandPayload.getServiceUser()) ? this.commandPayload.getServiceUser()
+                : ROOT_USER;
     }
 
     public String group() {
-        return StringUtils.isNotBlank(this.commandPayload.getServiceGroup()) ? this.commandPayload.getServiceGroup() : ROOT_USER;
+        return StringUtils.isNotBlank(this.commandPayload.getServiceGroup()) ? this.commandPayload.getServiceGroup()
+                : ROOT_USER;
     }
 
     public String serviceName() {

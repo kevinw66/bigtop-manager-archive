@@ -1,14 +1,30 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.stack.common.utils.linux;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
-import org.apache.bigtop.manager.stack.common.utils.template.BaseTemplate;
 import org.apache.bigtop.manager.stack.common.utils.template.TemplateUtils;
+
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,11 +32,14 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.*;
-import java.util.Collections;
-import java.util.Map;
+import java.nio.file.attribute.GroupPrincipal;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.nio.file.attribute.UserPrincipal;
 import java.util.Set;
 
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Only support Linux
@@ -28,7 +47,8 @@ import java.util.Set;
 @Slf4j
 public class LinuxFileUtils {
 
-    public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
+    public static void toFile(ConfigType type, String filename, String owner, String group,
+                              String permissions,
                               Object content) {
         toFile(type, filename, owner, group, permissions, content, null);
     }
@@ -44,7 +64,8 @@ public class LinuxFileUtils {
      * @param content     content map
      * @param paramMap    paramMap
      */
-    public static void toFile(ConfigType type, String filename, String owner, String group, String permissions,
+    public static void toFile(ConfigType type, String filename, String owner, String group,
+                              String permissions,
                               Object content, Object paramMap) {
         if (type == null || StringUtils.isBlank(filename) || content == null) {
             log.error("type, filename, content must not be null");
@@ -70,8 +91,8 @@ public class LinuxFileUtils {
         updatePermissions(filename, permissions, false);
     }
 
-
-    public static void toFileByTemplate(String template, String filename, String owner, String group, String permissions,
+    public static void toFileByTemplate(String template, String filename, String owner,
+                                        String group, String permissions,
                                         Object modelMap) {
         toFileByTemplate(template, filename, owner, group, permissions, modelMap, null);
     }
@@ -87,7 +108,8 @@ public class LinuxFileUtils {
      * @param template    template
      * @param paramMap    paramMap
      */
-    public static void toFileByTemplate(String template, String filename, String owner, String group, String permissions,
+    public static void toFileByTemplate(String template, String filename, String owner,
+                                        String group, String permissions,
                                         Object modelMap, Object paramMap) {
         if (StringUtils.isBlank(filename) || modelMap == null || StringUtils.isEmpty(template)) {
             log.error("type, filename, content, template must not be null");
@@ -126,7 +148,8 @@ public class LinuxFileUtils {
         if (recursive && Files.isDirectory(path)) {
             try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
                 for (Path subPath : ds) {
-                    updatePermissions(dir + File.separator + subPath.getFileName(), permissions, true);
+                    updatePermissions(dir + File.separator + subPath.getFileName(), permissions,
+                            true);
                 }
             } catch (IOException e) {
                 log.error("[updatePermissions] error,", e);
@@ -152,13 +175,14 @@ public class LinuxFileUtils {
 
         Path path = Paths.get(dir);
         try {
-            UserPrincipal userPrincipal = path.getFileSystem().
-                    getUserPrincipalLookupService().lookupPrincipalByName(owner);
+            UserPrincipal userPrincipal =
+                    path.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByName(owner);
 
-            GroupPrincipal groupPrincipal = path.getFileSystem().
-                    getUserPrincipalLookupService().lookupPrincipalByGroupName(group);
+            GroupPrincipal groupPrincipal =
+                    path.getFileSystem().getUserPrincipalLookupService().lookupPrincipalByGroupName(group);
 
-            PosixFileAttributeView fileAttributeView = Files.getFileAttributeView(path, PosixFileAttributeView.class);
+            PosixFileAttributeView fileAttributeView =
+                    Files.getFileAttributeView(path, PosixFileAttributeView.class);
             fileAttributeView.setOwner(userPrincipal);
             fileAttributeView.setGroup(groupPrincipal);
         } catch (IOException e) {
@@ -186,7 +210,8 @@ public class LinuxFileUtils {
      * @param permissions {@code rwxr--r--}
      * @param recursive   recursive
      */
-    public static void createDirectories(String dirPath, String owner, String group, String permissions, boolean recursive) {
+    public static void createDirectories(String dirPath, String owner, String group,
+                                         String permissions, boolean recursive) {
         if (StringUtils.isBlank(dirPath)) {
             log.error("dirPath must not be null");
             return;

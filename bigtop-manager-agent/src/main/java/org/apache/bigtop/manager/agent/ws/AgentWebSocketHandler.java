@@ -1,11 +1,25 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.apache.bigtop.manager.agent.ws;
 
-import com.sun.management.OperatingSystemMXBean;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Resource;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MESSAGE_SIZE_LIMIT;
+
 import org.apache.bigtop.manager.agent.holder.SpringContextHolder;
 import org.apache.bigtop.manager.agent.scheduler.CommandScheduler;
 import org.apache.bigtop.manager.common.config.ApplicationConfig;
@@ -17,13 +31,6 @@ import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.common.ws.AbstractBinaryWebSocketHandler;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-import org.springframework.web.socket.BinaryMessage;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
@@ -33,11 +40,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MESSAGE_SIZE_LIMIT;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Resource;
+
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.BinaryMessage;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
+
+import com.sun.management.OperatingSystemMXBean;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
+public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler
+        implements
+            ApplicationListener<ApplicationStartedEvent> {
 
     @Resource
     private ApplicationConfig applicationConfig;
@@ -163,7 +187,8 @@ public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implem
         int retryTime = 0;
         while (true) {
             try {
-                if (retryTime >= 3) break;
+                if (retryTime >= 3)
+                    break;
                 AgentWebSocketHandler agentWebSocket = SpringContextHolder.getAgentWebSocket();
                 WebSocketSession contextSession = agentWebSocket.getSession();
                 if (null == contextSession || !contextSession.isOpen()) {
@@ -176,7 +201,8 @@ public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implem
                 ++retryTime;
                 break;
             } catch (Exception e) {
-                log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(), ++retryTime));
+                log.error(MessageFormat.format("Error connecting to server: {0}, retry time: {1}", e.getMessage(),
+                        ++retryTime));
                 // retry after 5 seconds
                 try {
                     TimeUnit.MILLISECONDS.sleep(Constants.REGISTRY_SESSION_TIMEOUT);
