@@ -157,26 +157,27 @@
                 <version>${apache-rat-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>verify.rat</id>
                         <goals>
                             <goal>check</goal>
                         </goals>
-                        <phase>verify</phase>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/.idea/</exclude>
-                                <exclude>**/.mvn/</exclude>
-                                <exclude>**/*.iml</exclude>
-                                <exclude>**/*.md</exclude>
-                                <exclude>**/*.json</exclude>
-                                <exclude>*.md</exclude>
-                                <exclude>.git/</exclude>
-                                <exclude>.gitignore</exclude>
-                                <exclude>.github/**</exclude>
-                            </excludes>
-                        </configuration>
+                        <phase>test</phase>
                     </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>.idea/</exclude>
+                        <exclude>.mvn/</exclude>
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/*.json</exclude>
+                        <exclude>.git/</exclude>
+                        <exclude>.gitignore</exclude>
+                        <exclude>.github/</exclude>
+                        <exclude>LICENSE</exclude>
+                        <exclude>**/*.ftl</exclude>
+                        <exclude>**/*.log</exclude>
+                        <exclude>pnpm-lock.yaml</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
