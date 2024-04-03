@@ -18,14 +18,23 @@
  */
 package org.apache.bigtop.manager.common.message.entity.command;
 
-public enum CommandMessageType {
+import lombok.*;
+import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 
-    COMPONENT,
+@Data
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
+public class CommandLogMessage extends BaseMessage {
 
-    HOST_CHECK,
+    private String log;
 
-    CACHE_DISTRIBUTE,
+    private String hostname;
 
-    TASK_LOG,
-    ;
+    private Long jobId;
+
+    private Long stageId;
+
+    private Long taskId;
 }

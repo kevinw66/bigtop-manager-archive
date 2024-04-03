@@ -18,17 +18,15 @@
  */
 package org.apache.bigtop.manager.server.service.impl;
 
+import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.dao.entity.Job;
 import org.apache.bigtop.manager.dao.repository.JobRepository;
 import org.apache.bigtop.manager.server.model.mapper.JobMapper;
 import org.apache.bigtop.manager.server.model.vo.JobVO;
 import org.apache.bigtop.manager.server.service.JobService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import jakarta.annotation.Resource;
-
-import org.springframework.stereotype.Service;
 
 @Service
 public class JobServiceImpl implements JobService {
@@ -38,15 +36,16 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public List<JobVO> list(Long clusterId) {
-        // PageQuery pageQuery = PageUtils.getPageQuery();
-        // Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
-        // Page<Job> page;
-        // if (ClusterUtils.isNoneCluster(clusterId)) {
-        // page = jobRepository.findAllByClusterIsNull(pageable);
-        // } else {
-        // page = jobRepository.findAllByClusterId(clusterId, pageable);
-        // }
-
+//        PageQuery pageQuery = PageUtils.getPageQuery();
+//        Pageable pageable = PageRequest.of(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getSort());
+//        Page<Job> page;
+//        if (ClusterUtils.isNoneCluster(clusterId)) {
+//            page = jobRepository.findAllByClusterIsNull(pageable);
+//        } else {
+//            page = jobRepository.findAllByClusterId(clusterId, pageable);
+//        }
+//
+//        return PageVO.of(page);
         List<Job> jobs = jobRepository.findAllByClusterId(clusterId);
 
         return JobMapper.INSTANCE.fromEntity2VO(jobs);

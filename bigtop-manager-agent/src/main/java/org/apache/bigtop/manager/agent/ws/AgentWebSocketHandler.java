@@ -18,8 +18,12 @@
  */
 package org.apache.bigtop.manager.agent.ws;
 
-import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MESSAGE_SIZE_LIMIT;
-
+import com.sun.management.OperatingSystemMXBean;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Resource;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.agent.holder.SpringContextHolder;
 import org.apache.bigtop.manager.agent.scheduler.CommandScheduler;
 import org.apache.bigtop.manager.common.config.ApplicationConfig;
@@ -31,6 +35,13 @@ import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.common.ws.AbstractBinaryWebSocketHandler;
+import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.BinaryMessage;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
@@ -40,28 +51,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Resource;
-
-import org.springframework.boot.context.event.ApplicationStartedEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
-import org.springframework.web.socket.BinaryMessage;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-
-import com.sun.management.OperatingSystemMXBean;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.WS_BINARY_MESSAGE_SIZE_LIMIT;
 
 @Slf4j
 @Component
-public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler
-        implements
-            ApplicationListener<ApplicationStartedEvent> {
+public class AgentWebSocketHandler extends AbstractBinaryWebSocketHandler implements ApplicationListener<ApplicationStartedEvent> {
 
     @Resource
     private ApplicationConfig applicationConfig;

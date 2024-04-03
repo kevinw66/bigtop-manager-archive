@@ -18,22 +18,18 @@
  */
 package org.apache.bigtop.manager.common.message.serializer;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.util.Pool;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.BaseResponseMessage;
 import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandLogMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
-import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.CustomCommandInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.HostCheckType;
-import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
-import org.apache.bigtop.manager.common.message.entity.pojo.ScriptInfo;
+import org.apache.bigtop.manager.common.message.entity.pojo.*;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -42,12 +38,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.util.Pool;
-
 public class KryoPoolHolder {
 
-    private static final Pool<Kryo> KRYO_POOL = new Pool<Kryo>(true, false, 16) {
+    private static final Pool<Kryo> KRYO_POOL = new Pool<>(true, false, 16) {
 
         @Override
         protected Kryo create() {
@@ -61,6 +54,7 @@ public class KryoPoolHolder {
             kryo.register(HeartbeatMessage.class);
             kryo.register(CommandResponseMessage.class);
             kryo.register(CommandRequestMessage.class);
+            kryo.register(CommandLogMessage.class);
 
             // message pojo
             kryo.register(HostInfo.class);

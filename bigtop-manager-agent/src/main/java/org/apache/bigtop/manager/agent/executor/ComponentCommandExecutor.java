@@ -18,6 +18,9 @@
  */
 package org.apache.bigtop.manager.agent.executor;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.holder.SpringContextHolder;
+import org.apache.bigtop.manager.common.message.entity.command.CommandLogMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandMessageType;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.shell.ShellResult;
@@ -26,8 +29,6 @@ import org.apache.bigtop.manager.stack.core.executor.StackExecutor;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @org.springframework.stereotype.Component
@@ -49,9 +50,20 @@ public class ComponentCommandExecutor extends AbstractCommandExecutor {
         CommandPayload commandPayload =
                 JsonUtils.readFromString(commandRequestMessage.getMessagePayload(), CommandPayload.class);
         log.info("[agent executeTask] taskEvent is: {}", commandRequestMessage);
-        ShellResult shellResult = StackExecutor.execute(commandPayload);
+        ShellResult shellResult = StackExecutor.execute(commandPayload, this::writeBackTaskLog);
 
         commandResponseMessage.setCode(shellResult.getExitCode());
         commandResponseMessage.setResult(shellResult.getResult());
+    }
+
+    private void writeBackTaskLog(String log) {
+        CommandLogMessage logMessage = new CommandLogMessage();
+        logMessage.setLog(log);
+        logMessage.setMessageId(commandRequestMessage.getMessageId());
+        logMessage.setHostname(commandRequestMessage.getHostname());
+        logMessage.setTaskId(commandRequestMessage.getTaskId());
+        logMessage.setStageId(commandRequestMessage.getStageId());
+        logMessage.setJobId(commandRequestMessage.getJobId());
+        SpringContextHolder.getAgentWebSocket().sendMessage(logMessage);
     }
 }

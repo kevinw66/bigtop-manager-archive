@@ -21,6 +21,7 @@ package org.apache.bigtop.manager.server.ws;
 import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.HeartbeatMessage;
+import org.apache.bigtop.manager.common.message.entity.command.CommandLogMessage;
 import org.apache.bigtop.manager.common.message.entity.command.CommandResponseMessage;
 import org.apache.bigtop.manager.common.message.entity.pojo.HostInfo;
 import org.apache.bigtop.manager.common.ws.AbstractBinaryWebSocketHandler;
@@ -88,6 +89,10 @@ public class ServerWebSocketHandler extends AbstractBinaryWebSocketHandler {
             handleHeartbeatMessage(session, heartbeatMessage);
         } else if (baseMessage instanceof CommandResponseMessage commandResponseMessage) {
             super.handleResponseMessage(commandResponseMessage);
+        } else if (baseMessage instanceof CommandLogMessage commandLogMessage) {
+            System.out.println("-------------------------- Task Log Begin --------------------------");
+            System.out.println(commandLogMessage.getLog());
+            System.out.println("--------------------------  Task Log End  --------------------------");
         } else {
             log.error("Unrecognized message type: {}", baseMessage.getClass().getSimpleName());
         }
