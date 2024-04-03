@@ -25,60 +25,15 @@
     LoadingOutlined,
     SettingOutlined
   } from '@ant-design/icons-vue'
-  import { onBeforeUnmount, onMounted, ref } from 'vue'
+  import { onBeforeUnmount, onMounted, ref, watch, computed } from 'vue'
+  import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
+  import ClipboardJS from 'clipboard'
   import { useJobStore } from '@/store/job'
-  import { JobVO, StageVO, TaskVO } from '@/api/job/types.ts'
   import { message } from 'ant-design-vue'
-
-  const jobStore = useJobStore()
-  const { jobs, processJobNum } = storeToRefs(jobStore)
-
-  const jobWindowOpened = ref(false)
-  const isStageTable = ref(false)
-  const isJobTable = ref(false)
-  const isTaskTable = ref(false)
-  const stages = ref<StageVO[]>([])
-  const tasks = ref<TaskVO[]>([])
-  const title = 'Job Info'
-  const currentJobTitle = ref({})
-  const currentStageTitle = ref({})
-
-  const jobOpen = () => {
-    jobWindowOpened.value = true
-    navJob()
-  }
-
-  const clickJob = (record: JobVO) => {
-    stages.value = record.stages
-    navStage()
-    currentJobTitle.value = record.name
-  }
-
-  const clickStage = (record: StageVO) => {
-    tasks.value = record.tasks
-    navTask()
-    currentStageTitle.value = record.name
-  }
-
-  const navJob = () => {
-    isJobTable.value = true
-    isStageTable.value = false
-    isTaskTable.value = false
-  }
-
-  const navStage = () => {
-    isJobTable.value = false
-    isStageTable.value = true
-    isTaskTable.value = false
-  }
-
-  const navTask = () => {
-    isJobTable.value = false
-    isStageTable.value = false
-    isTaskTable.value = true
-  }
-
+  import { JobVO, StageVO, TaskVO } from '@/api/job/types.ts'
+  import { getLogs } from '@/api/sse/index'
+  import { AxiosProgressEvent } from 'axios'
   const columns = [
     {
       title: 'common.name',
@@ -102,6 +57,107 @@
     }
   ]
 
+  const clusterStore = useClusterStore()
+  const jobStore = useJobStore()
+  const { jobs, processJobNum } = storeToRefs(jobStore)
+  const { clusterId } = storeToRefs(clusterStore)
+
+  const jobWindowOpened = ref(false)
+  const stages = ref<StageVO[]>([])
+  const tasks = ref<TaskVO[]>([])
+  const breadcrumbs = ref<string[]>(['Job Info'])
+  const currTaskInfo = ref<TaskVO>()
+  const logTextOrigin = ref<string>('')
+  const currPage = ref<string[]>([
+    'isJobTable',
+    'isStageTable',
+    'isTaskTable',
+    'isTaskLogs'
+  ])
+
+  const logText = computed(() => {
+    return logTextOrigin.value
+      .split('\n\n')
+      .map((s) => {
+        return s.substring(5)
+      })
+      .join('\n')
+  })
+
+  const getCurrPage = computed(() => {
+    return currPage.value[breadcrumbs.value.length - 1]
+  })
+
+  watch(jobWindowOpened, (val) => {
+    if (!val) {
+      breadcrumbs.value = ['Job Info']
+    }
+  })
+
+  const jobOpen = () => {
+    jobWindowOpened.value = true
+  }
+
+  const getLogsInfo = (id: number) => {
+    getLogs(clusterId.value, id, ({ event }: AxiosProgressEvent) => {
+      logTextOrigin.value = event.target.responseText
+      const logsBox = document.querySelector('.logs_info') as HTMLElement
+      if (logsBox) {
+        ;(function smoothscroll() {
+          const currentScroll = logsBox?.scrollTop
+          const clientHeight = logsBox?.offsetHeight
+          const scrollHeight = logsBox?.scrollHeight
+          if (scrollHeight - 10 > currentScroll + clientHeight) {
+            window.requestAnimationFrame(smoothscroll)
+            logsBox.scrollTo(
+              0,
+              currentScroll + (scrollHeight - currentScroll - clientHeight) / 2
+            )
+          }
+        })()
+      }
+    })
+  }
+
+  const copyLogTextContent = () => {
+    const clipboard = new ClipboardJS('.copyBtn', {
+      text: () => logText.value
+    })
+    if (!logText.value) {
+      console.error('No text to copy')
+      return
+    }
+    clipboard.on('success', () => {
+      message.success('copy success!')
+      clipboard.destroy()
+    })
+    clipboard.on('error', () => {
+      message.success('Copy failed!')
+      clipboard.destroy()
+    })
+  }
+
+  const clickTask = (record: TaskVO) => {
+    breadcrumbs.value.push(record.name)
+    currTaskInfo.value = record
+    getLogsInfo(record.id)
+  }
+
+  const clickJob = (record: JobVO) => {
+    stages.value = record.stages
+    breadcrumbs.value.push(record.name)
+  }
+
+  const clickStage = (record: StageVO) => {
+    tasks.value = record.tasks
+    breadcrumbs.value.push(record.name)
+  }
+
+  const clickBreadCrumbs = (idx: number) => {
+    const len = breadcrumbs.value.length
+    breadcrumbs.value.splice(idx + 1, len)
+  }
+
   onMounted(async () => {
     jobStore.resumeIntervalFn()
   })
@@ -124,19 +180,21 @@
         {{ $t('common.cancel') }}
       </a-button>
     </template>
-    <a-breadcrumb>
-      <a-breadcrumb-item @click="navJob"
-        ><a href="#">{{ title }}</a></a-breadcrumb-item
-      >
-      <a-breadcrumb-item v-if="!isJobTable" @click="navStage"
-        ><a href="#">{{ currentJobTitle }}</a></a-breadcrumb-item
-      >
-      <a-breadcrumb-item v-if="isTaskTable" @click="navTask"
-        ><a href="#">{{ currentStageTitle }}</a></a-breadcrumb-item
-      >
-    </a-breadcrumb>
+
+    <div class="breadcrumb">
+      <a-breadcrumb>
+        <a-breadcrumb-item
+          v-for="(item, idx) in breadcrumbs"
+          :key="idx"
+          @click="clickBreadCrumbs(idx)"
+        >
+          <a href="#">{{ item }}</a>
+        </a-breadcrumb-item>
+      </a-breadcrumb>
+    </div>
+
     <a-table
-      v-if="isJobTable"
+      v-if="getCurrPage == 'isJobTable'"
       destroy-on-close
       :data-source="jobs"
       :columns="columns"
@@ -167,7 +225,11 @@
         </template>
       </template>
     </a-table>
-    <a-table v-else-if="isStageTable" :data-source="stages" :columns="columns">
+    <a-table
+      v-else-if="getCurrPage == 'isStageTable'"
+      :data-source="stages"
+      :columns="columns"
+    >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
       </template>
@@ -194,13 +256,17 @@
         </template>
       </template>
     </a-table>
-    <a-table v-else-if="isTaskTable" :data-source="tasks" :columns="columns">
+    <a-table
+      v-else-if="getCurrPage == 'isTaskTable'"
+      :data-source="tasks"
+      :columns="columns"
+    >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
       </template>
       <template #bodyCell="{ column, text, record }">
         <template v-if="column.dataIndex === 'name'">
-          <a @click="message.info(`Test message [${record.name}`)">
+          <a @click="clickTask(record)">
             {{ text }}
           </a>
         </template>
@@ -221,10 +287,35 @@
         </template>
       </template>
     </a-table>
+    <template v-else-if="getCurrPage == 'isTaskLogs'">
+      <div class="logs">
+        <div class="logs_header">
+          <span>Task Logs</span>
+          <div class="logs_header-ops">
+            <a-button
+              class="copyBtn"
+              size="small"
+              type="primary"
+              @click="copyLogTextContent"
+            >
+              copy
+            </a-button>
+          </div>
+        </div>
+        <div class="logs_info">
+          <pre id="logs">{{ logText }}</pre>
+        </div>
+      </div>
+    </template>
   </a-modal>
 </template>
 
 <style lang="scss" scoped>
+  .breadcrumb {
+    :deep(.ant-breadcrumb) {
+      margin-bottom: 16px !important;
+    }
+  }
   .icon {
     display: flex;
     justify-content: center;
@@ -237,6 +328,33 @@
 
     &:hover {
       background-color: var(--hover-color);
+    }
+  }
+  .logs {
+    height: 50vh;
+    display: flex;
+    flex-direction: column;
+    &_header {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0 0 10px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+    &_info {
+      height: 100%;
+      overflow: auto;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      position: relative;
+      pre {
+        margin: 0;
+        padding: 16px 14px;
+        box-sizing: border-box;
+        color: #444;
+        border-color: #eee;
+        line-height: 16px;
+      }
     }
   }
 </style>

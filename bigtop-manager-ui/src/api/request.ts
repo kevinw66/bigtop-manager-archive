@@ -58,16 +58,20 @@ request.interceptors.request.use(
 
 request.interceptors.response.use(
   async (res: AxiosResponse) => {
-    const responseEntity: ResponseEntity = res.data
-    if (responseEntity.code !== 0) {
-      message.error(responseEntity.message)
-      if (responseEntity.code === 10000) {
-        await router.push('/login')
-      }
-
-      return Promise.reject(responseEntity)
+    if (res.config.responseType === 'stream') {
+      // Skip SSE api check
+      return res.data
     } else {
-      return responseEntity.data
+      const responseEntity: ResponseEntity = res.data
+      if (responseEntity.code !== 0) {
+        message.error(responseEntity.message)
+        if (responseEntity.code === 10000) {
+          await router.push('/login')
+        }
+        return Promise.reject(responseEntity)
+      } else {
+        return responseEntity.data
+      }
     }
   },
   async (error: AxiosError) => {
