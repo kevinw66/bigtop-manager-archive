@@ -65,7 +65,8 @@
           data.color = '#1677ff'
         } else if (stage.state === 'Processing') {
           data.progress = Math.round(
-            (stage.tasks.filter((task) => task.state === 'Successful').length /
+            ((stage.tasks.filter((task) => task.state === 'Successful').length +
+              1) /
               stage.tasks.length) *
               100
           )

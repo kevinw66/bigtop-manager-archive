@@ -18,7 +18,7 @@
  */
 
 import request from '@/api/request.ts'
-import { JobVO } from '@/api/job/types.ts'
+import { JobVO, Pagination } from '@/api/job/types.ts'
 
 export const getJob = (id: number, clusterId: number): Promise<JobVO> => {
   return request({
@@ -27,9 +27,13 @@ export const getJob = (id: number, clusterId: number): Promise<JobVO> => {
   })
 }
 
-export const getJobs = (clusterId: number): Promise<JobVO[]> => {
+export const getJobs = (
+  clusterId: number,
+  pagination: Pagination
+): Promise<{ content: JobVO[]; total: number }> => {
   return request({
     method: 'get',
-    url: '/clusters/' + clusterId + '/jobs'
+    url: `/clusters/${clusterId}/jobs`,
+    params: pagination
   })
 }

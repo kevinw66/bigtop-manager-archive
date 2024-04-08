@@ -18,22 +18,22 @@
   -->
 
 <script setup lang="ts">
-  import {
-    CheckCircleTwoTone,
-    MinusCircleTwoTone,
-    CloseCircleTwoTone,
-    LoadingOutlined,
-    SettingOutlined
-  } from '@ant-design/icons-vue'
-  import { onBeforeUnmount, onMounted, ref, watch, computed } from 'vue'
+  import { SettingOutlined } from '@ant-design/icons-vue'
+  import { ref, watch, computed, reactive, toRaw, shallowRef } from 'vue'
   import { useClusterStore } from '@/store/cluster'
+  import { PaginationConfig } from 'ant-design-vue/es/pagination/Pagination'
   import { storeToRefs } from 'pinia'
   import ClipboardJS from 'clipboard'
-  import { useJobStore } from '@/store/job'
   import { message } from 'ant-design-vue'
-  import { JobVO, StageVO, TaskVO } from '@/api/job/types.ts'
+  import { JobVO, StageVO, TaskVO, Pagination } from '@/api/job/types.ts'
   import { getLogs } from '@/api/sse/index'
+  import { getJobs } from '@/api/job'
+  import { Pausable, useIntervalFn } from '@vueuse/core'
   import { AxiosProgressEvent } from 'axios'
+  import { MONITOR_SCHEDULE_INTERVAL } from '@/utils/constant.ts'
+  import CustomProgress from './custom-progress.vue'
+  import StageInfo from './stage-info.vue'
+  import TaskInfo from './task-info.vue'
   const columns = [
     {
       title: 'common.name',
@@ -58,16 +58,25 @@
   ]
 
   const clusterStore = useClusterStore()
-  const jobStore = useJobStore()
-  const { jobs, processJobNum } = storeToRefs(jobStore)
   const { clusterId } = storeToRefs(clusterStore)
 
+  const processJobNum = ref(0)
+  const loading = ref(false)
   const jobWindowOpened = ref(false)
   const stages = ref<StageVO[]>([])
   const tasks = ref<TaskVO[]>([])
   const breadcrumbs = ref<string[]>(['Job Info'])
   const currTaskInfo = ref<TaskVO>()
+  const jobs = shallowRef<JobVO[]>([])
+  const intervalId = ref<Pausable | undefined>()
   const logTextOrigin = ref<string>('')
+  const logsInfoRef = ref<HTMLElement | null>(null)
+  const paginationProps = reactive<PaginationConfig>({})
+  const jobsPageState = reactive<Pagination>({
+    pageNum: 1,
+    pageSize: 10,
+    sort: 'desc'
+  })
   const currPage = ref<string[]>([
     'isJobTable',
     'isStageTable',
@@ -90,32 +99,70 @@
 
   watch(jobWindowOpened, (val) => {
     if (!val) {
-      breadcrumbs.value = ['Job Info']
+      jobWindowClose()
+    } else {
+      loading.value = true
+      Object.assign(paginationProps, initPagedProps())
+      getJobsList()
+      intervalId.value?.resume()
     }
   })
 
-  const jobOpen = () => {
-    jobWindowOpened.value = true
+  intervalId.value = useIntervalFn(
+    async () => {
+      await getJobsList()
+    },
+    MONITOR_SCHEDULE_INTERVAL,
+    { immediate: false, immediateCallback: true }
+  )
+
+  const jobWindowClose = () => {
+    intervalId.value?.pause()
+    breadcrumbs.value = ['Job Info']
+    jobs.value = []
+    Object.assign(jobsPageState, {
+      pageNum: 1,
+      pageSize: 10,
+      sort: 'desc'
+    })
+  }
+
+  const getJobsList = async () => {
+    try {
+      const { content, total } = await getJobs(
+        clusterId.value,
+        toRaw(jobsPageState)
+      )
+      jobs.value = content.map((v) => {
+        return {
+          ...v,
+          progress: 0
+        }
+      })
+      paginationProps.total = total
+      loading.value = false
+    } catch (error) {
+      loading.value = false
+    }
   }
 
   const getLogsInfo = (id: number) => {
     getLogs(clusterId.value, id, ({ event }: AxiosProgressEvent) => {
       logTextOrigin.value = event.target.responseText
-      const logsBox = document.querySelector('.logs_info') as HTMLElement
-      if (logsBox) {
-        ;(function smoothscroll() {
-          const currentScroll = logsBox?.scrollTop
-          const clientHeight = logsBox?.offsetHeight
-          const scrollHeight = logsBox?.scrollHeight
-          if (scrollHeight - 10 > currentScroll + clientHeight) {
-            window.requestAnimationFrame(smoothscroll)
-            logsBox.scrollTo(
-              0,
-              currentScroll + (scrollHeight - currentScroll - clientHeight) / 2
-            )
-          }
-        })()
+      logsInfoRef.value = document.querySelector('.logsInfoRef')
+      if (!logsInfoRef.value) {
+        return
       }
+      ;(function smoothscroll() {
+        const { scrollTop, offsetHeight, scrollHeight } = logsInfoRef.value
+        if (scrollHeight - 10 > scrollTop + offsetHeight) {
+          window.requestAnimationFrame(smoothscroll)
+          logsInfoRef.value.scrollTo(
+            0,
+            scrollTop + (scrollHeight - scrollTop - offsetHeight) / 2
+          )
+        }
+      })()
     })
   }
 
@@ -128,7 +175,7 @@
       return
     }
     clipboard.on('success', () => {
-      message.success('copy success!')
+      message.success('Copy success!')
       clipboard.destroy()
     })
     clipboard.on('error', () => {
@@ -158,18 +205,37 @@
     breadcrumbs.value.splice(idx + 1, len)
   }
 
-  onMounted(async () => {
-    jobStore.resumeIntervalFn()
-  })
+  const handlePageChange = (page: number) => {
+    paginationProps.current = page
+    jobsPageState.pageNum = page
+    loading.value = true
+    getJobsList()
+  }
 
-  onBeforeUnmount(() => {
-    jobStore.pauseIntervalFn()
-  })
+  const handlePageSizeChange = (_current: number, size: number) => {
+    paginationProps.pageSize = size
+    jobsPageState.pageSize = size
+    loading.value = true
+    getJobsList()
+  }
+
+  const initPagedProps = () => {
+    return {
+      current: 1,
+      pageSize: 10,
+      size: 'small',
+      showSizeChanger: true,
+      pageSizeOptions: ['10', '20', '30', '40', '50'],
+      total: 0,
+      onChange: handlePageChange,
+      onShowSizeChange: handlePageSizeChange
+    }
+  }
 </script>
 
 <template>
-  <div class="icon">
-    <a-badge size="small" color="blue" :count="processJobNum" @click="jobOpen">
+  <div class="icon" @click="() => (jobWindowOpened = true)">
+    <a-badge size="small" color="blue" :count="processJobNum">
       <setting-outlined />
     </a-badge>
   </div>
@@ -177,7 +243,7 @@
   <a-modal v-model:open="jobWindowOpened" width="95%">
     <template #footer>
       <a-button key="back" type="primary" @click="jobWindowOpened = false">
-        {{ $t('common.cancel') }}
+        {{ $t('common.confirm') }}
       </a-button>
     </template>
 
@@ -194,10 +260,13 @@
     </div>
 
     <a-table
-      v-if="getCurrPage == 'isJobTable'"
-      destroy-on-close
+      v-show="getCurrPage == 'isJobTable'"
+      :scroll="{ y: 500 }"
+      :pagination="paginationProps"
+      :loading="loading"
       :data-source="jobs"
       :columns="columns"
+      destroy-on-close
     >
       <template #headerCell="{ column }">
         <span>{{ $t(column.title) }}</span>
@@ -209,85 +278,25 @@
           </a>
         </template>
         <template v-if="column.dataIndex === 'state'">
-          <CheckCircleTwoTone
-            v-if="text === 'Successful'"
-            two-tone-color="#52c41a"
+          <custom-progress
+            :key="record.id"
+            :state="text"
+            :progress="record.stages"
           />
-          <CloseCircleTwoTone
-            v-else-if="text === 'Failed'"
-            two-tone-color="red"
-          />
-          <MinusCircleTwoTone
-            v-else-if="text === 'Canceled'"
-            two-tone-color="orange"
-          />
-          <LoadingOutlined v-else />
         </template>
       </template>
     </a-table>
-    <a-table
-      v-else-if="getCurrPage == 'isStageTable'"
-      :data-source="stages"
-      :columns="columns"
-    >
-      <template #headerCell="{ column }">
-        <span>{{ $t(column.title) }}</span>
-      </template>
-      <template #bodyCell="{ column, text, record }">
-        <template v-if="column.dataIndex === 'name'">
-          <a @click="clickStage(record)">
-            {{ text }}
-          </a>
-        </template>
-        <template v-if="column.dataIndex === 'state'">
-          <CheckCircleTwoTone
-            v-if="text === 'Successful'"
-            two-tone-color="#52c41a"
-          />
-          <CloseCircleTwoTone
-            v-else-if="text === 'Failed'"
-            two-tone-color="red"
-          />
-          <MinusCircleTwoTone
-            v-else-if="text === 'Canceled'"
-            two-tone-color="orange"
-          />
-          <LoadingOutlined v-else />
-        </template>
-      </template>
-    </a-table>
-    <a-table
-      v-else-if="getCurrPage == 'isTaskTable'"
-      :data-source="tasks"
-      :columns="columns"
-    >
-      <template #headerCell="{ column }">
-        <span>{{ $t(column.title) }}</span>
-      </template>
-      <template #bodyCell="{ column, text, record }">
-        <template v-if="column.dataIndex === 'name'">
-          <a @click="clickTask(record)">
-            {{ text }}
-          </a>
-        </template>
-        <template v-if="column.dataIndex === 'state'">
-          <CheckCircleTwoTone
-            v-if="text === 'Successful'"
-            two-tone-color="#52c41a"
-          />
-          <CloseCircleTwoTone
-            v-else-if="text === 'Failed'"
-            two-tone-color="red"
-          />
-          <MinusCircleTwoTone
-            v-else-if="text === 'Canceled'"
-            two-tone-color="orange"
-          />
-          <LoadingOutlined v-else />
-        </template>
-      </template>
-    </a-table>
-    <template v-else-if="getCurrPage == 'isTaskLogs'">
+    <template v-if="getCurrPage == 'isStageTable'">
+      <stage-info
+        :columns="columns"
+        :stages="stages"
+        @click-stage="clickStage"
+      />
+    </template>
+    <template v-if="getCurrPage == 'isTaskTable'">
+      <task-info :columns="columns" :tasks="tasks" @click-task="clickTask" />
+    </template>
+    <template v-if="getCurrPage == 'isTaskLogs'">
       <div class="logs">
         <div class="logs_header">
           <span>Task Logs</span>
@@ -302,7 +311,7 @@
             </a-button>
           </div>
         </div>
-        <div class="logs_info">
+        <div ref="logsInfoRef" class="logs_info">
           <pre id="logs">{{ logText }}</pre>
         </div>
       </div>

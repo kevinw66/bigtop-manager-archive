@@ -27,6 +27,7 @@ export default {
   edit: 'Edit',
   submit: 'Submit',
   cancel: 'Cancel',
+  confirm: 'Confirm',
   exit_confirm: 'Are you sure you want to exit?',
   install: 'Install',
   finish: 'Finish',

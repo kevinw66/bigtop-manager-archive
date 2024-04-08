@@ -27,6 +27,7 @@ export default {
   edit: '编辑',
   submit: '提交',
   cancel: '取消',
+  confirm: '确认',
   exit_confirm: '确定要退出吗？',
   install: '安装',
   finish: '完成',

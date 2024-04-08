@@ -41,7 +41,11 @@ export const useJobStore = defineStore(
     })
 
     const loadJobs = async () => {
-      jobs.value = await getJobs(clusterId.value)
+      const { content } = await getJobs(clusterId.value, {
+        pageNum: 1,
+        pageSize: 10
+      })
+      jobs.value = content
     }
 
     watch(clusterId, async () => {
