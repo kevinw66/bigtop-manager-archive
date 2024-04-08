@@ -26,14 +26,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.bigtop.manager.server.model.vo.JobVO;
+import org.apache.bigtop.manager.server.model.vo.PageVO;
 import org.apache.bigtop.manager.server.service.JobService;
 import org.apache.bigtop.manager.server.utils.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @Tag(name = "Job Controller")
 @RestController
@@ -51,7 +50,7 @@ public class JobController {
             @Parameter(in = ParameterIn.QUERY, name = "sort", description = "asc/desc", schema = @Schema(type = "string", defaultValue = "asc"))
     })
     @GetMapping
-    public ResponseEntity<List<JobVO>> list(@PathVariable Long clusterId) {
+    public ResponseEntity<PageVO<JobVO>> list(@PathVariable Long clusterId) {
         return ResponseEntity.success(jobService.list(clusterId));
     }
 
