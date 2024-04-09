@@ -43,6 +43,7 @@
 <style scoped lang="scss">
   .container {
     margin: 0 1rem;
+    min-height: auto;
 
     .breadcrumb {
       margin: 1rem 0;
@@ -52,7 +53,6 @@
       padding: 1rem;
       border-radius: 0.5rem;
       background: #fff;
-      min-height: 33.75rem;
     }
   }
 </style>

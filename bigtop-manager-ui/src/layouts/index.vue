@@ -50,7 +50,7 @@
 <template>
   <a-layout class="layout">
     <layout-sider />
-    <a-layout>
+    <a-layout class="layout-inner">
       <layout-header />
       <layout-content />
       <layout-footer />
@@ -61,5 +61,8 @@
 <style scoped lang="scss">
   .layout {
     min-height: 100vh;
+    &-inner {
+      overflow: auto;
+    }
   }
 </style>

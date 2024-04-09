@@ -322,6 +322,7 @@
         flex: 0 1 calc((100% / 3) - 1.5rem);
         min-width: calc((100% / 3) - 1.5rem);
         box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
+        overflow: auto;
         &:hover {
           box-shadow: 0 0 6px rgba(0, 0, 0, 0.16);
           transform: scale(1.002);
