@@ -22,7 +22,7 @@ export enum State {
   Processing = '#1677fe',
   Successful = '#52c41a',
   Failed = '#ff4d4f',
-  Canceled = '#8c908b'
+  Canceled = '#80868b'
 }
 
 export type StateType = keyof typeof State

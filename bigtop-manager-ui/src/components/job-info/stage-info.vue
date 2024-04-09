@@ -78,7 +78,7 @@
           <custom-progress
             :key="record.id"
             :state="text"
-            :progress="record.tasks"
+            :progress-data="record.tasks"
           />
         </template>
       </template>

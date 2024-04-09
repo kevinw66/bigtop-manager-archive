@@ -20,6 +20,11 @@
 <script lang="ts" setup>
   import { computed, ref, reactive, watch, toRefs } from 'vue'
   import { State } from '@/api/job/types'
+  import {
+    MinusCircleFilled as Canceled,
+    CheckCircleFilled as Successful,
+    CloseCircleFilled as Failed
+  } from '@ant-design/icons-vue'
 
   interface ProgressItem {
     state: keyof typeof State
@@ -28,60 +33,64 @@
 
   interface ProgressProps {
     state: keyof typeof State
-    progress: ProgressItem[]
+    progressData: ProgressItem[]
   }
 
   interface ProgressConfig {
-    percent: number
+    progress: number
     status: string
   }
 
   const props = withDefaults(defineProps<ProgressProps>(), {})
 
   const progressConfig = reactive<ProgressConfig>({
-    percent: 0,
+    progress: 0,
     status: 'status'
   })
 
-  const { percent, status } = toRefs(progressConfig)
+  const { progress, status } = toRefs(progressConfig)
 
-  const data = ref(computed(() => props.progress))
+  const data = ref(computed(() => props.progressData))
+  const icon = ref(Canceled)
 
   watch(
     () => props.state,
     (val) => {
       if (val === 'Pending') {
         Object.assign(progressConfig, {
-          percent: 0,
+          progress: 0,
           status: 'normal'
         })
       }
       if (val === 'Successful') {
         Object.assign(progressConfig, {
-          percent: 100,
+          progress: 100,
           status: 'success'
         })
+        icon.value = Successful
       }
       if (val === 'Processing') {
         const proportion =
           data.value.filter((v: ProgressItem) => v.state === 'Successful')
             .length + 1
         Object.assign(progressConfig, {
-          percent: (proportion / data.value.length) * 100,
+          progress: (proportion / data.value.length) * 100,
           status: 'active'
         })
       }
       if (val === 'Canceled') {
         Object.assign(progressConfig, {
-          percent: 0,
+          progress: 100,
           status: 'normal'
         })
+        icon.value = Canceled
       }
       if (val === 'Failed') {
         Object.assign(progressConfig, {
-          percent: 100,
+          progress: 100,
           status: 'exception'
         })
+        icon.value = Failed
       }
     },
     {
@@ -93,10 +102,15 @@
 <template>
   <div>
     <a-progress
-      :percent="percent"
+      :percent="progress"
       :status="status"
       :stroke-color="State[props.state]"
-    />
+    >
+      <template #format="percent">
+        <span v-if="percent < 100">{{ percent }}</span>
+        <component :is="icon" :style="{ color: State[props.state] }" />
+      </template>
+    </a-progress>
   </div>
 </template>
 

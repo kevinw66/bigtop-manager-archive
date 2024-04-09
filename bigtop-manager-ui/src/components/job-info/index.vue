@@ -281,7 +281,7 @@
           <custom-progress
             :key="record.id"
             :state="text"
-            :progress="record.stages"
+            :progress-data="record.stages"
           />
         </template>
       </template>
