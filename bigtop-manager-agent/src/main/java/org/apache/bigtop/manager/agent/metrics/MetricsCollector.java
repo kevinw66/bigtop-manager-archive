@@ -18,19 +18,17 @@
  */
 package org.apache.bigtop.manager.agent.metrics;
 
-import org.apache.bigtop.manager.agent.hostmonitoring.AgentHostMonitoring;
-
+import io.micrometer.core.instrument.MultiGauge;
 import jakarta.annotation.Resource;
-
+import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.agent.monitoring.AgentHostMonitoring;
+import org.apache.bigtop.manager.agent.monitoring.ZookeeperHealthyMonitoring;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import io.micrometer.core.instrument.MultiGauge;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -41,14 +39,15 @@ public class MetricsCollector {
     @Qualifier("diskMultiGauge")
     @Resource
     private MultiGauge diskMultiGauge;
-
     @Qualifier("memMultiGauge")
     @Resource
     private MultiGauge memMultiGauge;
-
     @Qualifier("cpuMultiGauge")
     @Resource
     private MultiGauge cpuMultiGauge;
+    @Qualifier("zookeeperMultiGauge")
+    @Resource
+    private MultiGauge zookeeperMultiGauge;
 
     @Async
     @Scheduled(cron = "*/10 * *  * * ?")
@@ -61,6 +60,7 @@ public class MetricsCollector {
         AgentHostMonitoring.diskMultiGaugeUpdateData(diskMultiGauge);
         AgentHostMonitoring.memMultiGaugeUpdateData(memMultiGauge);
         AgentHostMonitoring.cpuMultiGaugeUpdateData(cpuMultiGauge);
+        ZookeeperHealthyMonitoring.zookeeperUpdateStatus(zookeeperMultiGauge);
     }
 
 }

@@ -18,15 +18,14 @@
  */
 package org.apache.bigtop.manager.agent;
 
-import org.apache.bigtop.manager.agent.hostmonitoring.AgentHostMonitoring;
-
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.MultiGauge;
+import org.apache.bigtop.manager.agent.monitoring.AgentHostMonitoring;
+import org.apache.bigtop.manager.agent.monitoring.ZookeeperHealthyMonitoring;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.MultiGauge;
 
 @SpringBootApplication(scanBasePackages = {"org.apache.bigtop.manager.agent", "org.apache.bigtop.manager.common"})
 public class AgentApplication {
@@ -53,4 +52,9 @@ public class AgentApplication {
         return AgentHostMonitoring.newMemMultiGauge(meterRegistry);
     }
 
+    @Qualifier("zookeeperMultiGauge")
+    @Bean
+    public MultiGauge zookeeperMultiGauge(MeterRegistry meterRegistry) {
+        return ZookeeperHealthyMonitoring.registerZookeeperHealthyGauge(meterRegistry);
+    }
 }

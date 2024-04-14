@@ -18,21 +18,19 @@
  */
 package org.apache.bigtop.manager.common.ws;
 
-import org.apache.bigtop.manager.common.message.entity.BaseMessage;
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.entity.BaseRequestMessage;
 import org.apache.bigtop.manager.common.message.entity.BaseResponseMessage;
 import org.apache.bigtop.manager.common.message.serializer.MessageDeserializer;
 import org.apache.bigtop.manager.common.message.serializer.MessageSerializer;
-
-import java.util.concurrent.ConcurrentHashMap;
-
-import jakarta.annotation.Resource;
-
+import org.apache.bigtop.manager.common.message.entity.BaseMessage;
 import org.springframework.web.socket.BinaryMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.BinaryWebSocketHandler;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
@@ -46,6 +44,7 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
     private final ConcurrentHashMap<String, BaseRequestMessage> requests = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<String, BaseResponseMessage> responses = new ConcurrentHashMap<>();
+
 
     protected void sendMessage(WebSocketSession session, BaseMessage message) {
         try {
@@ -68,7 +67,7 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
             BaseResponseMessage response = responses.get(request.getMessageId());
             if (response == null) {
                 try {
-                    Thread.sleep(1000);
+                    TimeUnit.SECONDS.sleep(5);
                 } catch (InterruptedException e) {
                     log.error("Error waiting for message response, messageId: {}", request.getMessageId(), e);
                 }
@@ -93,7 +92,7 @@ public class AbstractBinaryWebSocketHandler extends BinaryWebSocketHandler {
 
     private void sendMessageWithRetry(WebSocketSession session, BaseMessage message) throws Exception {
         int retryCount = 3;
-        int retryInterval = 1000;
+        int retryInterval = 5000;
         for (int i = 0; i < retryCount; i++) {
             try {
                 session.sendMessage(new BinaryMessage(serializer.serialize(message)));

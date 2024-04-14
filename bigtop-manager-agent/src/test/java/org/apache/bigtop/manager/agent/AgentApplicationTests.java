@@ -18,15 +18,13 @@
  */
 package org.apache.bigtop.manager.agent;
 
-import org.apache.bigtop.manager.agent.hostmonitoring.AgentHostMonitoring;
-
-import java.net.UnknownHostException;
-import java.text.DecimalFormat;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.bigtop.manager.agent.monitoring.AgentHostMonitoring;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import java.net.UnknownHostException;
+import java.text.DecimalFormat;
 
 @SpringBootTest
 public class AgentApplicationTests {

@@ -107,6 +107,7 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
