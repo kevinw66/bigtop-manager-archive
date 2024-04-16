@@ -18,12 +18,12 @@
  */
 package org.apache.bigtop.manager.stack.common.utils.template;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TemplateUtils {
@@ -46,7 +46,7 @@ public class TemplateUtils {
                 BaseTemplate.writeCustomTemplate(fileName, paramMap, paramTemplate);
             }
         } catch (Exception e) {
-            log.error("writeProperties error,", e);
+            TaskLogWriter.error("writeProperties error: " + e.getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ public class TemplateUtils {
                 BaseTemplate.writeCustomTemplate(fileName, paramMap, paramTemplate);
             }
         } catch (Exception e) {
-            log.error("writeProperties error,", e);
+            TaskLogWriter.error("writeProperties error: " + e.getMessage());
         }
     }
 

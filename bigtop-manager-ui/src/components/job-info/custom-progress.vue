@@ -50,7 +50,7 @@
 
   const { progress, status } = toRefs(progressConfig)
 
-  const data = ref(computed(() => props.progressData))
+  const data = computed(() => props.progressData)
   const icon = ref(Canceled)
 
   watch(
@@ -107,8 +107,10 @@
       :stroke-color="State[props.state]"
     >
       <template #format="percent">
-        <span v-if="percent < 100">{{ percent }}</span>
-        <component :is="icon" :style="{ color: State[props.state] }" />
+        <span v-if="['Pending', 'Processing'].includes(props.state)">
+          {{ percent }} %
+        </span>
+        <component :is="icon" v-else :style="{ color: State[props.state] }" />
       </template>
     </a-progress>
   </div>

@@ -18,21 +18,19 @@
  */
 package org.apache.bigtop.manager.stack.common.utils.linux;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
-
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-
-import org.springframework.util.CollectionUtils;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class LinuxAccountUtils {
@@ -63,11 +61,9 @@ public class LinuxAccountUtils {
 
         builderParameters.add(user);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[AccountGroupUtils] [userDel] output: {}", output);
+            TaskLogWriter.info("[AccountGroupUtils] [userDel] output: " + output);
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -154,11 +150,9 @@ public class LinuxAccountUtils {
         }
         builderParameters.add(user);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[AccountGroupUtils] [userAdd] output: {}", output);
+            TaskLogWriter.info("[AccountGroupUtils] [userAdd] output: " + output);
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -182,11 +176,9 @@ public class LinuxAccountUtils {
 
         builderParameters.add(group);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[AccountGroupUtils] [addGroup] output: {}", output);
+            TaskLogWriter.info("[AccountGroupUtils] [addGroup] output: " + output);
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -230,13 +222,12 @@ public class LinuxAccountUtils {
             builderParameters.add("-p");
             builderParameters.add(password);
         }
-        builderParameters.add(group);
 
-        log.debug("builderParameters: {}", builderParameters);
+        builderParameters.add(group);
 
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[AccountGroupUtils] [addGroup] output: {}", output);
+            TaskLogWriter.info("[AccountGroupUtils] [addGroup] output: " + output);
         } catch (IOException e) {
             throw new StackException(e);
         }
@@ -257,11 +248,9 @@ public class LinuxAccountUtils {
         builderParameters.add("-c");
         builderParameters.add("awk -F':' '{print $1}' /etc/group | grep  " + group);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[AccountGroupUtils] [checkIfExistsGroup] output: {}", output);
+            TaskLogWriter.info("[AccountGroupUtils] [checkIfExistsGroup] output: " + output);
             return output.getExitCode() == 0;
         } catch (IOException e) {
             throw new StackException(e);
@@ -283,11 +272,9 @@ public class LinuxAccountUtils {
         builderParameters.add("-c");
         builderParameters.add("awk -F':' '{print $1}' /etc/passwd | grep  " + user);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters);
-            log.info("[AccountGroupUtils] [checkIfExistsUser] output: {}", output);
+            TaskLogWriter.info("[AccountGroupUtils] [checkIfExistsUser] output: " + output);
             return output.getExitCode() == 0;
         } catch (IOException e) {
             throw new StackException(e);

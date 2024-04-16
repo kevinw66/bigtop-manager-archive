@@ -18,12 +18,13 @@
  */
 package org.apache.bigtop.manager.stack.common.utils.linux;
 
-import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
-
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.common.utils.FileUtils;
-
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -32,9 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -99,20 +98,20 @@ public class LinuxOSUtils {
     public static ShellResult checkProcess(String filepath) {
         File file = new File(filepath);
         if (!file.exists() || !file.isFile()) {
-            log.warn("Pid file {} is empty or does not exist", filepath);
+            TaskLogWriter.warn("Pid file " + filepath + " is empty or does not exist");
             return new ShellResult(-1, "", "Component is not running");
         }
         int pid;
         try {
             pid = Integer.parseInt(FileUtils.readFile2Str(file).replaceAll("\r|\n", ""));
         } catch (Exception e) {
-            log.warn("Pid file {} does not exist or does not contain a process id number", filepath, e);
+            TaskLogWriter.warn("Pid file " + filepath + " does not exist or does not contain a process id number, error: " + e.getMessage());
             return new ShellResult(-1, "", "Component is not running");
         }
         try {
             return execCmd("kill -0 " + pid);
         } catch (IOException e) {
-            log.warn("Process with pid {} is not running. Stale pid file at {}", pid, filepath, e);
+            TaskLogWriter.warn("Process with pid " + pid + " is not running. Stale pid file at " + filepath + ", error: " + e.getMessage());
             return new ShellResult(-1, "", "Component is not running");
         }
     }

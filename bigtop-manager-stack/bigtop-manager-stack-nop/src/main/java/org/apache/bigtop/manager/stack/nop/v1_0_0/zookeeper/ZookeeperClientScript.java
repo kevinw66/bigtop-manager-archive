@@ -26,6 +26,7 @@ import org.apache.bigtop.manager.spi.stack.Script;
 import com.google.auto.service.AutoService;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 
 @Slf4j
 @AutoService(Script.class)
@@ -33,11 +34,13 @@ public class ZookeeperClientScript implements ClientScript {
 
     @Override
     public ShellResult install(Params params) {
+        TaskLogWriter.info("Success on dev mode");
         return ShellResult.success();
     }
 
     @Override
     public ShellResult configure(Params params) {
+        TaskLogWriter.info("Success on dev mode");
         return ShellResult.success();
     }
 

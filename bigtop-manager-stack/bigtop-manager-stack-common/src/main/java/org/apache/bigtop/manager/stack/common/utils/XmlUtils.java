@@ -18,10 +18,12 @@
  */
 package org.apache.bigtop.manager.stack.common.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
-import java.io.File;
-import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -31,11 +33,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.Map;
 
 @Slf4j
 public class XmlUtils {
@@ -66,7 +65,7 @@ public class XmlUtils {
             Element configuration = document.createElement("configuration");
 
             for (Map.Entry<String, Object> entry : configMap.entrySet()) {
-                log.info("{} {}", entry.getKey(), entry.getValue());
+                TaskLogWriter.info(entry.getKey() + " " + entry.getValue());
                 Element property = document.createElement("property");
 
                 Element name = document.createElement("name");
@@ -89,9 +88,9 @@ public class XmlUtils {
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
 
             tf.transform(new DOMSource(document), new StreamResult(new File(fileName)));
-            log.info("writeXml {} success", fileName);
+            TaskLogWriter.info("writeXml " + fileName + " success");
         } catch (TransformerException e) {
-            log.error("writeXml error", e);
+            TaskLogWriter.error("writeXml error: " + e.getLocationAsString());
             throw new StackException(e);
         }
     }

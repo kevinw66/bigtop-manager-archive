@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.bigtop.manager.stack.core.log;
+package org.apache.bigtop.manager.stack.common.log;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;

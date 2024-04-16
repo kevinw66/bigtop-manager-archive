@@ -18,8 +18,8 @@
  */
 package org.apache.bigtop.manager.stack.common.utils;
 
-import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
-
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.enums.Command;
 import org.apache.bigtop.manager.common.message.entity.payload.CommandPayload;
 import org.apache.bigtop.manager.common.message.entity.pojo.OSSpecificInfo;
@@ -27,7 +27,7 @@ import org.apache.bigtop.manager.common.utils.NetUtils;
 import org.apache.bigtop.manager.common.utils.os.OSDetection;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.common.annotations.GlobalParams;
-
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
@@ -36,8 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
 
 @Slf4j
 public abstract class BaseParams implements Params {
@@ -63,12 +62,10 @@ public abstract class BaseParams implements Params {
             try {
                 if (declaredMethod.isAnnotationPresent(GlobalParams.class) && declaredMethod.getParameterCount() == 0) {
                     Map<String, Object> invoke = (Map<String, Object>) declaredMethod.invoke(this);
-                    log.debug("[Global Parameters Injection] Method Name: {}, Return Object: {}",
-                            declaredMethod.getName(), invoke);
                     globalParamsMap.putAll(invoke);
                 }
             } catch (Exception e) {
-                log.warn("Get {} Params Error!!!", declaredMethod, e);
+                TaskLogWriter.warn("Get " + declaredMethod + " Params error: " + e.getMessage());
             }
         }
         globalParamsMap.remove("content");

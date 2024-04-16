@@ -18,12 +18,13 @@
  */
 package org.apache.bigtop.manager.stack.common.utils.linux;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.Constants;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
 import org.apache.bigtop.manager.common.utils.YamlUtils;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 import org.apache.bigtop.manager.stack.common.utils.template.TemplateUtils;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -32,14 +33,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.GroupPrincipal;
-import java.nio.file.attribute.PosixFileAttributeView;
-import java.nio.file.attribute.PosixFilePermission;
-import java.nio.file.attribute.PosixFilePermissions;
-import java.nio.file.attribute.UserPrincipal;
+import java.nio.file.attribute.*;
 import java.util.Set;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Only support Linux
@@ -68,7 +63,7 @@ public class LinuxFileUtils {
                               String permissions,
                               Object content, Object paramMap) {
         if (type == null || StringUtils.isBlank(filename) || content == null) {
-            log.error("type, filename, content must not be null");
+            TaskLogWriter.error("type, filename, content must not be null");
             return;
         }
 
@@ -83,7 +78,7 @@ public class LinuxFileUtils {
                 JsonUtils.writeToFile(filename, content);
                 break;
             case UNKNOWN:
-                log.info("no need to write");
+                TaskLogWriter.info("no need to write");
                 break;
         }
 
@@ -112,7 +107,7 @@ public class LinuxFileUtils {
                                         String group, String permissions,
                                         Object modelMap, Object paramMap) {
         if (StringUtils.isBlank(filename) || modelMap == null || StringUtils.isEmpty(template)) {
-            log.error("type, filename, content, template must not be null");
+            TaskLogWriter.error("type, filename, content, template must not be null");
             return;
         }
         TemplateUtils.map2CustomTemplate(template, filename, modelMap, paramMap);
@@ -130,7 +125,7 @@ public class LinuxFileUtils {
      */
     public static void updatePermissions(String dir, String permissions, boolean recursive) {
         if (StringUtils.isBlank(dir)) {
-            log.error("dir must not be null");
+            TaskLogWriter.error("dir must not be null");
             return;
         }
         permissions = StringUtils.isBlank(permissions) ? Constants.PERMISSION_644 : permissions;
@@ -139,9 +134,9 @@ public class LinuxFileUtils {
         Set<PosixFilePermission> perms = PosixFilePermissions.fromString(permissions);
         try {
             Files.setPosixFilePermissions(path, perms);
-            log.info("Permissions set successfully.");
+            TaskLogWriter.info("Permissions set successfully.");
         } catch (IOException e) {
-            log.error("[updatePermissions] error,", e);
+            TaskLogWriter.error("[updatePermissions] error: " + e.getMessage());
         }
 
         // When is a directory, recursive update
@@ -152,7 +147,7 @@ public class LinuxFileUtils {
                             true);
                 }
             } catch (IOException e) {
-                log.error("[updatePermissions] error,", e);
+                TaskLogWriter.error("[updatePermissions] error: " + e.getMessage());
             }
         }
     }
@@ -167,7 +162,7 @@ public class LinuxFileUtils {
      */
     public static void updateOwner(String dir, String owner, String group, boolean recursive) {
         if (StringUtils.isBlank(dir)) {
-            log.error("dir must not be null");
+            TaskLogWriter.error("dir must not be null");
             return;
         }
         owner = StringUtils.isBlank(owner) ? "root" : owner;
@@ -186,7 +181,7 @@ public class LinuxFileUtils {
             fileAttributeView.setOwner(userPrincipal);
             fileAttributeView.setGroup(groupPrincipal);
         } catch (IOException e) {
-            log.error("[updateOwner] error,", e);
+            TaskLogWriter.error("[updateOwner] error: " + e.getMessage());
         }
 
         // When it is a directory, recursively set the file owner
@@ -196,7 +191,7 @@ public class LinuxFileUtils {
                     updateOwner(dir + File.separator + subPath.getFileName(), owner, group, true);
                 }
             } catch (IOException e) {
-                log.error("[updateOwner] error,", e);
+                TaskLogWriter.error("[updateOwner] error: " + e.getMessage());
             }
         }
     }
@@ -213,20 +208,20 @@ public class LinuxFileUtils {
     public static void createDirectories(String dirPath, String owner, String group,
                                          String permissions, boolean recursive) {
         if (StringUtils.isBlank(dirPath)) {
-            log.error("dirPath must not be null");
+            TaskLogWriter.error("dirPath must not be null");
             return;
         }
         Path path = Paths.get(dirPath);
 
         if (Files.isSymbolicLink(path)) {
-            log.warn("unable to create symbolic link: {}", dirPath);
+            TaskLogWriter.warn("unable to create symbolic link: " + dirPath);
             return;
         }
 
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
-            log.error("[createDirectories] error,", e);
+            TaskLogWriter.error("[createDirectories] error: " + e.getMessage());
         }
 
         updateOwner(dirPath, owner, group, recursive);

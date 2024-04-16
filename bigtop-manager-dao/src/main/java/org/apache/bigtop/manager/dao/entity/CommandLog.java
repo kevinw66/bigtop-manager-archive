@@ -53,8 +53,8 @@ public class CommandLog extends BaseEntity {
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "\"result\"", length = 16777216)
-    private String result;
+    @Column(name = "\"log\"", length = 16777216)
+    private String log;
 
     @Column(name = "hostname")
     private String hostname;

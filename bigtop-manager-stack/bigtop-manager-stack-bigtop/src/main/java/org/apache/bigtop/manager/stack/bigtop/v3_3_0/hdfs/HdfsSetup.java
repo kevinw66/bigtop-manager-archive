@@ -18,27 +18,24 @@
  */
 package org.apache.bigtop.manager.stack.bigtop.v3_3_0.hdfs;
 
-import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_644;
-import static org.apache.bigtop.manager.common.constants.Constants.PERMISSION_755;
-import static org.apache.bigtop.manager.common.constants.Constants.ROOT_USER;
-
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.Params;
 import org.apache.bigtop.manager.stack.bigtop.v3_3_0.kafka.KafkaParams;
 import org.apache.bigtop.manager.stack.common.enums.ConfigType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxFileUtils;
 import org.apache.bigtop.manager.stack.common.utils.linux.LinuxOSUtils;
-
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Map;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.*;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -49,7 +46,7 @@ public class HdfsSetup {
     }
 
     public static ShellResult config(Params params, String componentName) {
-        log.info("starting HDFS config");
+        TaskLogWriter.info("starting HDFS config");
         HdfsParams hdfsParams = (HdfsParams) params;
 
         String confDir = hdfsParams.confDir();
@@ -149,7 +146,7 @@ public class HdfsSetup {
         for (String nameNodeFormattedDir : hdfsParams.getNameNodeFormattedDirs()) {
             File file = new File(nameNodeFormattedDir);
             if (file.exists() && file.isDirectory()) {
-                log.info("{} exists. Namenode DFS already formatted", nameNodeFormattedDir);
+                TaskLogWriter.info(nameNodeFormattedDir + "exists. Namenode DFS already formatted");
                 isFormatted = true;
             }
         }
@@ -168,15 +165,12 @@ public class HdfsSetup {
         for (String nameNodeDir : nameNodeDirs) {
             File file = new File(nameNodeDir);
             if (!file.exists()) {
-                log.info(
-                        "NameNode will not be formatted because the directory {} is missing or cannot be checked for content.",
-                        nameNodeDir);
+                TaskLogWriter.info("NameNode will not be formatted because the directory " + nameNodeDir + " is missing or cannot be checked for content.");
                 return true;
             } else {
                 File[] files = file.listFiles();
                 if (files != null && files.length > 0) {
-                    log.info("NameNode will not be formatted since {} exists and contains content",
-                            nameNodeDir);
+                    TaskLogWriter.info("NameNode will not be formatted since " + nameNodeDir + " exists and contains content");
                     return true;
                 }
             }

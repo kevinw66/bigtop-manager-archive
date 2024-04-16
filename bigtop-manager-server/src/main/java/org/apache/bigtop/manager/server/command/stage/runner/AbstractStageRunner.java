@@ -18,8 +18,8 @@
  */
 package org.apache.bigtop.manager.server.command.stage.runner;
 
-import static org.apache.bigtop.manager.common.constants.Constants.COMMAND_MESSAGE_RESPONSE_TIMEOUT;
-
+import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.constants.MessageConstants;
 import org.apache.bigtop.manager.common.enums.JobState;
 import org.apache.bigtop.manager.common.message.entity.command.CommandRequestMessage;
@@ -31,18 +31,20 @@ import org.apache.bigtop.manager.dao.repository.StageRepository;
 import org.apache.bigtop.manager.dao.repository.TaskRepository;
 import org.apache.bigtop.manager.server.command.stage.factory.StageContext;
 import org.apache.bigtop.manager.server.holder.SpringContextHolder;
+import org.apache.bigtop.manager.server.service.CommandLogService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.annotation.Resource;
-
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.Constants.COMMAND_MESSAGE_RESPONSE_TIMEOUT;
 
 @Slf4j
 public abstract class AbstractStageRunner implements StageRunner {
+
+    @Resource
+    private CommandLogService commandLogService;
 
     @Resource
     protected StageRepository stageRepository;
@@ -78,8 +80,8 @@ public abstract class AbstractStageRunner implements StageRunner {
             message.setJobId(stage.getJob().getId());
 
             futures.add(CompletableFuture.supplyAsync(() -> {
-                CommandResponseMessage res =
-                        SpringContextHolder.getServerWebSocket().sendRequestMessage(task.getHostname(), message);
+                commandLogService.onLogStarted(task.getId(), task.getHostname());
+                CommandResponseMessage res = SpringContextHolder.getServerWebSocket().sendRequestMessage(task.getHostname(), message);
 
                 log.info("Execute task {} completed: {}", task.getId(), res);
                 boolean taskSuccess = res != null && res.getCode() == MessageConstants.SUCCESS_CODE;
@@ -90,6 +92,7 @@ public abstract class AbstractStageRunner implements StageRunner {
                     onTaskFailure(task);
                 }
 
+                commandLogService.onLogEnded(task.getId(), task.getHostname());
                 return taskSuccess;
             }));
         }

@@ -18,20 +18,19 @@
  */
 package org.apache.bigtop.manager.stack.common.repo;
 
+import com.google.auto.service.AutoService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.shell.ShellExecutor;
 import org.apache.bigtop.manager.common.shell.ShellResult;
 import org.apache.bigtop.manager.spi.stack.PackageManager;
 import org.apache.bigtop.manager.stack.common.enums.PackageManagerType;
 import org.apache.bigtop.manager.stack.common.exception.StackException;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import com.google.auto.service.AutoService;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @AutoService(PackageManager.class)
@@ -47,11 +46,9 @@ public class YumPackageManager implements PackageManager {
         builderParameters.add("-y");
         builderParameters.addAll(packages);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters, log::info);
-            log.info("[RpmPackageManager] [installPackage] output: {}", output);
+            TaskLogWriter.info("[RpmPackageManager] [installPackage] output: " + output);
             return output;
         } catch (IOException e) {
             throw new StackException(e);
@@ -66,11 +63,9 @@ public class YumPackageManager implements PackageManager {
         builderParameters.add("-y");
         builderParameters.addAll(packages);
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters, log::info);
-            log.info("[RpmPackageManager] [uninstallPackage] output: {}", output);
+            TaskLogWriter.info("[RpmPackageManager] [uninstallPackage] output: " + output);
             return output;
         } catch (IOException e) {
             throw new StackException(e);
@@ -83,11 +78,9 @@ public class YumPackageManager implements PackageManager {
         builderParameters.add(YUM);
         builderParameters.add("list");
 
-        log.debug("builderParameters: {}", builderParameters);
-
         try {
             ShellResult output = ShellExecutor.execCommand(builderParameters, log::info);
-            log.info("[RpmPackageManager] [listPackages] output: {}", output);
+            TaskLogWriter.info("[RpmPackageManager] [listPackages] output: " + output);
             return output.getOutput();
         } catch (IOException e) {
             throw new StackException(e);

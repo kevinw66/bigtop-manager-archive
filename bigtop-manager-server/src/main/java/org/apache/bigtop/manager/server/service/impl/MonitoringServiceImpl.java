@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MonitoringServiceImpl implements MonitoringService {
 
     @Resource
-    PrometheusProxy prometheusProxy;
+    private PrometheusProxy prometheusProxy;
 
     @Override
     public JsonNode queryAgentsHealthyStatus() {

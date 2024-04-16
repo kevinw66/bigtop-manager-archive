@@ -16,13 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.bigtop.manager.dao.repository;
+package org.apache.bigtop.manager.server.service;
 
-import org.apache.bigtop.manager.dao.entity.CommandLog;
+import reactor.core.publisher.FluxSink;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+public interface CommandLogService {
 
-public interface CommandLogRepository extends JpaRepository<CommandLog, Long> {
+    void registerSink(Long taskId, FluxSink<String> sink);
 
-    CommandLog findByTaskIdEquals(Long taskId);
+    void unregisterSink(Long taskId);
+
+    void onLogStarted(Long taskId, String hostname);
+
+    void onLogReceived(Long taskId, String hostname, String log);
+
+    void onLogEnded(Long taskId, String hostname);
 }

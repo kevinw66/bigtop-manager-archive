@@ -18,30 +18,19 @@
  */
 package org.apache.bigtop.manager.stack.common.utils;
 
-import static org.apache.bigtop.manager.common.constants.CacheFiles.CLUSTER_INFO;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.COMPONENTS_INFO;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.CONFIGURATIONS_INFO;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.HOSTS_INFO;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.REPOS_INFO;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.SETTINGS_INFO;
-import static org.apache.bigtop.manager.common.constants.CacheFiles.USERS_INFO;
-import static org.apache.bigtop.manager.common.constants.Constants.STACK_CACHE_DIR;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.bigtop.manager.common.message.entity.pojo.ClusterInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.ComponentInfo;
 import org.apache.bigtop.manager.common.message.entity.pojo.RepoInfo;
 import org.apache.bigtop.manager.common.utils.JsonUtils;
+import org.apache.bigtop.manager.stack.common.log.TaskLogWriter;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
-import lombok.extern.slf4j.Slf4j;
+import static org.apache.bigtop.manager.common.constants.CacheFiles.*;
+import static org.apache.bigtop.manager.common.constants.Constants.STACK_CACHE_DIR;
 
 @Slf4j
 public class LocalSettings {
@@ -69,7 +58,7 @@ public class LocalSettings {
                 }
             }
         } catch (Exception e) {
-            log.warn("{} parse error, ", CONFIGURATIONS_INFO, e);
+            TaskLogWriter.warn(CONFIGURATIONS_INFO + " parse error: " + e.getMessage());
         }
 
         return configDataMap;
