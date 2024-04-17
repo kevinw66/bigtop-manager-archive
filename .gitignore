@@ -1,8 +1,13 @@
+# maven ignore
 target/
-!.mvn/wrapper/maven-wrapper.jar
+*.jar
+*.zip
+*.tar.gz
+.flattened-pom.xml
+
 !**/src/main/**/target/
 !**/src/test/**/target/
-.flattened-pom.xml
+# system ignore
 .DS_Store
 
 ### STS ###
