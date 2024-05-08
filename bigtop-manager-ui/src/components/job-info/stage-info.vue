@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
   import { StageVO } from '@/api/job/types.ts'
-  import { computed, reactive, ref } from 'vue'
+  import { ref, reactive, watch } from 'vue'
   import { PaginationConfig } from 'ant-design-vue/es/pagination/Pagination'
   import CustomProgress from './custom-progress.vue'
 
@@ -30,7 +30,18 @@
 
   const props = withDefaults(defineProps<StageProps>(), {})
 
-  const pagedList = ref(computed(() => props.stages))
+  const pagedList = ref<StageVO[]>([])
+
+  watch(
+    () => props.stages,
+    (val) => {
+      pagedList.value = val || []
+    },
+    {
+      immediate: true,
+      deep: true
+    }
+  )
 
   const handlePageChange = (page: number) => {
     paginationProps.current = page

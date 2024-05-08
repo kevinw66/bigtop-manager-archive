@@ -18,7 +18,7 @@
   -->
 
 <script lang="ts" setup>
-  import { computed, ref, reactive, watch, toRefs } from 'vue'
+  import { computed } from 'vue'
   import { State } from '@/api/job/types'
   import {
     MinusCircleFilled as Canceled,
@@ -36,81 +36,65 @@
     progressData: ProgressItem[]
   }
 
-  interface ProgressConfig {
-    progress: number
-    status: string
-  }
-
   const props = withDefaults(defineProps<ProgressProps>(), {})
 
-  const progressConfig = reactive<ProgressConfig>({
-    progress: 0,
-    status: 'status'
-  })
-
-  const { progress, status } = toRefs(progressConfig)
-
-  const data = computed(() => props.progressData)
-  const icon = ref(Canceled)
-
-  watch(
-    () => props.state,
-    (val) => {
-      if (val === 'Pending') {
-        Object.assign(progressConfig, {
-          progress: 0,
-          status: 'normal'
-        })
+  const progressConfig = computed(() => {
+    if (props.state === 'Pending') {
+      return {
+        progress: 0,
+        status: 'normal'
       }
-      if (val === 'Successful') {
-        Object.assign(progressConfig, {
-          progress: 100,
-          status: 'success'
-        })
-        icon.value = Successful
+    } else if (props.state === 'Successful') {
+      return {
+        progress: 100,
+        status: 'success',
+        icon: Successful
       }
-      if (val === 'Processing') {
-        const proportion =
-          data.value.filter((v: ProgressItem) => v.state === 'Successful')
-            .length + 1
-        Object.assign(progressConfig, {
-          progress: (proportion / data.value.length) * 100,
-          status: 'active'
-        })
+    } else if (props.state === 'Processing') {
+      const proportion =
+        props.progressData.filter((v: ProgressItem) => v.state === 'Successful')
+          .length + 1
+      return {
+        progress: (proportion / props.progressData.length) * 100,
+        status: 'active'
       }
-      if (val === 'Canceled') {
-        Object.assign(progressConfig, {
-          progress: 100,
-          status: 'normal'
-        })
-        icon.value = Canceled
+    } else if (props.state === 'Canceled') {
+      return {
+        progress: 100,
+        status: 'normal',
+        icon: Canceled
       }
-      if (val === 'Failed') {
-        Object.assign(progressConfig, {
-          progress: 100,
-          status: 'exception'
-        })
-        icon.value = Failed
+    } else if (props.state === 'Failed') {
+      return {
+        progress: 100,
+        status: 'exception',
+        icon: Failed
       }
-    },
-    {
-      immediate: true
+    } else {
+      return {
+        progress: 0,
+        status: 'status'
+      }
     }
-  )
+  })
 </script>
 
 <template>
   <div>
     <a-progress
-      :percent="progress"
-      :status="status"
+      :percent="progressConfig.progress"
+      :status="progressConfig.status"
       :stroke-color="State[props.state]"
     >
       <template #format="percent">
-        <span v-if="['Pending', 'Processing'].includes(props.state)">
+        <span v-if="['Processing', 'Pending'].includes(props.state)">
           {{ percent }} %
         </span>
-        <component :is="icon" v-else :style="{ color: State[props.state] }" />
+        <component
+          :is="progressConfig.icon"
+          v-else-if="progressConfig.icon"
+          :style="{ color: State[props.state] }"
+        />
       </template>
     </a-progress>
   </div>

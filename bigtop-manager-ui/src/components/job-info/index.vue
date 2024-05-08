@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
   import { SettingOutlined } from '@ant-design/icons-vue'
-  import { ref, watch, computed, reactive, toRaw, shallowRef } from 'vue'
+  import { ref, watch, computed, reactive, toRaw } from 'vue'
   import { useClusterStore } from '@/store/cluster'
   import { PaginationConfig } from 'ant-design-vue/es/pagination/Pagination'
   import { storeToRefs } from 'pinia'
@@ -65,9 +65,9 @@
   const jobWindowOpened = ref(false)
   const stages = ref<StageVO[]>([])
   const tasks = ref<TaskVO[]>([])
-  const breadcrumbs = ref<string[]>(['Job Info'])
+  const breadcrumbs = ref<any[]>([{ name: 'Job Info' }])
   const currTaskInfo = ref<TaskVO>()
-  const jobs = shallowRef<JobVO[]>([])
+  const jobs = ref<JobVO[]>([])
   const intervalId = ref<Pausable | undefined>()
   const logTextOrigin = ref<string>('')
   const logsInfoRef = ref<HTMLElement | null>(null)
@@ -106,6 +106,12 @@
       getJobsList()
       intervalId.value?.resume()
     }
+  })
+
+  watch(jobs, (val) => {
+    const len = breadcrumbs.value.length
+    const idxId = breadcrumbs.value[len - 1].id
+    stages.value = val.find((v: JobVO) => v.id == idxId)?.stages || []
   })
 
   intervalId.value = useIntervalFn(
@@ -185,19 +191,19 @@
   }
 
   const clickTask = (record: TaskVO) => {
-    breadcrumbs.value.push(record.name)
+    breadcrumbs.value.push(record)
     currTaskInfo.value = record
     getLogsInfo(record.id)
   }
 
   const clickJob = (record: JobVO) => {
     stages.value = record.stages
-    breadcrumbs.value.push(record.name)
+    breadcrumbs.value.push(record)
   }
 
   const clickStage = (record: StageVO) => {
     tasks.value = record.tasks
-    breadcrumbs.value.push(record.name)
+    breadcrumbs.value.push(record)
   }
 
   const clickBreadCrumbs = (idx: number) => {
@@ -254,7 +260,7 @@
           :key="idx"
           @click="clickBreadCrumbs(idx)"
         >
-          <a href="#">{{ item }}</a>
+          <a href="#">{{ item.name }}</a>
         </a-breadcrumb-item>
       </a-breadcrumb>
     </div>
@@ -357,6 +363,7 @@
       border-radius: 4px;
       position: relative;
       pre {
+        height: 100%;
         margin: 0;
         padding: 16px 14px;
         box-sizing: border-box;
