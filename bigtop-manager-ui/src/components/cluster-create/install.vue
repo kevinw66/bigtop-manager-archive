@@ -25,6 +25,9 @@
   import { onBeforeMount, onBeforeUnmount, reactive, ref } from 'vue'
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
+  import CustomProgress from '@/components/job-info/custom-progress.vue'
+  import Job from '@/components/job-info/job.vue'
+  import { JobVO, StageVO } from '@/api/job/types'
 
   const clusterInfo = defineModel<any>('clusterInfo')
   const disableButton = defineModel<boolean>('disableButton')
@@ -33,77 +36,44 @@
   const { clusterId } = storeToRefs(clusterStore)
 
   const { t } = useI18n()
-  const installData = reactive([])
   const loading = ref(true)
-  const jobState = ref('')
-
-  const initData = async () => {
-    const res = await getJob(clusterInfo.value.jobId, clusterId.value)
-    console.log(res)
-    jobState.value = res.state
-
-    if (jobState.value !== 'Pending' && jobState.value !== 'Processing') {
-      disableButton.value = false
-      clusterInfo.value.success = jobState.value === 'Successful'
-    }
-
-    const arr: any[] = []
-    res.stages
-      .sort((a, b) => a.order - b.order)
-      .forEach((stage) => {
-        const data = {
-          key: stage.id,
-          stage: stage.name,
-          progress: 0,
-          status: '',
-          color: ''
-        }
-
-        if (stage.state === 'Pending') {
-          data.progress = 0
-          data.status = 'normal'
-          data.color = '#1677ff'
-        } else if (stage.state === 'Processing') {
-          data.progress = Math.round(
-            ((stage.tasks.filter((task) => task.state === 'Successful').length +
-              1) /
-              stage.tasks.length) *
-              100
-          )
-          data.status = 'active'
-          data.color = '#1677ff'
-        } else if (stage.state === 'Successful') {
-          data.progress = 100
-          data.status = 'success'
-          data.color = '#52c41a'
-        } else if (stage.state === 'Canceled') {
-          data.progress = 0
-          data.status = 'normal'
-          data.color = '#8c908b'
-        } else {
-          data.progress = 100
-          data.status = 'exception'
-          data.color = '#ff4d4f'
-        }
-
-        arr.push(data)
-      })
-
-    return arr
-  }
+  const jobWindowOpened = ref(false)
+  const jobState = ref<string>('')
+  const jobs = ref<JobVO[]>([])
+  const currStage = ref<StageVO>()
+  const installData = reactive([])
 
   const installColumns = [
     {
       title: t('common.stage'),
-      dataIndex: 'stage',
+      dataIndex: 'name',
       align: 'center'
     },
     {
       title: t('common.progress'),
-      dataIndex: 'progress',
+      dataIndex: 'state',
       align: 'center'
     }
   ]
+
+  const initData = async () => {
+    const res = await getJob(clusterInfo.value.jobId, clusterId.value)
+    // const res: any = await getFetch()
+    jobs.value = [res] as any
+    // console.log(res)
+    jobState.value = res.state
+
+    if (!['Pending', 'Processing'].includes(jobState.value)) {
+      disableButton.value = false
+      clusterInfo.value.success = jobState.value === 'Successful'
+    }
+    return res.stages.sort((a: StageVO, b: StageVO) => a.order - b.order)
+  }
+
+  const clickStage = (record: StageVO) => {
+    jobWindowOpened.value = true
+    currStage.value = record
+  }
 
   onBeforeMount(async () => {
     disableButton.value = true
@@ -111,7 +81,7 @@
       async () => {
         Object.assign(installData, await initData())
         loading.value = false
-        if (jobState.value !== 'Pending' && jobState.value !== 'Processing') {
+        if (!['Pending', 'Processing'].includes(jobState.value)) {
           pause()
         }
       },
@@ -143,16 +113,25 @@
       :data-source="installData"
       :loading="loading"
     >
-      <template #bodyCell="{ record, column }">
-        <a-progress
-          v-if="column.dataIndex === 'progress'"
-          class="progress"
-          :percent="record.progress"
-          :status="record.status"
-          :stroke-color="record.color"
-        />
+      <template #bodyCell="{ column, text, record }">
+        <template v-if="column.dataIndex === 'name'">
+          <a @click="clickStage(record)">
+            {{ text }}
+          </a>
+        </template>
+        <template v-if="column.dataIndex === 'state'">
+          <custom-progress
+            :key="record.id"
+            :state="text"
+            :progress-data="record.tasks"
+          />
+        </template>
       </template>
     </a-table>
+    <job
+      v-model:visible="jobWindowOpened"
+      :outer-data="{ meta: jobs, currItem: currStage }"
+    />
   </div>
 </template>
 

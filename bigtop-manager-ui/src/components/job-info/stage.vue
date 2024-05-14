@@ -19,7 +19,7 @@
 
 <script lang="ts" setup>
   import { StageVO } from '@/api/job/types.ts'
-  import { ref, reactive, watch } from 'vue'
+  import { ref, reactive, watch, computed } from 'vue'
   import { PaginationConfig } from 'ant-design-vue/es/pagination/Pagination'
   import CustomProgress from './custom-progress.vue'
 
@@ -29,13 +29,19 @@
   }
 
   const props = withDefaults(defineProps<StageProps>(), {})
-
-  const pagedList = ref<StageVO[]>([])
+  const loading = ref(false)
+  const pagedList = computed(() => {
+    return props.stages
+  })
 
   watch(
     () => props.stages,
     (val) => {
-      pagedList.value = val || []
+      if (val.length == 0) {
+        loading.value = true
+      } else {
+        loading.value = false
+      }
     },
     {
       immediate: true,
@@ -74,6 +80,7 @@
       :pagination="paginationProps"
       :data-source="pagedList"
       :columns="props.columns"
+      :loading="loading"
       :scroll="{ y: 500 }"
     >
       <template #headerCell="{ column }">

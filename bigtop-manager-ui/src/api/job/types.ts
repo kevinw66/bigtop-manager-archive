@@ -55,3 +55,8 @@ export interface Pagination {
   sort?: 'asc' | 'desc'
   orderBy?: string
 }
+
+export interface OuterData {
+  meta: JobVO[]
+  currItem: StageVO | TaskVO | undefined
+}
