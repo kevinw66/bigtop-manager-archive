@@ -55,5 +55,8 @@ export default {
   websocket_disconnected: 'WebSocket disconnected, please reload the page',
   create_time: 'Create Time',
   update_time: 'Update Time',
-  notification: 'Notification'
+  notification: 'Notification',
+  copy: 'copy',
+  copy_success: 'Copy success!',
+  copy_fail: 'Copy failed!'
 }

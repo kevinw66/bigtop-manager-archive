@@ -55,5 +55,8 @@ export default {
   websocket_disconnected: 'WebSocket 连接异常断开，请重新加载页面',
   create_time: '创建时间',
   update_time: '更新时间',
-  notification: '通知'
+  notification: '通知',
+  copy: '复制',
+  copy_success: '复制成功',
+  copy_fail: '复制失败'
 }

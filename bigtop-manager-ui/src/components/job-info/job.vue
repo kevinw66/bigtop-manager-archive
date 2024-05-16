@@ -22,7 +22,6 @@
   import { useClusterStore } from '@/store/cluster'
   import { PaginationConfig } from 'ant-design-vue/es/pagination/Pagination'
   import { storeToRefs } from 'pinia'
-  import ClipboardJS from 'clipboard'
   import { message } from 'ant-design-vue'
   import {
     JobVO,
@@ -39,6 +38,9 @@
   import CustomProgress from './custom-progress.vue'
   import Stage from './stage.vue'
   import Task from './task.vue'
+  import { copyText } from '@/utils/tools'
+  import { useI18n } from 'vue-i18n'
+  const { t } = useI18n()
 
   const columns = [
     {
@@ -206,22 +208,15 @@
     })
   }
 
-  const copyLogTextContent = () => {
-    const clipboard = new ClipboardJS('.copyBtn', {
-      text: () => logText.value
-    })
-    if (!logText.value) {
-      console.error('No text to copy')
-      return
-    }
-    clipboard.on('success', () => {
-      message.success('Copy success!')
-      clipboard.destroy()
-    })
-    clipboard.on('error', () => {
-      message.success('Copy failed!')
-      clipboard.destroy()
-    })
+  const copyLogTextContent = (text: string) => {
+    copyText(text)
+      .then(() => {
+        message.success(`${t('common.copy_success')}`)
+      })
+      .catch((err: Error) => {
+        message.error(`${t('common.copy_fail')}`)
+        console.log('err :>> ', err)
+      })
   }
 
   const clickTask = (record: TaskVO) => {
@@ -344,12 +339,11 @@
           <span>Task Logs</span>
           <div class="logs_header-ops">
             <a-button
-              class="copyBtn"
               size="small"
               type="primary"
-              @click="copyLogTextContent"
+              @click="copyLogTextContent(logText)"
             >
-              copy
+              {{ $t('commom.copy') }}
             </a-button>
           </div>
         </div>
