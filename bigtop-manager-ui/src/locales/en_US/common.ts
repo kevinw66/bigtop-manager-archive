@@ -56,7 +56,7 @@ export default {
   create_time: 'Create Time',
   update_time: 'Update Time',
   notification: 'Notification',
-  copy: 'copy',
+  copy: 'Copy',
   copy_success: 'Copy success!',
   copy_fail: 'Copy failed!'
 }

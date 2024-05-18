@@ -26,6 +26,7 @@
   import { useClusterStore } from '@/store/cluster'
   import { storeToRefs } from 'pinia'
   import { JobVO, StageVO } from '@/api/job/types'
+  import CustomProgress from '@/components/job-info/custom-progress.vue'
   import Job from '@/components/job-info/job.vue'
 
   const serviceInfo = defineModel<any>('serviceInfo')

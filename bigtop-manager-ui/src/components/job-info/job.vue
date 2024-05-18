@@ -21,6 +21,7 @@
   import { ref, watch, computed, reactive, toRaw, toRefs } from 'vue'
   import { useClusterStore } from '@/store/cluster'
   import { PaginationConfig } from 'ant-design-vue/es/pagination/Pagination'
+  import { CopyOutlined } from '@ant-design/icons-vue'
   import { storeToRefs } from 'pinia'
   import { message } from 'ant-design-vue'
   import {
@@ -30,7 +31,7 @@
     OuterData,
     Pagination
   } from '@/api/job/types.ts'
-  import { getLogs } from '@/api/sse/index'
+  import { getLogs } from '@/api/sse'
   import { getJobs } from '@/api/job'
   import { Pausable, useIntervalFn } from '@vueuse/core'
   import { AxiosProgressEvent } from 'axios'
@@ -339,11 +340,14 @@
           <span>Task Logs</span>
           <div class="logs_header-ops">
             <a-button
+              type="link"
               size="small"
-              type="primary"
               @click="copyLogTextContent(logText)"
             >
-              {{ $t('commom.copy') }}
+              <template #icon>
+                <copy-outlined />
+              </template>
+              <span class="copy-button">{{ $t('common.copy') }}</span>
             </a-button>
           </div>
         </div>
@@ -371,6 +375,10 @@
       margin: 0 0 10px 0;
       display: flex;
       justify-content: space-between;
+
+      .copy-button {
+        margin-left: 3px;
+      }
     }
     &_info {
       height: 100%;
