@@ -50,11 +50,6 @@ Run the setup command, you will get `bigtop-manager/develop:trunk-rocky-8` image
 ```
 ### **Step 6**: Insert data to Database
 Copy SQL on `dev-support/example/bigtop_manager/user.sql` and run on mysql database `bigtop_manager` which is installed in container bigtop-manager-server.
-
-**RHEL (Rocky 8) :**
-```shell
-./distribute-scripts.sh
-```
 ### **Step 7**: Access Web UI
 Now you can access Web UI which exposes on `http://localhost:8080`. Log in with username `admin` and password `admin`.
 ### **Step 8**: Clear cluster
