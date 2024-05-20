@@ -11,8 +11,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-## Build and install Bigtop-Manager by dev-support
+## Build and install Bigtop Manager by dev-support
 Dev support is used to quickly develop and test bigtop-manager, which runs on the docker containers.
+Following steps are based on RockyLinux-8.
 
 ### **Step 1**: Install build tools: Git、Docker
 The scripts require docker to be installed, since the compile process will run in a docker container and Bigtop-Manager cluster also deploys on containers.
@@ -21,11 +22,11 @@ The scripts require docker to be installed, since the compile process will run i
 ```shell
 yum install -y git docker
 ```
-### **Step 2**: Download Bigtop-Manager source
+### **Step 2**: Download Bigtop Manager source
 ```shell
 git clone https://github.com/kevinw66/bigtop-manager.git
 ```
-> You need to change the `node.version` in the `pom.xml` file under the `bigtop-manager-ui` module to `16.x`
+> You need to change the `node.version` in the `pom.xml` file under the `bigtop-manager-ui` module to `16.x` if you are using CentOS-7.
 
 ### **Step 3**: Enter workspace
 **RHEL (Rocky 8) :**
@@ -39,35 +40,27 @@ Run the setup command, you will get `bigtop-manager/develop:trunk-rocky-8` image
 ```shell
 ./build-image.sh
 ```
-### **Step 5**: Build Bigtop-Manager source & create Bigtop-Manager cluster
-* The first compilation will take about 1 hour to download resources, and the next compilation will directly use the maven cache.
-* Bigtop-Manager UI、Bigtop-Manager Server Debug Port、MariaDB Server are also exposed to local ports: 8080、5005、3306.
-* Docker host names are: bigtop-manager-server、bigtop-manager-agent-01、bigtop-manager-agent-02.
-* Access admin page via http://localhost:8080 on your web browser. Log in with username `admin` and password `admin`.
-* Extra configurations are in `build-containers.sh` last few lines, eg. Kerberos Configuration、Hive DB Configuration.
+### **Step 5**: Build source & create cluster
+* Bigtop Manager UI、Bigtop Manager Server Debug Port、MariaDB Server are also exposed to local ports: 8080、5005、3306.
+* Docker hostnames are: bigtop-manager-server、bigtop-manager-agent-01、bigtop-manager-agent-02.
 
 **RHEL (Rocky 8) :**
 ```shell
 ./build-containers.sh
 ```
-### **Step 6**: Redistribution stack
-Re-distribute stack scripts without re-create clusters.
+### **Step 6**: Insert data to Database
+Copy SQL on `dev-support/example/bigtop_manager/user.sql` and run on mysql database `bigtop_manager` which is installed in container bigtop-manager-server.
 
 **RHEL (Rocky 8) :**
 ```shell
 ./distribute-scripts.sh
 ```
-### **Step 7**: Clean Bigtop-Manager cluster
-Clean up the containers of Bigtop-Manager cluster when you are done developing or testing.
+### **Step 7**: Access Web UI
+Now you can access Web UI which exposes on `http://localhost:8080`. Log in with username `admin` and password `admin`.
+### **Step 8**: Clear cluster
+Clean up the containers when you are done developing or testing.
 
 **RHEL (Rocky 8) :**
 ```shell
 ./clear-containers.sh
-```
-### Step 8: Clean up the build environment
-**Note :** This operation will completely delete maven cache.
-
-**RHEL (Rocky 8) :**
-```shell
-docker rm -f bigtop-manager-build
 ```
