@@ -55,7 +55,7 @@
         props.progressData.filter((v: ProgressItem) => v.state === 'Successful')
           .length + 1
       return {
-        progress: (proportion / props.progressData.length) * 100,
+        progress: Math.round((proportion / props.progressData.length) * 100),
         status: 'active'
       }
     } else if (props.state === 'Canceled') {
